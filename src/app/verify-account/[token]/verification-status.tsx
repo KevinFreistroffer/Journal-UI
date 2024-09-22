@@ -13,9 +13,12 @@ export default function VerificationStatus({ token }: { token: string }) {
   useEffect(() => {
     const verifyAccount = async () => {
       try {
-        const response = await fetch(`/api/verify?token=${token}`, {
-          method: "POST",
-        });
+        const response = await fetch(
+          `http://localhost:3001/auth/verify-account/${token}`,
+          {
+            method: "GET",
+          }
+        );
 
         if (response.ok) {
           setStatus("success");

@@ -9,6 +9,8 @@ export default function VerifyAccountPage({
 }) {
   const { token } = params;
 
+  console.log(token);
+
   if (!token) {
     notFound();
   }
