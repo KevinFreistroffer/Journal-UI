@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { withAuth } from "@/components/ui/withAuth";
 
 type Journal = {
   id: number;
@@ -26,7 +27,7 @@ type Category = {
   name: string;
 };
 
-export default function DashboardPage() {
+function DashboardPage() {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: "My Journals" },
@@ -185,3 +186,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default withAuth(DashboardPage);
