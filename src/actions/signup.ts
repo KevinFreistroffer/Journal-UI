@@ -3,7 +3,8 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { State, SignUpFunction } from "../app/signup/types";
-
+// Import the crypto module
+import bcrypt from "bcryptjs";
 // Define a schema for input validation
 const SignUpSchema = z
   .object({
@@ -37,8 +38,13 @@ export const signUp: SignUpFunction = async (
     };
   }
 
+  if (!process.env.SECRET_KEY) {
+    return {
+      message: "Server Error. Please try again later.",
+    };
+  }
+
   const { username, email, password } = validatedFields.data;
-  console.log(username, email, password);
 
   try {
     // Send data to Node.js server

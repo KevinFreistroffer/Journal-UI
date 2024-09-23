@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { signUp } from "../../actions/signup";
+import { signUp } from "@/actions/signup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
