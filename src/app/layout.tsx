@@ -28,7 +28,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const authState = await verifySession();
-  console.log("authState", authState);
+  console.log("ROOT LAYOUT authState", authState);
   return (
     <html lang="en">
       <body
