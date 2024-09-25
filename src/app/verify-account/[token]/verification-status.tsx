@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function VerificationStatus({ token }: { token: string }) {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -19,7 +20,6 @@ export default function VerificationStatus({ token }: { token: string }) {
             method: "GET",
           }
         );
-        
 
         if (response.ok) {
           setStatus("success");
@@ -53,7 +53,7 @@ export default function VerificationStatus({ token }: { token: string }) {
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
           <p className="text-lg font-semibold text-green-600">{message}</p>
           <Button asChild className="mt-4">
-            <a href="/login">Go to Login</a>
+            <Link href="/login">Go to Login</Link>
           </Button>
         </div>
       )}
@@ -62,7 +62,7 @@ export default function VerificationStatus({ token }: { token: string }) {
           <XCircle className="w-16 h-16 text-red-500 mx-auto" />
           <p className="text-lg font-semibold text-red-600">{message}</p>
           <Button asChild className="mt-4">
-            <a href="/signup">Back to Sign Up</a>
+            <Link href="/signup">Back to Sign Up</Link>
           </Button>
         </div>
       )}

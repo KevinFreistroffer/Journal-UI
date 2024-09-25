@@ -9,7 +9,7 @@ const publicRoutes = ["/login", "/signup", "/"];
 export async function middleware(request: NextRequest) {
   console.log("middleware");
   const path = request.nextUrl.pathname;
-
+  console.log("middleware path", path);
   const isProtectedRoute = protectedRoutes.includes(path);
   const isPublicRoute = publicRoutes.includes(path);
   const cookie = cookies().get("client_session")?.value;
@@ -21,7 +21,8 @@ export async function middleware(request: NextRequest) {
     console.log("middleware decrypt session", session);
   }
 
-  if ((isProtectedRoute && !session) || !session?.userId) {
+  if (isProtectedRoute && !session?.userId) {
+    console.log("Middle line 25 Redirecting to login from protected route");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -40,7 +41,7 @@ export async function middleware(request: NextRequest) {
     session.userId &&
     !request.nextUrl.pathname.startsWith("/dashboard")
   ) {
-    console.log("middleware redirecting to dashboard");
+    console.log("middleware line 45 redirecting to dashboard");
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

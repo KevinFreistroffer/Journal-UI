@@ -10,7 +10,7 @@ async function DashboardPage() {
   if (userId) {
     return <UserDashboard />;
   } else {
-    console.log("redirecting to login");
+    console.log("DashboardPage line 13 redirecting to login");
     redirect("/login");
   }
 }

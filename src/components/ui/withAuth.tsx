@@ -9,6 +9,7 @@ export function withAuth(WrappedComponent: React.ComponentType) {
 
     useEffect(() => {
       if (!isLoading && !isAuthenticated) {
+        console.log("redirecting to login");
         router.replace("/login"); // Redirect to login page
       }
     }, [isAuthenticated, isLoading, router]);

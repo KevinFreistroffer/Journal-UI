@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -14,24 +13,11 @@ const menuItems = [
   { href: "/dashboard", label: "Dashboard" },
 ];
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const isAuthenticated = req.headers["x-is-authenticated"] === "true";
-  // Or if using a cookie:
-  // const isAuthenticated = req.cookies.isAuthenticated === 'true';
-
-  return {
-    props: {
-      isAuthenticated,
-    },
-  };
-};
-
 export default function Header({
-  isAuthenticated,
+  authState,
 }: {
-  isAuthenticated: boolean;
+  authState: { isAuth: boolean; userId: string | null };
 }) {
-  console.log("isAuthenticated", isAuthenticated);
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -57,6 +43,14 @@ export default function Header({
               {item.label}
             </Link>
           ))}
+          {authState.isAuth && (
+            <Link
+              href="/api/signout"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Sign Out
+            </Link>
+          )}
         </nav>
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
@@ -90,6 +84,15 @@ export default function Header({
                     {item.label}
                   </Link>
                 ))}
+                {true && (
+                  <Link
+                    href="/api/signout"
+                    className="text-foreground/60 transition-colors hover:text-foreground"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Sign Out
+                  </Link>
+                )}
               </nav>
             </div>
           </SheetContent>
