@@ -15,7 +15,6 @@ export async function encrypt(payload: { userId: string; expiresAt: Date }) {
 }
 
 export async function decrypt(session: string | undefined = "") {
-  console.log("decrypt", session);
   try {
     if (session) {
       const { payload } = await jwtVerify(session, encodedKey, {
@@ -23,13 +22,10 @@ export async function decrypt(session: string | undefined = "") {
       });
       return payload;
     }
-  } catch (error: unknown) {
-    console.log("Failed to verify session", error);
-  }
+  } catch (error: unknown) {}
 }
 
 export async function createSession(userId: string) {
-  console.log("createSession", userId);
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ userId, expiresAt });
 

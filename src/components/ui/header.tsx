@@ -19,7 +19,6 @@ export default function Header({
         { href: "/signup", label: "Sign Up" },
         { href: "/login", label: "Login" },
       ];
-  console.log("HEADER authState", authState);
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="p-8 flex h-14 items-center justify-between w-full">

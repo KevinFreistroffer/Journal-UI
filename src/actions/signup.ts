@@ -76,8 +76,6 @@ export const signUp: SignUpFunction = async (
 
     const user = body.data;
 
-    console.log("user", user);
-
     await createSession(user._id);
 
     // Set a cookie to simulate user session

@@ -16,7 +16,6 @@ export const login: LoginFunction = async (
   prevState: State,
   formData: FormData
 ) => {
-  console.log("formData", formData);
   // Validate form data
   const validatedFields = LoginSchema.safeParse({
     usernameOrEmail: formData.get("usernameOrEmail"),
@@ -37,8 +36,6 @@ export const login: LoginFunction = async (
   const { usernameOrEmail, password, staySignedIn } = validatedFields.data;
 
   try {
-    console.log("sending data to server");
-
     const response = await fetch("http://localhost:3001/user/login", {
       method: "POST",
       headers: {
@@ -60,7 +57,6 @@ export const login: LoginFunction = async (
     }
 
     const data = await response.json();
-    console.log("data", data);
     const userDataResult = UserSchema.safeParse(data.data);
 
     if (!userDataResult.success) {
@@ -89,8 +85,6 @@ export const login: LoginFunction = async (
       // Parse the Set-Cookie header and set it in the client-side cookies
       const cookieValue = setCookieHeader.split(";")[0];
       const [cookieName, cookieVal] = cookieValue.split("=");
-      console.log("cookieName", cookieName);
-      console.log("cookieVal", cookieVal);
       cookies().set(cookieName, cookieVal, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

@@ -7,9 +7,7 @@ const protectedRoutes = ["/dashboard"];
 const publicRoutes = ["/login", "/signup", "/"];
 
 export async function middleware(request: NextRequest) {
-  console.log("middleware");
   const path = request.nextUrl.pathname;
-  console.log("middleware path", path);
   const isProtectedRoute = protectedRoutes.includes(path);
   const isPublicRoute = publicRoutes.includes(path);
   const cookie = cookies().get("client_session")?.value;
@@ -18,18 +16,12 @@ export async function middleware(request: NextRequest) {
   // const session = await decrypt(cookie);
   if (cookie) {
     session = await decrypt(cookie);
-    console.log("middleware decrypt session", session);
   }
 
   if (isProtectedRoute && !session?.userId) {
-    console.log("Middle line 25 Redirecting to login from protected route");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  console.log("middleware path", path);
-  console.log("isPublicRoute", isPublicRoute);
-  console.log("session", session);
-  console.log("session.userId", session?.userId);
   console.log(
     "!request.nextUrl.pathname.startsWith(/dashboard)",
     !request.nextUrl.pathname.startsWith("/dashboard")
@@ -41,7 +33,6 @@ export async function middleware(request: NextRequest) {
     session.userId &&
     !request.nextUrl.pathname.startsWith("/dashboard")
   ) {
-    console.log("middleware line 45 redirecting to dashboard");
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -54,19 +45,19 @@ export const config = {
 };
 
 // async function checkAuth(request: NextRequest): Promise<boolean> {
-//   console.log("checkAuth");
+//   ;
 //   // Implement your auth check here
 //   // This could involve checking for a session cookie, JWT in headers, etc.
 //   // Return true if authenticated, false otherwise
 
 //   try {
 //     // Get the authentication token from the request headers or cookies
-//     console.log(request.cookies);
+//     ;
 //     const token =
 //       request.headers.get("Authorization") ||
 //       request.cookies.get("session_token")?.value;
 
-//     console.log("token", token);
+//     ;
 
 //     if (!token) {
 //       return false;
@@ -81,13 +72,13 @@ export const config = {
 //       },
 //     });
 
-//     console.log("response", response.ok);
+//     ;
 
 //     if (response.ok) {
-//       console.log("authenticated!!!!!!!!!!!!!!!");
+//       ;
 //       return true;
 //     } else {
-//       console.log("not authenticated!!!!!!!!!!!!!!!");
+//       ;
 //       return false;
 //     }
 //   } catch (error) {

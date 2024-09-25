@@ -18,7 +18,6 @@ export default function LoginPage() {
   const router = useRouter();
   useEffect(() => {
     if (state && "redirect" in state) {
-      console.log("redirect", state.redirect);
       router.push(state.redirect as string);
     }
   }, [state, router]);
