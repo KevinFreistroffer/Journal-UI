@@ -4,14 +4,14 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { State, LoginFunction } from "../app/login/types";
 import { UserSchema } from "../schemas/UserSchema";
-
-// Define a schema for input validation
+import { createSession } from "../lib/session";
 const LoginSchema = z.object({
   usernameOrEmail: z.string(),
   password: z.string(),
   staySignedIn: z.boolean().optional(),
 });
 
+// @ts-expect-error - FIX
 export const login: LoginFunction = async (
   prevState: State,
   formData: FormData
@@ -52,8 +52,6 @@ export const login: LoginFunction = async (
       }),
     });
 
-    console.log("response", response);
-
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -81,6 +79,28 @@ export const login: LoginFunction = async (
       };
     }
 
+    // Create a session using the user's _id
+    await createSession(userData._id);
+
+    // Get the Set-Cookie header from the response
+    const setCookieHeader = response.headers.get("Set-Cookie");
+
+    if (setCookieHeader) {
+      // Parse the Set-Cookie header and set it in the client-side cookies
+      const cookieValue = setCookieHeader.split(";")[0];
+      const [cookieName, cookieVal] = cookieValue.split("=");
+      console.log("cookieName", cookieName);
+      console.log("cookieVal", cookieVal);
+      cookies().set(cookieName, cookieVal, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        path: "/",
+      });
+    } else {
+      console.warn("No Set-Cookie header found in the response");
+    }
+
     // Set a cookie to simulate user session
     cookies().set(
       "user",
@@ -94,9 +114,7 @@ export const login: LoginFunction = async (
     );
 
     return {
-      ...prevState,
-      errors: {},
-      message: "Logged in successfully.",
+      redirect: "/dashboard",
     };
   } catch (error) {
     console.error(error);

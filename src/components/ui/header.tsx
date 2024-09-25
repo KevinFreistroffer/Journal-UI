@@ -14,7 +14,24 @@ const menuItems = [
   { href: "/dashboard", label: "Dashboard" },
 ];
 
-export default function Header() {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const isAuthenticated = req.headers["x-is-authenticated"] === "true";
+  // Or if using a cookie:
+  // const isAuthenticated = req.cookies.isAuthenticated === 'true';
+
+  return {
+    props: {
+      isAuthenticated,
+    },
+  };
+};
+
+export default function Header({
+  isAuthenticated,
+}: {
+  isAuthenticated: boolean;
+}) {
+  console.log("isAuthenticated", isAuthenticated);
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 

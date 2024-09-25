@@ -1,11 +1,9 @@
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth"; // Adjust this import based on your auth setup
 
 export function withAuth(WrappedComponent: React.ComponentType) {
-  // @ts-expect-error - Not sure what the props passed in is
-  return function WithAuth(props: any) {
-    console.log("WithAuth", props);
+  return function WithAuth() {
     const router = useRouter();
     const { isAuthenticated, isLoading } = useAuth(); // Implement this hook based on your auth method
 
@@ -23,6 +21,6 @@ export function withAuth(WrappedComponent: React.ComponentType) {
       return null; // Don't render anything while redirecting
     }
 
-    return <WrappedComponent {...props} />;
+    return <WrappedComponent />;
   };
 }

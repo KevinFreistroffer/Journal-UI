@@ -19,6 +19,7 @@ export default function VerificationStatus({ token }: { token: string }) {
             method: "GET",
           }
         );
+        
 
         if (response.ok) {
           setStatus("success");

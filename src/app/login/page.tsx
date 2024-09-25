@@ -2,8 +2,11 @@
 
 import { useFormState } from "react-dom";
 import { login } from "@/actions/login";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { State } from "./types";
 import Link from "next/link";
+import { FormButton } from "@/components/ui/formButton";
 
 const initialState: State = {
   message: "",
@@ -12,6 +15,13 @@ const initialState: State = {
 
 export default function LoginPage() {
   const [state, formAction] = useFormState(login, initialState);
+  const router = useRouter();
+  useEffect(() => {
+    if (state && "redirect" in state) {
+      console.log("redirect", state.redirect);
+      router.push(state.redirect as string);
+    }
+  }, [state, router]);
 
   return (
     <>
@@ -68,12 +78,13 @@ export default function LoginPage() {
                 Stay signed in
               </label>
             </div>
-            <button
+
+            <FormButton
               type="submit"
               className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
             >
               Log In
-            </button>
+            </FormButton>
           </form>
           {state.message && (
             <p

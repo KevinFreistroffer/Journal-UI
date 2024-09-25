@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { State, SignUpFunction } from "../app/signup/types";
+import { createSession } from "../lib/session";
+import { has } from "lodash";
 // Import the crypto module
-import bcrypt from "bcryptjs";
 // Define a schema for input validation
 const SignUpSchema = z
   .object({
@@ -18,6 +19,7 @@ const SignUpSchema = z
     path: ["confirmPassword"],
   });
 
+// @ts-expect-error - FIX
 export const signUp: SignUpFunction = async (
   prevState: State,
   formData: FormData
@@ -38,7 +40,7 @@ export const signUp: SignUpFunction = async (
     };
   }
 
-  if (!process.env.SECRET_KEY) {
+  if (!process.env.SESSION_SECRET) {
     return {
       message: "Server Error. Please try again later.",
     };
@@ -58,8 +60,6 @@ export const signUp: SignUpFunction = async (
       body: JSON.stringify({ username, email, password }),
     });
 
-    console.log("response.ok", response.ok);
-
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -67,16 +67,26 @@ export const signUp: SignUpFunction = async (
       };
     }
 
-    const data = await response.json();
-    console.log(data);
+    const body = await response.json();
+    if (!has(body, "data")) {
+      return {
+        message: "Failed to create account.",
+      };
+    }
+
+    const user = body.data;
+
+    console.log("user", user);
+
+    await createSession(user._id);
 
     // Set a cookie to simulate user session
-    cookies().set("user", JSON.stringify({ username, email }), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/",
-    });
+    // cookies().set("user", JSON.stringify({ username, email }), {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   maxAge: 60 * 60 * 24 * 7, // 1 week
+    //   path: "/",
+    // });
 
     //   return { message: "Account created successfully." };
     // } catch (error) {
