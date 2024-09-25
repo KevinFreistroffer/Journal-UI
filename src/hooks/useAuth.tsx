@@ -1,89 +1,41 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  createContext,
-  useContext,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { IUser } from "@/lib/interfaces";
+import { verifySession } from "@/lib/dal";
 
 interface AuthContextType {
-  isAuthenticated: boolean;
+  user: IUser | null;
+  setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
+  user: null,
+  setUser: () => {},
   isLoading: true,
-  login: async () => {},
-  logout: () => {},
+  setIsLoading: () => {},
 });
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if the user is authenticated on mount
-    checkAuthStatus();
+    (async () => {
+      const session = await verifySession();
+      console.log("AuthProvider session", session);
+      setUser(session?.user);
+      setIsLoading(false);
+    })();
   }, []);
 
-  const checkAuthStatus = async () => {
-    try {
-      // Replace this with your actual authentication check
-      // For example, validating a token in localStorage or making an API call
-      const token = localStorage.getItem("authToken");
-      setIsAuthenticated(!!token);
-    } catch (error) {
-      console.error("Auth check failed:", error);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Replace this with your actual login logic
-      // For example, making an API call to authenticate
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const { token } = await response.json();
-        localStorage.setItem("authToken", token);
-        setIsAuthenticated(true);
-      } else {
-        throw new Error("Login failed");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    setIsAuthenticated(false);
-  };
-
-  const value = {
-    isAuthenticated,
-    isLoading,
-    login,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

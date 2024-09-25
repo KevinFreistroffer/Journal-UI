@@ -1,6 +1,14 @@
 import Link from "next/link";
 
-export function SignOutButton() {
+export async function getServerSideProps() {
+  return {
+    props: {
+      user: null,
+    },
+  };
+}
+
+export async function SignOutButton() {
   return (
     <Link
       href="/api/auth/logout"

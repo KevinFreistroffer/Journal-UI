@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 
 type Journal = {
   id: number;
@@ -27,6 +28,7 @@ type Category = {
 };
 
 function UserDashboard() {
+  const { user, isLoading } = useAuth();
   const [journals, setJournals] = useState<Journal[]>([]);
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: "My Journals" },
@@ -61,6 +63,44 @@ function UserDashboard() {
       setNewCategory("");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6 animate-pulse"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-20 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+          </div>
+          <div className="space-y-4">
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+          </div>
+        </div>
+        <div className="mt-8">
+          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="h-24 bg-gray-200 rounded animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-8">
+          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="h-32 bg-gray-200 rounded animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">

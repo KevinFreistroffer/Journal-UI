@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { State, LoginFunction } from "../app/login/types";
 import { UserSchema } from "../schemas/UserSchema";
 import { createSession } from "../lib/session";
+import { IUser } from "../lib/interfaces";
+
 const LoginSchema = z.object({
   usernameOrEmail: z.string(),
   password: z.string(),
@@ -66,8 +68,8 @@ export const login: LoginFunction = async (
       };
     }
 
-    const userData = userDataResult.data;
-
+    const userData = userDataResult.data as IUser;
+    console.log("userData", userData);
     if (!userData.isVerified) {
       return {
         message:
@@ -76,7 +78,7 @@ export const login: LoginFunction = async (
     }
 
     // Create a session using the user's _id
-    await createSession(userData._id);
+    await createSession(userData);
 
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
@@ -108,7 +110,10 @@ export const login: LoginFunction = async (
     );
 
     return {
+      errors: {},
+      message: "Login successful.",
       redirect: "/dashboard",
+      user: userData, // TODO: Not sure if this is the best way to do this.
     };
   } catch (error) {
     console.error(error);

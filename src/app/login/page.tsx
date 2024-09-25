@@ -7,20 +7,33 @@ import { useEffect } from "react";
 import { State } from "./types";
 import Link from "next/link";
 import { FormButton } from "@/components/ui/formButton";
+import { useAuth } from "@/hooks/useAuth";
 
 const initialState: State = {
   message: "",
   errors: {},
+  user: null,
+  redirect: null,
 };
 
 export default function LoginPage() {
   const [state, formAction] = useFormState(login, initialState);
+  const { setUser } = useAuth();
   const router = useRouter();
+
   useEffect(() => {
-    if (state && "redirect" in state) {
+    console.log("LoginPage state", state);
+    console.log("LoginPage setUser", setUser);
+    console.log("LoginPage state.user", state.user);
+    console.log("LoginPage state.redirect", state.redirect);
+    if (state.user) {
+      setUser(state.user);
+    }
+
+    if (state.redirect) {
       router.push(state.redirect as string);
     }
-  }, [state, router]);
+  }, [state, router, setUser]);
 
   return (
     <>

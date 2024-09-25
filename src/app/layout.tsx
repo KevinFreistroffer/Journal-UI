@@ -5,7 +5,6 @@ import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
 import Header from "@/components/ui/header";
 import { AuthProvider } from "@/hooks/useAuth";
-import { verifySession } from "@/lib/dal";
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -27,7 +26,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authState = await verifySession();
+
+  
+
   return (
     <html lang="en">
       <body
@@ -35,7 +36,7 @@ export default async function RootLayout({
       >
         <AuthProvider>
           <Theme>
-            <Header authState={authState} />
+            <Header />
             {children}
           </Theme>
         </AuthProvider>

@@ -10,10 +10,9 @@ import { IMenuItem } from "./header";
 
 interface MobileMenuProps {
   menuItems: IMenuItem[];
-  authState: { isAuth: boolean; userId: string | null };
 }
 
-export function MobileMenu({ menuItems, authState }: MobileMenuProps) {
+export function MobileMenu({ menuItems }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -50,15 +49,13 @@ export function MobileMenu({ menuItems, authState }: MobileMenuProps) {
                 {item.label}
               </Link>
             ))}
-            {authState.isAuth && (
-              <Link
-                href="/api/signout"
-                className="text-foreground/60 transition-colors hover:text-foreground"
-                onClick={() => setIsOpen(false)}
-              >
-                Sign Out
-              </Link>
-            )}
+            <Link
+              href="/api/signout"
+              className="text-foreground/60 transition-colors hover:text-foreground"
+              onClick={() => setIsOpen(false)}
+            >
+              Sign Out
+            </Link>
           </nav>
         </div>
       </SheetContent>

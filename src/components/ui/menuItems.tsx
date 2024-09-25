@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { useAuth } from "@/hooks/useAuth";
 interface MenuItem {
   href: string;
   label: string;
@@ -11,6 +11,8 @@ interface MenuItem {
 
 export function MenuItems({ menuItems }: { menuItems: MenuItem[] }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  console.log("Menu user ", user);
 
   return (
     <>
