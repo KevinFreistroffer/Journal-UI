@@ -12,7 +12,6 @@ interface MenuItem {
 export function MenuItems({ menuItems }: { menuItems: MenuItem[] }) {
   const pathname = usePathname();
   const { user } = useAuth();
-  console.log("Menu user ", user);
 
   return (
     <>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,42 +14,136 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useJournal } from "@/hooks/useJournal";
+import { IJournal } from "@/lib/interfaces";
+import { useRouter } from "next/router";
 
-type Journal = {
+interface Journal extends IJournal {
   id: number;
-  title: string;
-  entry: string;
-  category: string;
-};
+}
 
 type Category = {
   id: number;
   name: string;
+  selected: boolean;
 };
 
 function UserDashboard() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, setUser } = useAuth();
+  const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<Journal[]>([]);
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, name: "My Journals" },
-  ]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("My Journals");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "icons">("list");
+  const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
 
-  const handleCreateJournal = (e: React.FormEvent) => {
+  const renderSkeletonCard = () => (
+    <Card className="animate-pulse">
+      <CardHeader>
+        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+      </CardHeader>
+      <CardContent>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/4 mt-4"></div>
+      </CardContent>
+    </Card>
+  );
+
+  const handleJournalClick = (e: React.MouseEvent, journal: Journal) => {
+    e.preventDefault(); // Prevent the default link behavior
+    setSelectedJournal(journal);
+    router.push(`/journal/${journal.id}`);
+  };
+
+  useEffect(() => {
+    if (user && user.journals) {
+      const formattedJournals = user.journals.map((journal, index) => ({
+        id: index + 1,
+        title: journal.title,
+        entry: journal.entry,
+        category: journal.category || "My Journals",
+        date: journal.date,
+        selected: journal.selected,
+      }));
+      setJournals(formattedJournals);
+
+      // Extract unique categories from journals
+      const uniqueCategories = Array.from(
+        new Set(formattedJournals.map((j) => j.category))
+      );
+      const categoriesArray = uniqueCategories.map((cat, index) => ({
+        id: index + 1,
+        name: cat,
+        selected: false,
+      }));
+
+      // If there are no categories, add "My Journals"
+      if (categoriesArray.length === 0) {
+        categoriesArray.push({ id: 1, name: "My Journals", selected: false });
+      }
+
+      setCategories(categoriesArray);
+      setSelectedCategory(categoriesArray[0].name);
+    }
+  }, [user]);
+
+  const handleCreateJournal = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newJournal: Journal = {
-      id: journals.length + 1,
+    setIsSaving(true);
+    const newJournal = {
       title,
       entry,
-      category: selectedCategory,
+      category: selectedCategory || "My Journals",
     };
-    setJournals([...journals, newJournal]);
-    setTitle("");
-    setEntry("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:3001/user/journal/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...newJournal,
+            userId: user?._id,
+          }),
+        }
+      );
+
+
+      if (!response.ok) {
+        throw new Error("Failed to create journal");
+      }
+
+      const body = await response.json();
+      const userData = body.data;
+      setUser(userData);
+      setJournals(userData.journals);
+      if (userData.journalCategories && userData.journalCategories.length > 0) {
+        setCategories(
+          userData.journalCategories.map(
+            (cat: { category: string; selected: boolean }, index: number) => ({
+              id: index + 1,
+              name: cat.category,
+              selected: cat.selected,
+            })
+          )
+        );
+      }
+      setTitle("");
+      setEntry("");
+    } catch (error) {
+      console.error("Error creating journal:", error);
+      // Handle error (e.g., show error message to user)
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCreateCategory = (e: React.FormEvent) => {
@@ -58,6 +152,7 @@ function UserDashboard() {
       const newCat: Category = {
         id: categories.length + 1,
         name: newCategory,
+        selected: false,
       };
       setCategories([...categories, newCat]);
       setNewCategory("");
@@ -86,7 +181,10 @@ function UserDashboard() {
           <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {[...Array(4)].map((_, index) => (
-              <div key={index} className="h-24 bg-gray-200 rounded animate-pulse"></div>
+              <div
+                key={`loading-category-${index}`}
+                className="h-24 bg-gray-200 rounded animate-pulse"
+              ></div>
             ))}
           </div>
         </div>
@@ -94,7 +192,10 @@ function UserDashboard() {
           <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
           <div className="space-y-4">
             {[...Array(3)].map((_, index) => (
-              <div key={index} className="h-32 bg-gray-200 rounded animate-pulse"></div>
+              <div
+                key={`loading-journal-${index}`}
+                className="h-32 bg-gray-200 rounded animate-pulse"
+              ></div>
             ))}
           </div>
         </div>
@@ -137,16 +238,28 @@ function UserDashboard() {
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.name}>
-                      {cat.name}
+                <SelectContent className="bg-white">
+                  {categories.length > 0 ? (
+                    categories.map((cat, index) => (
+                      <SelectItem key={`category-${index}`} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>
+                      No categories available
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit">Create Journal</Button>
+            <Button
+              type="submit"
+              disabled={isSaving || !title || !entry}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              {isSaving ? "Saving..." : "Create Journal"}
+            </Button>
           </form>
         </div>
 
@@ -190,13 +303,15 @@ function UserDashboard() {
               : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
           }`}
         >
-          {categories.map((category) => (
-            <Card key={category.id}>
+          {categories.map((category, index) => (
+            <Card key={`category-card-${index}`}>
               <CardHeader>
                 <CardTitle>{category.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                {journals.filter((j) => j.category === category.name).length}{" "}
+                {journals?.length > 0
+                  ? journals.filter((j) => j.category === category.name).length
+                  : 0}{" "}
                 journals
               </CardContent>
             </Card>
@@ -207,19 +322,36 @@ function UserDashboard() {
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">Your Journals</h2>
         <div className="space-y-4">
-          {journals.map((journal) => (
-            <Card key={journal.id}>
-              <CardHeader>
-                <CardTitle>{journal.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>{journal.entry.substring(0, 100)}...</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Category: {journal.category}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {isLoading ? (
+            Array(3)
+              .fill(null)
+              .map((_, index) => <div key={index}>{renderSkeletonCard()}</div>)
+          ) : journals && journals.length > 0 ? (
+            journals.map((journal, index) => (
+              <div
+                key={`journal-${index}`}
+                onClick={(e) => handleJournalClick(e, journal)}
+              >
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
+                  <CardHeader>
+                    <CardTitle>{journal.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>
+                      {journal.entry
+                        ? journal.entry.substring(0, 100) + "..."
+                        : "No entry"}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Category: {journal.category}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            ))
+          ) : (
+            <p>No journals found</p>
+          )}
         </div>
       </div>
     </div>

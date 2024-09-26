@@ -20,7 +20,6 @@ export async function decrypt(session: string | undefined = "") {
       const { payload } = await jwtVerify(session, encodedKey, {
         algorithms: ["HS256"],
       });
-      console.log("decrypt payload", payload);
       return payload;
     }
   } catch (error: unknown) {
@@ -32,14 +31,15 @@ export async function decrypt(session: string | undefined = "") {
 export async function createSession(user: IUser) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ user, expiresAt });
-
+  console.log("createSession() creating session", session);
   cookies().set("client_session", session, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     expires: expiresAt,
     sameSite: "lax",
     path: "/",
   });
+  console.log("createSession() created session");
 }
 
 export async function updateSession() {

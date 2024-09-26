@@ -69,17 +69,17 @@ export const login: LoginFunction = async (
     }
 
     const userData = userDataResult.data as IUser;
-    console.log("userData", userData);
+
     if (!userData.isVerified) {
       return {
         message:
           "Login successful, but the account is not verified. Please check your email for verification.",
       };
     }
-
+    console.log("creating session");
     // Create a session using the user's _id
     await createSession(userData);
-
+    console.log("created session");
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
 
@@ -89,7 +89,7 @@ export const login: LoginFunction = async (
       const [cookieName, cookieVal] = cookieValue.split("=");
       cookies().set(cookieName, cookieVal, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production", // TODO: Check this
         maxAge: 60 * 60 * 24 * 7, // 1 week
         path: "/",
       });
@@ -97,18 +97,20 @@ export const login: LoginFunction = async (
       console.warn("No Set-Cookie header found in the response");
     }
 
-    // Set a cookie to simulate user session
-    cookies().set(
-      "user",
-      JSON.stringify({ usernameOrEmail: data.usernameOrEmail }),
-      {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7, // 1 week
-        path: "/",
-      }
-    );
+    // Deleting because already am using createSession()
+    // // Set a cookie to simulate user session
+    // cookies().set(
+    //   "user",
+    //   JSON.stringify({ usernameOrEmail: data.usernameOrEmail }),
+    //   {
+    //     httpOnly: true,
+    //     secure: process.env.NODE_ENV === "production",
+    //     maxAge: 60 * 60 * 24 * 7, // 1 week
+    //     path: "/",
+    //   }
+    // );
 
+    console.log("Login Action sending success response");
     return {
       errors: {},
       message: "Login successful.",

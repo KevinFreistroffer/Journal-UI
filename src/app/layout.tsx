@@ -5,6 +5,7 @@ import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
 import Header from "@/components/ui/header";
 import { AuthProvider } from "@/hooks/useAuth";
+import { JournalProvider } from "@/hooks/useJournal";
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -26,19 +27,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <Theme>
-            <Header />
-            {children}
-          </Theme>
+          <JournalProvider>
+            <Theme>
+              <Header />
+              {children}
+            </Theme>
+          </JournalProvider>
         </AuthProvider>
       </body>
     </html>

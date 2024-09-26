@@ -1,5 +1,4 @@
 export interface IJournal {
-  _id: string;
   title: string;
   entry: string;
   category: string;
@@ -7,7 +6,6 @@ export interface IJournal {
   selected: boolean;
 }
 export interface ICategory {
-  _id: string;
   category: string;
   selected: boolean;
 }

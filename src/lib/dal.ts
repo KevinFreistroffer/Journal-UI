@@ -12,10 +12,8 @@ export const verifySession = cache(
     user: IUser | null;
   }> => {
     const cookie = cookies().get("client_session")?.value;
-    console.log("verifySession cookie", cookie);
     const session = await decrypt(cookie);
 
-    console.log("verifySession session", session);
     if (!session || !(session.user as IUser)._id) {
       // return  redirect("/login");
       return { isAuth: false, user: null };

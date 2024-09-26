@@ -14,7 +14,6 @@ export interface IMenuItem {
 export default function Header() {
   const { user, setUser, isLoading } = useAuth();
   const router = useRouter();
-  console.log("user", user);
   const [menuItems, setMenuItems] = useState<IMenuItem[]>(() =>
     user
       ? [{ href: "/dashboard", label: "Dashboard" }]
@@ -25,7 +24,6 @@ export default function Header() {
   );
 
   useEffect(() => {
-    console.log("user changed setting menu items", user);
     setMenuItems(
       user
         ? [{ href: "/dashboard", label: "Dashboard" }]

@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       const session = await verifySession();
-      console.log("AuthProvider session", session);
       setUser(session?.user);
       setIsLoading(false);
     })();

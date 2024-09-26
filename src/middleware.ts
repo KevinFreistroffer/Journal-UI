@@ -19,16 +19,10 @@ export async function middleware(request: NextRequest) {
     session = await decrypt(cookie);
   }
 
-  console.log("session", session);
-
   if (isProtectedRoute && !(session?.user as IUser)?._id) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    console.log("Redirecting to login");
+    // return NextResponse.redirect(new URL("/login", request.url));
   }
-
-  console.log(
-    "!request.nextUrl.pathname.startsWith(/dashboard)",
-    !request.nextUrl.pathname.startsWith("/dashboard")
-  );
 
   if (
     isPublicRoute &&
@@ -36,7 +30,8 @@ export async function middleware(request: NextRequest) {
     (session?.user as IUser)._id &&
     !request.nextUrl.pathname.startsWith("/dashboard")
   ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    console.log("Redirecting to dashboard");
+    // return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();
