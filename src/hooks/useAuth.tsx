@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/lib/interfaces";
-import { verifySession } from "@/lib/dal";
+import { verifySession, getUser } from "@/lib/dal";
 
 interface AuthContextType {
   user: IUser | null;
@@ -25,7 +25,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       const session = await verifySession();
-      setUser(session?.user);
+
+      if (session && session.userId) {
+        const user = await getUser(session.userId);
+        console.log("user", user);
+        setUser(user);
+      }
       setIsLoading(false);
     })();
   }, []);

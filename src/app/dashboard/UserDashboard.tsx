@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
 import { IJournal } from "@/lib/interfaces";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface Journal extends IJournal {
   id: number;
@@ -115,7 +115,6 @@ function UserDashboard() {
           }),
         }
       );
-
 
       if (!response.ok) {
         throw new Error("Failed to create journal");
@@ -246,7 +245,7 @@ function UserDashboard() {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="disabled" disabled>
                       No categories available
                     </SelectItem>
                   )}

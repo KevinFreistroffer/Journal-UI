@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 
 async function DashboardPage() {
   const session = await verifySession();
-  const userId = session?.user?._id;
+  const userId = session?.userId;
   // TODO: do the user role idea and render the correct dashboard
 
   if (userId) {
     return <UserDashboard />;
   } else {
-    redirect("/login");
+    return redirect("/login");
   }
 }
 

@@ -78,7 +78,7 @@ export const login: LoginFunction = async (
     }
     console.log("creating session");
     // Create a session using the user's _id
-    await createSession(userData);
+    await createSession(userData._id);
     console.log("created session");
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
