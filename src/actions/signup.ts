@@ -19,7 +19,6 @@ const SignUpSchema = z
     path: ["confirmPassword"],
   });
 
-// @ts-expect-error - FIX
 export const signUp: SignUpFunction = async (
   prevState: State,
   formData: FormData
@@ -35,6 +34,7 @@ export const signUp: SignUpFunction = async (
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
+      ...prevState,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Failed to create account.",
     };
@@ -42,6 +42,8 @@ export const signUp: SignUpFunction = async (
 
   if (!process.env.SESSION_SECRET) {
     return {
+      ...prevState,
+      errors: {},
       message: "Server Error. Please try again later.",
     };
   }
@@ -63,6 +65,8 @@ export const signUp: SignUpFunction = async (
     if (!response.ok) {
       const errorData = await response.json();
       return {
+        ...prevState,
+        errors: {},
         message: errorData.message || "Failed to create account.",
       };
     }
@@ -70,6 +74,8 @@ export const signUp: SignUpFunction = async (
     const body = await response.json();
     if (!has(body, "data")) {
       return {
+        ...prevState,
+        errors: {},
         message: "Failed to create account.",
       };
     }
@@ -97,7 +103,8 @@ export const signUp: SignUpFunction = async (
     return {
       ...prevState,
       errors: {},
-      message: "Account created successfully.",
+      message:
+        "Account created successfully. An email has been sent to verify your account.",
     };
   } catch (error) {
     console.error(error);

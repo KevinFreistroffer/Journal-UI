@@ -17,8 +17,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
 import { IJournal } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
+import { CheckCircle, List, Grid, Trash2 } from "lucide-react";
+import { localStorageService } from "@/lib/services/localStorageService";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-interface Journal extends IJournal {
+export interface IFrontEndJournal extends IJournal {
   id: number;
 }
 
@@ -31,14 +43,21 @@ type Category = {
 function UserDashboard() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
-  const [journals, setJournals] = useState<Journal[]>([]);
+  const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "icons">("list");
+  const [journalViewMode, setJournalViewMode] = useState<"list" | "icons">(
+    "list"
+  );
   const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessIcon, setShowSuccessIcon] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [journalToDelete, setJournalToDelete] =
+    useState<IFrontEndJournal | null>(null);
   const router = useRouter();
 
   const renderSkeletonCard = () => (
@@ -54,11 +73,67 @@ function UserDashboard() {
     </Card>
   );
 
-  const handleJournalClick = (e: React.MouseEvent, journal: Journal) => {
+  const handleJournalClick = (
+    e: React.MouseEvent,
+    journal: IFrontEndJournal
+  ) => {
     e.preventDefault(); // Prevent the default link behavior
     setSelectedJournal(journal);
+    localStorageService.setItem("selectedJournal", journal);
     router.push(`/journal/${journal.id}`);
   };
+
+  const handleDeleteClick = (
+    e: React.MouseEvent,
+    journal: IFrontEndJournal
+  ) => {
+    e.stopPropagation(); // Prevent the click from bubbling up to the journal card
+    setJournalToDelete(journal);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (journalToDelete && user) {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/user/journal/delete`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user._id,
+              journalIds: [journalToDelete.id],
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to delete journal");
+        }
+
+        const body = await response.json();
+        const userData = body.data;
+        setUser(userData);
+        setJournals(userData.journals);
+        setIsDeleteDialogOpen(false);
+        setJournalToDelete(null);
+      } catch (error) {
+        console.error("Error deleting journal:", error);
+        // Handle error (e.g., show error message to user)
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Check for saved journal in localStorage when component mounts
+    const savedJournal =
+      localStorageService.getItem<IFrontEndJournal>("selectedJournal");
+    if (savedJournal) {
+      setSelectedJournal(savedJournal);
+    }
+  }, [setSelectedJournal]);
 
   useEffect(() => {
     if (user && user.journals) {
@@ -71,6 +146,18 @@ function UserDashboard() {
         selected: journal.selected,
       }));
       setJournals(formattedJournals);
+
+      const savedJournal =
+        localStorageService.getItem<IFrontEndJournal>("selectedJournal");
+      if (savedJournal) {
+        const updatedJournal = formattedJournals.find(
+          (j) => j.id === savedJournal.id
+        );
+        if (updatedJournal) {
+          setSelectedJournal(updatedJournal);
+          localStorageService.setItem("selectedJournal", updatedJournal);
+        }
+      }
 
       // Extract unique categories from journals
       const uniqueCategories = Array.from(
@@ -90,7 +177,7 @@ function UserDashboard() {
       setCategories(categoriesArray);
       setSelectedCategory(categoriesArray[0].name);
     }
-  }, [user]);
+  }, [user, setSelectedJournal]);
 
   const handleCreateJournal = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,6 +224,8 @@ function UserDashboard() {
       }
       setTitle("");
       setEntry("");
+      setShowSuccessIcon(true);
+      setTimeout(() => setShowSuccessIcon(false), 3000);
     } catch (error) {
       console.error("Error creating journal:", error);
       // Handle error (e.g., show error message to user)
@@ -155,6 +244,8 @@ function UserDashboard() {
       };
       setCategories([...categories, newCat]);
       setNewCategory("");
+      setShowSuccessIcon(true);
+      setTimeout(() => setShowSuccessIcon(false), 3000);
     }
   };
 
@@ -252,13 +343,18 @@ function UserDashboard() {
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              type="submit"
-              disabled={isSaving || !title || !entry}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              {isSaving ? "Saving..." : "Create Journal"}
-            </Button>
+            <div className="flex items-center">
+              <Button
+                type="submit"
+                disabled={isSaving || !title || !entry}
+                className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+              >
+                {isSaving ? "Saving..." : "Create Journal"}
+              </Button>
+              {showSuccessIcon && (
+                <CheckCircle className="text-green-500 animate-fade-in-out" />
+              )}
+            </div>
           </form>
         </div>
 
@@ -274,7 +370,18 @@ function UserDashboard() {
                 required
               />
             </div>
-            <Button type="submit">Create Category</Button>
+            <div className="flex items-center">
+              <Button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+                disabled={!newCategory}
+              >
+                Create Category
+              </Button>
+              {showSuccessIcon && (
+                <CheckCircle className="text-green-500 animate-fade-in-out" />
+              )}
+            </div>
           </form>
         </div>
       </div>
@@ -286,12 +393,14 @@ function UserDashboard() {
             variant={viewMode === "list" ? "default" : "outline"}
             onClick={() => setViewMode("list")}
           >
+            <List className="w-4 h-4 mr-2" />
             List View
           </Button>
           <Button
             variant={viewMode === "icons" ? "default" : "outline"}
             onClick={() => setViewMode("icons")}
           >
+            <Grid className="w-4 h-4 mr-2" />
             Icon View
           </Button>
         </div>
@@ -320,7 +429,29 @@ function UserDashboard() {
 
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">Your Journals</h2>
-        <div className="space-y-4">
+        <div className="flex space-x-2 mb-4">
+          <Button
+            variant={journalViewMode === "list" ? "default" : "outline"}
+            onClick={() => setJournalViewMode("list")}
+          >
+            <List className="w-4 h-4 mr-2" />
+            List View
+          </Button>
+          <Button
+            variant={journalViewMode === "icons" ? "default" : "outline"}
+            onClick={() => setJournalViewMode("icons")}
+          >
+            <Grid className="w-4 h-4 mr-2" />
+            Icon View
+          </Button>
+        </div>
+        <div
+          className={`${
+            journalViewMode === "list"
+              ? "space-y-4"
+              : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          } h-96 overflow-y-auto`}
+        >
           {isLoading ? (
             Array(3)
               .fill(null)
@@ -333,7 +464,16 @@ function UserDashboard() {
               >
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
                   <CardHeader>
-                    <CardTitle>{journal.title}</CardTitle>
+                    <CardTitle className="flex justify-between items-center">
+                      {journal.title}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleDeleteClick(e, journal)}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p>
@@ -353,6 +493,27 @@ function UserDashboard() {
           )}
         </div>
       </div>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              journal.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

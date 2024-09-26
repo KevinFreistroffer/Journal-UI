@@ -13,6 +13,9 @@ export interface IMenuItem {
 
 export default function Header() {
   const { user, setUser, isLoading } = useAuth();
+  console.log("user", user);
+  console.log("isLoading", isLoading);
+
   const router = useRouter();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>(() =>
     user

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { State } from "./types";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const initialState: State = {
   message: "",
@@ -14,6 +16,19 @@ const initialState: State = {
 
 export default function SignUpPage() {
   const [state, formAction] = useFormState(signUp, initialState);
+  const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.message && !Object.keys(state.errors || {}).length) {
+      setShowModal(true);
+    }
+  }, [state]);
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    router.push("/login");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -55,20 +70,37 @@ export default function SignUpPage() {
               </p>
             )}
           </div>
-          <Button type="submit" className="w-full">
+          <Button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
             Sign Up
           </Button>
         </form>
-        {state.message && (
-          <p
-            className={`mt-4 text-center ${
-              state.errors ? "text-red-500" : "text-green-500"
-            }`}
-          >
-            {state.message}
-          </p>
+        {state.message && Object.keys(state.errors || {}).length > 0 && (
+          <p className="mt-4 text-center text-red-500">{state.message}</p>
         )}
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-md w-96">
+            <h2 className="text-xl font-bold mb-4">
+              Account Created Successfully
+            </h2>
+            <p className="mb-6">
+              An email has been sent to verify your account. Please check your
+              inbox and follow the instructions to complete the verification
+              process.
+            </p>
+            <Button
+              onClick={handleCloseModal}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
+              Go to Login
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

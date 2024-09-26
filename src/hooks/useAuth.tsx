@@ -4,14 +4,14 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/lib/interfaces";
 import { verifySession, getUser } from "@/lib/dal";
 
-interface AuthContextType {
+interface AuthStateType {
   user: IUser | null;
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const AuthContext = createContext<AuthContextType>({
+const AuthState = createContext<AuthStateType>({
   user: null,
   setUser: () => {},
   isLoading: true,
@@ -23,27 +23,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      const session = await verifySession();
-
-      if (session && session.userId) {
-        const user = await getUser(session.userId);
-        console.log("user", user);
-        setUser(user);
+    async function checkSession() {
+      setIsLoading(true);
+      try {
+        const session = await verifySession();
+        if (session && session.userId) {
+          console.log("useAuth calling getUser()", session);
+          const user = await getUser(session.userId);
+          console.log("useAuth got user", user);
+          setUser(user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error verifying session:", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    })();
+    }
+
+    checkSession();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
+    <AuthState.Provider value={{ user, setUser, isLoading, setIsLoading }}>
       {children}
-    </AuthContext.Provider>
+    </AuthState.Provider>
   );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthState);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }

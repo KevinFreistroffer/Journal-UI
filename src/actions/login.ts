@@ -59,10 +59,14 @@ export const login: LoginFunction = async (
     }
 
     const data = await response.json();
+    console.log("data", data);
     const userDataResult = UserSchema.safeParse(data.data);
 
     if (!userDataResult.success) {
-      console.error("Invalid user data:", userDataResult.error);
+      console.error(
+        "Invalid user data. Did the API have an update to the user schema?",
+        userDataResult.error
+      );
       return {
         message: "Failed to login. Please try again.",
       };

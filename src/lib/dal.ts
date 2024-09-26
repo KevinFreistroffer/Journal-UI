@@ -22,17 +22,24 @@ export const verifySession = cache(
   }
 );
 export const getUser = cache(async (userId: string) => {
-  const session = await verifySession();
-  if (!session) return null;
+  console.log("getUser called with userId", userId);
 
   try {
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`
-    );
+    if (!process.env.API_URL) {
+      console.error("API_URL is not set");
+      return null;
+    }
 
-    const user = await data.json();
+    const response = await fetch(`${process.env.API_URL}/user/${userId}`);
 
-    return user;
+    if (!response.ok) {
+      console.error("Failed to fetch user");
+      return null;
+    } else {
+      const body = await response.json();
+      console.log("getUser got user", body.data);
+      return body.data;
+    }
   } catch (error: unknown) {
     console.log("Failed to fetch user", error);
     return null;
