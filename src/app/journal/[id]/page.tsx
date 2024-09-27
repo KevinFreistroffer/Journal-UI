@@ -16,7 +16,6 @@ export default function JournalPage() {
     if (!selectedJournal) {
       const savedJournal =
         localStorageService.getItem<IFrontEndJournal>("selectedJournal");
-      console.log("savedJournal", savedJournal);
       if (savedJournal) {
         setSelectedJournal(savedJournal);
       } else {

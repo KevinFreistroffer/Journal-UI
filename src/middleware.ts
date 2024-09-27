@@ -7,30 +7,41 @@ const protectedRoutes = ["/dashboard"];
 const publicRoutes = ["/login", "/signup", "/"];
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
-  const isPublicRoute = publicRoutes.includes(path);
-  const cookie = cookies().get("client_session")?.value;
+  // console.log("middleware");
+  // const path = request.nextUrl.pathname;
+  // const isProtectedRoute = protectedRoutes.includes(path);
+  // const isPublicRoute = publicRoutes.includes(path);
+  // const cookie = cookies().get("client_session")?.value;
+  // let session;
 
-  let session;
-  // const session = await decrypt(cookie);
-  if (cookie) {
-    session = await decrypt(cookie);
-  }
+  // // const session = await decrypt(cookie);
+  // if (cookie) {
+  //   session = await decrypt(cookie);
+  // }
 
-  if (isProtectedRoute && !session?.userId) {
-    console.log("Redirecting to login");
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // if (isProtectedRoute && !session?.userId) {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
-  if (
-    isPublicRoute &&
-    session?.userId &&
-    !request.nextUrl.pathname.startsWith("/dashboard")
-  ) {
-    console.log("Redirecting to dashboard");
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // if (
+  //   isPublicRoute &&
+  //   session?.userId &&
+  //   !session?.isVerified &&
+  //   !request.nextUrl.pathname.startsWith("/dashboard")
+  // ) {
+  //   return NextResponse.redirect(
+  //     new URL("/login?isVerified=false", request.url)
+  //   );
+  // }
+
+  // if (
+  //   isPublicRoute &&
+  //   session?.userId &&
+  //   session?.isVerified &&
+  //   !request.nextUrl.pathname.startsWith("/dashboard")
+  // ) {
+  //   return NextResponse.redirect(new URL("/dashboard", request.url));
+  // }
 
   return NextResponse.next();
 }

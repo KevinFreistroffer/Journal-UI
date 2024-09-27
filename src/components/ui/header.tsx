@@ -13,12 +13,9 @@ export interface IMenuItem {
 
 export default function Header() {
   const { user, setUser, isLoading } = useAuth();
-  console.log("user", user);
-  console.log("isLoading", isLoading);
-
   const router = useRouter();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>(() =>
-    user
+    user?.isVerified
       ? [{ href: "/dashboard", label: "Dashboard" }]
       : [
           { href: "/signup", label: "Sign Up" },
@@ -28,7 +25,7 @@ export default function Header() {
 
   useEffect(() => {
     setMenuItems(
-      user
+      user?.isVerified
         ? [{ href: "/dashboard", label: "Dashboard" }]
         : [
             { href: "/signup", label: "Sign Up" },
@@ -53,7 +50,7 @@ export default function Header() {
         ) : (
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <MenuItems menuItems={menuItems} />
-            {user && (
+            {user?.isVerified && (
               <button
                 onClick={async () => {
                   try {

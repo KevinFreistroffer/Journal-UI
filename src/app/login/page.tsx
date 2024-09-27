@@ -8,6 +8,7 @@ import { State } from "./types";
 import Link from "next/link";
 import { FormButton } from "@/components/ui/formButton";
 import { useAuth } from "@/hooks/useAuth";
+import { useSearchParams } from "next/navigation";
 
 const initialState: State = {
   message: "",
@@ -17,34 +18,65 @@ const initialState: State = {
 };
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const isVerified = searchParams.get("isVerified");
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
   const [state, formAction] = useFormState(login, initialState);
   const { setUser } = useAuth();
   const router = useRouter();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [emailResendSuccess, setEmailResendSuccess] = useState(false);
+
+  const handleResendVerification = async () => {
+    if (!state.user?._id) {
+      throw new Error("No user ID");
+    }
+    setIsResendingEmail(true);
+    try {
+      const response = await fetch(
+        "/api/auth/send-verification-email?userId=" + state.user?._id
+      );
+
+      if (!response.ok) {
+        console.error("Failed to resend verification email");
+        return;
+      }
+
+      setEmailResendSuccess(true);
+      setTimeout(() => {
+        setEmailResendSuccess(false);
+        setShowVerificationModal(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error resending verification email:", error);
+    } finally {
+      setIsResendingEmail(false);
+    }
+  };
 
   const closeModal = () => {
     setShowVerificationModal(false);
   };
 
   useEffect(() => {
-    console.log("LoginPage state", state);
-    console.log("LoginPage setUser", setUser);
-    console.log("LoginPage state.user", state.user);
-    console.log("LoginPage state.redirect", state.redirect);
+    if (isVerified === "false") {
+      setShowVerificationModal(true);
+    }
+  }, [isVerified]);
+
+  useEffect(() => {
     if (state.user) {
-      console.log("setting user");
       setUser(state.user);
     }
-    console.log("after setting user");
+
     if (state.redirect) {
-      console.log("should redirect");
       return router.push(state.redirect as string);
-      console.log("after returning push");
-    } else if (
+    }
+
+    if (
       state.message ===
       "Login successful, but the account is not verified. Please check your email for verification."
     ) {
-      console.log("should show modal");
       setShowVerificationModal(true);
     }
   }, [state, router, setUser]);
@@ -144,9 +176,38 @@ export default function LoginPage() {
               Login successful, but the account is not verified. Please check
               your email for verification.
             </p>
+            {emailResendSuccess ? (
+              <div className="text-green-500 text-center mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 mx-auto"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <p>Email sent successfully!</p>
+              </div>
+            ) : (
+              <button
+                onClick={handleResendVerification}
+                disabled={isResendingEmail}
+                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-2"
+              >
+                {isResendingEmail
+                  ? "Resending..."
+                  : "Resend Verification Email"}
+              </button>
+            )}
             <button
               onClick={closeModal}
-              className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+              className="w-full bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
             >
               Close
             </button>

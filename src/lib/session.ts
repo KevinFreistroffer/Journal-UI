@@ -5,7 +5,11 @@ import { cookies } from "next/headers";
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
 
-export async function encrypt(payload: { userId: string; expiresAt: Date }) {
+export async function encrypt(payload: {
+  userId: string;
+  isVerified: boolean;
+  expiresAt: Date;
+}) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -20,7 +24,6 @@ export async function decrypt(session: string | undefined = "") {
         algorithms: ["HS256"],
       });
 
-      console.log("decrypt() payload", payload);
       return payload;
     }
   } catch (error: unknown) {
@@ -29,10 +32,9 @@ export async function decrypt(session: string | undefined = "") {
   }
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, isVerified: boolean) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const session = await encrypt({ userId, expiresAt });
-  console.log("createSession() creating session", session);
+  const session = await encrypt({ userId, isVerified, expiresAt });
   cookies().set("client_session", session, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -40,7 +42,6 @@ export async function createSession(userId: string) {
     sameSite: "lax",
     path: "/",
   });
-  console.log("createSession() created session");
 }
 
 export async function updateSession() {

@@ -30,6 +30,8 @@ export const login: LoginFunction = async (
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
+      redirect: null,
+      user: null,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Invalid login credentials.",
     };
@@ -54,12 +56,14 @@ export const login: LoginFunction = async (
     if (!response.ok) {
       const errorData = await response.json();
       return {
+        errors: {},
+        redirect: null,
+        user: null,
         message: errorData.message || "Failed to login.",
       };
     }
 
     const data = await response.json();
-    console.log("data", data);
     const userDataResult = UserSchema.safeParse(data.data);
 
     if (!userDataResult.success) {
@@ -68,6 +72,9 @@ export const login: LoginFunction = async (
         userDataResult.error
       );
       return {
+        errors: {},
+        redirect: null,
+        user: null,
         message: "Failed to login. Please try again.",
       };
     }
@@ -76,14 +83,15 @@ export const login: LoginFunction = async (
 
     if (!userData.isVerified) {
       return {
+        errors: {},
+        redirect: null,
+        user: userData,
         message:
           "Login successful, but the account is not verified. Please check your email for verification.",
       };
     }
-    console.log("creating session");
     // Create a session using the user's _id
-    await createSession(userData._id);
-    console.log("created session");
+    await createSession(userData._id, userData.isVerified);
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
 
@@ -114,7 +122,6 @@ export const login: LoginFunction = async (
     //   }
     // );
 
-    console.log("Login Action sending success response");
     return {
       errors: {},
       message: "Login successful.",
@@ -124,7 +131,8 @@ export const login: LoginFunction = async (
   } catch (error) {
     console.error(error);
     return {
-      ...prevState,
+      redirect: null,
+      user: null,
       errors: prevState.errors ?? {},
       message: "Server Error: Failed to login.",
     };

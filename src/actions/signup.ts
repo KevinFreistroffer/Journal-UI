@@ -82,7 +82,7 @@ export const signUp: SignUpFunction = async (
 
     const user = body.data;
 
-    await createSession(user._id);
+    await createSession(user._id, user.isVerified);
 
     // Set a cookie to simulate user session
     // cookies().set("user", JSON.stringify({ username, email }), {

@@ -21,9 +21,36 @@ export const verifySession = cache(
     return { isAuth: true, userId: session.userId as string };
   }
 );
-export const getUser = cache(async (userId: string) => {
-  console.log("getUser called with userId", userId);
+export const getUser = cache(async () => {
+  try {
+    const session = await verifySession();
 
+    if (!session) {
+      return null;
+    }
+
+    if (!process.env.API_URL) {
+      console.error("API_URL is not set");
+      return null;
+    }
+
+    const response = await fetch(
+      `${process.env.API_URL}/user/${session.userId}`
+    );
+
+    if (!response.ok) {
+      console.error("Failed to fetch user");
+      return null;
+    } else {
+      const body = await response.json();
+      return body.data;
+    }
+  } catch (error: unknown) {
+    console.error("Failed to fetch user", error);
+    return null;
+  }
+});
+export const getUserById = cache(async (userId: string) => {
   try {
     if (!process.env.API_URL) {
       console.error("API_URL is not set");
@@ -37,11 +64,10 @@ export const getUser = cache(async (userId: string) => {
       return null;
     } else {
       const body = await response.json();
-      console.log("getUser got user", body.data);
       return body.data;
     }
   } catch (error: unknown) {
-    console.log("Failed to fetch user", error);
+    console.error("Failed to fetch user", error);
     return null;
   }
 });
