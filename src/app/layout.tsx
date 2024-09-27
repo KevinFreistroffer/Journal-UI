@@ -45,7 +45,7 @@ export default async function RootLayout({
             <Theme>
               <Header />
               {children}
-              <CookieConsent initialConsent={initialConsent} />
+              <CookieConsent initialConsent={consentCookie !== undefined} />
             </Theme>
           </JournalProvider>
         </AuthProvider>

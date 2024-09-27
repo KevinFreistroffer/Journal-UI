@@ -62,7 +62,7 @@ export const config = {
 //     ;
 //     const token =
 //       request.headers.get("Authorization") ||
-//       request.cookies.get("session_token")?.value;
+//       request.cookies.get("API_AUTHORIZATION_TOKEN")?.value;
 
 //     ;
 

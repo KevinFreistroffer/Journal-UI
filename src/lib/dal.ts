@@ -4,6 +4,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 // import { redirect } from "next/navigation";
 import { decrypt } from "@/lib/session";
+import { CLIENT_SESSION } from "@/lib/constants";
 
 export const verifySession = cache(
   async (): Promise<{
@@ -11,7 +12,7 @@ export const verifySession = cache(
     userId: string | null;
   }> => {
     try {
-      const cookie = cookies().get("client_session")?.value;
+      const cookie = cookies().get(CLIENT_SESSION)?.value;
       const session = await decrypt(cookie);
 
       if (!session || !session.userId) {
@@ -43,7 +44,10 @@ export const getUser = cache(async () => {
     }
 
     const response = await fetch(
-      `${process.env.API_URL}/user/${session.userId}`
+      `${process.env.API_URL}/user/${session.userId}`,
+      {
+        headers: { Cookie: cookies().toString() },
+      }
     );
 
     if (!response.ok) {

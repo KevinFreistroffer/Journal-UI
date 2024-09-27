@@ -95,14 +95,16 @@ export const login: LoginFunction = async (
     const setCookieHeader = response.headers.get("Set-Cookie");
 
     if (setCookieHeader) {
+      console.log("setCookieHeader", setCookieHeader);
       // Parse the Set-Cookie header and set it in the client-side cookies
       const cookieValue = setCookieHeader.split(";")[0];
       const [cookieName, cookieVal] = cookieValue.split("=");
+
       cookies().set(cookieName, cookieVal, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // TODO: Check this
         maxAge: 60 * 60 * 24 * 7, // 1 week
-        path: "/",
+        // path: "/",
       });
     } else {
       console.warn("No Set-Cookie header found in the response");
