@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function checkSession() {
+      console.log("checkSession");
       try {
         console.log("useAuth() Checking session");
 

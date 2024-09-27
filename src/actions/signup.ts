@@ -84,22 +84,6 @@ export const signUp: SignUpFunction = async (
 
     await createSession(user._id, user.isVerified);
 
-    // Set a cookie to simulate user session
-    // cookies().set("user", JSON.stringify({ username, email }), {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   maxAge: 60 * 60 * 24 * 7, // 1 week
-    //   path: "/",
-    // });
-
-    //   return { message: "Account created successfully." };
-    // } catch (error) {
-    //   console.error(error);
-    //   return {
-    //     message: "Database Error: Failed to create account.",
-    //   };
-    // }
-
     return {
       ...prevState,
       errors: {},

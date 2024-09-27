@@ -10,15 +10,23 @@ export const verifySession = cache(
     isAuth: boolean;
     userId: string | null;
   }> => {
-    const cookie = cookies().get("client_session")?.value;
-    const session = await decrypt(cookie);
+    try {
+      const cookie = cookies().get("client_session")?.value;
+      const session = await decrypt(cookie);
 
-    if (!session || !session.userId) {
-      // return  redirect("/login");
-      return { isAuth: false, userId: null };
+      if (!session || !session.userId) {
+        // return  redirect("/login");
+        return { isAuth: false, userId: null };
+      }
+
+      return { isAuth: true, userId: session.userId as string };
+    } catch (error: unknown) {
+      console.log("Errror verifyingSession", error);
+      return {
+        isAuth: false,
+        userId: null,
+      };
     }
-
-    return { isAuth: true, userId: session.userId as string };
   }
 );
 export const getUser = cache(async () => {

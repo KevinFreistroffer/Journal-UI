@@ -42,6 +42,7 @@ type Category = {
 
 function UserDashboard() {
   const { user, isLoading, setUser } = useAuth();
+  console.log("UserDashboard user", user);
   const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

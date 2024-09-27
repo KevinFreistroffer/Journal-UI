@@ -65,7 +65,10 @@ export default function LoginPage() {
   }, [isVerified]);
 
   useEffect(() => {
+    console.log("Login state", state);
+
     if (state.user) {
+      console.log("Login setting user", state.user);
       setUser(state.user);
     }
 

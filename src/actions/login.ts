@@ -13,7 +13,6 @@ const LoginSchema = z.object({
   staySignedIn: z.boolean().optional(),
 });
 
-// @ts-expect-error - FIX
 export const login: LoginFunction = async (
   prevState: State,
   formData: FormData
