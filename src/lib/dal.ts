@@ -69,7 +69,9 @@ export const getUserById = cache(async (userId: string) => {
       return null;
     }
 
-    const response = await fetch(`${process.env.API_URL}/user/${userId}`);
+    const response = await fetch(`${process.env.API_URL}/user/${userId}`, {
+      headers: { Cookie: cookies().toString() },
+    });
 
     if (!response.ok) {
       console.error("Failed to fetch user");

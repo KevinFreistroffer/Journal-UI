@@ -56,8 +56,8 @@ export const signUp: SignUpFunction = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // "Access-Control-Allow-Origin": "http://localhost:3000",
         Accept: "application/json",
+        Cookie: cookies().toString(),
       },
       body: JSON.stringify({ username, email, password }),
     });

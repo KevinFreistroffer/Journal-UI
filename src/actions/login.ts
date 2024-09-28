@@ -44,6 +44,7 @@ export const login: LoginFunction = async (
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        Cookie: cookies().toString(),
       },
       body: JSON.stringify({
         usernameOrEmail,
