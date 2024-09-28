@@ -50,20 +50,25 @@ type Category = {
 
 function UserDashboard() {
   const { user, isLoading, setUser } = useAuth();
-  console.log("UserDashboard user", user);
+  console.log("UserDashboard user:", user);
   const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
-  const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>([]);
+  const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
+    []
+  );
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
-  const [journalViewMode, setJournalViewMode] = useState<"list" | "icons">("list");
+  const [journalViewMode, setJournalViewMode] = useState<"list" | "icons">(
+    "list"
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessIcon, setShowSuccessIcon] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [journalToDelete, setJournalToDelete] = useState<IFrontEndJournal | null>(null);
+  const [journalToDelete, setJournalToDelete] =
+    useState<IFrontEndJournal | null>(null);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -255,7 +260,9 @@ function UserDashboard() {
   const handleCategoryClick = (categoryName: string) => {
     setSelectedCategory(categoryName);
     if (categoryName) {
-      setFilteredJournals(journals.filter(journal => journal.category === categoryName));
+      setFilteredJournals(
+        journals.filter((journal) => journal.category === categoryName)
+      );
     } else {
       setFilteredJournals(journals);
     }
