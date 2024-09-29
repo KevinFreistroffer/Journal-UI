@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { State } from "./types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
+import { FormButton } from "@/components/ui/formButton";
 const initialState: State = {
   message: "",
   errors: {},
+  isLoading: false,
+  success: false,
 };
 
 export default function SignUpPage() {
@@ -20,7 +22,11 @@ export default function SignUpPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (state.message && !Object.keys(state.errors || {}).length) {
+    if (
+      state.success &&
+      state.message &&
+      !Object.keys(state.errors || {}).length
+    ) {
       setShowModal(true);
     }
   }, [state]);
@@ -70,15 +76,28 @@ export default function SignUpPage() {
               </p>
             )}
           </div>
-          <Button
+
+          <FormButton
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
           >
             Sign Up
-          </Button>
+          </FormButton>
         </form>
-        {state.message && Object.keys(state.errors || {}).length > 0 && (
-          <p className="mt-4 text-center text-red-500">{state.message}</p>
+        {state.errors?.usernameOrEmailUnAvailable && (
+          <p className="mt-4 text-center text-red-500">
+            {state.errors.usernameOrEmailUnAvailable}
+          </p>
+        )}
+
+        {state.errors?.generalError && (
+          <p className="mt-4 text-center text-red-500">
+            {state.errors.generalError}
+          </p>
+        )}
+
+        {!state.errors && (
+          <p className="mt-4 text-center text-green-500">{state.message}</p>
         )}
       </div>
       {showModal && (

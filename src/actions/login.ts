@@ -2,10 +2,10 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { State, LoginFunction } from "../app/login/types";
-import { UserSchema } from "../schemas/UserSchema";
-import { createSession } from "../lib/session";
-import { IUser } from "../lib/interfaces";
+import { State, LoginFunction } from "@/app/login/types";
+import { UserSchema } from "@/schemas/UserSchema";
+import { createSession } from "@/lib/session";
+import { IUser } from "@/lib/interfaces";
 
 const LoginSchema = z.object({
   usernameOrEmail: z.string(),
@@ -53,6 +53,8 @@ export const login: LoginFunction = async (
       }),
     });
 
+    console.log(response.status);
+
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -64,6 +66,7 @@ export const login: LoginFunction = async (
     }
 
     const data = await response.json();
+    console.log("data", data);
     const userDataResult = UserSchema.safeParse(data.data);
 
     if (!userDataResult.success) {
@@ -96,7 +99,6 @@ export const login: LoginFunction = async (
     const setCookieHeader = response.headers.get("Set-Cookie");
 
     if (setCookieHeader) {
-      console.log("setCookieHeader", setCookieHeader);
       // Parse the Set-Cookie header and set it in the client-side cookies
       const cookieValue = setCookieHeader.split(";")[0];
       const [cookieName, cookieVal] = cookieValue.split("=");

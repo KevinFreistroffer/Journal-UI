@@ -124,20 +124,28 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
-            <div className="flex items-center">
-              <input
-                id="staySignedIn"
-                name="staySignedIn"
-                type="checkbox"
-                value="true"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="staySignedIn"
-                className="ml-2 block text-sm text-gray-900"
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="staySignedIn"
+                  name="staySignedIn"
+                  type="checkbox"
+                  value="true"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="staySignedIn"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  Stay signed in
+                </label>
+              </div>
+              <Link
+                href="/recover-password"
+                className="text-sm text-blue-500 hover:underline"
               >
-                Stay signed in
-              </label>
+                Forgot password?
+              </Link>
             </div>
 
             <FormButton

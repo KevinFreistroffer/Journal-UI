@@ -34,17 +34,21 @@ export const signUp: SignUpFunction = async (
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
-      ...prevState,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Failed to create account.",
+      isLoading: false,
+      success: false,
     };
   }
 
   if (!process.env.SESSION_SECRET) {
     return {
-      ...prevState,
-      errors: {},
+      errors: {
+        generalError: "Server Error. Please try again later.",
+      },
       message: "Server Error. Please try again later.",
+      isLoading: false,
+      success: false,
     };
   }
 
@@ -62,21 +66,41 @@ export const signUp: SignUpFunction = async (
       body: JSON.stringify({ username, email, password }),
     });
 
+    const body = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      return {
-        ...prevState,
-        errors: {},
-        message: errorData.message || "Failed to create account.",
-      };
+      if (response.status === 409) {
+        return {
+          errors: {
+            usernameOrEmailUnAvailable:
+              "Username and/or email is not available.",
+          },
+          message: body.message || "Failed to create account.",
+          isLoading: false,
+          success: false,
+        };
+      }
+
+      if (response.status === 500) {
+        return {
+          errors: {
+            generalError: "Something went wrong. Please try again later.",
+          },
+          message: "Failed to create account.",
+          isLoading: false,
+          success: false,
+        };
+      }
     }
 
-    const body = await response.json();
     if (!has(body, "data")) {
       return {
-        ...prevState,
-        errors: {},
-        message: "Failed to create account.",
+        errors: {
+          generalError: "Something went wrong. Please try again later.",
+        },
+        message: "Something went wrong. Please try again later.",
+        isLoading: false,
+        success: false,
       };
     }
 
@@ -85,17 +109,19 @@ export const signUp: SignUpFunction = async (
     await createSession(user._id, user.isVerified);
 
     return {
-      ...prevState,
       errors: {},
       message:
         "Account created successfully. An email has been sent to verify your account.",
+      isLoading: false,
+      success: true,
     };
   } catch (error) {
     console.error(error);
     return {
-      ...prevState,
       errors: prevState.errors ?? {},
       message: "Database Error: Failed to create account.",
+      isLoading: false,
+      success: false,
     };
   }
 };

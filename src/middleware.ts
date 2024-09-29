@@ -7,10 +7,7 @@ const protectedRoutes = ["/dashboard"];
 const publicRoutes = ["/login", "/signup", "/"];
 
 export async function middleware(request: NextRequest) {
-  console.log("middleware");
-
   const path = request.nextUrl.pathname;
-  console.log(path);
   const isProtectedRoute = protectedRoutes.includes(path);
   const isPublicRoute =
     publicRoutes.includes(path) ||
@@ -24,22 +21,34 @@ export async function middleware(request: NextRequest) {
     session = await decrypt(cookie);
   }
 
-  if (isProtectedRoute && !session?.userId) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (isProtectedRoute) {
+    if (!session?.userId) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    if (!session.isVerified) {
+      return NextResponse.redirect(
+        new URL("/login?isVerified=false", request.url)
+      );
+    }
   }
 
-  if (
-    isPublicRoute &&
-    session?.userId &&
-    !session?.isVerified &&
-    !request.nextUrl.pathname.startsWith("/dashboard") &&
-    !request.nextUrl.pathname.startsWith("/login")
-  ) {
-    console.log("26 redirecting to login");
-    return NextResponse.redirect(
-      new URL("/login?isVerified=false", request.url)
-    );
-  }
+  /**
+   * Why?
+   * Instead trying the dashboard idea.
+   */
+  // if (
+  //   isPublicRoute &&
+  //   session?.userId &&
+  //   !session?.isVerified &&
+  //   !request.nextUrl.pathname.startsWith("/dashboard") &&
+  //   !request.nextUrl.pathname.startsWith("/login")
+  // ) {
+  //   console.log("26 redirecting to login");
+  //   return NextResponse.redirect(
+  //     new URL("/login?isVerified=false", request.url)
+  //   );
+  // }
 
   if (
     isPublicRoute &&
