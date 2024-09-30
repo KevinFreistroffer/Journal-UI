@@ -34,7 +34,7 @@ export default async function RootLayout({
   // const user = await getUser();/ /how to make this work?
   const cookieStore = cookies();
   const consentCookie = cookieStore.get("cookieConsent");
-  const initialConsent = consentCookie ? consentCookie.value === "true" : null;
+  // const initialConsent = consentCookie ? consentCookie.value === "true" : null;
 
   return (
     <html lang="en">
@@ -49,8 +49,6 @@ export default async function RootLayout({
                 {children}
                 <CookieConsent initialConsent={consentCookie !== undefined} />
               </ModalProvider>
-              {children}
-              <CookieConsent initialConsent={consentCookie !== undefined} />
             </Theme>
           </JournalProvider>
         </AuthProvider>

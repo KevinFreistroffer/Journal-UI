@@ -15,17 +15,23 @@ export function MenuItems({ menuItems }: { menuItems: MenuItem[] }) {
 
   return (
     <>
-      {menuItems.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={`transition-colors hover:text-foreground/80 ${
-            pathname === item.href ? "text-foreground" : "text-foreground/60"
-          }`}
-        >
-          {item.label}
-        </Link>
-      ))}
+      {menuItems.map((item) => {
+        if (!pathname.startsWith(item.href)) {
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`transition-colors hover:text-foreground/80 ${
+                pathname === item.href
+                  ? "text-foreground"
+                  : "text-foreground/60"
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        }
+      })}
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,8 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ModalContext } from "@/GlobalModalContext";
-import GlobalModal from "@/components/ui/GlobalModal";
+import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 export interface IFrontEndJournal extends IJournal {
   id: number;
 }
@@ -281,51 +280,36 @@ function UserDashboard() {
     setFilteredJournals(journals);
   };
 
-  const { openModal } = useContext(ModalContext);
+  // const { openModal } = useContext(ModalContext);
 
-  const handleOpenModal = () => {
-    openModal(<div>Your custom content here!</div>);
-  };
+  // const handleOpenModal = () => {
+  //   openModal(<div>Your custom content here!</div>);
+  // };
 
+  // Check if the user is verified
   if (isLoading) {
     return (
       <div className="container mx-auto p-4">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6 animate-pulse"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4 animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
-            <div className="h-20 bg-gray-200 rounded w-full animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-1/3 animate-pulse"></div>
-          </div>
-          <div className="space-y-4">
-            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4 animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-1/3 animate-pulse"></div>
-          </div>
-        </div>
-        <div className="mt-8">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, index) => (
-              <div
-                key={`loading-category-${index}`}
-                className="h-24 bg-gray-200 rounded animate-pulse"
-              ></div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-8">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
-          <div className="space-y-4">
-            {[...Array(3)].map((_, index) => (
-              <div
-                key={`loading-journal-${index}`}
-                className="h-32 bg-gray-200 rounded animate-pulse"
-              ></div>
-            ))}
-          </div>
+        <Spinner /> {/* Show a loading spinner while loading */}
+      </div>
+    );
+  }
+
+  if (user && !user.isVerified) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Account Not Verified</h1>
+          <p className="mb-4">
+            Please verify your account to access the dashboard.
+          </p>
+          <Button
+            onClick={() => {
+              /* Add logic to resend verification email or redirect */
+            }}
+          >
+            Resend Verification Email
+          </Button>
         </div>
       </div>
     );
@@ -333,8 +317,6 @@ function UserDashboard() {
 
   return (
     <div className="flex h-screen">
-      <GlobalModal />
-      <button onClick={handleOpenModal}>Open Modal</button>
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-16"

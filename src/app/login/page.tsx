@@ -9,7 +9,7 @@ import Link from "next/link";
 import { FormButton } from "@/components/ui/formButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
-
+import styles from "./styles.module.css";
 const initialState: State = {
   message: "",
   errors: {},
@@ -178,7 +178,10 @@ export default function LoginPage() {
       </div>
 
       {showVerificationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div
+          id={styles["verification-modal"]}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "
+        >
           <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
             <h2 className="text-xl font-bold mb-4">
               Account Verification Required

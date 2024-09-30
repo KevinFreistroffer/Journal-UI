@@ -14,25 +14,20 @@ export interface IMenuItem {
 export default function Header() {
   const { user, setUser, isLoading } = useAuth();
   const router = useRouter();
-  const [menuItems, setMenuItems] = useState<IMenuItem[]>(() =>
-    user
-      ? [{ href: "/dashboard", label: "Dashboard" }]
-      : [
-          { href: "/signup", label: "Sign Up" },
-          { href: "/login", label: "Login" },
-        ]
-  );
+  const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
 
   useEffect(() => {
-    setMenuItems(
-      user
-        ? [{ href: "/dashboard", label: "Dashboard" }]
-        : [
-            { href: "/signup", label: "Sign Up" },
-            { href: "/login", label: "Login" },
-          ]
-    );
-  }, [user]);
+    if (!isLoading) {
+      setMenuItems(
+        user
+          ? [{ href: "/dashboard", label: "Dashboard" }]
+          : [
+              { href: "/signup", label: "Sign Up" },
+              { href: "/login", label: "Login" },
+            ]
+      );
+    }
+  }, [user, isLoading]); // Add isLoading to the dependency array
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

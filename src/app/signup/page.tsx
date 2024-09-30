@@ -9,6 +9,8 @@ import { State } from "./types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FormButton } from "@/components/ui/formButton";
+import Link from "next/link";
+
 const initialState: State = {
   message: "",
   errors: {},
@@ -99,6 +101,11 @@ export default function SignUpPage() {
         {!state.errors && (
           <p className="mt-4 text-center text-green-500">{state.message}</p>
         )}
+        <div className="mt-4 text-center">
+          <Link href="/login" className="text-blue-500 hover:text-blue-600">
+            Already have an account? Log In
+          </Link>
+        </div>
       </div>
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
