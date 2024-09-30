@@ -56,7 +56,8 @@ export const login: LoginFunction = async (
     });
 
     console.log(response.status);
-
+    const data = await response.json();
+    console.log("data", data);
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -69,8 +70,6 @@ export const login: LoginFunction = async (
       };
     }
 
-    const data = await response.json();
-    console.log("data", data);
     const userDataResult = UserSchema.safeParse(data.data);
 
     if (!userDataResult.success) {

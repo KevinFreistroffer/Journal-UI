@@ -4,3 +4,7 @@ redo the form action error messages
 
 create a logging system saving errors to a file. example: signup action returns { ..., adminMessage: "No body.data returned from the server".}
 - save this text, with timestamp, with user info username, email, etc.
+
+
+use colors in globals.css
+water ripple background animated

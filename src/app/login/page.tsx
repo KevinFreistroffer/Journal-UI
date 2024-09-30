@@ -16,6 +16,7 @@ const initialState: State = {
   user: null,
   redirect: null,
   success: false,
+  isVerified: false,
 };
 
 export default function LoginPage() {
@@ -60,7 +61,7 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (isVerified === "false") {
+    if (isVerified !== null && isVerified === "false") {
       setShowVerificationModal(true);
     }
   }, [isVerified]);
@@ -81,7 +82,7 @@ export default function LoginPage() {
       return router.push(state.redirect as string);
     }
 
-    if (state.isVerified === false) {
+    if (state.success && state.isVerified === false) {
       setShowVerificationModal(true);
     }
   }, [state, router, setUser]);
@@ -177,7 +178,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {showVerificationModal && state.isVerified === false && (
+      {showVerificationModal && !state.isVerified && (
         <div
           id={styles["verification-modal"]}
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "
