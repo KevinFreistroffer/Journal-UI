@@ -38,6 +38,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
+import Link from "next/link";
+
 export interface IFrontEndJournal extends IJournal {
   id: number;
 }
@@ -50,7 +52,6 @@ type Category = {
 
 function UserDashboard() {
   const { user, isLoading, setUser } = useAuth();
-  console.log("UserDashboard user:", user);
   const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
   const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
@@ -65,13 +66,27 @@ function UserDashboard() {
     "list"
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [showSuccessIcon, setShowSuccessIcon] = useState(false);
+  const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
+  const [showJournalSuccessIcon, setShowJournalSuccessIcon] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [journalToDelete, setJournalToDelete] =
     useState<IFrontEndJournal | null>(null);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
+  const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
+
+  useEffect(() => {
+    if (isSidebarOpen) {
+      const timer = setTimeout(() => {
+        setIsTextVisible(true); // Show text after animation
+      }, 200); // Match this duration with your CSS transition duration
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsTextVisible(false); // Hide text when sidebar is closed
+    }
+  }, [isSidebarOpen]);
 
   const renderSkeletonCard = () => (
     <Card className="animate-pulse">
@@ -200,48 +215,54 @@ function UserDashboard() {
     const newJournal = {
       title,
       entry,
-      category: selectedCategory || "My Journals",
+      category:
+        categories.length > 0
+          ? selectedCategory.trim() !== ""
+            ? selectedCategory
+            : "Uncategorized"
+          : "Uncategorized",
+      userId: user?._id,
     };
-
+    console.log("newJournal", newJournal);
     try {
-      const response = await fetch(
-        "http://localhost:3001/user/journal/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...newJournal,
-            userId: user?._id,
-          }),
-        }
-      );
+      const response = await fetch(`api/user/journal/create`, {
+        method: "POST",
+        body: JSON.stringify(newJournal),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to create journal");
       }
 
-      const body = await response.json();
-      const userData = body.data;
-      setUser(userData);
-      setJournals(userData.journals);
-      setFilteredJournals(userData.journals);
-      if (userData.journalCategories && userData.journalCategories.length > 0) {
-        setCategories(
-          userData.journalCategories.map(
-            (cat: { category: string; selected: boolean }, index: number) => ({
-              id: index + 1,
-              name: cat.category,
-              selected: cat.selected,
-            })
-          )
-        );
+      if (response.status === 200) {
+        const body = await response.json();
+        console.log("body", body);
+        const userData = body.data;
+        setUser(userData);
+        setJournals(userData.journals);
+        setFilteredJournals(userData.journals);
+        if (
+          userData.journalCategories &&
+          userData.journalCategories.length > 0
+        ) {
+          setCategories(
+            userData.journalCategories.map(
+              (
+                cat: { category: string; selected: boolean },
+                index: number
+              ) => ({
+                id: index + 1,
+                name: cat.category,
+                selected: cat.selected,
+              })
+            )
+          );
+        }
+        setTitle("");
+        setEntry("");
+        setShowCategorySuccessIcon(true);
+        setTimeout(() => setShowCategorySuccessIcon(false), 3000);
       }
-      setTitle("");
-      setEntry("");
-      setShowSuccessIcon(true);
-      setTimeout(() => setShowSuccessIcon(false), 3000);
     } catch (error) {
       console.error("Error creating journal:", error);
     } finally {
@@ -259,8 +280,8 @@ function UserDashboard() {
       };
       setCategories([...categories, newCat]);
       setNewCategory("");
-      setShowSuccessIcon(true);
-      setTimeout(() => setShowSuccessIcon(false), 3000);
+      setShowCategorySuccessIcon(true);
+      setTimeout(() => setShowCategorySuccessIcon(false), 3000);
     }
   };
 
@@ -289,7 +310,7 @@ function UserDashboard() {
   // Check if the user is verified
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="flex justify-center items-center h-screen">
         <Spinner /> {/* Show a loading spinner while loading */}
       </div>
     );
@@ -320,69 +341,48 @@ function UserDashboard() {
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-16"
-        } bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out relative`}
+        } flex flex-col bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out relative`}
       >
         <Button
-          className="absolute top-2 right-2"
+          className={`relative w-full p-0 mb-6 ${
+            isSidebarOpen ? "justify-end " : "justify-center "
+          }`}
           variant="ghost"
           size="sm"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
         </Button>
-        {isSidebarOpen && (
-          <>
-            <h2 className="text-xl font-semibold mb-4">Categories</h2>
-            <ul className="space-y-2 mb-6">
-              {categories.map((category, index) => (
-                <li
-                  key={`category-${index}`}
-                  className={`flex justify-between items-center cursor-pointer p-2 rounded ${
-                    selectedCategory === category.name ? "bg-blue-100" : ""
-                  }`}
-                  onClick={() => handleCategoryClick(category.name)}
-                >
-                  <span>{category.name}</span>
-                  <span className="text-sm text-gray-500">
-                    {journals?.filter((j) => j.category === category.name)
-                      .length || 0}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {selectedCategory && (
-              <Button
-                onClick={clearCategoryFilter}
-                variant="outline"
-                size="sm"
-                className="mb-4"
-              >
-                Clear Filter <X className="w-4 h-4 ml-2" />
-              </Button>
+        <div className="flex flex-col items-center">
+          <Link
+            href="/journals"
+            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
+              isSidebarOpen ? "justify-start" : "justify-center"
+            }`}
+          >
+            <List />
+            {isSidebarOpen && isTextVisible && (
+              <span className="ml-2">Journals</span>
             )}
-
-            <h3 className="text-lg font-semibold mb-2">Create New Category</h3>
-            <form onSubmit={handleCreateCategory} className="space-y-2">
-              <Input
-                id="newCategory"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                placeholder="Category name"
-                required
-              />
-              <Button
-                type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                disabled={!newCategory}
-              >
-                Create Category
-              </Button>
-            </form>
-          </>
-        )}
+          </Link>
+          <Link
+            href="/categories"
+            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
+              isSidebarOpen ? "justify-start" : "justify-center"
+            }`}
+          >
+            <Grid />
+            {isSidebarOpen && isTextVisible && (
+              <span className="ml-2">Categories</span>
+            )}
+          </Link>
+        </div>
       </div>
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex justify-end mb-4">
+          <Button onClick={handleCreateJournal}>Create Journal</Button>
+        </div>
         <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
         <div className="grid grid-cols-2 gap-6">
           {/* Left Column: Create New Journal */}
@@ -439,8 +439,13 @@ function UserDashboard() {
                 >
                   {isSaving ? "Saving..." : "Create Journal"}
                 </Button>
-                {showSuccessIcon && (
-                  <CheckCircle className="text-green-500 animate-fade-in-out" />
+                {showJournalSuccessIcon && (
+                  <>
+                    <CheckCircle className="text-green-500 animate-fade-in-out" />
+                    <p className="text-green-500">
+                      Journal created successfully!
+                    </p>
+                  </>
                 )}
               </div>
             </form>

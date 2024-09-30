@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { MenuItems } from "./menuItems";
-import { MobileMenu } from "./mobileMenu";
+import { MenuItems } from "../menuItems";
+import { MobileMenu } from "../mobileMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import styles from "./header.module.css";
 export interface IMenuItem {
   href: string;
   label: string;
@@ -15,6 +16,24 @@ export default function Header() {
   const { user, setUser, isLoading } = useAuth();
   const router = useRouter();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const handleScroll = () => {
+    if (window.scrollY > 0) {
+      console.log("scrolled");
+      setIsScrolled(true);
+    } else {
+      console.log("not scrolled");
+      setIsScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isLoading) {
@@ -30,7 +49,12 @@ export default function Header() {
   }, [user, isLoading]); // Add isLoading to the dependency array
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header
+      id={styles["header"]}
+      className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
+        isScrolled ? "bg-[rgba(0,0,0,0.11)]" : "bg-transparent"
+      }`}
+    >
       <div className="p-8 flex h-14 items-center justify-between w-full">
         <div className="hidden md:flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
