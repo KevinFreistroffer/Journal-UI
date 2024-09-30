@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,7 +37,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
+import { ModalContext } from "@/GlobalModalContext";
+import GlobalModal from "@/components/ui/GlobalModal";
 export interface IFrontEndJournal extends IJournal {
   id: number;
 }
@@ -71,6 +72,7 @@ function UserDashboard() {
     useState<IFrontEndJournal | null>(null);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
 
   const renderSkeletonCard = () => (
     <Card className="animate-pulse">
@@ -187,6 +189,12 @@ function UserDashboard() {
     }
   }, [user, setSelectedJournal]);
 
+  useEffect(() => {
+    if (user && !user.isVerified) {
+      setIsVerifiedModalOpen(true);
+    }
+  }, [user]);
+
   const handleCreateJournal = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -273,6 +281,12 @@ function UserDashboard() {
     setFilteredJournals(journals);
   };
 
+  const { openModal } = useContext(ModalContext);
+
+  const handleOpenModal = () => {
+    openModal(<div>Your custom content here!</div>);
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-4">
@@ -319,7 +333,8 @@ function UserDashboard() {
 
   return (
     <div className="flex h-screen">
-      {/* Left Sidebar */}
+      <GlobalModal />
+      <button onClick={handleOpenModal}>Open Modal</button>
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-16"
@@ -384,7 +399,6 @@ function UserDashboard() {
           </>
         )}
       </div>
-
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
@@ -521,7 +535,6 @@ function UserDashboard() {
           </div>
         </div>
       </div>
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}
@@ -548,4 +561,3 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
-// export default withAuth(DashboardPage);

@@ -7,6 +7,7 @@ import { Theme } from "@radix-ui/themes";
 import Header from "@/components/ui/header";
 import { AuthProvider } from "@/hooks/useAuth";
 import { JournalProvider } from "@/hooks/useJournal";
+import { ModalProvider } from "@/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
 
 const geistSans = localFont({
@@ -43,7 +44,11 @@ export default async function RootLayout({
         <AuthProvider>
           <JournalProvider>
             <Theme>
-              <Header />
+              <ModalProvider>
+                <Header />
+                {children}
+                <CookieConsent initialConsent={consentCookie !== undefined} />
+              </ModalProvider>
               {children}
               <CookieConsent initialConsent={consentCookie !== undefined} />
             </Theme>

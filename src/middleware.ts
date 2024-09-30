@@ -26,11 +26,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (!session.isVerified) {
-      return NextResponse.redirect(
-        new URL("/login?isVerified=false", request.url)
-      );
-    }
+    // if (!session.isVerified) {
+    //   return NextResponse.redirect(
+    //     new URL("/login?isVerified=false", request.url)
+    //   );
+    // }
   }
 
   /**
