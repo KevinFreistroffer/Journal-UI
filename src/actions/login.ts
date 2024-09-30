@@ -33,6 +33,8 @@ export const login: LoginFunction = async (
       user: null,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Invalid login credentials.",
+      success: false,
+      isVerified: false,
     };
   }
 
@@ -62,6 +64,8 @@ export const login: LoginFunction = async (
         redirect: null,
         user: null,
         message: errorData.message || "Failed to login.",
+        success: false,
+        isVerified: false,
       };
     }
 
@@ -79,6 +83,8 @@ export const login: LoginFunction = async (
         redirect: null,
         user: null,
         message: "Failed to login. Please try again.",
+        success: false,
+        isVerified: false,
       };
     }
 
@@ -91,6 +97,8 @@ export const login: LoginFunction = async (
         user: userData,
         message:
           "Login successful, but the account is not verified. Please check your email for verification.",
+        success: true,
+        isVerified: false,
       };
     }
     // Create a session using the user's _id
@@ -131,6 +139,8 @@ export const login: LoginFunction = async (
       message: "Login successful.",
       redirect: "/dashboard",
       user: userData, // TODO: Not sure if this is the best way to do this.
+      success: true,
+      isVerified: true,
     };
   } catch (error) {
     console.error(error);
@@ -139,6 +149,8 @@ export const login: LoginFunction = async (
       user: null,
       errors: prevState.errors ?? {},
       message: "Server Error: Failed to login.",
+      success: false,
+      isVerified: false,
     };
   }
 };

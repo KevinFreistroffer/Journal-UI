@@ -9,6 +9,8 @@ export interface State {
   };
   user: IUser | null;
   redirect: string | null;
+  success: boolean;
+  isVerified: boolean;
 }
 
 export type LoginFunction = (

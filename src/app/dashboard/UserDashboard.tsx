@@ -289,7 +289,7 @@ function UserDashboard() {
   // Check if the user is verified
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="flex justify-center items-center h-screen">
         <Spinner /> {/* Show a loading spinner while loading */}
       </div>
     );

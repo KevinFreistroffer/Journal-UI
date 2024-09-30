@@ -15,6 +15,7 @@ const initialState: State = {
   errors: {},
   user: null,
   redirect: null,
+  success: false,
 };
 
 export default function LoginPage() {
@@ -70,16 +71,17 @@ export default function LoginPage() {
     if (state.user) {
       console.log("Login setting user", state.user);
       setUser(state.user);
+      // Redirect if user is set, but only if there's no error or verification message
+      // if (!state.errors && state.message !== "Login successful, but the account is not verified. Please check your email for verification.") {
+      //   return router.push(state.redirect as string);
+      // }
     }
 
     if (state.redirect) {
       return router.push(state.redirect as string);
     }
 
-    if (
-      state.message ===
-      "Login successful, but the account is not verified. Please check your email for verification."
-    ) {
+    if (state.isVerified === false) {
       setShowVerificationModal(true);
     }
   }, [state, router, setUser]);
@@ -155,19 +157,17 @@ export default function LoginPage() {
               Log In
             </FormButton>
           </form>
-          {state.message &&
-            state.message !==
-              "Login successful, but the account is not verified. Please check your email for verification." && (
-              <p
-                className={`mt-4 text-center ${
-                  state.errors && Object.entries(state.errors).length
-                    ? "text-red-500"
-                    : "text-green-500"
-                }`}
-              >
-                {state.message}
-              </p>
-            )}
+          {!state.success && state.message && (
+            <p
+              className={`mt-4 text-center ${
+                state.errors && Object.entries(state.errors).length
+                  ? "text-red-500"
+                  : "text-green-500"
+              }`}
+            >
+              {state.message}
+            </p>
+          )}
           <p className="mt-4 text-center">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-blue-500 hover:underline">
@@ -177,7 +177,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {showVerificationModal && (
+      {showVerificationModal && state.isVerified === false && (
         <div
           id={styles["verification-modal"]}
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "

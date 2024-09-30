@@ -13,7 +13,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
   return (
     <div
       className={cn(
-        "inline-block animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]",
+        "flex justify-center items-center animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]",
         {
           "h-4 w-4 border-2": size === "sm",
           "h-8 w-8 border-4": size === "md",
