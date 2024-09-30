@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
 import { Button } from "./button";
 import { Menu } from "lucide-react";
-import { IMenuItem } from "./header";
+import { IMenuItem } from "./header/Header";
 
 interface MobileMenuProps {
   menuItems: IMenuItem[];

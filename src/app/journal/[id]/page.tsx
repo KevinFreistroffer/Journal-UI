@@ -4,10 +4,11 @@ import { useJournal } from "@/hooks/useJournal";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
-
+import { Spinner } from "@/components/ui/spinner";
 export default function JournalPage() {
   const { selectedJournal, setSelectedJournal } = useJournal();
   const router = useRouter();
@@ -29,13 +30,19 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div
+      className={`container mx-auto p-4 min-h-screen ${
+        !selectedJournal ? "flex justify-center items-center" : ""
+      }`}
+    >
       {!selectedJournal ? (
-        <div>Loading...</div>
+        <div className="">
+          <Spinner />
+        </div>
       ) : (
         <>
           <Button onClick={handleGoBack} className="mb-4">
-            Go back
+            <ChevronLeft className="mr-2" /> Go back
           </Button>
           <Card>
             <CardHeader>

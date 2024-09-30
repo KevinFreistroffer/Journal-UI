@@ -353,10 +353,10 @@ function UserDashboard() {
         >
           {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
         </Button>
-        <div className="flex flex-col items-center justify-between">
+        <div className="flex flex-col items-center">
           <Link
             href="/journals"
-            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 justify-between ${
+            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
               isSidebarOpen ? "justify-start" : "justify-center"
             }`}
           >
@@ -367,7 +367,7 @@ function UserDashboard() {
           </Link>
           <Link
             href="/categories"
-            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 justify-between ${
+            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
               isSidebarOpen ? "justify-start" : "justify-center"
             }`}
           >
@@ -380,6 +380,9 @@ function UserDashboard() {
       </div>
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex justify-end mb-4">
+          <Button onClick={handleCreateJournal}>Create Journal</Button>
+        </div>
         <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
         <div className="grid grid-cols-2 gap-6">
           {/* Left Column: Create New Journal */}

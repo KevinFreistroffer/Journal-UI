@@ -4,8 +4,9 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
-import Header from "@/components/ui/header";
+import Header from "@/components/ui/header/Header";
 import { AuthProvider } from "@/hooks/useAuth";
+import Footer from "@/components/ui/Footer";
 import { JournalProvider } from "@/hooks/useJournal";
 import { ModalProvider } from "@/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
@@ -41,17 +42,20 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <JournalProvider>
-            <Theme>
-              <ModalProvider>
-                <Header />
-                {children}
-                <CookieConsent initialConsent={consentCookie !== undefined} />
-              </ModalProvider>
-            </Theme>
-          </JournalProvider>
-        </AuthProvider>
+        <div className="flex flex-col min-h-screen">
+          <AuthProvider>
+            <JournalProvider>
+              <Theme>
+                <ModalProvider>
+                  <Header />
+                  {children}
+                  <CookieConsent initialConsent={consentCookie !== undefined} />
+                  <Footer />
+                </ModalProvider>
+              </Theme>
+            </JournalProvider>
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );

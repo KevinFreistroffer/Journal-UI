@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/spinner"; // Import a spinner component
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { List, Grid } from "lucide-react"; // Import icons for list and grid views
+import FullPage from "@/components/ui/fullPage/FullPage";
 
 export default function JournalsPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +28,7 @@ export default function JournalsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Your Journals</h1>
       <div className="flex space-x-2 mb-4">
         <button
