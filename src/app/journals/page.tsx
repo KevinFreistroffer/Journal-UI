@@ -7,7 +7,8 @@ import { Spinner } from "@/components/ui/spinner"; // Import a spinner component
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { List, Grid } from "lucide-react"; // Import icons for list and grid views
-import FullPage from "@/components/ui/fullPage/FullPage";
+import nlp from "compromise";
+import Sentiment from "sentiment";
 
 export default function JournalsPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +27,56 @@ export default function JournalsPage() {
       </div>
     );
   }
+
+  const getFrequentKeywords = (entries: any) => {
+    const text = entries.join(" "); // Combine all entries into one text block
+    const doc = nlp(text);
+
+    // Get most frequent nouns or verbs
+    const keywords = doc.nouns().out("frequency");
+
+    return keywords.slice(0, 5); // Get top 5 most frequent words
+  };
+
+  const entries = [
+    "Today I worked on my project. It was a productive day.",
+    "I had a meeting and it went well.",
+    "The project is almost done, just need to finish a few tasks.",
+  ];
+  const sentiment = new Sentiment();
+  const analyzeSentiment = (entry) => {
+    const result = sentiment.analyze(entry);
+    return result; // result.score will give you a sentiment score
+  };
+
+  const newEntries = [
+    "I'm really happy today, everything is going great.",
+    "Today was a tough day. Feeling a bit down.",
+  ];
+
+  const getSentimentColor = (score: number) => {
+    if (score < -5) {
+      return "hsla(0, 100%, 50%, 0.15)"; // Very Negative (Red) with 50% opacity
+    } else if (score < 0) {
+      return `hsla(0, ${100 + score * 20}%, 50%, 0.15)`; // Gradual shift to Neutral (lighter Red) with 50% opacity
+    } else if (score === 0) {
+      return "hsla(0, 0%, 70%, 0.15)"; // Neutral (Gray) with 50% opacity
+    } else if (score <= 5) {
+      return `hsla(120, ${score * 20}%, 50%, 0.15)`; // Gradual shift to Positive (lighter Green) with 50% opacity
+    } else {
+      return "hsla(120, 100%, 50%, 0.15)"; // Very Positive (Green) with 50% opacity
+    }
+  };
+
+  newEntries.forEach((entry) => {
+    const sentimentResult = analyzeSentiment(entry);
+    const color = getSentimentColor(sentimentResult.score);
+    console.log(
+      `Entry: "${entry}" | Score: ${sentimentResult.score} | Color: ${color}`
+    );
+  });
+
+  console.log("getFreq", getFrequentKeywords(entries));
 
   return (
     <div className="p-6 min-h-screen">
@@ -68,7 +119,12 @@ export default function JournalsPage() {
           user.journals.map((journal, index) => (
             <Card
               key={index}
-              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+              style={{
+                borderBottom: `4px solid ${getSentimentColor(
+                  analyzeSentiment(journal.entry).score
+                )}`,
+              }}
+              className="relative cursor-pointer hover:shadow-lg transition-shadow duration-200"
               onClick={() => router.push(`/journal/${journal._id}`)} // Navigate to the journal page
             >
               <CardHeader>
@@ -78,8 +134,10 @@ export default function JournalsPage() {
                     : journal.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-500">{journal.date}</p>
+              <CardContent className="">
+                {/* Example of a small square with background color */}
+                <p className="text-sm text-gray-500">{journal.date}</p>{" "}
+                {/* <div className="w-5 h-5 bg-red-500 rounded-full"></div> */}
               </CardContent>
             </Card>
           ))

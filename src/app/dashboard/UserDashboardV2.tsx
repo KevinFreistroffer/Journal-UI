@@ -10,6 +10,7 @@ import { IJournal } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
+import { ConstructionIcon } from "lucide-react";
 // import {
 //   BarChart,
 //   Bar,
@@ -19,7 +20,10 @@ import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBr
 //   CartesianGrid,
 //   ResponsiveContainer,
 // } from "recharts";
+import nlp from "compromise";
+import Sentiment from "sentiment";
 import styles from "@/app/dashboard/UserDashboard.module.css";
+
 export interface IFrontEndJournal extends IJournal {
   // Add any additional properties specific to the frontend representation
   // For example, you might want to include a formatted date or a flag for upcoming entries
@@ -28,6 +32,7 @@ export interface IFrontEndJournal extends IJournal {
 }
 
 function UserDashboard() {
+  const router = useRouter();
   const { user, isLoading } = useAuth();
   // const { selectedJournal } = useJournal(); // Assuming this hook provides journal entries
   const [totalJournals, setTotalJournals] = useState(
@@ -40,9 +45,8 @@ function UserDashboard() {
   const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndJournal[]>(
     []
   );
-  const router = useRouter();
-  const journals = user?.journals;
   const [data, setData] = useState<ICategoryBreakdown[]>([]);
+  const journals = user?.journals;
   useEffect(() => {
     if (user) {
       setTotalJournals(journals?.length || 0);
@@ -126,6 +130,7 @@ function UserDashboard() {
     return <div>No user found.</div>;
   }
 
+
   return (
     <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
@@ -141,26 +146,6 @@ function UserDashboard() {
         </div>
 
         {/* Category Breakdown */}
-        {/* <div className="w-full mb-6 w-full p-2">
-          <Card className="h-full p-4">
-            <h2 className="text-xl font-semibold">Category Breakdown</h2>
-            <PieChart
-              data={data}
-              startAngle={180}
-              lengthAngle={180}
-              viewBoxSize={[100, 100]}
-              radius={60}
-              label={({ dataEntry }) =>
-                `${dataEntry.title}: ${dataEntry.value}`
-              }
-              labelStyle={{
-                fontSize: "8px",
-                fill: "#fff",
-              }}
-              style={{ height: "200px" }}
-            />
-          </Card>
-        </div> */}
         <div
           id={`${styles["categoryBreakdown"]}`}
           className="w-full mb-6 w-full p-2 md:w-full lg:w-1/2 xl:w-1/3"
@@ -173,26 +158,8 @@ function UserDashboard() {
           </Card>
         </div>
 
-        {/*  */}
-        {/* {data && data.length ? (
-          <div className="w-full mb-6 w-full p-2">
-            <Card className="h-full p-4">
-              <h2 className="text-xl font-semibold">Category Breakdown</h2>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          </div>
-        ) : null} */}
-
         {/* Recent Activity */}
-        <div className="w-full mb-6 md:w-1/2 xl:w-2/3 p-2">
+        <div className="w-full mb-6 md:w-1/2 xl:w-1/3  p-2">
           <Card className="h-full p-4">
             <h2 className="text-xl font-semibold">Recent Activity</h2>
             <ul>
@@ -224,6 +191,16 @@ function UserDashboard() {
                 <p>No upcoming entries.</p>
               )}
             </ul>
+          </Card>
+        </div>
+
+        {/* Favorite Journals */}
+        <div className="w-full mb-6 md:w-1/2 xl:w-1/3  p-2">
+          <Card className="h-full p-4">
+            <h2 className="text-xl font-semibold">Favorite Journals</h2>
+            <div className="flex justify-center items-center w-full h-full">
+              <ConstructionIcon className="w-1/2 h-1/2 text-yellow-300" />
+            </div>
           </Card>
         </div>
       </div>
