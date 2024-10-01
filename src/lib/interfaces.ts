@@ -6,6 +6,7 @@ export interface IJournal {
   date: string;
   selected: boolean;
 }
+
 export interface ICategory {
   _id: string;
   category: string;

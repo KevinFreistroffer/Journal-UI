@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./header.module.css";
+import { UserIcon } from "lucide-react";
 export interface IMenuItem {
   href: string;
   label: string;
@@ -68,6 +69,12 @@ export default function Header() {
           </nav>
         ) : (
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            {user && (
+              <div className="flex items-center space-x-2">
+                <UserIcon className="w-6 h-6 rounded-full" />
+                <span>{user.username}</span>
+              </div>
+            )}
             <MenuItems menuItems={menuItems} />
             {user && (
               <button
