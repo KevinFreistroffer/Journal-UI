@@ -6,15 +6,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import { List, Grid } from "lucide-react"; // Import icons for list and grid views
+import { List, Grid, BookOpen, XIcon } from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
 
 export default function JournalsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
+  const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
+  const [showHelperText, setShowHelperText] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+
+  const handleCloseHelper = () => {
+    // Close the helper text and set it in localStorage
+    setShowHelperText(false);
+    localStorage.setItem("hasSeenHelperText", "true");
+  };
+
+  useEffect(() => {
+    // Check if the user has seen the helper text
+    const hasSeenHelperText = localStorage.getItem("hasSeenHelperText");
+
+    // If not, show the helper text
+    if (!hasSeenHelperText) {
+      setShowHelperText(true);
+    }
+  }, []);
 
   useEffect(() => {
     console.log("user", user);
@@ -56,15 +74,15 @@ export default function JournalsPage() {
 
   const getSentimentColor = (score: number) => {
     if (score < -5) {
-      return "hsla(0, 100%, 50%, 0.15)"; // Very Negative (Red) with 50% opacity
+      return "hsla(0, 100%, 50%, 0.75)"; // Very Negative (Red) with 50% opacity
     } else if (score < 0) {
-      return `hsla(0, ${100 + score * 20}%, 50%, 0.15)`; // Gradual shift to Neutral (lighter Red) with 50% opacity
+      return `hsla(0, ${100 + score * 20}%, 50%, 0.75)`; // Gradual shift to Neutral (lighter Red) with 50% opacity
     } else if (score === 0) {
-      return "hsla(0, 0%, 70%, 0.15)"; // Neutral (Gray) with 50% opacity
+      return "hsla(0, 0%, 70%, 0.75)"; // Neutral (Gray) with 50% opacity
     } else if (score <= 5) {
-      return `hsla(120, ${score * 20}%, 50%, 0.15)`; // Gradual shift to Positive (lighter Green) with 50% opacity
+      return `hsla(120, ${score * 20}%, 50%, 0.75)`; // Gradual shift to Positive (lighter Green) with 50% opacity
     } else {
-      return "hsla(120, 100%, 50%, 0.15)"; // Very Positive (Green) with 50% opacity
+      return "hsla(120, 100%, 50%, 0.75)"; // Very Positive (Green) with 50% opacity
     }
   };
 
@@ -100,6 +118,14 @@ export default function JournalsPage() {
           <Grid className="w-4 h-4 mr-1" />
           Icon View
         </button>
+        <button
+          className={`flex items-center p-2 rounded ${
+            showSentiment ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setShowSentiment(!showSentiment)}
+        >
+          {showSentiment ? "Hide Sentiment" : "Show Sentiment"}
+        </button>
       </div>
       <div
         className={`grid ${
@@ -119,13 +145,7 @@ export default function JournalsPage() {
           user.journals.map((journal, index) => (
             <Card
               key={index}
-              style={{
-                borderBottom: `4px solid ${getSentimentColor(
-                  analyzeSentiment(journal.entry).score
-                )}`,
-              }}
-              className="relative cursor-pointer hover:shadow-lg transition-shadow duration-200"
-              onClick={() => router.push(`/journal/${journal._id}`)} // Navigate to the journal page
+              className="relative  hover:shadow-lg transition-shadow duration-200"
             >
               <CardHeader>
                 <CardTitle>
@@ -133,11 +153,48 @@ export default function JournalsPage() {
                     ? `${journal.title.substring(0, 30)}...`
                     : journal.title}
                 </CardTitle>
+                <div className="absolute top-4 right-4 m-4">
+                  {index === 0 && showHelperText && (
+                    <div
+                      style={{ top: -88, width: 307 }}
+                      className="helper-text bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 pr-12 py-3 rounded absolute"
+                      role="alert"
+                    >
+                      <strong className="font-bold">Tip! </strong>
+                      <span className="block sm:inline">
+                        Click the book icon to read your journal!
+                      </span>
+                      <button
+                        onClick={handleCloseHelper}
+                        className="absolute top-0 right-0 p-4"
+                      >
+                        <XIcon className="h-6 w-6 text-yellow-500" />
+                      </button>
+                    </div>
+                  )}
+                  <BookOpen
+                    className="w-8 h-8 cursor-pointer"
+                    onClick={() => router.push(`/journal/${journal._id}`)}
+                  />
+                </div>
               </CardHeader>
               <CardContent className="">
-                {/* Example of a small square with background color */}
-                <p className="text-sm text-gray-500">{journal.date}</p>{" "}
-                {/* <div className="w-5 h-5 bg-red-500 rounded-full"></div> */}
+                <p className="text-sm text-gray-500">{journal.date}</p>
+                {showSentiment && (
+                  <div className="mt-8 flex items-center text-sm">
+                    <span className="mr-2">Sentiment:</span>
+                    <div
+                      className="rounded-full"
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        backgroundColor: getSentimentColor(
+                          analyzeSentiment(journal.entry).score
+                        ),
+                      }}
+                    ></div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))
