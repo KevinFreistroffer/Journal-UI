@@ -50,7 +50,7 @@ type Category = {
   selected: boolean;
 };
 
-function UserDashboard() {
+function WritePage() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
@@ -222,13 +222,16 @@ function UserDashboard() {
             : "Uncategorized"
           : "Uncategorized",
       userId: user?._id,
+      favorite: false,
     };
     console.log("newJournal", newJournal);
     try {
-      const response = await fetch(`api/user/journal/create`, {
+      const response = await fetch(`/api/user/journal/create`, {
         method: "POST",
         body: JSON.stringify(newJournal),
       });
+
+      console.log(response.status);
 
       if (!response.ok) {
         throw new Error("Failed to create journal");
@@ -379,151 +382,79 @@ function UserDashboard() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="flex justify-end mb-4">
-          <Button onClick={handleCreateJournal}>Create Journal</Button>
-        </div>
+      <div className="w-full p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
-        <div className="grid grid-cols-2 gap-6">
-          {/* Left Column: Create New Journal */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
-            <form onSubmit={handleCreateJournal} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="entry">Entry</Label>
-                <Textarea
-                  id="entry"
-                  value={entry}
-                  onChange={(e) => setEntry(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  onValueChange={setSelectedCategory}
-                  defaultValue={selectedCategory}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {categories.length > 0 ? (
-                      categories.map((cat, index) => (
-                        <SelectItem key={index} value={cat.name}>
-                          {cat.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="disabled" disabled>
-                        No categories available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center">
-                <Button
-                  type="submit"
-                  disabled={isSaving || !title || !entry}
-                  className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                >
-                  {isSaving ? "Saving..." : "Create Journal"}
-                </Button>
-                {showJournalSuccessIcon && (
-                  <>
-                    <CheckCircle className="text-green-500 animate-fade-in-out" />
-                    <p className="text-green-500">
-                      Journal created successfully!
-                    </p>
-                  </>
-                )}
-              </div>
-            </form>
-          </div>
-
-          {/* Right Column: Journal List */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Your Journals</h2>
-            <div className="flex space-x-2 mb-4">
-              <Button
-                variant={journalViewMode === "list" ? "default" : "outline"}
-                onClick={() => setJournalViewMode("list")}
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-              <Button
-                variant={journalViewMode === "icons" ? "default" : "outline"}
-                onClick={() => setJournalViewMode("icons")}
-              >
-                <Grid className="w-4 h-4 mr-2" />
-                Icon View
-              </Button>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
+          <form onSubmit={handleCreateJournal} className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
             </div>
-            <div
-              className={`${
-                journalViewMode === "list"
-                  ? "space-y-4"
-                  : "grid grid-cols-2 gap-4"
-              } h-[calc(100vh-300px)] overflow-y-auto`}
-            >
-              {isLoading ? (
-                Array(3)
-                  .fill(null)
-                  .map((_, index) => (
-                    <div key={index}>{renderSkeletonCard()}</div>
-                  ))
-              ) : filteredJournals && filteredJournals.length > 0 ? (
-                filteredJournals.map((journal, index) => (
-                  <div
-                    key={`journal-${index}`}
-                    onClick={(e) => handleJournalClick(e, journal)}
-                  >
-                    <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
-                      <CardHeader>
-                        <CardTitle className="flex justify-between items-center">
-                          {journal.title}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleDeleteClick(e, journal)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p>
-                          {journal.entry
-                            ? journal.entry.substring(0, 100) + "..."
-                            : "No entry"}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-2">
-                          Category: {journal.category}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))
-              ) : (
-                <p>No journals found</p>
+            <div>
+              <Label htmlFor="entry">Entry</Label>
+              <Textarea
+                id="entry"
+                value={entry}
+                onChange={(e) => setEntry(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select
+                onValueChange={setSelectedCategory}
+                defaultValue={selectedCategory}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {categories.length > 0 ? (
+                    categories.map((cat, index) => (
+                      <SelectItem
+                        key={`category-${index}`}
+                        value={cat.name}
+                        className="cursor-pointer"
+                      >
+                        {cat.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="disabled" disabled>
+                      No categories available
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center">
+              <Button
+                type="submit"
+                disabled={isSaving || !title || !entry}
+                className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+              >
+                {isSaving ? "Saving..." : "Create Journal"}
+              </Button>
+              {showJournalSuccessIcon && (
+                <>
+                  <CheckCircle className="text-green-500 animate-fade-in-out" />
+                  <p className="text-green-500">
+                    Journal created successfully!
+                  </p>
+                </>
               )}
             </div>
-          </div>
+          </form>
         </div>
       </div>
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
+      {/* <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
       >
@@ -542,9 +473,9 @@ function UserDashboard() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </div>
   );
 }
 
-export default UserDashboard;
+export default WritePage;

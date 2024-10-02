@@ -5,6 +5,11 @@ export interface IJournal {
   category: string;
   date: string;
   selected: boolean;
+  sentiment?: string;
+  sentimentColor?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  favorite?: boolean;
 }
 
 export interface ICategory {
@@ -24,4 +29,6 @@ export interface IUser {
   // password and
   journals: IJournal[];
   journalCategories: ICategory[];
+  createdAt: string;
+  updatedAt: string;
 }

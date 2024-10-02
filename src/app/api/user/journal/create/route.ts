@@ -21,12 +21,7 @@ export async function POST(req: Request) {
         Accept: "application/json",
         Cookie: cookies().toString(),
       },
-      body: JSON.stringify({
-        userId,
-        title,
-        entry,
-        category,
-      }),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
