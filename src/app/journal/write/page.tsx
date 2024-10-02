@@ -21,7 +21,7 @@ import {
   CheckCircle,
   List,
   Grid,
-  Trash2,
+  PlusIcon,
   ChevronLeft,
   ChevronRight,
   X,
@@ -263,8 +263,8 @@ function WritePage() {
         }
         setTitle("");
         setEntry("");
-        setShowCategorySuccessIcon(true);
-        setTimeout(() => setShowCategorySuccessIcon(false), 3000);
+        setShowJournalSuccessIcon(true);
+        setTimeout(() => setShowJournalSuccessIcon(false), 3000);
       }
     } catch (error) {
       console.error("Error creating journal:", error);
@@ -376,13 +376,13 @@ function WritePage() {
           >
             <Grid />
             {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Categories</span>
+              <span className="ml-2">Categories ({categories.length})</span>
             )}
           </Link>
         </div>
       </div>
       {/* Main Content */}
-      <div className="w-full p-6 overflow-y-auto">
+      <div className="w-full p-6 overflow-y-auto max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
         <div>
           <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
@@ -407,31 +407,42 @@ function WritePage() {
             </div>
             <div>
               <Label htmlFor="category">Category</Label>
-              <Select
-                onValueChange={setSelectedCategory}
-                defaultValue={selectedCategory}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {categories.length > 0 ? (
-                    categories.map((cat, index) => (
-                      <SelectItem
-                        key={`category-${index}`}
-                        value={cat.name}
-                        className="cursor-pointer"
-                      >
-                        {cat.name}
+              <div className="flex items-center">
+                <Select
+                  onValueChange={setSelectedCategory}
+                  defaultValue={selectedCategory}
+                  className="mr-2"
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {categories.length > 0 ? (
+                      categories.map((cat, index) => (
+                        <SelectItem
+                          key={`category-${index}`}
+                          value={cat.name}
+                          className="cursor-pointer"
+                        >
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="disabled" disabled>
+                        No categories available
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="disabled" disabled>
-                      No categories available
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                    )}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    // Logic to open category creation modal or input
+                  }}
+                >
+                  <PlusIcon />
+                </Button>
+              </div>
             </div>
             <div className="flex items-center">
               <Button
