@@ -1,18 +1,17 @@
+/**
+ * the problem with local storage is if it's disabled the prompt'll show every time.
+ * instead a db field is needed. however, i am not sure about sending a request to a database.
+ */
+
 import React from "react";
 
 interface IProps {
   filled?: boolean; // Determines if the star is filled
-  borderColor?: string; // Border color
-  backgroundColor?: string; // Background color
+
   onClick?: () => void; // Click handler
 }
 
-const StarIcon: React.FC<IProps> = ({
-  filled = false,
-  borderColor = "transparent",
-  backgroundColor = "transparent",
-  onClick,
-}) => {
+const StarIcon: React.FC<IProps> = ({ filled = false, onClick }) => {
   return (
     <div
       onClick={onClick}

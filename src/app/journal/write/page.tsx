@@ -365,7 +365,7 @@ function WritePage() {
           >
             <List />
             {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Journals</span>
+              <span className="ml-2">Journals ({journals.length})</span>
             )}
           </Link>
           <Link

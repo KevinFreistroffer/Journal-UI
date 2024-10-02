@@ -50,15 +50,16 @@ export async function middleware(request: NextRequest) {
   //   );
   // }
 
-  if (
-    isPublicRoute &&
-    session?.userId &&
-    session?.isVerified &&
-    !request.nextUrl.pathname.startsWith("/dashboard")
-  ) {
-    console.log("35 redirecting to dashboard");
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // Commented this out 10/2 to add it to the public routes pages
+  // if (
+  //   isPublicRoute &&
+  //   session?.userId &&
+  //   session?.isVerified &&
+  //   !request.nextUrl.pathname.startsWith("/dashboard")
+  // ) {
+  //   console.log("35 redirecting to dashboard");
+  //   return NextResponse.redirect(new URL("/dashboard", request.url));
+  // }
 
   // return NextResponse.next();
 }

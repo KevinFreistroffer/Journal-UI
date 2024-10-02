@@ -22,6 +22,7 @@ export default function JournalsPage() {
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showHelperText, setShowHelperText] = useState(false);
   const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
+  const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useAuth();
 
@@ -110,11 +111,28 @@ export default function JournalsPage() {
     }
   };
 
-  const handleFavorite = (journalId: string) => {
-    if (favoriteJournals.includes(journalId)) {
-      setFavoriteJournals(favoriteJournals.filter((id) => id !== journalId));
-    } else {
-      setFavoriteJournals([...favoriteJournals, journalId]);
+  const handleFavorite = async (journalId: string) => {
+    setLoadingJournalId(journalId); // Set the loading state for the specific journal
+    try {
+      // Send API request to edit the journal
+      const response = await fetch(`/user/journal/edit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ journalId }), // Include the journal ID in the request body
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update favorite status");
+      }
+
+      // Handle successful response (e.g., update state)
+      // Example: toggle favorite status in your state
+    } catch (error) {
+      console.error("Error updating favorite status:", error);
+    } finally {
+      setLoadingJournalId(null); // Reset loading state
     }
   };
 
@@ -240,21 +258,14 @@ export default function JournalsPage() {
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  {/* <Star
-                    className={`w-8 h-8 cursor-pointer ${
-                      favoriteJournals.includes(journal._id)
-                        ? "text-yellow-500 bg-yellow-500"
-                        : "text-gray-500 bg-gray-500"
-                    }`}
-                    color="red"
-                    onClick={() => handleFavorite(journal._id)}
-                  /> */}
-                  <StarIcon
-                    borderColor="yellow"
-                    backgroundColor="yellow"
-                    filled={favoriteJournals.includes(journal._id)}
-                    onClick={() => handleFavorite(journal._id)}
-                  />
+                  {loadingJournalId === journal._id ? ( // Show loading indicator if this journal is loading
+                    <Spinner />
+                  ) : (
+                    <StarIcon
+                      filled={favoriteJournals.includes(journal._id)}
+                      onClick={() => handleFavorite(journal._id)}
+                    />
+                  )}
                 </div>
               </CardFooter>
             </Card>
