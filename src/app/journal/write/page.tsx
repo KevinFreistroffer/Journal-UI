@@ -245,6 +245,7 @@ function WritePage() {
   const handleCloseCategoryModal = () => {
     setShowCreatedCategorySuccessIcon(false); // Hide success icon
     setIsCreateCategoryDialogOpen(false); // Close dialog immediately
+    setCategoryCreated(false); // Reset category created state
   };
 
   // const { openModal } = useContext(ModalContext);
@@ -415,24 +416,33 @@ function WritePage() {
       >
         <AlertDialogContent>
           {!categoryCreated ? ( // Conditionally render the form or success message
-            <>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Create New Category</AlertDialogTitle>
-                <AlertDialogDescription>
+            <div className="w-full flex flex-col items-center">
+              <AlertDialogHeader className="flex flex-col items-center w-full mb-6">
+                <AlertDialogTitle className="w-full">
+                  Create New Category
+                </AlertDialogTitle>
+                <AlertDialogDescription className="w-full">
                   Enter the name of the new category.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <form onSubmit={handleCreateCategory}>
-                <Label htmlFor="newCategory">Category Name</Label>
+              <form onSubmit={handleCreateCategory} className="w-full">
+                {/* <Label htmlFor="newCategory"></Label> */}
                 <Input
                   id="newCategory"
                   value={newCategoryName}
+                  placeholder="Category Name"
+                  className="mb-4"
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   required
                 />
                 <AlertDialogFooter>
                   <AlertDialogCancel
-                    onClick={() => setIsCreateCategoryDialogOpen(false)}
+                    onClick={() => {
+                      setIsCreateCategoryDialogOpen(false);
+                      setCategoryCreated(false);
+                      setNewCategoryName("");
+                    }}
+                    className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
                   >
                     Cancel
                   </AlertDialogCancel>
@@ -440,23 +450,22 @@ function WritePage() {
                     type="button"
                     disabled={isCreatingCategoryLoading}
                     onClick={handleCreateCategory}
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
                   >
-                    {isCreatingCategoryLoading ? <Spinner /> : "Create"}{" "}
-                    {/* Show spinner if loading */}
+                    {isCreatingCategoryLoading ? <Spinner /> : "Create"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </form>
-            </>
+            </div>
           ) : (
-            <div className="flex items-center mt-4">
-              <CheckCircle className="text-green-500" />
-              <span className="ml-2 text-green-500">
-                Category created successfully!
-              </span>
+            <div className="flex flex-col items-center mt-4">
+              <div className="flex items-center mb-4">
+                <CheckCircle className="text-green-500 animate-fade-in-out" />
+                <p className="text-green-500">Category created successfully!</p>
+              </div>
               <Button
-                variant="outline"
                 onClick={handleCloseCategoryModal}
-                className="ml-4"
+                className="ml-4 w-full bg-blue-500 text-white"
               >
                 Close
               </Button>
