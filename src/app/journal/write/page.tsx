@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
-import { IJournal } from "@/lib/interfaces";
+import { IJournal, ICategory } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -39,25 +39,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
-
-export interface IFrontEndJournal extends IJournal {
-  id: number;
-}
-
-type Category = {
-  id: number;
-  name: string;
-  selected: boolean;
-};
+import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
 
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
-  const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
-  const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
-    []
-  );
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [journals, setJournals] = useState<IJournal[]>([]);
+  //   const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
+  //     []
+  //   );
+  const [categories, setCategories] = useState<ICategory[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
@@ -97,7 +88,7 @@ function WritePage() {
 
   useEffect(() => {
     const savedJournal =
-      localStorageService.getItem<IFrontEndJournal>("selectedJournal");
+      localStorageService.getItem<IJournal>("selectedJournal");
     if (savedJournal) {
       setSelectedJournal(savedJournal);
     }
@@ -105,22 +96,27 @@ function WritePage() {
 
   useEffect(() => {
     if (user && user.journals) {
-      const formattedJournals = user.journals.map((journal, index) => ({
-        id: index + 1,
-        title: journal.title,
-        entry: journal.entry,
-        category: journal.category || "My Journals",
-        date: journal.date,
-        selected: journal.selected,
-      }));
-      setJournals(formattedJournals);
-      setFilteredJournals(formattedJournals);
+      console.log("Setting user values.");
+      //   const formattedJournals = user.journals.map((journal, index) => ({
+      //     id: journal._id,
+      //     title: journal.title,
+      //     entry: journal.entry,
+      //     category: journal.category || "My Journals",
+      //     date: journal.date,
+      //     selected: journal.selected,
+      //   }));
+
+      //   console.log(formattedJournals);
+
+      setJournals(user.journals);
+      setCategories(user.journalCategories);
+      //   setFilteredJournals(formattedJournals);
 
       const savedJournal =
-        localStorageService.getItem<IFrontEndJournal>("selectedJournal");
+        localStorageService.getItem<IJournal>("selectedJournal");
       if (savedJournal) {
-        const updatedJournal = formattedJournals.find(
-          (j) => j.id === savedJournal.id
+        const updatedJournal = user.journals.find(
+          (j) => j._id === savedJournal._id
         );
         if (updatedJournal) {
           setSelectedJournal(updatedJournal);
@@ -128,20 +124,18 @@ function WritePage() {
         }
       }
 
-      const uniqueCategories = Array.from(
-        new Set(formattedJournals.map((j) => j.category))
-      );
-      const categoriesArray = uniqueCategories.map((cat, index) => ({
-        id: index + 1,
-        name: cat,
-        selected: false,
-      }));
+      //   const uniqueCategories = Array.from(
+      //     new Set(user.journals.map((j) => j.category))
+      //   );
 
-      if (categoriesArray.length === 0) {
-        categoriesArray.push({ id: 1, name: "My Journals", selected: false });
-      }
+      //   //   if (uniqueCategories.length === 0) {
+      //   //     uniqueCategories.push({
+      //   //       _id: "1",
+      //   //       category: "My Journals",
+      //   //       selected: false,
+      //   //     });
+      //   //   }
 
-      setCategories(categoriesArray);
       setSelectedCategory("");
     }
   }, [user, setSelectedJournal]);
@@ -190,25 +184,15 @@ function WritePage() {
         const body = await response.json();
         console.log("body", body);
         const userData = body.data;
+        console.log("userData", userData);
         setUser(userData);
         setJournals(userData.journals);
-        setFilteredJournals(userData.journals);
+        // setFilteredJournals(userData.journals);
         if (
           userData.journalCategories &&
           userData.journalCategories.length > 0
         ) {
-          setCategories(
-            userData.journalCategories.map(
-              (
-                cat: { category: string; selected: boolean },
-                index: number
-              ) => ({
-                id: index + 1,
-                name: cat.category,
-                selected: cat.selected,
-              })
-            )
-          );
+          setCategories(userData.journalCategories);
         }
         setTitle("");
         setEntry("");
@@ -228,7 +212,8 @@ function WritePage() {
       setIsCreatingCategoryLoading(true); // Show loading indicator
 
       const categoryExists = categories.some(
-        (cat) => cat.name.toLowerCase() === newCategoryName.toLowerCase()
+        ({ category }) =>
+          category.toLowerCase() === newCategoryName.toLowerCase()
       );
       if (categoryExists) {
         setCategoryCreatedErrorMessage("Category already exists."); // Set error message if category exists
@@ -236,28 +221,34 @@ function WritePage() {
         return;
       }
 
-      const newCat: Category = {
-        id: categories.length + 1,
-        name: newCategoryName,
-        selected: false,
-      };
       try {
         // Simulate an API request (replace with your actual API call)
-        const response = await fetch("/api/user/category/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: user?._id,
-            category: newCategoryName,
-          }), // Replace 'yourUserId' with actual user ID
-        });
+        const response = await fetch(
+          "/api/user/category/create?returnUser=true",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user?._id,
+              category: newCategoryName,
+            }), // Replace 'yourUserId' with actual user ID
+          }
+        );
 
-        const data = await response.json();
+        const body = await response.json();
 
-        if (data.success) {
-          setCategories([...categories, newCat]);
+        if (!response.ok) {
+          setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
+        } else {
+          console.log("response.ok", response.ok);
+          console.log("response.status", response.status);
+
+          console.log("created category data", body);
+          setUser(body.data);
+          setJournals(body.data.journals);
+          setCategories(body.data.journalCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
           setIsCategoryCreated(true); // Set category created state
@@ -266,8 +257,6 @@ function WritePage() {
           timeoutRef.current = setTimeout(() => {
             setIsCategoryCreated(false);
           }, 3000);
-        } else {
-          setCategoryCreatedErrorMessage(data.message); // Set error message if creation failed
         }
       } catch (error) {
         console.error("Error creating category:", error);
@@ -415,11 +404,11 @@ function WritePage() {
                     {categories.length > 0 ? (
                       categories.map((cat, index) => (
                         <SelectItem
-                          key={`category-${index}`}
-                          value={cat.name}
+                          key={`${cat._id}`}
+                          value={cat.category}
                           className="cursor-pointer"
                         >
-                          {cat.name}
+                          {cat.category}
                         </SelectItem>
                       ))
                     ) : (

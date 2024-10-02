@@ -10,6 +10,7 @@ import { FormButton } from "@/components/ui/formButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
 import styles from "./styles.module.css";
+
 const initialState: State = {
   message: "",
   errors: {},
