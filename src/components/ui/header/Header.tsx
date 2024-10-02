@@ -87,6 +87,7 @@ export default function Header() {
                       },
                     });
                     if (response.ok) {
+                      console.log("Logout successful");
                       // Redirect or update UI as needed after successful logout
                       setUser(null);
                       router.push("/");

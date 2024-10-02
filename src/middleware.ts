@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
   //   );
   // }
 
-  // Commented this out 10/2 to add it to the public routes pages
+  // Commented this out 10/2 to add it to the public routes
   // if (
   //   isPublicRoute &&
   //   session?.userId &&

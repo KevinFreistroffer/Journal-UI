@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,13 +72,16 @@ function WritePage() {
     useState(false); // State for loading indicator
   const [showCreatedCategorySuccessIcon, setShowCreatedCategorySuccessIcon] =
     useState(false); // State for success icon
-  const [categoryCreated, setCategoryCreated] = useState(false); // State to track if category is created
+  const [categoryCreatedErrorMessage, setCategoryCreatedErrorMessage] =
+    useState(""); // State for error message
+  const [isCategoryCreated, setIsCategoryCreated] = useState(false); // State to track if category is created
   const [journalToDelete, setJournalToDelete] =
     useState<IFrontEndJournal | null>(null);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -149,6 +152,12 @@ function WritePage() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (newCategoryName.trim() !== "" && isCategoryCreated) {
+      setIsCategoryCreated(false);
+    }
+  }, [newCategoryName, isCategoryCreated]);
+
   const handleCreateJournal = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -217,6 +226,16 @@ function WritePage() {
     e.preventDefault();
     if (newCategoryName) {
       setIsCreatingCategoryLoading(true); // Show loading indicator
+
+      const categoryExists = categories.some(
+        (cat) => cat.name.toLowerCase() === newCategoryName.toLowerCase()
+      );
+      if (categoryExists) {
+        setCategoryCreatedErrorMessage("Category already exists."); // Set error message if category exists
+        setIsCreatingCategoryLoading(false); // Hide loading indicator
+        return;
+      }
+
       const newCat: Category = {
         id: categories.length + 1,
         name: newCategoryName,
@@ -224,18 +243,37 @@ function WritePage() {
       };
       try {
         // Simulate an API request (replace with your actual API call)
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
-        setCategories([...categories, newCat]);
-        setNewCategoryName("");
-        setShowCreatedCategorySuccessIcon(true); // Show success icon
-        setCategoryCreated(true); // Set category created state
+        const response = await fetch("/api/user/category/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user?._id,
+            category: newCategoryName,
+          }), // Replace 'yourUserId' with actual user ID
+        });
 
-        // Set timeout for closing the dialog
-        setTimeout(() => {
-          setIsCreateCategoryDialogOpen(false); // Close dialog after 1 second
-        }, 1000);
+        const data = await response.json();
+
+        if (data.success) {
+          setCategories([...categories, newCat]);
+          setNewCategoryName("");
+          setShowCreatedCategorySuccessIcon(true); // Show success icon
+          setIsCategoryCreated(true); // Set category created state
+
+          // Set timeout for closing the dialog only if it's still open
+          timeoutRef.current = setTimeout(() => {
+            setIsCategoryCreated(false);
+          }, 3000);
+        } else {
+          setCategoryCreatedErrorMessage(data.message); // Set error message if creation failed
+        }
       } catch (error) {
         console.error("Error creating category:", error);
+        setCategoryCreatedErrorMessage(
+          "An error occurred while creating the category."
+        ); // Set a generic error message
       } finally {
         setIsCreatingCategoryLoading(false); // Hide loading indicator
       }
@@ -245,9 +283,22 @@ function WritePage() {
   const handleCloseCategoryModal = () => {
     setShowCreatedCategorySuccessIcon(false); // Hide success icon
     setIsCreateCategoryDialogOpen(false); // Close dialog immediately
-    setCategoryCreated(false); // Reset category created state
+    setIsCategoryCreated(false); // Reset category created state
+    setNewCategoryName("");
+    setCategoryCreatedErrorMessage("");
+    setIsCreatingCategoryLoading(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current); // Clear the timeout if the dialog is closed
+    }
   };
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current); // Clear timeout on component unmount
+      }
+    };
+  }, []);
   // const { openModal } = useContext(ModalContext);
 
   // const handleOpenModal = () => {
@@ -398,16 +449,30 @@ function WritePage() {
                 {isSaving ? "Saving..." : "Create Journal"}
               </Button>
               {showJournalSuccessIcon && (
-                <>
+                <div className="flex items-center">
                   <CheckCircle className="text-green-500 animate-fade-in-out" />
                   <p className="text-green-500">
                     Journal created successfully!
                   </p>
-                </>
+                </div>
               )}
             </div>
           </form>
         </div>
+      </div>
+      <div
+        style={{
+          position: "fixed",
+          bottom: "0",
+          left: "0",
+          width: "100%",
+          backgroundColor: "white",
+          padding: "1rem",
+          textAlign: "center",
+          zIndex: 1000,
+        }}
+      >
+        <h1>{isCategoryCreated.toString()}</h1>
       </div>
       {/* Create Category AlertDialog */}
       <AlertDialog
@@ -415,7 +480,7 @@ function WritePage() {
         onOpenChange={setIsCreateCategoryDialogOpen}
       >
         <AlertDialogContent>
-          {!categoryCreated ? ( // Conditionally render the form or success message
+          {
             <div className="w-full flex flex-col items-center">
               <AlertDialogHeader className="flex flex-col items-center w-full mb-6">
                 <AlertDialogTitle className="w-full">
@@ -426,51 +491,65 @@ function WritePage() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <form onSubmit={handleCreateCategory} className="w-full">
-                {/* <Label htmlFor="newCategory"></Label> */}
-                <Input
-                  id="newCategory"
-                  value={newCategoryName}
-                  placeholder="Category Name"
-                  className="mb-4"
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  required
-                />
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    onClick={() => {
-                      setIsCreateCategoryDialogOpen(false);
-                      setCategoryCreated(false);
-                      setNewCategoryName("");
-                    }}
-                    className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+                <div className="flex flex items-center mb-8">
+                  <Input
+                    id="newCategory"
+                    placeholder="Category Name"
+                    value={newCategoryName}
+                    disabled={isCreatingCategoryLoading}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    required
+                    className="mr-4"
+                  />
+                  {/* <AlertDialogCancel
+                    type="button"
+                    onClick={handleCloseCategoryModal}
+                    className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2"
                   >
                     Cancel
-                  </AlertDialogCancel>
+                  </AlertDialogCancel> */}
                   <AlertDialogAction
                     type="button"
                     disabled={isCreatingCategoryLoading}
-                    onClick={handleCreateCategory}
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                    onClick={handleCloseCategoryModal}
+                    className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2"
                   >
-                    {isCreatingCategoryLoading ? <Spinner /> : "Create"}
+                    Cancel
                   </AlertDialogAction>
+                  <AlertDialogAction
+                    type="button"
+                    disabled={
+                      isCreatingCategoryLoading || !newCategoryName.trim()
+                    }
+                    onClick={handleCreateCategory}
+                    className=" bg-blue-500 text-white"
+                  >
+                    {isCreatingCategoryLoading ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      "Create"
+                    )}
+                  </AlertDialogAction>
+                </div>
+                {categoryCreatedErrorMessage && ( // Display error message if exists
+                  <div className="w-full text-center text-red-500 mt-2">
+                    {categoryCreatedErrorMessage}
+                  </div>
+                )}
+
+                <AlertDialogFooter>
+                  {isCategoryCreated && (
+                    <div className="flex w-full justify-center items-center">
+                      <CheckCircle className="text-blue-500 mr-2" size={32} />
+                      <span className="text-md">
+                        Category created successfully!
+                      </span>
+                    </div>
+                  )}
                 </AlertDialogFooter>
               </form>
             </div>
-          ) : (
-            <div className="flex flex-col items-center mt-4">
-              <div className="flex items-center mb-4">
-                <CheckCircle className="text-green-500 animate-fade-in-out" />
-                <p className="text-green-500">Category created successfully!</p>
-              </div>
-              <Button
-                onClick={handleCloseCategoryModal}
-                className="ml-4 w-full bg-blue-500 text-white"
-              >
-                Close
-              </Button>
-            </div>
-          )}
+          }
         </AlertDialogContent>
       </AlertDialog>
     </div>

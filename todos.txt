@@ -11,8 +11,7 @@ water ripple background animated
 
 add favorate journal star feature
 
-
-
+need to test API requests when there's no user_id. (user shouldnt ever be not available to able to send requests, however...)
 
 
 1. Overview Section
