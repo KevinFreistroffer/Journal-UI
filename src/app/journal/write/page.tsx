@@ -58,17 +58,21 @@ function WritePage() {
     []
   );
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newCategory, setNewCategory] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
-  const [journalViewMode, setJournalViewMode] = useState<"list" | "icons">(
-    "list"
-  );
+
   const [isSaving, setIsSaving] = useState(false);
   const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
   const [showJournalSuccessIcon, setShowJournalSuccessIcon] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
+    useState(false); // State for dialog
+  const [isCreatingCategoryLoading, setIsCreatingCategoryLoading] =
+    useState(false); // State for loading indicator
+  const [showCreatedCategorySuccessIcon, setShowCreatedCategorySuccessIcon] =
+    useState(false); // State for success icon
+  const [categoryCreated, setCategoryCreated] = useState(false); // State to track if category is created
   const [journalToDelete, setJournalToDelete] =
     useState<IFrontEndJournal | null>(null);
   const router = useRouter();
@@ -87,70 +91,6 @@ function WritePage() {
       setIsTextVisible(false); // Hide text when sidebar is closed
     }
   }, [isSidebarOpen]);
-
-  const renderSkeletonCard = () => (
-    <Card className="animate-pulse">
-      <CardHeader>
-        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-      </CardHeader>
-      <CardContent>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/4 mt-4"></div>
-      </CardContent>
-    </Card>
-  );
-
-  const handleJournalClick = (
-    e: React.MouseEvent,
-    journal: IFrontEndJournal
-  ) => {
-    e.preventDefault();
-    setSelectedJournal(journal);
-    localStorageService.setItem("selectedJournal", journal);
-    router.push(`/journal/${journal.id}`);
-  };
-
-  const handleDeleteClick = (
-    e: React.MouseEvent,
-    journal: IFrontEndJournal
-  ) => {
-    e.stopPropagation();
-    setJournalToDelete(journal);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (journalToDelete && user) {
-      try {
-        const response = await fetch(`api/user/journal/delete`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            userId: user._id,
-            journalIds: [journalToDelete.id],
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete journal");
-        }
-
-        const body = await response.json();
-        const userData = body.data;
-        setUser(userData);
-        setJournals(userData.journals);
-        setFilteredJournals(userData.journals);
-        setIsDeleteDialogOpen(false);
-        setJournalToDelete(null);
-      } catch (error) {
-        console.error("Error deleting journal:", error);
-      }
-    }
-  };
 
   useEffect(() => {
     const savedJournal =
@@ -273,35 +213,38 @@ function WritePage() {
     }
   };
 
-  const handleCreateCategory = (e: React.FormEvent) => {
+  const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newCategory) {
+    if (newCategoryName) {
+      setIsCreatingCategoryLoading(true); // Show loading indicator
       const newCat: Category = {
         id: categories.length + 1,
-        name: newCategory,
+        name: newCategoryName,
         selected: false,
       };
-      setCategories([...categories, newCat]);
-      setNewCategory("");
-      setShowCategorySuccessIcon(true);
-      setTimeout(() => setShowCategorySuccessIcon(false), 3000);
+      try {
+        // Simulate an API request (replace with your actual API call)
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+        setCategories([...categories, newCat]);
+        setNewCategoryName("");
+        setShowCreatedCategorySuccessIcon(true); // Show success icon
+        setCategoryCreated(true); // Set category created state
+
+        // Set timeout for closing the dialog
+        setTimeout(() => {
+          setIsCreateCategoryDialogOpen(false); // Close dialog after 1 second
+        }, 1000);
+      } catch (error) {
+        console.error("Error creating category:", error);
+      } finally {
+        setIsCreatingCategoryLoading(false); // Hide loading indicator
+      }
     }
   };
 
-  const handleCategoryClick = (categoryName: string) => {
-    setSelectedCategory(categoryName);
-    if (categoryName) {
-      setFilteredJournals(
-        journals.filter((journal) => journal.category === categoryName)
-      );
-    } else {
-      setFilteredJournals(journals);
-    }
-  };
-
-  const clearCategoryFilter = () => {
-    setSelectedCategory("");
-    setFilteredJournals(journals);
+  const handleCloseCategoryModal = () => {
+    setShowCreatedCategorySuccessIcon(false); // Hide success icon
+    setIsCreateCategoryDialogOpen(false); // Close dialog immediately
   };
 
   // const { openModal } = useContext(ModalContext);
@@ -435,9 +378,10 @@ function WritePage() {
                   </SelectContent>
                 </Select>
                 <Button
+                  type="button"
                   variant="ghost"
                   onClick={() => {
-                    // Logic to open category creation modal or input
+                    setIsCreateCategoryDialogOpen(true);
                   }}
                 >
                   <PlusIcon />
@@ -464,27 +408,62 @@ function WritePage() {
           </form>
         </div>
       </div>
-      {/* Delete Confirmation Dialog */}
-      {/* <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+      {/* Create Category AlertDialog */}
+      <AlertDialog
+        open={isCreateCategoryDialogOpen}
+        onOpenChange={setIsCreateCategoryDialogOpen}
       >
         <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              journal.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          {!categoryCreated ? ( // Conditionally render the form or success message
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Create New Category</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Enter the name of the new category.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <form onSubmit={handleCreateCategory}>
+                <Label htmlFor="newCategory">Category Name</Label>
+                <Input
+                  id="newCategory"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  required
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    onClick={() => setIsCreateCategoryDialogOpen(false)}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    type="button"
+                    disabled={isCreatingCategoryLoading}
+                    onClick={handleCreateCategory}
+                  >
+                    {isCreatingCategoryLoading ? <Spinner /> : "Create"}{" "}
+                    {/* Show spinner if loading */}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </form>
+            </>
+          ) : (
+            <div className="flex items-center mt-4">
+              <CheckCircle className="text-green-500" />
+              <span className="ml-2 text-green-500">
+                Category created successfully!
+              </span>
+              <Button
+                variant="outline"
+                onClick={handleCloseCategoryModal}
+                className="ml-4"
+              >
+                Close
+              </Button>
+            </div>
+          )}
         </AlertDialogContent>
-      </AlertDialog> */}
+      </AlertDialog>
     </div>
   );
 }
