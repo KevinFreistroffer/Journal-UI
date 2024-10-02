@@ -157,6 +157,7 @@ function UserDashboard() {
                   onChange={() =>
                     setShowTotalJournalsCard(!showTotalJournalsCard)
                   }
+                  className="mr-1"
                 />
                 Total Journals
               </label>
@@ -170,6 +171,7 @@ function UserDashboard() {
                   onChange={() =>
                     setShowCategoryBreakdownCard(!showCategoryBreakdownCard)
                   }
+                  className="mr-1"
                 />
                 Category Breakdown
               </label>
@@ -183,6 +185,7 @@ function UserDashboard() {
                   onChange={() =>
                     setShowRecentEntriesCard(!showRecentEntriesCard)
                   }
+                  className="mr-1"
                 />
                 Recent Entries
               </label>
@@ -196,6 +199,7 @@ function UserDashboard() {
                   onChange={() =>
                     setShowUpcomingEntriesCard(!showUpcomingEntriesCard)
                   }
+                  className="mr-1"
                 />
                 Upcoming Entries
               </label>
@@ -209,6 +213,7 @@ function UserDashboard() {
                   onChange={() =>
                     setShowFavoriteJournalsCard(!showFavoriteJournalsCard)
                   }
+                  className="mr-1"
                 />
                 Favorite Journals
               </label>

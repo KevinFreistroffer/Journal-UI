@@ -9,6 +9,7 @@
   --bloodOrange: #fe503a;
   --darkMustardYellow: #fea03a;
   --mustardYellow: #ffa751;
+  --starFavorite: #ffd700;
 }
 
 @media (prefers-color-scheme: dark) {

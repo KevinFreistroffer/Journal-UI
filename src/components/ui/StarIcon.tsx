@@ -17,17 +17,19 @@ const StarIcon: React.FC<IProps> = ({
     <div
       onClick={onClick}
       className={`w-8 h-8 flex items-center justify-center cursor-pointer`}
-      style={{
-        backgroundColor: backgroundColor,
-        border: `2px solid ${borderColor}`,
-        borderRadius: "50%", // Make it circular
-      }}
+      style={
+        {
+          // backgroundColor: backgroundColor,
+          // border: `2px solid ${borderColor}`,
+          // borderRadius: "50%", // Make it circular
+        }
+      }
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        fill={filled ? "yellow" : "none"}
+        fill={filled ? "var(--starFavorite)" : "none"}
         viewBox="0 0 24 24"
-        stroke="currentColor"
+        stroke={filled ? "var(--starFavorite)" : "currentColor"}
         className="w-6 h-6"
       >
         <path
