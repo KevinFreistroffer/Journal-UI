@@ -1,0 +1,22 @@
+.carrot {
+  width: 10px; /* Adjust width as needed */
+  height: 10px; /* Adjust height as needed */
+
+  border-radius: 10px 10px 0 0; /* Rounded top corners */
+  position: relative; /* For the pointed tip */
+  transform: rotate(180deg);
+}
+
+.carrot::after {
+  content: "";
+  position: absolute;
+  bottom: -10px; /* Adjust as needed */
+  top: -33px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 20px; /* Adjust tip length */
+  border-left: 8px solid transparent; /* Adjust tip width */
+  border-right: 8px solid transparent;
+  border-bottom: 12px solid #facc15; /* Tip color */
+}

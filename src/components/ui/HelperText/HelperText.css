@@ -1,11 +1,20 @@
-.tooltip-trigger {
+.Tooltip {
+  width: max-content;
+  background-color: #444;
+  color: white;
+  font-size: 90%;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* .tooltip-trigger {
   display: inline-block;
   position: relative;
 }
 
 .tooltip-text {
-  background-color: #333;
-  color: #fff;
+  background-color: #fef9c3;
+  color: #a16207;
   padding: 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -14,3 +23,28 @@
   opacity: 0.9;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* bg-yellow-100 rgb(250 204 21 / var(--tw-border-opacity)) */
+/* .tooltip-arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: red;
+  transform: rotate(45deg);
+}
+
+[data-popper-placement^="top"] > .tooltip-arrow {
+  bottom: -4px;
+}
+
+[data-popper-placement^="bottom"] > .tooltip-arrow {
+  top: -4px;
+}
+
+[data-popper-placement^="left"] > .tooltip-arrow {
+  right: -4px;
+}
+
+[data-popper-placement^="right"] > .tooltip-arrow {
+  left: -4px;
+} */

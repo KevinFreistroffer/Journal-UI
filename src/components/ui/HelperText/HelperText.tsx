@@ -34,6 +34,7 @@ const HelperText = ({
 
   return (
     <div
+      className="tooltip-trigger"
       //   onMouseEnter={() => setVisible(true)}
       //   onMouseLeave={() => setVisible(false)}
       onClick={() => {
@@ -41,7 +42,6 @@ const HelperText = ({
         onClick();
       }}
       ref={setReferenceElement}
-      className="tooltip-trigger"
     >
       {children}
       {isVisible && (
@@ -51,7 +51,15 @@ const HelperText = ({
           {...attributes.popper}
           className="tooltip-text"
         >
-          {text}
+          <div className="flex flex-col">
+            <p className="mb-12">{text}</p>
+            <button
+              className="self-end flex px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+              onClick={() => onClick()}
+            >
+              Ok
+            </button>
+          </div>
         </div>
       )}
     </div>

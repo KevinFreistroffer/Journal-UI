@@ -19,7 +19,7 @@ import Sentiment from "sentiment";
 import StarIcon from "@/components/ui/StarIcon";
 import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
-
+import Carrot from "@/components/ui/Carrot/Carrot";
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
@@ -214,16 +214,42 @@ export default function JournalsPage() {
                         ? `${journal.title.substring(0, 30)}...`
                         : journal.title}
                     </CardTitle>
-                    <HelperText
+                    <div className="absolute top-4 right-4 m-4">
+                      {index === 0 && showHelperText && (
+                        <div
+                          style={{ top: -98, width: 307 }}
+                          className="helper-text bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 pr-12 py-3 rounded absolute"
+                          role="alert"
+                        >
+                          <strong className="font-bold">Tip! </strong>
+                          <span className="block sm:inline">
+                            Click the book icon to read your journal!
+                          </span>
+                          <button
+                            onClick={handleCloseHelper}
+                            className="absolute top-0 right-0 p-4"
+                          >
+                            <XIcon className="h-6 w-6 text-yellow-500" />
+                          </button>
+                          {/* Add arrow icon in the bottom left corner */}
+                          <Carrot className="absolute bottom-0 left-0" />
+                        </div>
+                      )}
+                      <BookOpen
+                        className="w-8 h-8 cursor-pointer"
+                        onClick={() => router.push(`/journal/${journal._id}`)}
+                      />
+                    </div>
+                    {/* <HelperText
                       text="Click the book icon to read your journal!"
-                      isVisible={index === 0 && showHelperText}
-                      onClick={handleCloseHelper}
+                    //   isVisible={index === 0 && showHelperText}
+                    //   onClick={handleCloseHelper}
                     >
                       <BookOpen
                         className="w-8 h-8 cursor-pointer ml-4"
                         onClick={() => router.push(`/journal/${journal._id}`)}
                       />
-                    </HelperText>
+                    </HelperText> */}
                   </div>
                 </div>
               </CardHeader>
