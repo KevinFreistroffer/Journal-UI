@@ -4,6 +4,7 @@
  */
 
 import React from "react";
+import "./StarIcon.css";
 
 interface IProps {
   filled?: boolean; // Determines if the star is filled
@@ -15,7 +16,7 @@ const StarIcon: React.FC<IProps> = ({ filled = false, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className={`w-8 h-8 flex items-center justify-center cursor-pointer`}
+      className={`star-icon w-8 h-8 flex items-center justify-center cursor-pointer`}
       style={
         {
           // backgroundColor: backgroundColor,

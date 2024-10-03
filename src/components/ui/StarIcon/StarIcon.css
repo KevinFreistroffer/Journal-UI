@@ -1,0 +1,7 @@
+.star-icon > * {
+  transition: all 0.1s linaer;
+}
+
+.star-icon:hover {
+  color: var(--starFavorite);
+}

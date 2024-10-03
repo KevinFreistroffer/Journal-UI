@@ -13,13 +13,14 @@ import { Spinner } from "@/components/ui/spinner"; // Import a spinner component
 import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import { List, Grid, BookOpen, XIcon, Star } from "lucide-react"; // Import icons for list, grid, and eye views
+import { List, Grid, BookOpenText, XIcon, Star } from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
-import StarIcon from "@/components/ui/StarIcon";
+import StarIcon from "@/components/ui/StarIcon/StarIcon";
 import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import Carrot from "@/components/ui/Carrot/Carrot";
+
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
@@ -205,7 +206,6 @@ export default function JournalsPage() {
               key={index}
               className="relative  hover:shadow-lg transition-shadow duration-200"
             >
-              <h1>{showHelperText.toString()}</h1>
               <CardHeader>
                 <div className="flex flex-col justify-between items-start">
                   <div className="flex w-full justify-between items-center">
@@ -214,7 +214,7 @@ export default function JournalsPage() {
                         ? `${journal.title.substring(0, 30)}...`
                         : journal.title}
                     </CardTitle>
-                    <div className="absolute top-4 right-4 m-4">
+                    <div className="relative p-0 m-0">
                       {index === 0 && showHelperText && (
                         <div
                           style={{ top: -98, width: 307 }}
@@ -235,7 +235,7 @@ export default function JournalsPage() {
                           <Carrot className="absolute bottom-0 left-0" />
                         </div>
                       )}
-                      <BookOpen
+                      <BookOpenText
                         className="w-8 h-8 cursor-pointer"
                         onClick={() => router.push(`/journal/${journal._id}`)}
                       />
@@ -245,7 +245,7 @@ export default function JournalsPage() {
                     //   isVisible={index === 0 && showHelperText}
                     //   onClick={handleCloseHelper}
                     >
-                      <BookOpen
+                      <BookOpenText
                         className="w-8 h-8 cursor-pointer ml-4"
                         onClick={() => router.push(`/journal/${journal._id}`)}
                       />
@@ -276,7 +276,7 @@ export default function JournalsPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   {loadingJournalId === journal._id ? ( // Show loading indicator if this journal is loading
-                    <Spinner />
+                    <Spinner size="sm" />
                   ) : (
                     <StarIcon
                       filled={favoriteJournals.includes(journal._id)}
