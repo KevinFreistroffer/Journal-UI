@@ -22,7 +22,6 @@ export const verifySession = cache(
 
       return { isAuth: true, userId: session.userId as string };
     } catch (error: unknown) {
-      console.log("Errror verifyingSession", error);
       return {
         isAuth: false,
         userId: null,

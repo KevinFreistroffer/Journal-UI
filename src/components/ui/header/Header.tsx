@@ -21,10 +21,10 @@ export default function Header() {
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
-      console.log("scrolled");
+
       setIsScrolled(true);
     } else {
-      console.log("not scrolled");
+
       setIsScrolled(false);
     }
   };
@@ -87,7 +87,7 @@ export default function Header() {
                       },
                     });
                     if (response.ok) {
-                      console.log("Logout successful");
+
                       // Redirect or update UI as needed after successful logout
                       setUser(null);
                       router.push("/");

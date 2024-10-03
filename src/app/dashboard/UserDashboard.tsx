@@ -223,7 +223,7 @@ function UserDashboard() {
           : "Uncategorized",
       userId: user?._id,
     };
-    console.log("newJournal", newJournal);
+
     try {
       const response = await fetch(`api/user/journal/create`, {
         method: "POST",
@@ -236,7 +236,7 @@ function UserDashboard() {
 
       if (response.status === 200) {
         const body = await response.json();
-        console.log("body", body);
+
         const userData = body.data;
         setUser(userData);
         setJournals(userData.journals);

@@ -12,7 +12,6 @@ function canSeeSignOutLink(viewer: IUser) {
 
 export async function getProfileDTO(userId: string) {
   const user = await getUserById(userId);
-  console.log("user", user);
 
   if (!user) {
     return null;

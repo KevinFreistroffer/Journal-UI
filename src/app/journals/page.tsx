@@ -10,26 +10,33 @@ import {
   CardTitle,
 } from "@/components/ui/card"; // Adjust the import based on your project structure
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
+import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { List, Grid, BookOpen, XIcon, Star } from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
 import StarIcon from "@/components/ui/StarIcon";
+import { Tooltip } from "@radix-ui/themes";
+import { localStorageService } from "@/lib/services/localStorageService";
+
 export default function JournalsPage() {
-  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
-  const [showHelperText, setShowHelperText] = useState(false);
+  const [showHelperText, setShowHelperText] = useState<boolean>(false);
   const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useAuth();
 
   const handleCloseHelper = () => {
-    // Close the helper text and set it in localStorage
-    setShowHelperText(false);
-    localStorage.setItem("hasSeenHelperText", "true");
+    console.log("handleCloseHelper()");
+    // Close the helper text using localStorageService
+    const hasSeenHelperText = localStorageService.getItem("hasSeenHelperText");
+    console.log("hasSeenHelperText", hasSeenHelperText);
+    // If not, show the helper text
+    setShowHelperText((state) => !state);
+    localStorageService.setItem("hasSeenHelperText", true);
   };
 
   useEffect(() => {
@@ -51,7 +58,7 @@ export default function JournalsPage() {
 
   useEffect(() => {
     // Check if the user has seen the helper text
-    const hasSeenHelperText = localStorage.getItem("hasSeenHelperText");
+    const hasSeenHelperText = localStorageService.getItem("hasSeenHelperText");
 
     // If not, show the helper text
     if (!hasSeenHelperText) {
@@ -59,9 +66,7 @@ export default function JournalsPage() {
     }
   }, []);
 
-  useEffect(() => {
-    console.log("user", user);
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   if (!user) {
     return (
@@ -138,13 +143,11 @@ export default function JournalsPage() {
 
   newEntries.forEach((entry) => {
     const sentimentResult = analyzeSentiment(entry);
-    const color = getSentimentColor(sentimentResult.score);
-    console.log(
-      `Entry: "${entry}" | Score: ${sentimentResult.score} | Color: ${color}`
-    );
+    // const color = getSentimentColor(sentimentResult.score);
+    // console.log(
+    //   `Entry: "${entry}" | Score: ${sentimentResult.score} | Color: ${color}`
+    // );
   });
-
-  console.log("getFreq", getFrequentKeywords(entries));
 
   return (
     <div className="p-6 min-h-screen">
@@ -202,6 +205,7 @@ export default function JournalsPage() {
               key={index}
               className="relative  hover:shadow-lg transition-shadow duration-200"
             >
+              <h1>{showHelperText.toString()}</h1>
               <CardHeader>
                 <div className="flex flex-col justify-between items-start">
                   <div className="flex w-full justify-between items-center">
@@ -210,29 +214,16 @@ export default function JournalsPage() {
                         ? `${journal.title.substring(0, 30)}...`
                         : journal.title}
                     </CardTitle>
-                    {index === 0 && showHelperText && (
-                      <div className="ml-4">
-                        <div
-                          className="helper-text bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 pr-12 py-3 rounded"
-                          role="alert"
-                        >
-                          <strong className="font-bold">Tip! </strong>
-                          <span className="block sm:inline">
-                            Click the book icon to read your journal!
-                          </span>
-                          <button
-                            onClick={handleCloseHelper}
-                            className="ml-4 p-4"
-                          >
-                            <XIcon className="h-6 w-6 text-yellow-500" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    <BookOpen
-                      className="w-8 h-8 cursor-pointer ml-4"
-                      onClick={() => router.push(`/journal/${journal._id}`)}
-                    />
+                    <HelperText
+                      text="Click the book icon to read your journal!"
+                      isVisible={index === 0 && showHelperText}
+                      onClick={handleCloseHelper}
+                    >
+                      <BookOpen
+                        className="w-8 h-8 cursor-pointer ml-4"
+                        onClick={() => router.push(`/journal/${journal._id}`)}
+                      />
+                    </HelperText>
                   </div>
                 </div>
               </CardHeader>

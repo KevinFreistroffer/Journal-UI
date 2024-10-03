@@ -37,7 +37,6 @@ formData.append("confirmPassword", "password123");
 const result = await signUp(initialState, formData);
 if (result.message === "Account created successfully.") {
   // Handle successful signup
-  console.log(result.message);
 } else {
   // Handle signup errors
   console.error(result.message);

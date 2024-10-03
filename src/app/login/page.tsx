@@ -68,10 +68,7 @@ export default function LoginPage() {
   }, [isVerified]);
 
   useEffect(() => {
-    console.log("Login state", state);
-
     if (state.user) {
-      console.log("Login setting user", state.user);
       setUser(state.user);
       // Redirect if user is set, but only if there's no error or verification message
       // if (!state.errors && state.message !== "Login successful, but the account is not verified. Please check your email for verification.") {

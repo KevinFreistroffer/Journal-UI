@@ -43,7 +43,6 @@ export async function POST(
     );
 
     const body = await response.json();
-    console.log("body", body);
 
     if (response.status === 200) {
       return NextResponse.json(

@@ -24,7 +24,6 @@ export default function ResetPasswordPage({
   // const router = useRouter();
 
   useEffect(() => {
-    console.log("token", params.token);
     // if (state.success) {
     //   // Handle successful password reset (e.g., show a success message or redirect)
     // }

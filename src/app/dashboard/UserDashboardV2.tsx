@@ -1,28 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { IJournal } from "@/lib/interfaces";
-// import { PieChart } from "react-minimal-pie-chart"; // Install this package for pie chart
-import { useRouter } from "next/navigation";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ConstructionIcon } from "lucide-react";
-// import {
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   CartesianGrid,
-//   ResponsiveContainer,
-// } from "recharts";
-import nlp from "compromise";
-import Sentiment from "sentiment";
 import styles from "@/app/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
+import { localStorageService } from "@/lib/services/localStorageService";
 
 export interface IFrontEndJournal extends IJournal {
   // Add any additional properties specific to the frontend representation
@@ -32,9 +19,7 @@ export interface IFrontEndJournal extends IJournal {
 }
 
 function UserDashboard() {
-  const router = useRouter();
   const { user, isLoading } = useAuth();
-  // const { selectedJournal } = useJournal(); // Assuming this hook provides journal entries
   const [totalJournals, setTotalJournals] = useState(
     user?.journals?.length || 0
   );
@@ -46,14 +31,32 @@ function UserDashboard() {
     []
   );
   const [data, setData] = useState<ICategoryBreakdown[]>([]);
-  const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(true);
-  const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] =
-    useState(true);
-  const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(true);
-  const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(true);
-  const [showFavoriteJournalsCard, setShowFavoriteJournalsCard] =
-    useState(true);
+  const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(
+    localStorageService.getItem("showTotalJournalsCard") || true
+  );
+  const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] = useState(
+    localStorageService.getItem("showCategoryBreakdownCard") || true
+  );
+  const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(
+    localStorageService.getItem("showRecentEntriesCard") || true
+  );
+  const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(
+    localStorageService.getItem("showUpcomingEntriesCard") || true
+  );
+  const [showFavoriteJournalsCard, setShowFavoriteJournalsCard] = useState(
+    localStorageService.getItem("showFavoriteJournalsCard") || true
+  );
+
+  const [localStorageValuesFetched, setLocalStorageValuesFetched] = useState({
+    totalJournalsCard: false,
+    categoryBreakdownCard: false,
+    recentEntriesCard: false,
+    upcomingEntriesCard: false,
+    favoriteJournalsCard: false,
+  });
+
   const journals = user?.journals;
+
   useEffect(() => {
     if (user) {
       setTotalJournals(journals?.length || 0);
@@ -83,8 +86,6 @@ function UserDashboard() {
           }
         );
 
-        console.log("categoryData", categoryData);
-
         setCategoryData(
           Object.entries(categories).map(([title, value]) => {
             return {
@@ -95,15 +96,6 @@ function UserDashboard() {
           })
         );
 
-        const newData: ICategoryBreakdown[] = [
-          {
-            id: "python",
-            label: "python",
-            value: 82,
-            color: "hsl(244, 70%, 50%)",
-          },
-        ];
-
         const data: ICategoryBreakdown[] = categoryData.map(
           ({ name, count }) => ({
             id: name,
@@ -112,8 +104,6 @@ function UserDashboard() {
             color: getRandomColor(),
           })
         );
-
-        console.log(data);
 
         setData(data);
       }
@@ -128,6 +118,52 @@ function UserDashboard() {
       );
     }
   }, [user, journals]);
+
+  useEffect(() => {
+    const fetchLocalStorageValues = () => {
+      setShowTotalJournalsCard(
+        localStorageService.getItem("showTotalJournalsCard") || true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        totalJournalsCard: true,
+      }));
+
+      setShowCategoryBreakdownCard(
+        localStorageService.getItem("showCategoryBreakdownCard") || true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        categoryBreakdownCard: true,
+      }));
+
+      setShowRecentEntriesCard(
+        localStorageService.getItem("showRecentEntriesCard") || true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        recentEntriesCard: true,
+      }));
+
+      setShowUpcomingEntriesCard(
+        localStorageService.getItem("showUpcomingEntriesCard") || true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        upcomingEntriesCard: true,
+      }));
+
+      setShowFavoriteJournalsCard(
+        localStorageService.getItem("showFavoriteJournalsCard") || true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        favoriteJournalsCard: true,
+      }));
+    };
+
+    fetchLocalStorageValues();
+  }, []);
 
   if (isLoading) {
     return <div className="p-6 min-h-screen">Loading...</div>; // Add your spinner or loading state here
@@ -236,80 +272,120 @@ function UserDashboard() {
           </Link>
         </div>
 
+        <h1>{!localStorageValuesFetched.totalJournalsCard.toString()}</h1>
+
         {/* Total Number of Entries */}
-        {showTotalJournalsCard && (
-          <div className="w-full mb-6 w-full p-2">
-            <Card className="h-full p-4 flex  w-full  items-center">
-              <h2 className="text-xl font-semibold flex-1">
-                Total Number of journals: {totalJournals}
-              </h2>
-            </Card>
-          </div>
+        {!localStorageValuesFetched.totalJournalsCard ? (
+          <PlaceholderCard />
+        ) : (
+          showTotalJournalsCard && (
+            <div className="w-full mb-6 p-2">
+              <Card className="h-full p-4 flex w-full items-center">
+                <h2 className="text-xl font-semibold flex-1">
+                  Total Number of journals: {totalJournals}
+                </h2>
+              </Card>
+            </div>
+          )
         )}
+
         {/* Category Breakdown */}
-        {showCategoryBreakdownCard && (
-          <div
-            id={`${styles["categoryBreakdown"]}`}
-            className="w-full mb-6 w-full p-2 md:w-full lg:w-1/2 xl:w-1/3"
-          >
-            <Card className="h-full p-4 ">
-              <h2 className="text-xl font-semibold">Category Breakdown</h2>
-              <div className="flex justify-center items-center w-full h-full">
-                <CategoryBreakdown data={data} />
-              </div>
-            </Card>
-          </div>
+        {!localStorageValuesFetched.categoryBreakdownCard ? (
+          <PlaceholderCard />
+        ) : (
+          showCategoryBreakdownCard && (
+            <div
+              id={`${styles["categoryBreakdown"]}`}
+              className="w-full mb-6 p-2 md:w-full lg:w-1/2 xl:w-1/3"
+            >
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">Category Breakdown</h2>
+                <div className="flex justify-center items-center w-full h-full">
+                  <CategoryBreakdown data={data} />
+                </div>
+              </Card>
+            </div>
+          )
         )}
+
         {/* Recent Activity */}
-        {showRecentEntriesCard && (
-          <div className="w-full mb-6 md:w-1/2 xl:w-1/3  p-2">
-            <Card className="h-full p-4">
-              <h2 className="text-xl font-semibold">Recent Activity</h2>
-              <ul>
-                {recentEntries.map((entry, index) => (
-                  <li key={index} className="border-b py-2">
-                    <span className="font-bold">{entry.title}</span> -{" "}
-                    {entry.date}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>
-        )}
-        {/* Upcoming Entries/Reminders */}
-        {showUpcomingEntriesCard && (
-          <div className="w-full mb-6 md:w-1/2 lg:w-1/3 p-2">
-            <Card className="h-full p-4">
-              <h2 className="text-xl font-semibold">
-                Upcoming Entries/Reminders
-              </h2>
-              <ul>
-                {upcomingEntries.length > 0 ? (
-                  upcomingEntries.map((entry, index) => (
+        {!localStorageValuesFetched.recentEntriesCard ? (
+          <PlaceholderCard />
+        ) : (
+          showRecentEntriesCard && (
+            <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">Recent Activity</h2>
+                <ul>
+                  {recentEntries.map((entry, index) => (
                     <li key={index} className="border-b py-2">
                       <span className="font-bold">{entry.title}</span> -{" "}
                       {entry.date}
                     </li>
-                  ))
-                ) : (
-                  <p>No upcoming entries.</p>
-                )}
-              </ul>
-            </Card>
-          </div>
+                  ))}
+                </ul>
+              </Card>
+            </div>
+          )
         )}
+
+        {/* Upcoming Entries/Reminders */}
+        {!localStorageValuesFetched.upcomingEntriesCard ? (
+          <PlaceholderCard />
+        ) : (
+          showUpcomingEntriesCard && (
+            <div className="w-full mb-6 md:w-1/2 lg:w-1/3 p-2">
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">
+                  Upcoming Entries/Reminders
+                </h2>
+                <ul>
+                  {upcomingEntries.length > 0 ? (
+                    upcomingEntries.map((entry, index) => (
+                      <li key={index} className="border-b py-2">
+                        <span className="font-bold">{entry.title}</span> -{" "}
+                        {entry.date}
+                      </li>
+                    ))
+                  ) : (
+                    <p>No upcoming entries.</p>
+                  )}
+                </ul>
+              </Card>
+            </div>
+          )
+        )}
+
         {/* Favorite Journals */}
-        {showFavoriteJournalsCard && (
-          <div className="w-full mb-6 md:w-1/2 xl:w-1/3  p-2">
-            <Card className="h-full p-4">
-              <h2 className="text-xl font-semibold">Favorite Journals</h2>
-              <div className="flex justify-center items-center w-full h-full">
-                <ConstructionIcon className="w-1/2 h-1/2 text-yellow-300" />
-              </div>
-            </Card>
-          </div>
+        {!localStorageValuesFetched.favoriteJournalsCard ? (
+          <PlaceholderCard />
+        ) : (
+          showFavoriteJournalsCard && (
+            <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">Favorite Journals</h2>
+                <div className="flex justify-center items-center w-full h-full">
+                  <ConstructionIcon className="w-1/2 h-1/2 text-yellow-300" />
+                </div>
+              </Card>
+            </div>
+          )
         )}
       </div>
+    </div>
+  );
+}
+
+// Placeholder component
+function PlaceholderCard() {
+  return (
+    <div className="w-full mb-6 p-2 md:w-1/2 xl:w-1/3">
+      <Card className="h-full p-4">
+        <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
+        <div className="flex justify-center items-center w-full h-80">
+          <div className="animate-pulse bg-gray-300 h-full w-full rounded"></div>
+        </div>
+      </Card>
     </div>
   );
 }

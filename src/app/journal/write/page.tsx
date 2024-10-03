@@ -96,7 +96,6 @@ function WritePage() {
 
   useEffect(() => {
     if (user && user.journals) {
-      console.log("Setting user values.");
       //   const formattedJournals = user.journals.map((journal, index) => ({
       //     id: journal._id,
       //     title: journal.title,
@@ -106,7 +105,7 @@ function WritePage() {
       //     selected: journal.selected,
       //   }));
 
-      //   console.log(formattedJournals);
+      //
 
       setJournals(user.journals);
       setCategories(user.journalCategories);
@@ -167,14 +166,12 @@ function WritePage() {
       userId: user?._id,
       favorite: false,
     };
-    console.log("newJournal", newJournal);
+
     try {
       const response = await fetch(`/api/user/journal/create`, {
         method: "POST",
         body: JSON.stringify(newJournal),
       });
-
-      console.log(response.status);
 
       if (!response.ok) {
         throw new Error("Failed to create journal");
@@ -182,9 +179,9 @@ function WritePage() {
 
       if (response.status === 200) {
         const body = await response.json();
-        console.log("body", body);
+
         const userData = body.data;
-        console.log("userData", userData);
+
         setUser(userData);
         setJournals(userData.journals);
         // setFilteredJournals(userData.journals);
@@ -242,10 +239,6 @@ function WritePage() {
         if (!response.ok) {
           setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
         } else {
-          console.log("response.ok", response.ok);
-          console.log("response.status", response.status);
-
-          console.log("created category data", body);
           setUser(body.data);
           setJournals(body.data.journals);
           setCategories(body.data.journalCategories);

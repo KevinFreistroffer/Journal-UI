@@ -41,7 +41,6 @@ export async function sendResetPasswordEmailFunction(
     );
 
     const body = await response.json();
-    console.log("body", body);
 
     if (!response.ok) {
       return {
@@ -50,9 +49,6 @@ export async function sendResetPasswordEmailFunction(
         success: false,
       };
     }
-
-    console.log(response.status);
-    console.log("Send reset password email response", body);
 
     return {
       errors: {},

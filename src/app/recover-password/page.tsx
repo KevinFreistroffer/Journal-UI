@@ -22,7 +22,6 @@ export default function RecoverPasswordPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
-    console.log(state);
     if (state.success) {
       setShowSuccessModal(true);
     }

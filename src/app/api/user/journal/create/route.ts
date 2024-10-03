@@ -12,7 +12,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { userId, title, entry, category } = body;
-    console.log("Create journal request:", userId, title, entry, category);
 
     const response = await fetch(`${process.env.API_URL}/user/journal/create`, {
       method: "POST",
@@ -25,7 +24,6 @@ export async function POST(req: Request) {
     });
 
     const data = await response.json();
-    console.log("Create journal response:", data);
 
     if (!response.ok) {
       const errorData = await response.json();

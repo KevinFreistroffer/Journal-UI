@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
   //   !request.nextUrl.pathname.startsWith("/dashboard") &&
   //   !request.nextUrl.pathname.startsWith("/login")
   // ) {
-  //   console.log("26 redirecting to login");
+  //
   //   return NextResponse.redirect(
   //     new URL("/login?isVerified=false", request.url)
   //   );
@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
   //   session?.isVerified &&
   //   !request.nextUrl.pathname.startsWith("/dashboard")
   // ) {
-  //   console.log("35 redirecting to dashboard");
+  //
   //   return NextResponse.redirect(new URL("/dashboard", request.url));
   // }
 

@@ -12,7 +12,7 @@ export async function DELETE(req: Request) {
 
     const body = await req.json();
     const { userId, journalIds } = body;
-    console.log("Delete journal request:", { userId, journalIds });
+
     const response = await fetch(`${process.env.API_URL}/user/journal/delete`, {
       method: "DELETE",
       headers: {
@@ -35,7 +35,7 @@ export async function DELETE(req: Request) {
     }
 
     const data = await response.json();
-    console.log("Delete journal response:", data);
+
     return NextResponse.json(data, { status: 200 });
     // const body = await req.json();
     // const { userId, journalIds } = body;
