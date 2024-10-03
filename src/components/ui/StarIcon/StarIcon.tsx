@@ -1,22 +1,32 @@
-/**
- * the problem with local storage is if it's disabled the prompt'll show every time.
- * instead a db field is needed. however, i am not sure about sending a request to a database.
- */
-
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import "./StarIcon.css";
 
 interface IProps {
   filled?: boolean; // Determines if the star is filled
-
   onClick?: () => void; // Click handler
+  size?: "sm" | "md" | "lg";
 }
 
-const StarIcon: React.FC<IProps> = ({ filled = false, onClick }) => {
+const StarIcon: React.FC<IProps> = ({
+  filled = false,
+  onClick,
+  size = "md",
+}) => {
+  const [isHovered, setIsHovered] = useState(false); // State for hover
+
+  const sizeClasses = {
+    sm: "w-4 h-4",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
+  };
+
   return (
     <div
       onClick={onClick}
-      className={`star-icon w-8 h-8 flex items-center justify-center cursor-pointer`}
+      onMouseEnter={() => setIsHovered(true)} // Set hover state
+      onMouseLeave={() => setIsHovered(false)} // Reset hover state
+      className={`star-icon ${sizeClasses[size]} flex items-center justify-center cursor-pointer`}
       style={
         {
           // backgroundColor: backgroundColor,
@@ -27,9 +37,9 @@ const StarIcon: React.FC<IProps> = ({ filled = false, onClick }) => {
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        fill={filled ? "var(--starFavorite)" : "none"}
+        fill={isHovered || filled ? "var(--starFavorite)" : "none"} // Update fill based on hover
         viewBox="0 0 24 24"
-        stroke={filled ? "var(--starFavorite)" : "currentColor"}
+        stroke={isHovered || filled ? "var(--starFavorite)" : "currentColor"} // Update stroke based on hover
         className="w-6 h-6"
       >
         <path

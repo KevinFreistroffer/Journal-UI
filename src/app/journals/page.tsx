@@ -126,7 +126,7 @@ export default function JournalsPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ journalId }), // Include the journal ID in the request body
+        body: JSON.stringify({ journalId, isFavorite: true }), // Include the journal ID in the request body
       });
 
       if (!response.ok) {
