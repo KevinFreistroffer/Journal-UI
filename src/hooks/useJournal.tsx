@@ -4,7 +4,7 @@ import React, { createContext, useState, useContext, ReactNode } from "react";
 import { IJournal } from "@/lib/interfaces";
 interface JournalStateType {
   selectedJournal: IJournal | null;
-  setSelectedJournal: (journal: IJournal | null) => void;
+  setSelectedJournal: (entrie: IJournal | null) => void;
 }
 
 const JournalState = createContext<JournalStateType | undefined>(undefined);

@@ -21,7 +21,7 @@ export interface IFrontEndJournal extends IJournal {
 function UserDashboard() {
   const { user, isLoading } = useAuth();
   const [totalJournals, setTotalJournals] = useState(
-    user?.journals?.length || 0
+    user?.entries?.length || 0
   );
   const [categoryData, setCategoryData] = useState<
     { title: string; value: number; color: string }[]
@@ -46,11 +46,11 @@ function UserDashboard() {
     favoriteJournalsCard: false,
   });
 
-  const journals = user?.journals;
+  const entries = user?.entries;
 
   useEffect(() => {
     if (user) {
-      setTotalJournals(journals?.length || 0);
+      setTotalJournals(entries?.length || 0);
 
       // Calculate category breakdown
       const categories = user?.journalCategories.reduce((acc, category) => {
@@ -100,15 +100,15 @@ function UserDashboard() {
       }
 
       // Get recent entries (last 5 for example)
-      setRecentEntries(journals?.slice(-5).reverse() || []);
+      setRecentEntries(entries?.slice(-5).reverse() || []);
 
       // Get upcoming entries (assuming you have a date field)
       const today = new Date();
       setUpcomingEntries(
-        journals?.filter((journal) => new Date(journal.date) > today) || []
+        entries?.filter((entrie) => new Date(entrie.date) > today) || []
       );
     }
-  }, [user, journals]);
+  }, [user, entries]);
 
   useEffect(() => {
     const fetchLocalStorageValues = () => {
@@ -178,7 +178,7 @@ function UserDashboard() {
     <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-      {/* Navigation Link to Journals Page */}
+      {/* Navigation Link to Entries Page */}
 
       <div className="flex flex-col md:flex-row md:flex-wrap">
         {/* Legend for showing/hiding cards */}
@@ -201,7 +201,7 @@ function UserDashboard() {
                   }}
                   className="mr-1"
                 />
-                Total Journals
+                Total Entries
               </label>
             </div>
             <div className="mr-4">
@@ -277,24 +277,24 @@ function UserDashboard() {
                   }}
                   className="mr-1"
                 />
-                Favorite Journals
+                Favorite Entries
               </label>
             </div>
           </div>
         </div>
-        {/* Buttons for creating new journal and viewing all journals */}
+        {/* Buttons for creating new entrie and viewing all entries */}
         <div className="mb-6 w-full md:w-1/2 flex justify-end">
           <Link
-            href="/journal/write"
+            href="/entrie/write"
             className="bg-blue-500 mr-4 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center"
           >
-            Create New Journal
+            Create New Entrie
           </Link>
           <Link
-            href="/journals"
+            href="/entries"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center"
           >
-            View All Journals
+            View All Entries
           </Link>
         </div>
 
@@ -308,7 +308,7 @@ function UserDashboard() {
             <div className="w-full mb-6 p-2">
               <Card className="h-full p-4 flex w-full items-center">
                 <h2 className="text-xl font-semibold flex-1">
-                  Total Number of journals: {totalJournals}
+                  Total Number of entries: {totalJournals}
                 </h2>
               </Card>
             </div>
@@ -382,14 +382,14 @@ function UserDashboard() {
           )
         )}
 
-        {/* Favorite Journals */}
+        {/* Favorite Entries */}
         {!localStorageValuesFetched.favoriteJournalsCard ? (
           <PlaceholderCard />
         ) : (
           showFavoriteJournalsCard && (
             <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
               <Card className="h-full p-4">
-                <h2 className="text-xl font-semibold">Favorite Journals</h2>
+                <h2 className="text-xl font-semibold">Favorite Entries</h2>
                 <div className="flex justify-center items-center w-full h-full">
                   <ConstructionIcon className="w-1/2 h-1/2 text-yellow-300" />
                 </div>

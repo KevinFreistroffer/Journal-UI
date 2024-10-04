@@ -25,7 +25,7 @@ export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showHelperText, setShowHelperText] = useState<boolean>(false);
-  const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
+  const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite entries
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useAuth();
@@ -118,15 +118,15 @@ export default function JournalsPage() {
   };
 
   const handleFavorite = async (journalId: string) => {
-    setLoadingJournalId(journalId); // Set the loading state for the specific journal
+    setLoadingJournalId(journalId); // Set the loading state for the specific entrie
     try {
-      // Send API request to edit the journal
-      const response = await fetch(`api/user/journal/edit`, {
+      // Send API request to edit the entrie
+      const response = await fetch(`api/user/entrie/edit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ journalId, favorite: true }), // Include the journal ID in the request body
+        body: JSON.stringify({ journalId, favorite: true }), // Include the entrie ID in the request body
       });
 
       if (!response.ok) {
@@ -152,7 +152,7 @@ export default function JournalsPage() {
 
   return (
     <div className="p-6 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Your Journals</h1>
+      <h1 className="text-3xl font-bold mb-6">Your Entries</h1>
       <div className="flex space-x-2 mb-4">
         <div className="hidden md:flex space-x-2">
           <button
@@ -190,18 +190,18 @@ export default function JournalsPage() {
             : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         } gap-6`}
       >
-        {user.journals.length === 0 ? (
+        {user.entries.length === 0 ? (
           <div>
-            <p>No journals found.</p>
+            <p>No entries found.</p>
             <Link
-              href="/journal/write"
+              href="/entrie/write"
               className="text-blue-500 hover:underline"
             >
-              Create a journal
+              Create a entrie
             </Link>
           </div>
         ) : (
-          user.journals.map((journal, index) => (
+          user.entries.map((entrie, index) => (
             <Card
               key={index}
               className="relative  hover:shadow-lg transition-shadow duration-200"
@@ -210,9 +210,9 @@ export default function JournalsPage() {
                 <div className="flex flex-col justify-between items-start">
                   <div className="flex w-full justify-between items-center">
                     <CardTitle className="wrap text-wrap overflow-wrap">
-                      {journal.title.length > 30
-                        ? `${journal.title.substring(0, 30)}...`
-                        : journal.title}
+                      {entrie.title.length > 30
+                        ? `${entrie.title.substring(0, 30)}...`
+                        : entrie.title}
                     </CardTitle>
                     <div className="relative p-0 m-0">
                       {index === 0 && showHelperText && (
@@ -223,7 +223,7 @@ export default function JournalsPage() {
                         >
                           <strong className="font-bold">Tip! </strong>
                           <span className="block sm:inline">
-                            Click the book icon to read your journal!
+                            Click the book icon to read your entrie!
                           </span>
                           <button
                             onClick={handleCloseHelper}
@@ -240,20 +240,20 @@ export default function JournalsPage() {
                         onClick={() => {
                           localStorageService.setItem(
                             "selectedJournal",
-                            journal._id
-                          ); // Set selected journal in localStorage
-                          router.push(`/journal/${journal._id}`);
+                            entrie._id
+                          ); // Set selected entrie in localStorage
+                          router.push(`/entrie/${entrie._id}`);
                         }}
                       />
                     </div>
                     {/* <HelperText
-                      text="Click the book icon to read your journal!"
+                      text="Click the book icon to read your entrie!"
                     //   isVisible={index === 0 && showHelperText}
                     //   onClick={handleCloseHelper}
                     >
                       <BookOpenText
                         className="w-8 h-8 cursor-pointer ml-4"
-                        onClick={() => router.push(`/journal/${journal._id}`)}
+                        onClick={() => router.push(`/entrie/${entrie._id}`)}
                       />
                     </HelperText> */}
                   </div>
@@ -262,8 +262,8 @@ export default function JournalsPage() {
               <CardContent className=""></CardContent>
               <CardFooter className="flex  justify-between items-center">
                 <div className="flex flex-col">
-                  <p>{journal.category}</p>
-                  <p className="text-sm text-gray-500">{journal.date}</p>
+                  <p>{entrie.category}</p>
+                  <p className="text-sm text-gray-500">{entrie.date}</p>
                   {showSentiment && (
                     <div className=" flex items-center text-sm">
                       <span className="mr-2">Sentiment:</span>
@@ -273,7 +273,7 @@ export default function JournalsPage() {
                           width: "10px",
                           height: "10px",
                           backgroundColor: getSentimentColor(
-                            analyzeSentiment(journal.entry).score
+                            analyzeSentiment(entrie.entry).score
                           ),
                         }}
                       ></div>
@@ -281,12 +281,12 @@ export default function JournalsPage() {
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  {loadingJournalId === journal._id ? ( // Show loading indicator if this journal is loading
+                  {loadingJournalId === entrie._id ? ( // Show loading indicator if this entrie is loading
                     <Spinner size="sm" />
                   ) : (
                     <StarIcon
-                      filled={favoriteJournals.includes(journal._id)}
-                      onClick={() => handleFavorite(journal._id)}
+                      filled={favoriteJournals.includes(entrie._id)}
+                      onClick={() => handleFavorite(entrie._id)}
                     />
                   )}
                 </div>

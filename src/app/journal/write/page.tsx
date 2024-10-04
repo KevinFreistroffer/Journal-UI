@@ -44,7 +44,7 @@ import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
-  const [journals, setJournals] = useState<IJournal[]>([]);
+  const [entries, setJournals] = useState<IJournal[]>([]);
   //   const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
   //     []
   //   );
@@ -95,26 +95,26 @@ function WritePage() {
   }, [setSelectedJournal]);
 
   useEffect(() => {
-    if (user && user.journals) {
-      //   const formattedJournals = user.journals.map((journal, index) => ({
-      //     id: journal._id,
-      //     title: journal.title,
-      //     entry: journal.entry,
-      //     category: journal.category || "My Journals",
-      //     date: journal.date,
-      //     selected: journal.selected,
+    if (user && user.entries) {
+      //   const formattedJournals = user.entries.map((entrie, index) => ({
+      //     id: entrie._id,
+      //     title: entrie.title,
+      //     entry: entrie.entry,
+      //     category: entrie.category || "My Entries",
+      //     date: entrie.date,
+      //     selected: entrie.selected,
       //   }));
 
       //
 
-      setJournals(user.journals);
+      setJournals(user.entries);
       setCategories(user.journalCategories);
       //   setFilteredJournals(formattedJournals);
 
       const savedJournal =
         localStorageService.getItem<IJournal>("selectedJournal");
       if (savedJournal) {
-        const updatedJournal = user.journals.find(
+        const updatedJournal = user.entries.find(
           (j) => j._id === savedJournal._id
         );
         if (updatedJournal) {
@@ -124,13 +124,13 @@ function WritePage() {
       }
 
       //   const uniqueCategories = Array.from(
-      //     new Set(user.journals.map((j) => j.category))
+      //     new Set(user.entries.map((j) => j.category))
       //   );
 
       //   //   if (uniqueCategories.length === 0) {
       //   //     uniqueCategories.push({
       //   //       _id: "1",
-      //   //       category: "My Journals",
+      //   //       category: "My Entries",
       //   //       selected: false,
       //   //     });
       //   //   }
@@ -168,13 +168,13 @@ function WritePage() {
     };
 
     try {
-      const response = await fetch(`/api/user/journal/create`, {
+      const response = await fetch(`/api/user/entrie/create`, {
         method: "POST",
         body: JSON.stringify(newJournal),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create journal");
+        throw new Error("Failed to create entrie");
       }
 
       if (response.status === 200) {
@@ -183,8 +183,8 @@ function WritePage() {
         const userData = body.data;
 
         setUser(userData);
-        setJournals(userData.journals);
-        // setFilteredJournals(userData.journals);
+        setJournals(userData.entries);
+        // setFilteredJournals(userData.entries);
         if (
           userData.journalCategories &&
           userData.journalCategories.length > 0
@@ -197,7 +197,7 @@ function WritePage() {
         setTimeout(() => setShowJournalSuccessIcon(false), 3000);
       }
     } catch (error) {
-      console.error("Error creating journal:", error);
+      console.error("Error creating entrie:", error);
     } finally {
       setIsSaving(false);
     }
@@ -240,7 +240,7 @@ function WritePage() {
           setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
         } else {
           setUser(body.data);
-          setJournals(body.data.journals);
+          setJournals(body.data.entries);
           setCategories(body.data.journalCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
@@ -335,14 +335,14 @@ function WritePage() {
         </Button>
         <div className="flex flex-col items-center">
           <Link
-            href="/journals"
+            href="/entries"
             className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
               isSidebarOpen ? "justify-start" : "justify-center"
             }`}
           >
             <List />
             {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Journals ({journals.length})</span>
+              <span className="ml-2">Entries ({entries.length})</span>
             )}
           </Link>
           <Link
@@ -360,9 +360,9 @@ function WritePage() {
       </div>
       {/* Main Content */}
       <div className="w-full p-6 overflow-y-auto max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
+          <h2 className="text-2xl font-semibold mb-4">Create New Entrie</h2>
           <form onSubmit={handleCreateJournal} className="space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
@@ -428,14 +428,12 @@ function WritePage() {
                 disabled={isSaving || !title || !entry}
                 className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
               >
-                {isSaving ? "Saving..." : "Create Journal"}
+                {isSaving ? "Saving..." : "Create Entrie"}
               </Button>
               {showJournalSuccessIcon && (
                 <div className="flex items-center">
                   <CheckCircle className="text-green-500 animate-fade-in-out" />
-                  <p className="text-green-500">
-                    Journal created successfully!
-                  </p>
+                  <p className="text-green-500">Entrie created successfully!</p>
                 </div>
               )}
             </div>

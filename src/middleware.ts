@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 import { CLIENT_SESSION } from "@/lib/constants";
-const protectedRoutes = ["/dashboard", "/journals", "/categories"];
+const protectedRoutes = ["/dashboard", "/entries", "/categories"];
 const publicRoutes = ["/login", "/signup", "/"];
 
 export async function middleware(request: NextRequest) {
@@ -65,7 +65,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard", "/login", "/signup", "/journals", "/categories"],
+  matcher: ["/dashboard", "/login", "/signup", "/entries", "/categories"],
   // matcher: "/dashboard/:path*",
 };
 

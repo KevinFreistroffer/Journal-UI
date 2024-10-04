@@ -23,8 +23,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Journals",
-  description: "Journal your life",
+  title: "Entries",
+  description: "Entrie your life",
 };
 
 export default async function RootLayout({

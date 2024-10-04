@@ -9,43 +9,43 @@ create a logging system saving errors to a file. example: signup action returns 
 use colors in globals.css
 water ripple background animated
 
-add favorate journal star feature
+add favorate entrie star feature
 
 need to test API requests when there's no user_id. (user shouldnt ever be not available to able to send requests, however...)
 
 dynamic rendering? dashboard cards, if storage not fetched yet, don't render?
 
 1. Overview Section
-Total Number of Entries: A quick summary showing how many journal entries exist.
+Total Number of Entries: A quick summary showing how many entrie entries exist.
 Category Breakdown: A pie chart or list of how many entries are in each category (if you have categories like "Personal," "Work," etc.).
 Recent Activity: A feed of the latest entries, updates, or edits.
-Upcoming Entries/Reminders: If your journal includes scheduled entries or reminders, show upcoming items.
+Upcoming Entries/Reminders: If your entrie includes scheduled entries or reminders, show upcoming items.
 2. Featured Entry
 Highlight of the Day: Display the latest or most viewed entry prominently.
 Favorite or Pinned Entries: Let users pin an entry to their dashboard for quick access.
 3. Search and Filter Tools
 Quick Search Bar: A search function that allows users to find entries by keywords, date, category, or tags.
 Date Filter: A date range picker to filter entries by specific time periods (e.g., last week, last month, etc.).
-4. Journal Metrics & Stats
+4. Entrie Metrics & Stats
 Word Count Stats: Display total words written, average length of entries, etc.
-Mood/Emotion Tracking: If the journal allows users to tag moods, display trends or statistics of their emotional state over time.
-Streaks/Consistency: Show how many days in a row the user has written entries (journal streaks).
+Mood/Emotion Tracking: If the entrie allows users to tag moods, display trends or statistics of their emotional state over time.
+Streaks/Consistency: Show how many days in a row the user has written entries (entrie streaks).
 5. Entry Calendar
-A calendar view of journal entries that lets users click on a specific date to see what they wrote.
-Highlight specific days with entries, and potentially include upcoming dates if they want to schedule future journal sessions.
+A calendar view of entrie entries that lets users click on a specific date to see what they wrote.
+Highlight specific days with entries, and potentially include upcoming dates if they want to schedule future entrie sessions.
 6. Category Management
 Category Overview: Display categories with the ability to add, edit, or delete them.
 Most Used Categories: Show which categories the user writes in the most.
 7. To-Do Lists/Goals
-Daily or Weekly Goals: If your journal supports goal-setting, include a section where users can check off their daily/weekly goals related to journaling.
+Daily or Weekly Goals: If your entrie supports goal-setting, include a section where users can check off their daily/weekly goals related to journaling.
 Task Lists: Option to include a small task manager related to their journaling tasks or reflective goals.
 8. Customization Options
 Allow users to customize their dashboard view, choosing which sections or widgets to show or hide.
 9. Analytics and Insights
 Trending Topics or Keywords: Use natural language processing to show what the user has been writing about most frequently.
 Sentiment Analysis: If applicable, display an analysis of the sentiment or mood of their recent entries.
-Writing Trends: Insights on how often the user writes or what times of day they tend to journal.
+Writing Trends: Insights on how often the user writes or what times of day they tend to entrie.
 10. Backup/Export Options
 Export Entries: Provide quick links to export entries as PDF, Word, or other formats.
 Cloud Backup: Show the status of backups (if your app offers this).
-Would any of these ideas fit your journal dashboard vision, Kevin? Or are you looking for specific features to help guide user behavior, such as reflection prompts?
+Would any of these ideas fit your entrie dashboard vision, Kevin? Or are you looking for specific features to help guide user behavior, such as reflection prompts?

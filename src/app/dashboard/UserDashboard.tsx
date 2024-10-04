@@ -53,7 +53,7 @@ type Category = {
 function UserDashboard() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
-  const [journals, setJournals] = useState<IFrontEndJournal[]>([]);
+  const [entries, setJournals] = useState<IFrontEndJournal[]>([]);
   const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
     []
   );
@@ -103,27 +103,24 @@ function UserDashboard() {
 
   const handleJournalClick = (
     e: React.MouseEvent,
-    journal: IFrontEndJournal
+    entrie: IFrontEndJournal
   ) => {
     e.preventDefault();
-    setSelectedJournal(journal);
-    localStorageService.setItem("selectedJournal", journal);
-    router.push(`/journal/${journal.id}`);
+    setSelectedJournal(entrie);
+    localStorageService.setItem("selectedJournal", entrie);
+    router.push(`/entrie/${entrie.id}`);
   };
 
-  const handleDeleteClick = (
-    e: React.MouseEvent,
-    journal: IFrontEndJournal
-  ) => {
+  const handleDeleteClick = (e: React.MouseEvent, entrie: IFrontEndJournal) => {
     e.stopPropagation();
-    setJournalToDelete(journal);
+    setJournalToDelete(entrie);
     setIsDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     if (journalToDelete && user) {
       try {
-        const response = await fetch(`api/user/journal/delete`, {
+        const response = await fetch(`api/user/entrie/delete`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -136,18 +133,18 @@ function UserDashboard() {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to delete journal");
+          throw new Error("Failed to delete entrie");
         }
 
         const body = await response.json();
         const userData = body.data;
         setUser(userData);
-        setJournals(userData.journals);
-        setFilteredJournals(userData.journals);
+        setJournals(userData.entries);
+        setFilteredJournals(userData.entries);
         setIsDeleteDialogOpen(false);
         setJournalToDelete(null);
       } catch (error) {
-        console.error("Error deleting journal:", error);
+        console.error("Error deleting entrie:", error);
       }
     }
   };
@@ -161,14 +158,14 @@ function UserDashboard() {
   }, [setSelectedJournal]);
 
   useEffect(() => {
-    if (user && user.journals) {
-      const formattedJournals = user.journals.map((journal, index) => ({
+    if (user && user.entries) {
+      const formattedJournals = user.entries.map((entrie, index) => ({
         id: index + 1,
-        title: journal.title,
-        entry: journal.entry,
-        category: journal.category || "My Journals",
-        date: journal.date,
-        selected: journal.selected,
+        title: entrie.title,
+        entry: entrie.entry,
+        category: entrie.category || "My Entries",
+        date: entrie.date,
+        selected: entrie.selected,
       }));
       setJournals(formattedJournals);
       setFilteredJournals(formattedJournals);
@@ -195,7 +192,7 @@ function UserDashboard() {
       }));
 
       if (categoriesArray.length === 0) {
-        categoriesArray.push({ id: 1, name: "My Journals", selected: false });
+        categoriesArray.push({ id: 1, name: "My Entries", selected: false });
       }
 
       setCategories(categoriesArray);
@@ -225,13 +222,13 @@ function UserDashboard() {
     };
 
     try {
-      const response = await fetch(`api/user/journal/create`, {
+      const response = await fetch(`api/user/entrie/create`, {
         method: "POST",
         body: JSON.stringify(newJournal),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create journal");
+        throw new Error("Failed to create entrie");
       }
 
       if (response.status === 200) {
@@ -239,8 +236,8 @@ function UserDashboard() {
 
         const userData = body.data;
         setUser(userData);
-        setJournals(userData.journals);
-        setFilteredJournals(userData.journals);
+        setJournals(userData.entries);
+        setFilteredJournals(userData.entries);
         if (
           userData.journalCategories &&
           userData.journalCategories.length > 0
@@ -264,7 +261,7 @@ function UserDashboard() {
         setTimeout(() => setShowCategorySuccessIcon(false), 3000);
       }
     } catch (error) {
-      console.error("Error creating journal:", error);
+      console.error("Error creating entrie:", error);
     } finally {
       setIsSaving(false);
     }
@@ -289,16 +286,16 @@ function UserDashboard() {
     setSelectedCategory(categoryName);
     if (categoryName) {
       setFilteredJournals(
-        journals.filter((journal) => journal.category === categoryName)
+        entries.filter((entrie) => entrie.category === categoryName)
       );
     } else {
-      setFilteredJournals(journals);
+      setFilteredJournals(entries);
     }
   };
 
   const clearCategoryFilter = () => {
     setSelectedCategory("");
-    setFilteredJournals(journals);
+    setFilteredJournals(entries);
   };
 
   // const { openModal } = useContext(ModalContext);
@@ -355,14 +352,14 @@ function UserDashboard() {
         </Button>
         <div className="flex flex-col items-center">
           <Link
-            href="/journals"
+            href="/entries"
             className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
               isSidebarOpen ? "justify-start" : "justify-center"
             }`}
           >
             <List />
             {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Journals</span>
+              <span className="ml-2">Entries</span>
             )}
           </Link>
           <Link
@@ -381,13 +378,13 @@ function UserDashboard() {
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="flex justify-end mb-4">
-          <Button onClick={handleCreateJournal}>Create Journal</Button>
+          <Button onClick={handleCreateJournal}>Create Entrie</Button>
         </div>
-        <h1 className="text-3xl font-bold mb-6">Journal Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
         <div className="grid grid-cols-2 gap-6">
-          {/* Left Column: Create New Journal */}
+          {/* Left Column: Create New Entrie */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
+            <h2 className="text-2xl font-semibold mb-4">Create New Entrie</h2>
             <form onSubmit={handleCreateJournal} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
@@ -437,13 +434,13 @@ function UserDashboard() {
                   disabled={isSaving || !title || !entry}
                   className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
                 >
-                  {isSaving ? "Saving..." : "Create Journal"}
+                  {isSaving ? "Saving..." : "Create Entrie"}
                 </Button>
                 {showJournalSuccessIcon && (
                   <>
                     <CheckCircle className="text-green-500 animate-fade-in-out" />
                     <p className="text-green-500">
-                      Journal created successfully!
+                      Entrie created successfully!
                     </p>
                   </>
                 )}
@@ -451,9 +448,9 @@ function UserDashboard() {
             </form>
           </div>
 
-          {/* Right Column: Journal List */}
+          {/* Right Column: Entrie List */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Your Journals</h2>
+            <h2 className="text-2xl font-semibold mb-4">Your Entries</h2>
             <div className="flex space-x-2 mb-4">
               <Button
                 variant={journalViewMode === "list" ? "default" : "outline"}
@@ -484,19 +481,19 @@ function UserDashboard() {
                     <div key={index}>{renderSkeletonCard()}</div>
                   ))
               ) : filteredJournals && filteredJournals.length > 0 ? (
-                filteredJournals.map((journal, index) => (
+                filteredJournals.map((entrie, index) => (
                   <div
-                    key={`journal-${index}`}
-                    onClick={(e) => handleJournalClick(e, journal)}
+                    key={`entrie-${index}`}
+                    onClick={(e) => handleJournalClick(e, entrie)}
                   >
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
                       <CardHeader>
                         <CardTitle className="flex justify-between items-center">
-                          {journal.title}
+                          {entrie.title}
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => handleDeleteClick(e, journal)}
+                            onClick={(e) => handleDeleteClick(e, entrie)}
                           >
                             <Trash2 className="w-4 h-4 text-red-500" />
                           </Button>
@@ -504,19 +501,19 @@ function UserDashboard() {
                       </CardHeader>
                       <CardContent>
                         <p>
-                          {journal.entry
-                            ? journal.entry.substring(0, 100) + "..."
+                          {entrie.entry
+                            ? entrie.entry.substring(0, 100) + "..."
                             : "No entry"}
                         </p>
                         <p className="text-sm text-gray-500 mt-2">
-                          Category: {journal.category}
+                          Category: {entrie.category}
                         </p>
                       </CardContent>
                     </Card>
                   </div>
                 ))
               ) : (
-                <p>No journals found</p>
+                <p>No entries found</p>
               )}
             </div>
           </div>
@@ -532,7 +529,7 @@ function UserDashboard() {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete your
-              journal.
+              entrie.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
