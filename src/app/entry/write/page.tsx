@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useJournal } from "@/hooks/useJournal";
-import { IJournal, ICategory } from "@/lib/interfaces";
+import { useEntry } from "@/hooks/useEntry";
+import { IEntry, ICategory } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -39,13 +39,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
-import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
+import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
 
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
-  const { setSelectedJournal } = useJournal();
-  const [entries, setJournals] = useState<IJournal[]>([]);
-  //   const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
+  const { setSelectedEntry } = useEntry();
+  const [entries, setEntrys] = useState<IEntry[]>([]);
+  //   const [filteredEntrys, setFilteredEntrys] = useState<IFrontEndEntry[]>(
   //     []
   //   );
   const [categories, setCategories] = useState<ICategory[]>([]);
@@ -53,10 +53,11 @@ function WritePage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
+  const [favorite, setFavorite] = useState<boolean>(false); // State for favorite checkbox
 
   const [isSaving, setIsSaving] = useState(false);
   const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
-  const [showJournalSuccessIcon, setShowJournalSuccessIcon] = useState(false);
+  const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
     useState(false); // State for dialog
   const [isCreatingCategoryLoading, setIsCreatingCategoryLoading] =
@@ -66,8 +67,9 @@ function WritePage() {
   const [categoryCreatedErrorMessage, setCategoryCreatedErrorMessage] =
     useState(""); // State for error message
   const [isCategoryCreated, setIsCategoryCreated] = useState(false); // State to track if category is created
-  const [journalToDelete, setJournalToDelete] =
-    useState<IFrontEndJournal | null>(null);
+  const [entryToDelete, setEntryToDelete] = useState<IFrontEndEntry | null>(
+    null
+  );
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
@@ -87,16 +89,15 @@ function WritePage() {
   }, [isSidebarOpen]);
 
   useEffect(() => {
-    const savedJournal =
-      localStorageService.getItem<IJournal>("selectedJournal");
-    if (savedJournal) {
-      setSelectedJournal(savedJournal);
+    const savedEntry = localStorageService.getItem<IEntry>("selectedEntry");
+    if (savedEntry) {
+      setSelectedEntry(savedEntry);
     }
-  }, [setSelectedJournal]);
+  }, [setSelectedEntry]);
 
   useEffect(() => {
     if (user && user.entries) {
-      //   const formattedJournals = user.entries.map((entrie, index) => ({
+      //   const formattedEntrys = user.entries.map((entrie, index) => ({
       //     id: entrie._id,
       //     title: entrie.title,
       //     entry: entrie.entry,
@@ -107,19 +108,16 @@ function WritePage() {
 
       //
 
-      setJournals(user.entries);
-      setCategories(user.journalCategories);
-      //   setFilteredJournals(formattedJournals);
+      setEntrys(user.entries);
+      setCategories(user.entryCategories);
+      //   setFilteredEntrys(formattedEntrys);
 
-      const savedJournal =
-        localStorageService.getItem<IJournal>("selectedJournal");
-      if (savedJournal) {
-        const updatedJournal = user.entries.find(
-          (j) => j._id === savedJournal._id
-        );
-        if (updatedJournal) {
-          setSelectedJournal(updatedJournal);
-          localStorageService.setItem("selectedJournal", updatedJournal);
+      const savedEntry = localStorageService.getItem<IEntry>("selectedEntry");
+      if (savedEntry) {
+        const updatedEntry = user.entries.find((j) => j._id === savedEntry._id);
+        if (updatedEntry) {
+          setSelectedEntry(updatedEntry);
+          localStorageService.setItem("selectedEntry", updatedEntry);
         }
       }
 
@@ -137,7 +135,7 @@ function WritePage() {
 
       setSelectedCategory("");
     }
-  }, [user, setSelectedJournal]);
+  }, [user, setSelectedEntry]);
 
   useEffect(() => {
     if (user && !user.isVerified) {
@@ -151,10 +149,10 @@ function WritePage() {
     }
   }, [newCategoryName, isCategoryCreated]);
 
-  const handleCreateJournal = async (e: React.FormEvent) => {
+  const handleCreateEntry = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    const newJournal = {
+    const newEntry = {
       title,
       entry,
       category:
@@ -164,13 +162,13 @@ function WritePage() {
             : "Uncategorized"
           : "Uncategorized",
       userId: user?._id,
-      favorite: false,
+      favorite,
     };
 
     try {
-      const response = await fetch(`/api/user/entrie/create`, {
+      const response = await fetch(`/api/user/entry/create`, {
         method: "POST",
-        body: JSON.stringify(newJournal),
+        body: JSON.stringify(newEntry),
       });
 
       if (!response.ok) {
@@ -183,18 +181,16 @@ function WritePage() {
         const userData = body.data;
 
         setUser(userData);
-        setJournals(userData.entries);
-        // setFilteredJournals(userData.entries);
-        if (
-          userData.journalCategories &&
-          userData.journalCategories.length > 0
-        ) {
-          setCategories(userData.journalCategories);
+        setEntrys(userData.entries);
+        // setFilteredEntrys(userData.entries);
+        if (userData.entryCategories && userData.entryCategories.length > 0) {
+          setCategories(userData.entryCategories);
         }
         setTitle("");
         setEntry("");
-        setShowJournalSuccessIcon(true);
-        setTimeout(() => setShowJournalSuccessIcon(false), 3000);
+        setFavorite(false); // Reset favorite checkbox
+        setShowEntrySuccessIcon(true);
+        setTimeout(() => setShowEntrySuccessIcon(false), 3000);
       }
     } catch (error) {
       console.error("Error creating entrie:", error);
@@ -240,8 +236,8 @@ function WritePage() {
           setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
         } else {
           setUser(body.data);
-          setJournals(body.data.entries);
-          setCategories(body.data.journalCategories);
+          setEntrys(body.data.entries);
+          setCategories(body.data.entryCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
           setIsCategoryCreated(true); // Set category created state
@@ -362,8 +358,8 @@ function WritePage() {
       <div className="w-full p-6 overflow-y-auto max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Create New Entrie</h2>
-          <form onSubmit={handleCreateJournal} className="space-y-4">
+          <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
+          <form onSubmit={handleCreateEntry} className="space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
               <Input
@@ -388,22 +384,22 @@ function WritePage() {
                 <Select
                   onValueChange={setSelectedCategory}
                   defaultValue={selectedCategory}
-                  className="mr-2"
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
                     {categories.length > 0 ? (
-                      categories.map((cat, index) => (
-                        <SelectItem
-                          key={`${cat._id}`}
-                          value={cat.category}
-                          className="cursor-pointer"
-                        >
-                          {cat.category}
-                        </SelectItem>
-                      ))
+                      categories.map((cat, index) => {
+                        console.log(categories);
+                        console.log(cat.category, index);
+
+                        return (
+                          <SelectItem key={index} value={cat.category}>
+                            {cat.category}
+                          </SelectItem>
+                        );
+                      })
                     ) : (
                       <SelectItem value="disabled" disabled>
                         No categories available
@@ -423,6 +419,20 @@ function WritePage() {
               </div>
             </div>
             <div className="flex items-center">
+              <Label htmlFor="favorite" className="mr-2">
+                Favorite
+              </Label>
+              <input
+                type="checkbox"
+                id="favorite"
+                checked={favorite}
+                onChange={(e) => {
+                  console.log(e.target.checked, typeof e.target.checked);
+                  setFavorite(e.target.checked);
+                }}
+              />
+            </div>
+            <div className="flex items-center">
               <Button
                 type="submit"
                 disabled={isSaving || !title || !entry}
@@ -430,7 +440,7 @@ function WritePage() {
               >
                 {isSaving ? "Saving..." : "Create Entrie"}
               </Button>
-              {showJournalSuccessIcon && (
+              {showEntrySuccessIcon && (
                 <div className="flex items-center">
                   <CheckCircle className="text-green-500 animate-fade-in-out" />
                   <p className="text-green-500">Entrie created successfully!</p>

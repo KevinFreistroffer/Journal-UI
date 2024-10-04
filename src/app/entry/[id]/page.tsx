@@ -6,23 +6,24 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { localStorageService } from "@/lib/services/localStorageService";
-import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
+import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
 import { Spinner } from "@/components/ui/spinner";
-export default function JournalPage() {
+export default function EntryPage() {
   const router = useRouter();
-  const [selectedJournal, setSelectedJournal] =
-    useState<IFrontEndJournal | null>(null); // Added state for selectedJournal
+  const [selectedEntry, setSelectedEntry] = useState<IFrontEndEntry | null>(
+    null
+  ); // Added state for selectedEntry
 
   useEffect(() => {
-    const savedJournal =
-      localStorageService.getItem<IFrontEndJournal>("selectedJournal");
+    const savedEntry =
+      localStorageService.getItem<IFrontEndEntry>("selectedEntry");
 
-    if (savedJournal) {
-      console.log("savedJournal", savedJournal);
+    if (savedEntry) {
+      console.log("savedEntry", savedEntry);
 
-      setSelectedJournal(savedJournal); // Set state with saved entrie
+      setSelectedEntry(savedEntry); // Set state with saved entrie
 
-      localStorageService.setItem("selectedJournal", savedJournal);
+      localStorageService.setItem("selectedEntry", savedEntry);
     } else {
       router.push("/dashboard");
     }
@@ -35,10 +36,10 @@ export default function JournalPage() {
   return (
     <div
       className={`container mx-auto p-4 min-h-screen ${
-        !selectedJournal ? "flex justify-center items-center" : ""
+        !selectedEntry ? "flex justify-center items-center" : ""
       }`}
     >
-      {!selectedJournal ? (
+      {!selectedEntry ? (
         <div className="">
           <Spinner />
         </div>
@@ -49,12 +50,12 @@ export default function JournalPage() {
           </Button>
           <Card>
             <CardHeader>
-              <CardTitle>{selectedJournal.title}</CardTitle>
+              <CardTitle>{selectedEntry.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>{selectedJournal.entry}</p>
+              <p>{selectedEntry.entry}</p>
               <p className="text-sm text-gray-500 mt-2">
-                Category: {selectedJournal.category}
+                Category: {selectedEntry.category}
               </p>
             </CardContent>
           </Card>

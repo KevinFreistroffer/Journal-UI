@@ -34,12 +34,12 @@ export function MobileMenu({ menuItems }: MobileMenuProps) {
             className="flex items-center"
             onClick={() => setIsOpen(false)}
           >
-            <span className="font-bold">JournalApp</span>
+            <span className="font-bold">Entries</span>
           </Link>
           <nav className="mt-4 flex flex-col items-end space-y-4">
-            {menuItems.map((item) => (
+            {menuItems.map((item, index) => (
               <Link
-                key={item.href}
+                key={index}
                 href={item.href}
                 className={`text-foreground/60 transition-colors hover:text-foreground ${
                   pathname === item.href ? "text-foreground" : ""

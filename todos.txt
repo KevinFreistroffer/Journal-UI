@@ -15,6 +15,11 @@ need to test API requests when there's no user_id. (user shouldnt ever be not av
 
 dynamic rendering? dashboard cards, if storage not fetched yet, don't render?
 
+
+when creating an entry, determine if the create category form is needed, or instead show an input, and when the entry is saved
+it'll try to create the category. seems like a better idea.
+
+
 1. Overview Section
 Total Number of Entries: A quick summary showing how many entrie entries exist.
 Category Breakdown: A pie chart or list of how many entries are in each category (if you have categories like "Personal," "Work," etc.).
@@ -37,8 +42,8 @@ Highlight specific days with entries, and potentially include upcoming dates if 
 Category Overview: Display categories with the ability to add, edit, or delete them.
 Most Used Categories: Show which categories the user writes in the most.
 7. To-Do Lists/Goals
-Daily or Weekly Goals: If your entrie supports goal-setting, include a section where users can check off their daily/weekly goals related to journaling.
-Task Lists: Option to include a small task manager related to their journaling tasks or reflective goals.
+Daily or Weekly Goals: If your entrie supports goal-setting, include a section where users can check off their daily/weekly goals related to entrying.
+Task Lists: Option to include a small task manager related to their entrying tasks or reflective goals.
 8. Customization Options
 Allow users to customize their dashboard view, choosing which sections or widgets to show or hide.
 9. Analytics and Insights

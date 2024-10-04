@@ -11,9 +11,9 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { userId, journalId, favorite } = body;
+    const { userId, entryId, favorite } = body;
 
-    const response = await fetch(`${process.env.API_URL}/user/entrie/edit`, {
+    const response = await fetch(`${process.env.API_URL}/user/entry/edit`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ export async function PUT(req: Request) {
       },
       body: JSON.stringify({
         userId,
-        journalId,
+        entryId,
         favorite,
       }),
     });

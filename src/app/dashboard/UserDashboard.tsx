@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useJournal } from "@/hooks/useJournal";
-import { IJournal } from "@/lib/interfaces";
+import { useEntry } from "@/hooks/useEntry";
+import { IEntry } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -40,7 +40,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
 
-export interface IFrontEndJournal extends IJournal {
+export interface IFrontEndEntry extends IEntry {
   id: number;
 }
 
@@ -52,25 +52,22 @@ type Category = {
 
 function UserDashboard() {
   const { user, isLoading, setUser } = useAuth();
-  const { setSelectedJournal } = useJournal();
-  const [entries, setJournals] = useState<IFrontEndJournal[]>([]);
-  const [filteredJournals, setFilteredJournals] = useState<IFrontEndJournal[]>(
-    []
-  );
+  const { setSelectedEntry } = useEntry();
+  const [entries, setEntrys] = useState<IFrontEndEntry[]>([]);
+  const [filteredEntrys, setFilteredEntrys] = useState<IFrontEndEntry[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
-  const [journalViewMode, setJournalViewMode] = useState<"list" | "icons">(
-    "list"
-  );
+  const [entryViewMode, setEntryViewMode] = useState<"list" | "icons">("list");
   const [isSaving, setIsSaving] = useState(false);
   const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
-  const [showJournalSuccessIcon, setShowJournalSuccessIcon] = useState(false);
+  const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [journalToDelete, setJournalToDelete] =
-    useState<IFrontEndJournal | null>(null);
+  const [entryToDelete, setEntryToDelete] = useState<IFrontEndEntry | null>(
+    null
+  );
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
@@ -101,26 +98,23 @@ function UserDashboard() {
     </Card>
   );
 
-  const handleJournalClick = (
-    e: React.MouseEvent,
-    entrie: IFrontEndJournal
-  ) => {
+  const handleEntryClick = (e: React.MouseEvent, entrie: IFrontEndEntry) => {
     e.preventDefault();
-    setSelectedJournal(entrie);
-    localStorageService.setItem("selectedJournal", entrie);
-    router.push(`/entrie/${entrie.id}`);
+    setSelectedEntry(entrie);
+    localStorageService.setItem("selectedEntry", entrie);
+    router.push(`/entry/${entrie.id}`);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, entrie: IFrontEndJournal) => {
+  const handleDeleteClick = (e: React.MouseEvent, entrie: IFrontEndEntry) => {
     e.stopPropagation();
-    setJournalToDelete(entrie);
+    setEntryToDelete(entrie);
     setIsDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (journalToDelete && user) {
+    if (entryToDelete && user) {
       try {
-        const response = await fetch(`api/user/entrie/delete`, {
+        const response = await fetch(`api/user/entry/delete`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -128,7 +122,7 @@ function UserDashboard() {
           },
           body: JSON.stringify({
             userId: user._id,
-            journalIds: [journalToDelete.id],
+            entryIds: [entryToDelete.id],
           }),
         });
 
@@ -139,10 +133,10 @@ function UserDashboard() {
         const body = await response.json();
         const userData = body.data;
         setUser(userData);
-        setJournals(userData.entries);
-        setFilteredJournals(userData.entries);
+        setEntrys(userData.entries);
+        setFilteredEntrys(userData.entries);
         setIsDeleteDialogOpen(false);
-        setJournalToDelete(null);
+        setEntryToDelete(null);
       } catch (error) {
         console.error("Error deleting entrie:", error);
       }
@@ -150,16 +144,16 @@ function UserDashboard() {
   };
 
   useEffect(() => {
-    const savedJournal =
-      localStorageService.getItem<IFrontEndJournal>("selectedJournal");
-    if (savedJournal) {
-      setSelectedJournal(savedJournal);
+    const savedEntry =
+      localStorageService.getItem<IFrontEndEntry>("selectedEntry");
+    if (savedEntry) {
+      setSelectedEntry(savedEntry);
     }
-  }, [setSelectedJournal]);
+  }, [setSelectedEntry]);
 
   useEffect(() => {
     if (user && user.entries) {
-      const formattedJournals = user.entries.map((entrie, index) => ({
+      const formattedEntrys = user.entries.map((entrie, index) => ({
         id: index + 1,
         title: entrie.title,
         entry: entrie.entry,
@@ -167,23 +161,23 @@ function UserDashboard() {
         date: entrie.date,
         selected: entrie.selected,
       }));
-      setJournals(formattedJournals);
-      setFilteredJournals(formattedJournals);
+      setEntrys(formattedEntrys);
+      setFilteredEntrys(formattedEntrys);
 
-      const savedJournal =
-        localStorageService.getItem<IFrontEndJournal>("selectedJournal");
-      if (savedJournal) {
-        const updatedJournal = formattedJournals.find(
-          (j) => j.id === savedJournal.id
+      const savedEntry =
+        localStorageService.getItem<IFrontEndEntry>("selectedEntry");
+      if (savedEntry) {
+        const updatedEntry = formattedEntrys.find(
+          (j) => j.id === savedEntry.id
         );
-        if (updatedJournal) {
-          setSelectedJournal(updatedJournal);
-          localStorageService.setItem("selectedJournal", updatedJournal);
+        if (updatedEntry) {
+          setSelectedEntry(updatedEntry);
+          localStorageService.setItem("selectedEntry", updatedEntry);
         }
       }
 
       const uniqueCategories = Array.from(
-        new Set(formattedJournals.map((j) => j.category))
+        new Set(formattedEntrys.map((j) => j.category))
       );
       const categoriesArray = uniqueCategories.map((cat, index) => ({
         id: index + 1,
@@ -198,7 +192,7 @@ function UserDashboard() {
       setCategories(categoriesArray);
       setSelectedCategory("");
     }
-  }, [user, setSelectedJournal]);
+  }, [user, setSelectedEntry]);
 
   useEffect(() => {
     if (user && !user.isVerified) {
@@ -206,10 +200,10 @@ function UserDashboard() {
     }
   }, [user]);
 
-  const handleCreateJournal = async (e: React.FormEvent) => {
+  const handleCreateEntry = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    const newJournal = {
+    const newEntry = {
       title,
       entry,
       category:
@@ -222,9 +216,9 @@ function UserDashboard() {
     };
 
     try {
-      const response = await fetch(`api/user/entrie/create`, {
+      const response = await fetch(`api/user/entry/create`, {
         method: "POST",
-        body: JSON.stringify(newJournal),
+        body: JSON.stringify(newEntry),
       });
 
       if (!response.ok) {
@@ -236,14 +230,11 @@ function UserDashboard() {
 
         const userData = body.data;
         setUser(userData);
-        setJournals(userData.entries);
-        setFilteredJournals(userData.entries);
-        if (
-          userData.journalCategories &&
-          userData.journalCategories.length > 0
-        ) {
+        setEntrys(userData.entries);
+        setFilteredEntrys(userData.entries);
+        if (userData.entryCategories && userData.entryCategories.length > 0) {
           setCategories(
-            userData.journalCategories.map(
+            userData.entryCategories.map(
               (
                 cat: { category: string; selected: boolean },
                 index: number
@@ -285,17 +276,17 @@ function UserDashboard() {
   const handleCategoryClick = (categoryName: string) => {
     setSelectedCategory(categoryName);
     if (categoryName) {
-      setFilteredJournals(
+      setFilteredEntrys(
         entries.filter((entrie) => entrie.category === categoryName)
       );
     } else {
-      setFilteredJournals(entries);
+      setFilteredEntrys(entries);
     }
   };
 
   const clearCategoryFilter = () => {
     setSelectedCategory("");
-    setFilteredJournals(entries);
+    setFilteredEntrys(entries);
   };
 
   // const { openModal } = useContext(ModalContext);
@@ -335,6 +326,7 @@ function UserDashboard() {
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar */}
       <div
         className={`${
           isSidebarOpen ? "w-64" : "w-16"
@@ -378,14 +370,14 @@ function UserDashboard() {
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="flex justify-end mb-4">
-          <Button onClick={handleCreateJournal}>Create Entrie</Button>
+          <Button onClick={handleCreateEntry}>Create Entrie</Button>
         </div>
         <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
         <div className="grid grid-cols-2 gap-6">
-          {/* Left Column: Create New Entrie */}
+          {/* Left Column: Create New Entry */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Create New Entrie</h2>
-            <form onSubmit={handleCreateJournal} className="space-y-4">
+            <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
+            <form onSubmit={handleCreateEntry} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
                 <Input
@@ -436,7 +428,7 @@ function UserDashboard() {
                 >
                   {isSaving ? "Saving..." : "Create Entrie"}
                 </Button>
-                {showJournalSuccessIcon && (
+                {showEntrySuccessIcon && (
                   <>
                     <CheckCircle className="text-green-500 animate-fade-in-out" />
                     <p className="text-green-500">
@@ -453,15 +445,15 @@ function UserDashboard() {
             <h2 className="text-2xl font-semibold mb-4">Your Entries</h2>
             <div className="flex space-x-2 mb-4">
               <Button
-                variant={journalViewMode === "list" ? "default" : "outline"}
-                onClick={() => setJournalViewMode("list")}
+                variant={entryViewMode === "list" ? "default" : "outline"}
+                onClick={() => setEntryViewMode("list")}
               >
                 <List className="w-4 h-4 mr-2" />
                 List View
               </Button>
               <Button
-                variant={journalViewMode === "icons" ? "default" : "outline"}
-                onClick={() => setJournalViewMode("icons")}
+                variant={entryViewMode === "icons" ? "default" : "outline"}
+                onClick={() => setEntryViewMode("icons")}
               >
                 <Grid className="w-4 h-4 mr-2" />
                 Icon View
@@ -469,7 +461,7 @@ function UserDashboard() {
             </div>
             <div
               className={`${
-                journalViewMode === "list"
+                entryViewMode === "list"
                   ? "space-y-4"
                   : "grid grid-cols-2 gap-4"
               } h-[calc(100vh-300px)] overflow-y-auto`}
@@ -480,11 +472,11 @@ function UserDashboard() {
                   .map((_, index) => (
                     <div key={index}>{renderSkeletonCard()}</div>
                   ))
-              ) : filteredJournals && filteredJournals.length > 0 ? (
-                filteredJournals.map((entrie, index) => (
+              ) : filteredEntrys && filteredEntrys.length > 0 ? (
+                filteredEntrys.map((entrie, index) => (
                   <div
                     key={`entrie-${index}`}
-                    onClick={(e) => handleJournalClick(e, entrie)}
+                    onClick={(e) => handleEntryClick(e, entrie)}
                   >
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
                       <CardHeader>

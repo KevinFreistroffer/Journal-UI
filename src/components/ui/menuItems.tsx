@@ -15,11 +15,11 @@ export function MenuItems({ menuItems }: { menuItems: MenuItem[] }) {
 
   return (
     <>
-      {menuItems.map((item) => {
+      {menuItems.map((item, index) => {
         if (!pathname.startsWith(item.href)) {
           return (
             <Link
-              key={item.href}
+              key={index}
               href={item.href}
               className={`transition-colors hover:text-foreground/80 ${
                 pathname === item.href

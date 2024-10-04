@@ -9,7 +9,7 @@ const CategoriesPage: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      setCategories(user.journalCategories);
+      setCategories(user.entryCategories);
     }
   }, [user]);
 

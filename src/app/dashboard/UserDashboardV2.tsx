@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { IJournal } from "@/lib/interfaces";
+import { IEntry } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ConstructionIcon } from "lucide-react";
@@ -11,7 +11,7 @@ import styles from "@/app/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
 
-export interface IFrontEndJournal extends IJournal {
+export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
   // For example, you might want to include a formatted date or a flag for upcoming entries
   formattedDate?: string; // Optional formatted date string for display
@@ -20,40 +20,35 @@ export interface IFrontEndJournal extends IJournal {
 
 function UserDashboard() {
   const { user, isLoading } = useAuth();
-  const [totalJournals, setTotalJournals] = useState(
-    user?.entries?.length || 0
-  );
+  const [totalEntrys, setTotalEntrys] = useState(user?.entries?.length || 0);
   const [categoryData, setCategoryData] = useState<
     { title: string; value: number; color: string }[]
   >([]);
-  const [recentEntries, setRecentEntries] = useState<IFrontEndJournal[]>([]);
-  const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndJournal[]>(
-    []
-  );
+  const [recentEntries, setRecentEntries] = useState<IFrontEndEntry[]>([]);
+  const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndEntry[]>([]);
   const [data, setData] = useState<ICategoryBreakdown[]>([]);
-  const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(false);
+  const [showTotalEntrysCard, setShowTotalEntrysCard] = useState(false);
   const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] =
     useState(false);
   const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(false);
   const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(false);
-  const [showFavoriteJournalsCard, setShowFavoriteJournalsCard] =
-    useState(false);
+  const [showFavoriteEntrysCard, setShowFavoriteEntrysCard] = useState(false);
   const [localStorageValuesFetched, setLocalStorageValuesFetched] = useState({
-    totalJournalsCard: false,
+    totalEntrysCard: false,
     categoryBreakdownCard: false,
     recentEntriesCard: false,
     upcomingEntriesCard: false,
-    favoriteJournalsCard: false,
+    favoriteEntrysCard: false,
   });
 
   const entries = user?.entries;
 
   useEffect(() => {
     if (user) {
-      setTotalJournals(entries?.length || 0);
+      setTotalEntrys(entries?.length || 0);
 
       // Calculate category breakdown
-      const categories = user?.journalCategories.reduce((acc, category) => {
+      const categories = user?.entryCategories.reduce((acc, category) => {
         acc[category.category] = (acc[category.category] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -112,14 +107,14 @@ function UserDashboard() {
 
   useEffect(() => {
     const fetchLocalStorageValues = () => {
-      const showTotalJournalsCard: boolean | null =
-        localStorageService.getItem<boolean>("showTotalJournalsCard");
-      setShowTotalJournalsCard(
-        showTotalJournalsCard !== null ? showTotalJournalsCard : true
+      const showTotalEntrysCard: boolean | null =
+        localStorageService.getItem<boolean>("showTotalEntrysCard");
+      setShowTotalEntrysCard(
+        showTotalEntrysCard !== null ? showTotalEntrysCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
-        totalJournalsCard: true,
+        totalEntrysCard: true,
       }));
 
       const showCategoryBreakdownCard: boolean | null =
@@ -152,14 +147,14 @@ function UserDashboard() {
         upcomingEntriesCard: true,
       }));
 
-      const showFavoriteJournalsCard: boolean | null =
-        localStorageService.getItem<boolean>("showFavoriteJournalsCard");
-      setShowFavoriteJournalsCard(
-        showFavoriteJournalsCard !== null ? showFavoriteJournalsCard : true
+      const showFavoriteEntrysCard: boolean | null =
+        localStorageService.getItem<boolean>("showFavoriteEntrysCard");
+      setShowFavoriteEntrysCard(
+        showFavoriteEntrysCard !== null ? showFavoriteEntrysCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
-        favoriteJournalsCard: true,
+        favoriteEntrysCard: true,
       }));
     };
 
@@ -186,16 +181,16 @@ function UserDashboard() {
           <h2 className="text-xl font-semibold">Legend</h2>
           <div className="flex flex-wrap">
             <div className="mr-4">
-              <label htmlFor="totalJournalsCard">
+              <label htmlFor="totalEntrysCard">
                 <input
                   type="checkbox"
-                  id="totalJournalsCard"
-                  checked={showTotalJournalsCard}
+                  id="totalEntrysCard"
+                  checked={showTotalEntrysCard}
                   onChange={() => {
-                    const newValue = !showTotalJournalsCard;
-                    setShowTotalJournalsCard(newValue);
+                    const newValue = !showTotalEntrysCard;
+                    setShowTotalEntrysCard(newValue);
                     localStorageService.setItem(
-                      "showTotalJournalsCard",
+                      "showTotalEntrysCard",
                       newValue
                     ); // Save to localStorage
                   }}
@@ -262,16 +257,16 @@ function UserDashboard() {
               </label>
             </div>
             <div className="mr-4">
-              <label htmlFor="favoriteJournalsCard">
+              <label htmlFor="favoriteEntrysCard">
                 <input
                   type="checkbox"
-                  id="favoriteJournalsCard"
-                  checked={showFavoriteJournalsCard}
+                  id="favoriteEntrysCard"
+                  checked={showFavoriteEntrysCard}
                   onChange={() => {
-                    const newValue = !showFavoriteJournalsCard;
-                    setShowFavoriteJournalsCard(newValue);
+                    const newValue = !showFavoriteEntrysCard;
+                    setShowFavoriteEntrysCard(newValue);
                     localStorageService.setItem(
-                      "showFavoriteJournalsCard",
+                      "showFavoriteEntrysCard",
                       newValue
                     ); // Save to localStorage
                   }}
@@ -285,10 +280,10 @@ function UserDashboard() {
         {/* Buttons for creating new entrie and viewing all entries */}
         <div className="mb-6 w-full md:w-1/2 flex justify-end">
           <Link
-            href="/entrie/write"
+            href="/entry/write"
             className="bg-blue-500 mr-4 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center"
           >
-            Create New Entrie
+            Create New Entry
           </Link>
           <Link
             href="/entries"
@@ -298,17 +293,17 @@ function UserDashboard() {
           </Link>
         </div>
 
-        <h1>{!localStorageValuesFetched.totalJournalsCard.toString()}</h1>
+        <h1>{!localStorageValuesFetched.totalEntrysCard.toString()}</h1>
 
         {/* Total Number of Entries */}
-        {!localStorageValuesFetched.totalJournalsCard ? (
+        {!localStorageValuesFetched.totalEntrysCard ? (
           <PlaceholderCard />
         ) : (
-          showTotalJournalsCard && (
+          showTotalEntrysCard && (
             <div className="w-full mb-6 p-2">
               <Card className="h-full p-4 flex w-full items-center">
                 <h2 className="text-xl font-semibold flex-1">
-                  Total Number of entries: {totalJournals}
+                  Total Number of entries: {totalEntrys}
                 </h2>
               </Card>
             </div>
@@ -383,10 +378,10 @@ function UserDashboard() {
         )}
 
         {/* Favorite Entries */}
-        {!localStorageValuesFetched.favoriteJournalsCard ? (
+        {!localStorageValuesFetched.favoriteEntrysCard ? (
           <PlaceholderCard />
         ) : (
-          showFavoriteJournalsCard && (
+          showFavoriteEntrysCard && (
             <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
               <Card className="h-full p-4">
                 <h2 className="text-xl font-semibold">Favorite Entries</h2>

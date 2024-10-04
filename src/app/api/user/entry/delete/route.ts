@@ -11,9 +11,9 @@ export async function DELETE(req: Request) {
     }
 
     const body = await req.json();
-    const { userId, journalIds } = body;
+    const { userId, entryIds } = body;
 
-    const response = await fetch(`${process.env.API_URL}/user/entrie/delete`, {
+    const response = await fetch(`${process.env.API_URL}/user/entry/delete`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ export async function DELETE(req: Request) {
       },
       body: JSON.stringify({
         userId,
-        journalIds,
+        entryIds,
       }),
     });
 
@@ -38,23 +38,23 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json(data, { status: 200 });
     // const body = await req.json();
-    // const { userId, journalIds } = body;
+    // const { userId, entryIds } = body;
 
-    // if (!userId || !journalIds || !Array.isArray(journalIds)) {
+    // if (!userId || !entryIds || !Array.isArray(entryIds)) {
     //   return NextResponse.json(
     //     { error: "Invalid request body" },
     //     { status: 400 }
     //   );
     // }
 
-    // const response = await fetch(`${process.env.API_URL}/user/entrie/delete`, {
+    // const response = await fetch(`${process.env.API_URL}/user/entry/delete`, {
     //   method: "DELETE",
     //   headers: {
     //     "Content-Type": "application/json",
     //     Accept: "application/json",
     //     Cookie: cookies().toString(),
     //   },
-    //   body: JSON.stringify({ userId, journalIds }),
+    //   body: JSON.stringify({ userId, entryIds }),
     // });
 
     // if (!response.ok) {

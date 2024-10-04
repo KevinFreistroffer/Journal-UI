@@ -59,7 +59,7 @@ export default function Header() {
       <div className="p-8 flex h-14 items-center justify-between w-full">
         <div className="hidden md:flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">JournalApp</span>
+            <span className="hidden font-bold sm:inline-block">Entries</span>
           </Link>
         </div>
         {isLoading ? (

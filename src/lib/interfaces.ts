@@ -1,4 +1,4 @@
-export interface IJournal {
+export interface IEntry {
   _id: string;
   title: string;
   entry: string;
@@ -27,8 +27,8 @@ export interface IUser {
   isVerified: boolean; // Todo should make this required and setup the email verification
   // jwtToken: string; // TODO: I don't think this is needed. The token would get generated and sent to the client. Client sends the token, server parses it, and compares it to the found users
   // password and
-  entries: IJournal[];
-  journalCategories: ICategory[];
+  entries: IEntry[];
+  entryCategories: ICategory[];
   createdAt: string;
   updatedAt: string;
 }

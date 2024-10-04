@@ -21,12 +21,12 @@ import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import Carrot from "@/components/ui/Carrot/Carrot";
 
-export default function JournalsPage() {
+export default function EntrysPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showHelperText, setShowHelperText] = useState<boolean>(false);
-  const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite entries
-  const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
+  const [favoriteEntrys, setFavoriteEntrys] = useState<string[]>([]); // State for favorite entries
+  const [loadingEntryId, setLoadingEntryId] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useAuth();
 
@@ -117,16 +117,16 @@ export default function JournalsPage() {
     }
   };
 
-  const handleFavorite = async (journalId: string) => {
-    setLoadingJournalId(journalId); // Set the loading state for the specific entrie
+  const handleFavorite = async (entryId: string) => {
+    setLoadingEntryId(entryId); // Set the loading state for the specific entrie
     try {
       // Send API request to edit the entrie
-      const response = await fetch(`api/user/entrie/edit`, {
+      const response = await fetch(`api/user/entry/edit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ journalId, favorite: true }), // Include the entrie ID in the request body
+        body: JSON.stringify({ entryId, favorite: true }), // Include the entrie ID in the request body
       });
 
       if (!response.ok) {
@@ -138,7 +138,7 @@ export default function JournalsPage() {
     } catch (error) {
       console.error("Error updating favorite status:", error);
     } finally {
-      setLoadingJournalId(null); // Reset loading state
+      setLoadingEntryId(null); // Reset loading state
     }
   };
 
@@ -193,10 +193,7 @@ export default function JournalsPage() {
         {user.entries.length === 0 ? (
           <div>
             <p>No entries found.</p>
-            <Link
-              href="/entrie/write"
-              className="text-blue-500 hover:underline"
-            >
+            <Link href="/entry/write" className="text-blue-500 hover:underline">
               Create a entrie
             </Link>
           </div>
@@ -239,10 +236,10 @@ export default function JournalsPage() {
                         className="w-8 h-8 cursor-pointer"
                         onClick={() => {
                           localStorageService.setItem(
-                            "selectedJournal",
+                            "selectedEntry",
                             entrie._id
                           ); // Set selected entrie in localStorage
-                          router.push(`/entrie/${entrie._id}`);
+                          router.push(`/entry/${entrie._id}`);
                         }}
                       />
                     </div>
@@ -253,7 +250,7 @@ export default function JournalsPage() {
                     >
                       <BookOpenText
                         className="w-8 h-8 cursor-pointer ml-4"
-                        onClick={() => router.push(`/entrie/${entrie._id}`)}
+                        onClick={() => router.push(`/entry/${entrie._id}`)}
                       />
                     </HelperText> */}
                   </div>
@@ -281,11 +278,11 @@ export default function JournalsPage() {
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  {loadingJournalId === entrie._id ? ( // Show loading indicator if this entrie is loading
+                  {loadingEntryId === entrie._id ? ( // Show loading indicator if this entrie is loading
                     <Spinner size="sm" />
                   ) : (
                     <StarIcon
-                      filled={favoriteJournals.includes(entrie._id)}
+                      filled={favoriteEntrys.includes(entrie._id)}
                       onClick={() => handleFavorite(entrie._id)}
                     />
                   )}
