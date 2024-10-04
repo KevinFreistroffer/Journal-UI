@@ -31,22 +31,13 @@ function UserDashboard() {
     []
   );
   const [data, setData] = useState<ICategoryBreakdown[]>([]);
-  const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(
-    localStorageService.getItem("showTotalJournalsCard") || true
-  );
-  const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] = useState(
-    localStorageService.getItem("showCategoryBreakdownCard") || true
-  );
-  const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(
-    localStorageService.getItem("showRecentEntriesCard") || true
-  );
-  const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(
-    localStorageService.getItem("showUpcomingEntriesCard") || true
-  );
-  const [showFavoriteJournalsCard, setShowFavoriteJournalsCard] = useState(
-    localStorageService.getItem("showFavoriteJournalsCard") || true
-  );
-
+  const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(false);
+  const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] =
+    useState(false);
+  const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(false);
+  const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(false);
+  const [showFavoriteJournalsCard, setShowFavoriteJournalsCard] =
+    useState(false);
   const [localStorageValuesFetched, setLocalStorageValuesFetched] = useState({
     totalJournalsCard: false,
     categoryBreakdownCard: false,
@@ -121,40 +112,50 @@ function UserDashboard() {
 
   useEffect(() => {
     const fetchLocalStorageValues = () => {
+      const showTotalJournalsCard: boolean | null =
+        localStorageService.getItem<boolean>("showTotalJournalsCard");
       setShowTotalJournalsCard(
-        localStorageService.getItem("showTotalJournalsCard") || true
+        showTotalJournalsCard !== null ? showTotalJournalsCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
         totalJournalsCard: true,
       }));
 
+      const showCategoryBreakdownCard: boolean | null =
+        localStorageService.getItem<boolean>("showCategoryBreakdownCard");
       setShowCategoryBreakdownCard(
-        localStorageService.getItem("showCategoryBreakdownCard") || true
+        showCategoryBreakdownCard !== null ? showCategoryBreakdownCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
         categoryBreakdownCard: true,
       }));
 
+      const showRecentEntriesCard: boolean | null =
+        localStorageService.getItem<boolean>("showRecentEntriesCard");
       setShowRecentEntriesCard(
-        localStorageService.getItem("showRecentEntriesCard") || true
+        showRecentEntriesCard !== null ? showRecentEntriesCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
         recentEntriesCard: true,
       }));
 
+      const showUpcomingEntriesCard: boolean | null =
+        localStorageService.getItem<boolean>("showUpcomingEntriesCard");
       setShowUpcomingEntriesCard(
-        localStorageService.getItem("showUpcomingEntriesCard") || true
+        showUpcomingEntriesCard !== null ? showUpcomingEntriesCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
         upcomingEntriesCard: true,
       }));
 
+      const showFavoriteJournalsCard: boolean | null =
+        localStorageService.getItem<boolean>("showFavoriteJournalsCard");
       setShowFavoriteJournalsCard(
-        localStorageService.getItem("showFavoriteJournalsCard") || true
+        showFavoriteJournalsCard !== null ? showFavoriteJournalsCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
@@ -190,9 +191,14 @@ function UserDashboard() {
                   type="checkbox"
                   id="totalJournalsCard"
                   checked={showTotalJournalsCard}
-                  onChange={() =>
-                    setShowTotalJournalsCard(!showTotalJournalsCard)
-                  }
+                  onChange={() => {
+                    const newValue = !showTotalJournalsCard;
+                    setShowTotalJournalsCard(newValue);
+                    localStorageService.setItem(
+                      "showTotalJournalsCard",
+                      newValue
+                    ); // Save to localStorage
+                  }}
                   className="mr-1"
                 />
                 Total Journals
@@ -204,9 +210,14 @@ function UserDashboard() {
                   type="checkbox"
                   id="categoryBreakdownCard"
                   checked={showCategoryBreakdownCard}
-                  onChange={() =>
-                    setShowCategoryBreakdownCard(!showCategoryBreakdownCard)
-                  }
+                  onChange={() => {
+                    const newValue = !showCategoryBreakdownCard;
+                    setShowCategoryBreakdownCard(newValue);
+                    localStorageService.setItem(
+                      "showCategoryBreakdownCard",
+                      newValue
+                    ); // Save to localStorage
+                  }}
                   className="mr-1"
                 />
                 Category Breakdown
@@ -218,9 +229,14 @@ function UserDashboard() {
                   type="checkbox"
                   id="recentEntriesCard"
                   checked={showRecentEntriesCard}
-                  onChange={() =>
-                    setShowRecentEntriesCard(!showRecentEntriesCard)
-                  }
+                  onChange={() => {
+                    const newValue = !showRecentEntriesCard;
+                    setShowRecentEntriesCard(newValue);
+                    localStorageService.setItem(
+                      "showRecentEntriesCard",
+                      newValue
+                    ); // Save to localStorage
+                  }}
                   className="mr-1"
                 />
                 Recent Entries
@@ -232,9 +248,14 @@ function UserDashboard() {
                   type="checkbox"
                   id="upcomingEntriesCard"
                   checked={showUpcomingEntriesCard}
-                  onChange={() =>
-                    setShowUpcomingEntriesCard(!showUpcomingEntriesCard)
-                  }
+                  onChange={() => {
+                    const newValue = !showUpcomingEntriesCard;
+                    setShowUpcomingEntriesCard(newValue);
+                    localStorageService.setItem(
+                      "showUpcomingEntriesCard",
+                      newValue
+                    ); // Save to localStorage
+                  }}
                   className="mr-1"
                 />
                 Upcoming Entries
@@ -246,9 +267,14 @@ function UserDashboard() {
                   type="checkbox"
                   id="favoriteJournalsCard"
                   checked={showFavoriteJournalsCard}
-                  onChange={() =>
-                    setShowFavoriteJournalsCard(!showFavoriteJournalsCard)
-                  }
+                  onChange={() => {
+                    const newValue = !showFavoriteJournalsCard;
+                    setShowFavoriteJournalsCard(newValue);
+                    localStorageService.setItem(
+                      "showFavoriteJournalsCard",
+                      newValue
+                    ); // Save to localStorage
+                  }}
                   className="mr-1"
                 />
                 Favorite Journals

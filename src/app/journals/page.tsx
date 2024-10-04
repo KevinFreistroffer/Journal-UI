@@ -121,12 +121,12 @@ export default function JournalsPage() {
     setLoadingJournalId(journalId); // Set the loading state for the specific journal
     try {
       // Send API request to edit the journal
-      const response = await fetch(`/user/journal/edit`, {
+      const response = await fetch(`api/user/journal/edit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ journalId, isFavorite: true }), // Include the journal ID in the request body
+        body: JSON.stringify({ journalId, favorite: true }), // Include the journal ID in the request body
       });
 
       if (!response.ok) {
@@ -237,7 +237,13 @@ export default function JournalsPage() {
                       )}
                       <BookOpenText
                         className="w-8 h-8 cursor-pointer"
-                        onClick={() => router.push(`/journal/${journal._id}`)}
+                        onClick={() => {
+                          localStorageService.setItem(
+                            "selectedJournal",
+                            journal._id
+                          ); // Set selected journal in localStorage
+                          router.push(`/journal/${journal._id}`);
+                        }}
                       />
                     </div>
                     {/* <HelperText

@@ -1,8 +1,7 @@
 "use client";
 
-import { useJournal } from "@/hooks/useJournal";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -10,20 +9,24 @@ import { localStorageService } from "@/lib/services/localStorageService";
 import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
 import { Spinner } from "@/components/ui/spinner";
 export default function JournalPage() {
-  const { selectedJournal, setSelectedJournal } = useJournal();
   const router = useRouter();
+  const [selectedJournal, setSelectedJournal] =
+    useState<IFrontEndJournal | null>(null); // Added state for selectedJournal
 
   useEffect(() => {
-    if (!selectedJournal) {
-      const savedJournal =
-        localStorageService.getItem<IFrontEndJournal>("selectedJournal");
-      if (savedJournal) {
-        setSelectedJournal(savedJournal);
-      } else {
-        router.push("/dashboard");
-      }
+    const savedJournal =
+      localStorageService.getItem<IFrontEndJournal>("selectedJournal");
+
+    if (savedJournal) {
+      console.log("savedJournal", savedJournal);
+
+      setSelectedJournal(savedJournal); // Set state with saved journal
+
+      localStorageService.setItem("selectedJournal", savedJournal);
+    } else {
+      router.push("/dashboard");
     }
-  }, [selectedJournal, setSelectedJournal, router]);
+  }, [router]);
 
   const handleGoBack = () => {
     router.push("/dashboard");
