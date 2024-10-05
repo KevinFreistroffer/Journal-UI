@@ -86,7 +86,7 @@ export const login: LoginFunction = async (
       };
     }
 
-    const userData = userDataResult.data as IUser;
+    const userData = userDataResult.data as unknown as IUser;
 
     if (!userData.isVerified) {
       return {

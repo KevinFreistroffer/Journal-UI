@@ -3,7 +3,8 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { CLIENT_SESSION, API_AUTHORIZATION_TOKEN_NAME } from "@/lib/constants";
 const secretKey = process.env.SESSION_SECRET;
-const encodedKey = new TextEncoder().encode(secretKey);
+console.log("secretKey", secretKey);
+const encodedKey = new TextEncoder().encode(secretKey?.toString());
 
 export async function encrypt(payload: {
   userId: string;
@@ -20,10 +21,12 @@ export async function encrypt(payload: {
 export async function decrypt(session: string | undefined = "") {
   try {
     if (session) {
+      console.log("isSession", session);
+      console.log("encodedKey", encodedKey);
       const { payload } = await jwtVerify(session, encodedKey, {
         algorithms: ["HS256"],
       });
-
+      console.log("payload", payload);
       return payload;
     }
   } catch (error: unknown) {
@@ -35,6 +38,7 @@ export async function decrypt(session: string | undefined = "") {
 export async function createSession(userId: string, isVerified: boolean) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ userId, isVerified, expiresAt });
+  console.log("createSession() session", session);
   cookies().set(CLIENT_SESSION, session, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

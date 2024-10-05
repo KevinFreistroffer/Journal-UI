@@ -14,11 +14,13 @@ export async function middleware(request: NextRequest) {
     (path === "/login" &&
       request.nextUrl.searchParams.get("isVerified") !== null);
   const cookie = cookies().get(CLIENT_SESSION)?.value;
+  console.log("cookie", cookie);
   let session;
 
   // const session = await decrypt(cookie);
   if (cookie) {
     session = await decrypt(cookie);
+    console.log("decrypted session", session);
   }
 
   if (isProtectedRoute) {
