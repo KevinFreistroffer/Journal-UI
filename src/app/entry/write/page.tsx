@@ -25,18 +25,10 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Check,
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
 import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
@@ -56,7 +48,6 @@ function WritePage() {
   const [favorite, setFavorite] = useState<boolean>(false); // State for favorite checkbox
 
   const [isSaving, setIsSaving] = useState(false);
-  const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
   const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
     useState(false); // State for dialog
@@ -67,14 +58,13 @@ function WritePage() {
   const [categoryCreatedErrorMessage, setCategoryCreatedErrorMessage] =
     useState(""); // State for error message
   const [isCategoryCreated, setIsCategoryCreated] = useState(false); // State to track if category is created
-  const [entryToDelete, setEntryToDelete] = useState<IFrontEndEntry | null>(
-    null
-  );
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -156,11 +146,9 @@ function WritePage() {
       title,
       entry,
       category:
-        categories.length > 0
-          ? selectedCategory.trim() !== ""
-            ? selectedCategory
-            : "Uncategorized"
-          : "Uncategorized",
+        categories.length === 0 || selectedCategory.trim() === ""
+          ? "Uncategorized"
+          : selectedCategory,
       userId: user?._id,
       favorite,
     };
@@ -199,65 +187,6 @@ function WritePage() {
     }
   };
 
-  const handleCreateCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newCategoryName) {
-      setIsCreatingCategoryLoading(true); // Show loading indicator
-
-      const categoryExists = categories.some(
-        ({ category }) =>
-          category.toLowerCase() === newCategoryName.toLowerCase()
-      );
-      if (categoryExists) {
-        setCategoryCreatedErrorMessage("Category already exists."); // Set error message if category exists
-        setIsCreatingCategoryLoading(false); // Hide loading indicator
-        return;
-      }
-
-      try {
-        // Simulate an API request (replace with your actual API call)
-        const response = await fetch(
-          "/api/user/category/create?returnUser=true",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: user?._id,
-              category: newCategoryName,
-            }), // Replace 'yourUserId' with actual user ID
-          }
-        );
-
-        const body = await response.json();
-
-        if (!response.ok) {
-          setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
-        } else {
-          setUser(body.data);
-          setEntrys(body.data.entries);
-          setCategories(body.data.entryCategories);
-          setNewCategoryName("");
-          setShowCreatedCategorySuccessIcon(true); // Show success icon
-          setIsCategoryCreated(true); // Set category created state
-
-          // Set timeout for closing the dialog only if it's still open
-          timeoutRef.current = setTimeout(() => {
-            setIsCategoryCreated(false);
-          }, 3000);
-        }
-      } catch (error) {
-        console.error("Error creating category:", error);
-        setCategoryCreatedErrorMessage(
-          "An error occurred while creating the category."
-        ); // Set a generic error message
-      } finally {
-        setIsCreatingCategoryLoading(false); // Hide loading indicator
-      }
-    }
-  };
-
   const handleCloseCategoryModal = () => {
     setShowCreatedCategorySuccessIcon(false); // Hide success icon
     setIsCreateCategoryDialogOpen(false); // Close dialog immediately
@@ -282,6 +211,33 @@ function WritePage() {
   // const handleOpenModal = () => {
   //   openModal(<div>Your custom content here!</div>);
   // };
+
+  const handleAddCategory = () => {
+    if (newCategoryName.trim()) {
+      // Check if category already exists
+      if (
+        categories.some(
+          (cat) =>
+            cat.category.toLowerCase() === newCategoryName.trim().toLowerCase()
+        )
+      ) {
+        setCategoryCreatedErrorMessage("Category already exists.");
+        return;
+      }
+
+      // Add new category to the list
+      setCategories([...categories, { category: newCategoryName.trim() }]);
+      setSelectedCategory(newCategoryName.trim());
+      setNewCategoryName("");
+      setIsAddingCategory(false);
+      setCategoryCreatedErrorMessage("");
+
+      // Show success icon and hide it after 3 seconds
+      setShowCategorySuccessIcon(true);
+
+      // setTimeout(() => setShowCategorySuccessIcon(false), 3000);
+    }
+  };
 
   // Check if the user is verified
   if (isLoading) {
@@ -314,14 +270,15 @@ function WritePage() {
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar - hidden on small screens, visible from medium screens and up */}
       <div
-        className={`${
-          isSidebarOpen ? "w-64" : "w-16"
-        } flex flex-col bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out relative`}
+        className={`hidden md:flex flex-col bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out relative ${
+          isSidebarOpen ? "md:w-64" : "md:w-16"
+        }`}
       >
         <Button
           className={`relative w-full p-0 mb-6 ${
-            isSidebarOpen ? "justify-end " : "justify-center "
+            isSidebarOpen ? "justify-end" : "justify-center"
           }`}
           variant="ghost"
           size="sm"
@@ -380,43 +337,78 @@ function WritePage() {
             </div>
             <div>
               <Label htmlFor="category">Category</Label>
-              <div className="flex items-center">
-                <Select
-                  onValueChange={setSelectedCategory}
-                  defaultValue={selectedCategory}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {categories.length > 0 ? (
-                      categories.map((cat, index) => {
-                        console.log(categories);
-                        console.log(cat.category, index);
-
-                        return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Select
+                    onValueChange={setSelectedCategory}
+                    value={selectedCategory}
+                    className="w-2/3"
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {categories.length > 0 ? (
+                        categories.map((cat, index) => (
                           <SelectItem key={index} value={cat.category}>
                             {cat.category}
                           </SelectItem>
-                        );
-                      })
+                        ))
+                      ) : (
+                        <SelectItem value="disabled" disabled>
+                          No categories available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsAddingCategory(!isAddingCategory)}
+                    className="w-1/3"
+                  >
+                    {isAddingCategory ? (
+                      <>
+                        <X size={20} className="mr-2" />
+                        Cancel
+                      </>
                     ) : (
-                      <SelectItem value="disabled" disabled>
-                        No categories available
-                      </SelectItem>
+                      <>
+                        <PlusIcon className="mr-2" />
+                        Add
+                      </>
                     )}
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setIsCreateCategoryDialogOpen(true);
-                  }}
-                >
-                  <PlusIcon />
-                </Button>
+                  </Button>
+                </div>
+                {isAddingCategory && (
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      placeholder="New category"
+                      className="w-2/3"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleAddCategory}
+                      className="w-1/3"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                )}
+                {showCategorySuccessIcon && (
+                  <div className="flex items-center">
+                    <Check size={20} className="text-green-500 mr-2" />
+                    <span className="text-green-500">Category added successfully!</span>
+                  </div>
+                )}
               </div>
+              {categoryCreatedErrorMessage && (
+                <p className="text-red-500 mt-1">
+                  {categoryCreatedErrorMessage}
+                </p>
+              )}
             </div>
             <div className="flex items-center">
               <Label htmlFor="favorite" className="mr-2">
@@ -464,84 +456,6 @@ function WritePage() {
       >
         <h1>{isCategoryCreated.toString()}</h1>
       </div>
-      {/* Create Category AlertDialog */}
-      <AlertDialog
-        open={isCreateCategoryDialogOpen}
-        onOpenChange={setIsCreateCategoryDialogOpen}
-      >
-        <AlertDialogContent>
-          {
-            <div className="w-full flex flex-col items-center">
-              <AlertDialogHeader className="flex flex-col items-center w-full mb-6">
-                <AlertDialogTitle className="w-full">
-                  Create New Category
-                </AlertDialogTitle>
-                <AlertDialogDescription className="w-full">
-                  Enter the name of the new category.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <form onSubmit={handleCreateCategory} className="w-full">
-                <div className="flex flex items-center mb-8">
-                  <Input
-                    id="newCategory"
-                    placeholder="Category Name"
-                    value={newCategoryName}
-                    disabled={isCreatingCategoryLoading}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                    required
-                    className="mr-4"
-                  />
-                  {/* <AlertDialogCancel
-                    type="button"
-                    onClick={handleCloseCategoryModal}
-                    className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2"
-                  >
-                    Cancel
-                  </AlertDialogCancel> */}
-                  <AlertDialogAction
-                    type="button"
-                    disabled={isCreatingCategoryLoading}
-                    onClick={handleCloseCategoryModal}
-                    className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2"
-                  >
-                    Cancel
-                  </AlertDialogAction>
-                  <AlertDialogAction
-                    type="button"
-                    disabled={
-                      isCreatingCategoryLoading || !newCategoryName.trim()
-                    }
-                    onClick={handleCreateCategory}
-                    className=" bg-blue-500 text-white"
-                  >
-                    {isCreatingCategoryLoading ? (
-                      <Spinner size="sm" />
-                    ) : (
-                      "Create"
-                    )}
-                  </AlertDialogAction>
-                </div>
-                {categoryCreatedErrorMessage && ( // Display error message if exists
-                  <div className="w-full text-center text-red-500 mt-2">
-                    {categoryCreatedErrorMessage}
-                  </div>
-                )}
-
-                <AlertDialogFooter>
-                  {isCategoryCreated && (
-                    <div className="flex w-full justify-center items-center">
-                      <CheckCircle className="text-blue-500 mr-2" size={32} />
-                      <span className="text-md">
-                        Category created successfully!
-                      </span>
-                    </div>
-                  )}
-                </AlertDialogFooter>
-              </form>
-            </div>
-          }
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { MenuItems } from "../menuItems";
-import { MobileMenu } from "../mobileMenu";
+import { MobileMenu } from "../MobileMenu/MobileMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import styles from "./header.module.css";
+import styles from "./Header.module.css";
 import { UserIcon } from "lucide-react";
 export interface IMenuItem {
   href: string;
@@ -21,10 +21,8 @@ export default function Header() {
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
-
       setIsScrolled(true);
     } else {
-
       setIsScrolled(false);
     }
   };
@@ -87,7 +85,6 @@ export default function Header() {
                       },
                     });
                     if (response.ok) {
-
                       // Redirect or update UI as needed after successful logout
                       setUser(null);
                       router.push("/");
@@ -111,9 +108,7 @@ export default function Header() {
             {isLoading ? (
               <div className="w-40 h-6 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <h1 className="text-lg font-semibold md:text-xl">
-                Placeholder Title
-              </h1>
+              <h1 className="text-lg font-semibold md:text-xl">Entries</h1>
             )}
           </div>
         </div>

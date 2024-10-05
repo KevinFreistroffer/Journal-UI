@@ -1,0 +1,74 @@
+/* styles.css */
+.menu-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Backdrop color */
+  /* backdrop-filter: blur(4px); Optional: adds blur effect */
+  z-index: 999;
+  background-color: red !important;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menu-content {
+  position: fixed;
+  top: 50%;
+  left: 100%; /* Start the menu off-screen */
+  transform: translateY(-50%);
+  width: 300px;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  z-index: 1000;
+  transition: left 0.3s ease-in-out; /* Smooth slide effect */
+}
+
+.menu-title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.menu-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.menu-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.close-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.close-button:hover {
+  background-color: #d32f2f;
+}
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
