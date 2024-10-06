@@ -14,6 +14,7 @@ export const verifySession = cache(
     try {
       const cookie = cookies().get(CLIENT_SESSION)?.value;
       const session = await decrypt(cookie);
+      console.log("DAL verifySession decrypted session", session);
 
       if (!session || !session.userId) {
         // return  redirect("/login");
@@ -31,7 +32,13 @@ export const verifySession = cache(
 );
 export const getUser = cache(async () => {
   try {
+    if (!process.env.API_URL) {
+      console.error("API_URL is not set");
+      return null;
+    }
+
     const session = await verifySession();
+    console.log("DAL getUser session", session);
 
     if (!session) {
       return null;
@@ -42,6 +49,10 @@ export const getUser = cache(async () => {
       return null;
     }
 
+    console.log(
+      "DAL getUser fetching user",
+      `${process.env.API_URL}/user/${session.userId}`
+    );
     const response = await fetch(
       `${process.env.API_URL}/user/${session.userId}`,
       {

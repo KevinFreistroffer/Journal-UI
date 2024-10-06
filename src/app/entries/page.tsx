@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -13,13 +13,14 @@ import { Spinner } from "@/components/ui/spinner"; // Import a spinner component
 import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import { List, Grid, BookOpenText, XIcon, Star } from "lucide-react"; // Import icons for list, grid, and eye views
+import { List, Grid, BookOpenText, XIcon, Star, Trash2 } from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
 import StarIcon from "@/components/ui/StarIcon/StarIcon";
 import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import Carrot from "@/components/ui/Carrot/Carrot";
+import { Checkbox } from "@/components/ui/checkbox"; // Import the Checkbox component
 
 export default function EntrysPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -27,8 +28,10 @@ export default function EntrysPage() {
   const [showHelperText, setShowHelperText] = useState<boolean>(false);
   const [favoriteEntrys, setFavoriteEntrys] = useState<string[]>([]); // State for favorite entries
   const [loadingEntryId, setLoadingEntryId] = useState<string | null>(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+  const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
 
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
@@ -142,6 +145,36 @@ export default function EntrysPage() {
     }
   };
 
+  const handleDelete = async (entryId: string) => {
+    setLoadingEntryId(entryId);
+    try {
+      const response = await fetch(`/api/user/entry/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ entryId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete entry");
+      }
+
+      // Remove the deleted entry from the state
+      const updatedEntries = user.entries.filter(
+        (entry) => entry._id !== entryId
+      );
+      // Update the user state with the new entries array
+      // You might need to adjust this based on how your useAuth hook works
+      // For example, you might have a setUser function in your useAuth hook
+      // setUser({ ...user, entries: updatedEntries });
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+    } finally {
+      setLoadingEntryId(null);
+    }
+  };
+
   newEntries.forEach((entry) => {
     const sentimentResult = analyzeSentiment(entry);
     // const color = getSentimentColor(sentimentResult.score);
@@ -150,10 +183,41 @@ export default function EntrysPage() {
     // );
   });
 
+  const filteredEntries = showFavoritesOnly
+    ? user.entries.filter((entry) => entry.favorite)
+    : user.entries;
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEntries(filteredEntries.map((entry) => entry._id));
+    } else {
+      setSelectedEntries([]);
+    }
+  };
+
+  const handleSelectEntry = (entryId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedEntries((prev) => [...prev, entryId]);
+    } else {
+      setSelectedEntries((prev) => prev.filter((id) => id !== entryId));
+    }
+  };
+
   return (
     <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Your Entries</h1>
-      <div className="flex space-x-2 mb-4">
+      <div className="flex space-x-2 mb-4 items-center">
+        <Checkbox
+          id="select-all"
+          checked={selectedEntries.length === filteredEntries.length}
+          onCheckedChange={handleSelectAll}
+        />
+        <label
+          htmlFor="select-all"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Select All
+        </label>
         <div className="hidden md:flex space-x-2">
           <button
             className={`flex items-center p-2 rounded ${
@@ -182,6 +246,14 @@ export default function EntrysPage() {
         >
           {showSentiment ? "Hide Sentiment" : "Show Sentiment"}
         </button>
+        <button
+          className={`flex items-center p-2 rounded ${
+            showFavoritesOnly ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+        >
+          {showFavoritesOnly ? "Show All" : "Show Favorites"}
+        </button>
       </div>
       <div
         className={`grid ${
@@ -190,26 +262,26 @@ export default function EntrysPage() {
             : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         } gap-6`}
       >
-        {user.entries.length === 0 ? (
+        {filteredEntries.length === 0 ? (
           <div>
             <p>No entries found.</p>
             <Link href="/entry/write" className="text-blue-500 hover:underline">
-              Create a entrie
+              Create an entry
             </Link>
           </div>
         ) : (
-          user.entries.map((entrie, index) => (
+          filteredEntries.map((entry, index) => (
             <Card
               key={index}
-              className="relative  hover:shadow-lg transition-shadow duration-200"
+              className="hover:shadow-lg transition-shadow duration-200 flex flex-col"
             >
-              <CardHeader>
-                <div className="flex flex-col justify-between items-start">
-                  <div className="flex w-full justify-between items-center">
+              <div className="flex flex-col flex-grow">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
                     <CardTitle className="wrap text-wrap overflow-wrap">
-                      {entrie.title.length > 30
-                        ? `${entrie.title.substring(0, 30)}...`
-                        : entrie.title}
+                      {entry.title.length > 30
+                        ? `${entry.title.substring(0, 30)}...`
+                        : entry.title}
                     </CardTitle>
                     <div className="relative p-0 m-0">
                       {index === 0 && showHelperText && (
@@ -220,7 +292,7 @@ export default function EntrysPage() {
                         >
                           <strong className="font-bold">Tip! </strong>
                           <span className="block sm:inline">
-                            Click the book icon to read your entrie!
+                            Click the book icon to read your entry!
                           </span>
                           <button
                             onClick={handleCloseHelper}
@@ -237,57 +309,65 @@ export default function EntrysPage() {
                         onClick={() => {
                           localStorageService.setItem(
                             "selectedEntry",
-                            entrie._id
-                          ); // Set selected entrie in localStorage
-                          router.push(`/entry/${entrie._id}`);
+                            entry._id
+                          );
+                          router.push(`/entry/${entry._id}`);
                         }}
                       />
                     </div>
-                    {/* <HelperText
-                      text="Click the book icon to read your entrie!"
-                    //   isVisible={index === 0 && showHelperText}
-                    //   onClick={handleCloseHelper}
-                    >
-                      <BookOpenText
-                        className="w-8 h-8 cursor-pointer ml-4"
-                        onClick={() => router.push(`/entry/${entrie._id}`)}
-                      />
-                    </HelperText> */}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className=""></CardContent>
-              <CardFooter className="flex  justify-between items-center">
-                <div className="flex flex-col">
-                  <p>{entrie.category}</p>
-                  <p className="text-sm text-gray-500">{entrie.date}</p>
-                  {showSentiment && (
-                    <div className=" flex items-center text-sm">
-                      <span className="mr-2">Sentiment:</span>
-                      <div
-                        className="rounded-full"
-                        style={{
-                          width: "10px",
-                          height: "10px",
-                          backgroundColor: getSentimentColor(
-                            analyzeSentiment(entrie.entry).score
-                          ),
-                        }}
-                      ></div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-between items-center">
-                  {loadingEntryId === entrie._id ? ( // Show loading indicator if this entrie is loading
-                    <Spinner size="sm" />
-                  ) : (
-                    <StarIcon
-                      filled={favoriteEntrys.includes(entrie._id)}
-                      onClick={() => handleFavorite(entrie._id)}
+                </CardHeader>
+                <CardContent>
+                  {/* ... existing CardContent ... */}
+                </CardContent>
+                <CardFooter className="mt-auto flex justify-between items-end">
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={selectedEntries.includes(entry._id)}
+                      onCheckedChange={(checked) =>
+                        handleSelectEntry(entry._id, checked as boolean)
+                      }
+                      className="mr-2"
                     />
-                  )}
-                </div>
-              </CardFooter>
+                    <div className="flex flex-col">
+                      <p>{entry.category}</p>
+                      <p className="text-sm text-gray-500">{entry.date}</p>
+                      {showSentiment && (
+                        <div className="flex items-center text-sm mt-1">
+                          <span className="mr-2">Sentiment:</span>
+                          <div
+                            className="rounded-full"
+                            style={{
+                              width: "10px",
+                              height: "10px",
+                              backgroundColor: getSentimentColor(
+                                analyzeSentiment(entry.entry).score
+                              ),
+                            }}
+                          ></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    {loadingEntryId === entry._id ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <>
+                        <StarIcon
+                          filled={entry.favorite}
+                          onClick={() => handleFavorite(entry._id)}
+                          className="mr-2"
+                        />
+                        <Trash2
+                          className="w-5 h-5 text-red-500 cursor-pointer"
+                          onClick={() => handleDelete(entry._id)}
+                        />
+                      </>
+                    )}
+                  </div>
+                </CardFooter>
+              </div>
             </Card>
           ))
         )}

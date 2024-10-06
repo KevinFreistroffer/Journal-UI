@@ -10,12 +10,39 @@ import { ConstructionIcon } from "lucide-react";
 import styles from "@/app/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
   // For example, you might want to include a formatted date or a flag for upcoming entries
   formattedDate?: string; // Optional formatted date string for display
   isUpcoming?: boolean; // Flag to indicate if the entry is upcoming
+}
+
+// New LegendItem component
+function LegendItem({
+  id,
+  label,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label htmlFor={id} className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="form-checkbox h-4 w-4 text-blue-600"
+      />
+      <span className="text-sm">{label}</span>
+    </label>
+  );
 }
 
 function UserDashboard() {
@@ -40,8 +67,21 @@ function UserDashboard() {
     upcomingEntriesCard: false,
     favoriteEntrysCard: false,
   });
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const entries = user?.entries;
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is the 'md' breakpoint in Tailwind
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -173,126 +213,221 @@ function UserDashboard() {
     <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-      {/* Navigation Link to Entries Page */}
-
-      <div className="flex flex-col md:flex-row md:flex-wrap">
-        {/* Legend for showing/hiding cards */}
-        <div className="mb-6 w-full md:w-1/2">
-          <h2 className="text-xl font-semibold">Legend</h2>
-          <div className="flex flex-wrap">
-            <div className="mr-4">
-              <label htmlFor="totalEntrysCard">
-                <input
-                  type="checkbox"
-                  id="totalEntrysCard"
-                  checked={showTotalEntrysCard}
-                  onChange={() => {
-                    const newValue = !showTotalEntrysCard;
-                    setShowTotalEntrysCard(newValue);
-                    localStorageService.setItem(
-                      "showTotalEntrysCard",
-                      newValue
-                    ); // Save to localStorage
-                  }}
-                  className="mr-1"
-                />
-                Total Entries
-              </label>
-            </div>
-            <div className="mr-4">
-              <label htmlFor="categoryBreakdownCard">
-                <input
-                  type="checkbox"
-                  id="categoryBreakdownCard"
-                  checked={showCategoryBreakdownCard}
-                  onChange={() => {
-                    const newValue = !showCategoryBreakdownCard;
-                    setShowCategoryBreakdownCard(newValue);
-                    localStorageService.setItem(
-                      "showCategoryBreakdownCard",
-                      newValue
-                    ); // Save to localStorage
-                  }}
-                  className="mr-1"
-                />
-                Category Breakdown
-              </label>
-            </div>
-            <div className="mr-4">
-              <label htmlFor="recentEntriesCard">
-                <input
-                  type="checkbox"
-                  id="recentEntriesCard"
-                  checked={showRecentEntriesCard}
-                  onChange={() => {
-                    const newValue = !showRecentEntriesCard;
-                    setShowRecentEntriesCard(newValue);
-                    localStorageService.setItem(
-                      "showRecentEntriesCard",
-                      newValue
-                    ); // Save to localStorage
-                  }}
-                  className="mr-1"
-                />
-                Recent Entries
-              </label>
-            </div>
-            <div className="mr-4">
-              <label htmlFor="upcomingEntriesCard">
-                <input
-                  type="checkbox"
-                  id="upcomingEntriesCard"
-                  checked={showUpcomingEntriesCard}
-                  onChange={() => {
-                    const newValue = !showUpcomingEntriesCard;
-                    setShowUpcomingEntriesCard(newValue);
-                    localStorageService.setItem(
-                      "showUpcomingEntriesCard",
-                      newValue
-                    ); // Save to localStorage
-                  }}
-                  className="mr-1"
-                />
-                Upcoming Entries
-              </label>
-            </div>
-            <div className="mr-4">
-              <label htmlFor="favoriteEntrysCard">
-                <input
-                  type="checkbox"
-                  id="favoriteEntrysCard"
-                  checked={showFavoriteEntrysCard}
-                  onChange={() => {
-                    const newValue = !showFavoriteEntrysCard;
-                    setShowFavoriteEntrysCard(newValue);
-                    localStorageService.setItem(
-                      "showFavoriteEntrysCard",
-                      newValue
-                    ); // Save to localStorage
-                  }}
-                  className="mr-1"
-                />
-                Favorite Entries
-              </label>
+      {/* Legend and Buttons Container */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+        {/* Legend */}
+        {isMobile ? (
+          <div className="relative mb-4 md:mb-0">
+            <button
+              onClick={() => setIsLegendOpen(!isLegendOpen)}
+              className="flex items-center justify-between w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded"
+            >
+              <span>Toggle Dashboard Cards</span>
+              {isLegendOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            {isLegendOpen && (
+              <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
+                <div className="p-4">
+                  <h2 className="text-xl font-semibold mb-2">Legend</h2>
+                  <div className="flex flex-col space-y-2">
+                    <LegendItem
+                      id="totalEntrysCard"
+                      label="Total Entries"
+                      checked={showTotalEntrysCard}
+                      onChange={() => {
+                        const newValue = !showTotalEntrysCard;
+                        setShowTotalEntrysCard(newValue);
+                        localStorageService.setItem(
+                          "showTotalEntrysCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="categoryBreakdownCard"
+                      label="Category Breakdown"
+                      checked={showCategoryBreakdownCard}
+                      onChange={() => {
+                        const newValue = !showCategoryBreakdownCard;
+                        setShowCategoryBreakdownCard(newValue);
+                        localStorageService.setItem(
+                          "showCategoryBreakdownCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="recentEntriesCard"
+                      label="Recent Entries"
+                      checked={showRecentEntriesCard}
+                      onChange={() => {
+                        const newValue = !showRecentEntriesCard;
+                        setShowRecentEntriesCard(newValue);
+                        localStorageService.setItem(
+                          "showRecentEntriesCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="upcomingEntriesCard"
+                      label="Upcoming Entries"
+                      checked={showUpcomingEntriesCard}
+                      onChange={() => {
+                        const newValue = !showUpcomingEntriesCard;
+                        setShowUpcomingEntriesCard(newValue);
+                        localStorageService.setItem(
+                          "showUpcomingEntriesCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="favoriteEntrysCard"
+                      label="Favorite Entries"
+                      checked={showFavoriteEntrysCard}
+                      onChange={() => {
+                        const newValue = !showFavoriteEntrysCard;
+                        setShowFavoriteEntrysCard(newValue);
+                        localStorageService.setItem(
+                          "showFavoriteEntrysCard",
+                          newValue
+                        );
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Legend</h2>
+            <div className="flex flex-wrap">
+              <div className="mr-4 mb-2">
+                <label htmlFor="totalEntrysCard" className="flex items-center text-sm">
+                  <input
+                    type="checkbox"
+                    id="totalEntrysCard"
+                    checked={showTotalEntrysCard}
+                    onChange={() => {
+                      const newValue = !showTotalEntrysCard;
+                      setShowTotalEntrysCard(newValue);
+                      localStorageService.setItem(
+                        "showTotalEntrysCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Total Entries
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="categoryBreakdownCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="categoryBreakdownCard"
+                    checked={showCategoryBreakdownCard}
+                    onChange={() => {
+                      const newValue = !showCategoryBreakdownCard;
+                      setShowCategoryBreakdownCard(newValue);
+                      localStorageService.setItem(
+                        "showCategoryBreakdownCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Category Breakdown
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label htmlFor="recentEntriesCard" className="flex items-center text-sm">
+                  <input
+                    type="checkbox"
+                    id="recentEntriesCard"
+                    checked={showRecentEntriesCard}
+                    onChange={() => {
+                      const newValue = !showRecentEntriesCard;
+                      setShowRecentEntriesCard(newValue);
+                      localStorageService.setItem(
+                        "showRecentEntriesCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Recent Entries
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="upcomingEntriesCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="upcomingEntriesCard"
+                    checked={showUpcomingEntriesCard}
+                    onChange={() => {
+                      const newValue = !showUpcomingEntriesCard;
+                      setShowUpcomingEntriesCard(newValue);
+                      localStorageService.setItem(
+                        "showUpcomingEntriesCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Upcoming Entries
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label htmlFor="favoriteEntrysCard" className="flex items-center text-sm">
+                  <input
+                    type="checkbox"
+                    id="favoriteEntrysCard"
+                    checked={showFavoriteEntrysCard}
+                    onChange={() => {
+                      const newValue = !showFavoriteEntrysCard;
+                      setShowFavoriteEntrysCard(newValue);
+                      localStorageService.setItem(
+                        "showFavoriteEntrysCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Favorite Entries
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-        {/* Buttons for creating new entrie and viewing all entries */}
-        <div className="mb-6 w-full md:w-1/2 flex justify-end">
+        )}
+
+        {/* Buttons for creating new entry and viewing all entries */}
+        <div className="flex flex-col md:flex-row">
           <Link
             href="/entry/write"
-            className="bg-blue-500 mr-4 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center"
+            className="w-full md:w-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center mb-2 md:mb-0 md:mr-4"
           >
             Create New Entry
           </Link>
           <Link
             href="/entries"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center"
+            className="w-full md:w-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center"
           >
             View All Entries
           </Link>
         </div>
+      </div>
 
+      {/* Dashboard Content */}
+      <div className="flex flex-col md:flex-row md:flex-wrap">
         <h1>{!localStorageValuesFetched.totalEntrysCard.toString()}</h1>
 
         {/* Total Number of Entries */}
