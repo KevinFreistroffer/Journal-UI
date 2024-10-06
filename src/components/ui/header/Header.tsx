@@ -8,6 +8,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Header.module.css";
 import { UserIcon } from "lucide-react";
+import { useSearch } from "@/SearchContext";
+import { useRef } from "react"; // Import useRef
+
 export interface IMenuItem {
   href: string;
   label: string;
@@ -18,6 +21,9 @@ export default function Header() {
   const router = useRouter();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { query, filteredEntries, handleSearch, setFilteredEntries } =
+    useSearch(); // Use the useSearch hook
+  const dropdownRef = useRef<HTMLUListElement | null>(null); // Create a ref for the dropdown
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -51,6 +57,28 @@ export default function Header() {
     }
   }, [user, isLoading]); // Add isLoading to the dependency array
 
+  const handleResultSelect = (id: string) => {
+    console.log("id", id);
+    router.push(`/entry/${id}`); // Navigate to the entry page with the selected journal id
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target as Node)
+    ) {
+      // Hide dropdown logic here (e.g., set a state to control visibility)
+      setFilteredEntries([]); // Assuming you have a state to control the dropdown visibility
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside); // Add event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Clean up
+    };
+  }, []);
+
   return (
     <header
       id={styles["header"]}
@@ -59,6 +87,32 @@ export default function Header() {
       }`}
     >
       <div className="p-8 flex h-14 items-center justify-between w-full">
+        {/* Search Input Section */}
+        <div className="relative">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => handleSearch(e.target.value, user?.entries || [])}
+            placeholder="Search..."
+            className="border rounded p-2"
+          />
+          {filteredEntries.length > 0 && (
+            <ul
+              ref={dropdownRef}
+              className="absolute bg-white border rounded shadow-lg mt-1 w-full"
+            >
+              {filteredEntries.map((entry, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleResultSelect(entry._id)}
+                  className="p-2 cursor-pointer hover:bg-gray-200"
+                >
+                  {entry.title}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <div className="hidden md:flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">Entries</span>

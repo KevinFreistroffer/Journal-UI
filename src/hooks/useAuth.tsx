@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/lib/interfaces";
 import { getUser } from "@/lib/dal";
+import { useSearch } from "@/SearchContext";
 
 interface AuthStateType {
   user: IUser | null;
@@ -21,6 +22,7 @@ const AuthState = createContext<AuthStateType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { setFilteredEntries } = useSearch();
 
   useEffect(() => {
     async function checkSession() {
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (user) {
           setUser(user);
+          // setFilteredEntries(user.entries);
         }
       } catch (error) {
         console.error("Error verifying session:", error);

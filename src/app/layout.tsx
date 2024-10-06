@@ -10,7 +10,7 @@ import Footer from "@/components/ui/Footer";
 import { EntryProvider } from "@/hooks/useEntry";
 import { ModalProvider } from "@/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
-
+import { SearchProvider } from "@/SearchContext";
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -43,18 +43,22 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="flex flex-col min-h-screen">
-          <AuthProvider>
-            <EntryProvider>
-              <Theme>
-                <ModalProvider>
-                  <Header />
-                  {children}
-                  <CookieConsent initialConsent={consentCookie !== undefined} />
-                  <Footer />
-                </ModalProvider>
-              </Theme>
-            </EntryProvider>
-          </AuthProvider>
+          <SearchProvider>
+            <AuthProvider>
+              <EntryProvider>
+                <Theme>
+                  <ModalProvider>
+                    <Header />
+                    {children}
+                    <CookieConsent
+                      initialConsent={consentCookie !== undefined}
+                    />
+                    <Footer />
+                  </ModalProvider>
+                </Theme>
+              </EntryProvider>
+            </AuthProvider>
+          </SearchProvider>
         </div>
       </body>
     </html>

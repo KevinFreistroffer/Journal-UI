@@ -307,19 +307,14 @@ export default function EntrysPage() {
                       <BookOpenText
                         className="w-8 h-8 cursor-pointer"
                         onClick={() => {
-                          localStorageService.setItem(
-                            "selectedEntry",
-                            entry._id
-                          );
+                          localStorageService.setItem("selectedEntry", entry);
                           router.push(`/entry/${entry._id}`);
                         }}
                       />
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  {/* ... existing CardContent ... */}
-                </CardContent>
+                <CardContent>{/* ... existing CardContent ... */}</CardContent>
                 <CardFooter className="mt-auto flex justify-between items-end">
                   <div className="flex items-center">
                     <Checkbox
