@@ -28,11 +28,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // if (!session.isVerified) {
-    //   return NextResponse.redirect(
-    //     new URL("/login?isVerified=false", request.url)
-    //   );
-    // }
+    if (!session.isVerified) {
+      return NextResponse.redirect(
+        new URL("/login?isVerified=false", request.url)
+      );
+    }
   }
 
   /**
@@ -53,15 +53,14 @@ export async function middleware(request: NextRequest) {
   // }
 
   // Commented this out 10/2 to add it to the public routes
-  // if (
-  //   isPublicRoute &&
-  //   session?.userId &&
-  //   session?.isVerified &&
-  //   !request.nextUrl.pathname.startsWith("/dashboard")
-  // ) {
-  //
-  //   return NextResponse.redirect(new URL("/dashboard", request.url));
-  // }
+  if (
+    isPublicRoute &&
+    session?.userId &&
+    session?.isVerified &&
+    !request.nextUrl.pathname.startsWith("/dashboard")
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   // return NextResponse.next();
 }

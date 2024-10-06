@@ -38,7 +38,11 @@ export default function Header() {
     if (!isLoading) {
       setMenuItems(
         user
-          ? [{ href: "/dashboard", label: "Dashboard" }]
+          ? [
+              { href: "/dashboard", label: "Dashboard" },
+              { href: "/entries", label: "Entries" },
+              { href: "/entry", label: "New Entry" },
+            ]
           : [
               { href: "/signup", label: "Sign Up" },
               { href: "/login", label: "Login" },
@@ -67,12 +71,12 @@ export default function Header() {
           </nav>
         ) : (
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {user && (
+            {/* {user && (
               <div className="flex items-center space-x-2">
                 <UserIcon className="w-6 h-6 rounded-full" />
                 <span>{user.username}</span>
               </div>
-            )}
+            )} */}
             <MenuItems menuItems={menuItems} />
             {user && (
               <button

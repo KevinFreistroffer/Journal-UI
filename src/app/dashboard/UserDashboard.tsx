@@ -1,537 +1,581 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useEntry } from "@/hooks/useEntry";
 import { IEntry } from "@/lib/interfaces";
-import { useRouter } from "next/navigation";
-import {
-  CheckCircle,
-  List,
-  Grid,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  X,
-} from "lucide-react";
+import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
+import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
+import { ConstructionIcon, StarIcon } from "lucide-react";
+import styles from "@/app/dashboard/UserDashboard.module.css";
+import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
-import Link from "next/link";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface IFrontEndEntry extends IEntry {
-  id: number;
+  // Add any additional properties specific to the frontend representation
+  // For example, you might want to include a formatted date or a flag for upcoming entries
+  formattedDate?: string; // Optional formatted date string for display
+  isUpcoming?: boolean; // Flag to indicate if the entry is upcoming
 }
 
-type Category = {
-  id: number;
-  name: string;
-  selected: boolean;
-};
+// New LegendItem component
+function LegendItem({
+  id,
+  label,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label htmlFor={id} className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="form-checkbox h-4 w-4 text-blue-600"
+      />
+      <span className="text-sm">{label}</span>
+    </label>
+  );
+}
 
 function UserDashboard() {
-  const { user, isLoading, setUser } = useAuth();
-  const { setSelectedEntry } = useEntry();
-  const [entries, setEntrys] = useState<IFrontEndEntry[]>([]);
-  const [filteredEntrys, setFilteredEntrys] = useState<IFrontEndEntry[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [newCategory, setNewCategory] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [title, setTitle] = useState("");
-  const [entry, setEntry] = useState("");
-  const [entryViewMode, setEntryViewMode] = useState<"list" | "icons">("list");
-  const [isSaving, setIsSaving] = useState(false);
-  const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
-  const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [entryToDelete, setEntryToDelete] = useState<IFrontEndEntry | null>(
-    null
-  );
-  const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
-  const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
+  const { user, isLoading } = useAuth();
+  const [totalEntrys, setTotalEntrys] = useState(user?.entries?.length || 0);
+  const [categoryData, setCategoryData] = useState<
+    { title: string; value: number; color: string }[]
+  >([]);
+  const [recentEntries, setRecentEntries] = useState<IFrontEndEntry[]>([]);
+  const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndEntry[]>([]);
+  const [data, setData] = useState<ICategoryBreakdown[]>([]);
+  const [showTotalEntrysCard, setShowTotalEntrysCard] = useState(false);
+  const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] =
+    useState(false);
+  const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(false);
+  const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(false);
+  const [showFavoriteEntrysCard, setShowFavoriteEntrysCard] = useState(false);
+  const [localStorageValuesFetched, setLocalStorageValuesFetched] = useState({
+    totalEntrysCard: false,
+    categoryBreakdownCard: false,
+    recentEntriesCard: false,
+    upcomingEntriesCard: false,
+    favoriteEntrysCard: false,
+  });
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [favoriteEntries, setFavoriteEntries] = useState<IFrontEndEntry[]>([]);
+
+  const entries = user?.entries;
 
   useEffect(() => {
-    if (isSidebarOpen) {
-      const timer = setTimeout(() => {
-        setIsTextVisible(true); // Show text after animation
-      }, 200); // Match this duration with your CSS transition duration
-
-      return () => clearTimeout(timer);
-    } else {
-      setIsTextVisible(false); // Hide text when sidebar is closed
-    }
-  }, [isSidebarOpen]);
-
-  const renderSkeletonCard = () => (
-    <Card className="animate-pulse">
-      <CardHeader>
-        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-      </CardHeader>
-      <CardContent>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/4 mt-4"></div>
-      </CardContent>
-    </Card>
-  );
-
-  const handleEntryClick = (e: React.MouseEvent, entrie: IFrontEndEntry) => {
-    e.preventDefault();
-    setSelectedEntry(entrie);
-    localStorageService.setItem("selectedEntry", entrie);
-    router.push(`/entry/${entrie.id}`);
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent, entrie: IFrontEndEntry) => {
-    e.stopPropagation();
-    setEntryToDelete(entrie);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (entryToDelete && user) {
-      try {
-        const response = await fetch(`api/user/entry/delete`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            userId: user._id,
-            entryIds: [entryToDelete.id],
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete entrie");
-        }
-
-        const body = await response.json();
-        const userData = body.data;
-        setUser(userData);
-        setEntrys(userData.entries);
-        setFilteredEntrys(userData.entries);
-        setIsDeleteDialogOpen(false);
-        setEntryToDelete(null);
-      } catch (error) {
-        console.error("Error deleting entrie:", error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const savedEntry =
-      localStorageService.getItem<IFrontEndEntry>("selectedEntry");
-    if (savedEntry) {
-      setSelectedEntry(savedEntry);
-    }
-  }, [setSelectedEntry]);
-
-  useEffect(() => {
-    if (user && user.entries) {
-      const formattedEntrys = user.entries.map((entrie, index) => ({
-        id: index + 1,
-        title: entrie.title,
-        entry: entrie.entry,
-        category: entrie.category || "My Entries",
-        date: entrie.date,
-        selected: entrie.selected,
-      }));
-      setEntrys(formattedEntrys);
-      setFilteredEntrys(formattedEntrys);
-
-      const savedEntry =
-        localStorageService.getItem<IFrontEndEntry>("selectedEntry");
-      if (savedEntry) {
-        const updatedEntry = formattedEntrys.find(
-          (j) => j.id === savedEntry.id
-        );
-        if (updatedEntry) {
-          setSelectedEntry(updatedEntry);
-          localStorageService.setItem("selectedEntry", updatedEntry);
-        }
-      }
-
-      const uniqueCategories = Array.from(
-        new Set(formattedEntrys.map((j) => j.category))
-      );
-      const categoriesArray = uniqueCategories.map((cat, index) => ({
-        id: index + 1,
-        name: cat,
-        selected: false,
-      }));
-
-      if (categoriesArray.length === 0) {
-        categoriesArray.push({ id: 1, name: "My Entries", selected: false });
-      }
-
-      setCategories(categoriesArray);
-      setSelectedCategory("");
-    }
-  }, [user, setSelectedEntry]);
-
-  useEffect(() => {
-    if (user && !user.isVerified) {
-      setIsVerifiedModalOpen(true);
-    }
-  }, [user]);
-
-  const handleCreateEntry = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    const newEntry = {
-      title,
-      entry,
-      category:
-        categories.length > 0
-          ? selectedCategory.trim() !== ""
-            ? selectedCategory
-            : "Uncategorized"
-          : "Uncategorized",
-      userId: user?._id,
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is the 'md' breakpoint in Tailwind
     };
 
-    try {
-      const response = await fetch(`api/user/entry/create`, {
-        method: "POST",
-        body: JSON.stringify(newEntry),
-      });
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
 
-      if (!response.ok) {
-        throw new Error("Failed to create entrie");
-      }
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
-      if (response.status === 200) {
-        const body = await response.json();
+  useEffect(() => {
+    if (user) {
+      setTotalEntrys(entries?.length || 0);
 
-        const userData = body.data;
-        setUser(userData);
-        setEntrys(userData.entries);
-        setFilteredEntrys(userData.entries);
-        if (userData.entryCategories && userData.entryCategories.length > 0) {
-          setCategories(
-            userData.entryCategories.map(
-              (
-                cat: { category: string; selected: boolean },
-                index: number
-              ) => ({
-                id: index + 1,
-                name: cat.category,
-                selected: cat.selected,
-              })
-            )
-          );
+      // Calculate category breakdown
+      const categories = user?.entryCategories.reduce((acc, category) => {
+        acc[category.category] = (acc[category.category] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const getRandomColor = () => {
+        const letters = "0123456789ABCDEF";
+        let color = "#";
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
         }
-        setTitle("");
-        setEntry("");
-        setShowCategorySuccessIcon(true);
-        setTimeout(() => setShowCategorySuccessIcon(false), 3000);
-      }
-    } catch (error) {
-      console.error("Error creating entrie:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCreateCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newCategory) {
-      const newCat: Category = {
-        id: categories.length + 1,
-        name: newCategory,
-        selected: false,
+        return color;
       };
-      setCategories([...categories, newCat]);
-      setNewCategory("");
-      setShowCategorySuccessIcon(true);
-      setTimeout(() => setShowCategorySuccessIcon(false), 3000);
-    }
-  };
 
-  const handleCategoryClick = (categoryName: string) => {
-    setSelectedCategory(categoryName);
-    if (categoryName) {
-      setFilteredEntrys(
-        entries.filter((entrie) => entrie.category === categoryName)
+      if (categories) {
+        const categoryData = Object.entries(categories).map(
+          ([title, value]) => {
+            return {
+              name: title,
+              count: value,
+            };
+          }
+        );
+
+        setCategoryData(
+          Object.entries(categories).map(([title, value]) => {
+            return {
+              title,
+              value,
+              color: getRandomColor(),
+            };
+          })
+        );
+
+        const data: ICategoryBreakdown[] = categoryData.map(
+          ({ name, count }) => ({
+            id: name,
+            label: name,
+            value: count,
+            color: getRandomColor(),
+          })
+        );
+
+        setData(data);
+      }
+
+      // Get recent entries (last 5 for example)
+      setRecentEntries(entries?.slice(-5).reverse() || []);
+
+      // Get upcoming entries (assuming you have a date field)
+      const today = new Date();
+      setUpcomingEntries(
+        entries?.filter((entrie) => new Date(entrie.date) > today) || []
       );
-    } else {
-      setFilteredEntrys(entries);
+
+      // Get favorite entries
+      setFavoriteEntries(entries?.filter((entry) => entry.favorite) || []);
     }
-  };
+  }, [user, entries]);
 
-  const clearCategoryFilter = () => {
-    setSelectedCategory("");
-    setFilteredEntrys(entries);
-  };
+  useEffect(() => {
+    const fetchLocalStorageValues = () => {
+      const showTotalEntrysCard: boolean | null =
+        localStorageService.getItem<boolean>("showTotalEntrysCard");
+      setShowTotalEntrysCard(
+        showTotalEntrysCard !== null ? showTotalEntrysCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        totalEntrysCard: true,
+      }));
 
-  // const { openModal } = useContext(ModalContext);
+      const showCategoryBreakdownCard: boolean | null =
+        localStorageService.getItem<boolean>("showCategoryBreakdownCard");
+      setShowCategoryBreakdownCard(
+        showCategoryBreakdownCard !== null ? showCategoryBreakdownCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        categoryBreakdownCard: true,
+      }));
 
-  // const handleOpenModal = () => {
-  //   openModal(<div>Your custom content here!</div>);
-  // };
+      const showRecentEntriesCard: boolean | null =
+        localStorageService.getItem<boolean>("showRecentEntriesCard");
+      setShowRecentEntriesCard(
+        showRecentEntriesCard !== null ? showRecentEntriesCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        recentEntriesCard: true,
+      }));
 
-  // Check if the user is verified
+      const showUpcomingEntriesCard: boolean | null =
+        localStorageService.getItem<boolean>("showUpcomingEntriesCard");
+      setShowUpcomingEntriesCard(
+        showUpcomingEntriesCard !== null ? showUpcomingEntriesCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        upcomingEntriesCard: true,
+      }));
+
+      const showFavoriteEntrysCard: boolean | null =
+        localStorageService.getItem<boolean>("showFavoriteEntrysCard");
+      setShowFavoriteEntrysCard(
+        showFavoriteEntrysCard !== null ? showFavoriteEntrysCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        favoriteEntrysCard: true,
+      }));
+    };
+
+    fetchLocalStorageValues();
+  }, []);
+
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner /> {/* Show a loading spinner while loading */}
-      </div>
-    );
+    return <div className="p-6 min-h-screen">Loading...</div>; // Add your spinner or loading state here
   }
 
-  if (user && !user.isVerified) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Account Not Verified</h1>
-          <p className="mb-4">
-            Please verify your account to access the dashboard.
-          </p>
-          <Button
-            onClick={() => {
-              /* Add logic to resend verification email or redirect */
-            }}
-          >
-            Resend Verification Email
-          </Button>
-        </div>
-      </div>
-    );
+  if (!user) {
+    return <div className="p-6 min-h-screen">No user found.</div>;
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <div
-        className={`${
-          isSidebarOpen ? "w-64" : "w-16"
-        } flex flex-col bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out relative`}
-      >
-        <Button
-          className={`relative w-full p-0 mb-6 ${
-            isSidebarOpen ? "justify-end " : "justify-center "
-          }`}
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
-        </Button>
-        <div className="flex flex-col items-center">
+    <div className="p-6 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+
+      {/* Legend and Buttons Container */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+        {/* Legend */}
+        {isMobile ? (
+          <div className="relative mb-4 md:mb-0">
+            <button
+              onClick={() => setIsLegendOpen(!isLegendOpen)}
+              className="flex items-center justify-between w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded"
+            >
+              <span>Toggle Dashboard Cards</span>
+              {isLegendOpen ? (
+                <ChevronUp size={20} />
+              ) : (
+                <ChevronDown size={20} />
+              )}
+            </button>
+            {isLegendOpen && (
+              <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
+                <div className="p-4">
+                  <h2 className="text-xl font-semibold mb-2">Legend</h2>
+                  <div className="flex flex-col space-y-2">
+                    <LegendItem
+                      id="totalEntrysCard"
+                      label="Total Entries"
+                      checked={showTotalEntrysCard}
+                      onChange={() => {
+                        const newValue = !showTotalEntrysCard;
+                        setShowTotalEntrysCard(newValue);
+                        localStorageService.setItem(
+                          "showTotalEntrysCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="categoryBreakdownCard"
+                      label="Category Breakdown"
+                      checked={showCategoryBreakdownCard}
+                      onChange={() => {
+                        const newValue = !showCategoryBreakdownCard;
+                        setShowCategoryBreakdownCard(newValue);
+                        localStorageService.setItem(
+                          "showCategoryBreakdownCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="recentEntriesCard"
+                      label="Recent Entries"
+                      checked={showRecentEntriesCard}
+                      onChange={() => {
+                        const newValue = !showRecentEntriesCard;
+                        setShowRecentEntriesCard(newValue);
+                        localStorageService.setItem(
+                          "showRecentEntriesCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="upcomingEntriesCard"
+                      label="Upcoming Entries"
+                      checked={showUpcomingEntriesCard}
+                      onChange={() => {
+                        const newValue = !showUpcomingEntriesCard;
+                        setShowUpcomingEntriesCard(newValue);
+                        localStorageService.setItem(
+                          "showUpcomingEntriesCard",
+                          newValue
+                        );
+                      }}
+                    />
+                    <LegendItem
+                      id="favoriteEntrysCard"
+                      label="Favorite Entries"
+                      checked={showFavoriteEntrysCard}
+                      onChange={() => {
+                        const newValue = !showFavoriteEntrysCard;
+                        setShowFavoriteEntrysCard(newValue);
+                        localStorageService.setItem(
+                          "showFavoriteEntrysCard",
+                          newValue
+                        );
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Legend</h2>
+            <div className="flex flex-wrap">
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="totalEntrysCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="totalEntrysCard"
+                    checked={showTotalEntrysCard}
+                    onChange={() => {
+                      const newValue = !showTotalEntrysCard;
+                      setShowTotalEntrysCard(newValue);
+                      localStorageService.setItem(
+                        "showTotalEntrysCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Total Entries
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="categoryBreakdownCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="categoryBreakdownCard"
+                    checked={showCategoryBreakdownCard}
+                    onChange={() => {
+                      const newValue = !showCategoryBreakdownCard;
+                      setShowCategoryBreakdownCard(newValue);
+                      localStorageService.setItem(
+                        "showCategoryBreakdownCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Category Breakdown
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="recentEntriesCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="recentEntriesCard"
+                    checked={showRecentEntriesCard}
+                    onChange={() => {
+                      const newValue = !showRecentEntriesCard;
+                      setShowRecentEntriesCard(newValue);
+                      localStorageService.setItem(
+                        "showRecentEntriesCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Recent Entries
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="upcomingEntriesCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="upcomingEntriesCard"
+                    checked={showUpcomingEntriesCard}
+                    onChange={() => {
+                      const newValue = !showUpcomingEntriesCard;
+                      setShowUpcomingEntriesCard(newValue);
+                      localStorageService.setItem(
+                        "showUpcomingEntriesCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Upcoming Entries
+                </label>
+              </div>
+              <div className="mr-4 mb-2">
+                <label
+                  htmlFor="favoriteEntrysCard"
+                  className="flex items-center text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    id="favoriteEntrysCard"
+                    checked={showFavoriteEntrysCard}
+                    onChange={() => {
+                      const newValue = !showFavoriteEntrysCard;
+                      setShowFavoriteEntrysCard(newValue);
+                      localStorageService.setItem(
+                        "showFavoriteEntrysCard",
+                        newValue
+                      );
+                    }}
+                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+                  />
+                  Favorite Entries
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Buttons for creating new entry and viewing all entries */}
+        <div className="flex flex-col md:flex-row">
+          <Link
+            href="/entry/write"
+            className="w-full md:w-auto bg-green-500 hover:bg-green-700 text-white font-500 py-2 px-4 rounded text-center mb-2 md:mb-0 md:mr-4"
+          >
+            Create New Entry
+          </Link>
           <Link
             href="/entries"
-            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
-              isSidebarOpen ? "justify-start" : "justify-center"
-            }`}
+            className="w-full md:w-auto bg-blue-500 hover:bg-blue-700 text-white font-500 py-2 px-4 rounded text-center"
           >
-            <List />
-            {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Entries</span>
-            )}
-          </Link>
-          <Link
-            href="/categories"
-            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
-              isSidebarOpen ? "justify-start" : "justify-center"
-            }`}
-          >
-            <Grid />
-            {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Categories</span>
-            )}
+            View All Entries
           </Link>
         </div>
       </div>
-      {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="flex justify-end mb-4">
-          <Button onClick={handleCreateEntry}>Create Entrie</Button>
-        </div>
-        <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
-        <div className="grid grid-cols-2 gap-6">
-          {/* Left Column: Create New Entry */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
-            <form onSubmit={handleCreateEntry} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="entry">Entry</Label>
-                <Textarea
-                  id="entry"
-                  value={entry}
-                  onChange={(e) => setEntry(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  onValueChange={setSelectedCategory}
-                  defaultValue={selectedCategory}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {categories.length > 0 ? (
-                      categories.map((cat, index) => (
-                        <SelectItem key={index} value={cat.name}>
-                          {cat.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="disabled" disabled>
-                        No categories available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center">
-                <Button
-                  type="submit"
-                  disabled={isSaving || !title || !entry}
-                  className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                >
-                  {isSaving ? "Saving..." : "Create Entrie"}
-                </Button>
-                {showEntrySuccessIcon && (
-                  <>
-                    <CheckCircle className="text-green-500 animate-fade-in-out" />
-                    <p className="text-green-500">
-                      Entrie created successfully!
-                    </p>
-                  </>
-                )}
-              </div>
-            </form>
-          </div>
 
-          {/* Right Column: Entrie List */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Your Entries</h2>
-            <div className="flex space-x-2 mb-4">
-              <Button
-                variant={entryViewMode === "list" ? "default" : "outline"}
-                onClick={() => setEntryViewMode("list")}
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-              <Button
-                variant={entryViewMode === "icons" ? "default" : "outline"}
-                onClick={() => setEntryViewMode("icons")}
-              >
-                <Grid className="w-4 h-4 mr-2" />
-                Icon View
-              </Button>
+      {/* Dashboard Content */}
+      <div className="flex flex-col md:flex-row md:flex-wrap">
+        <h1>{!localStorageValuesFetched.totalEntrysCard.toString()}</h1>
+
+        {/* Total Number of Entries */}
+        {!localStorageValuesFetched.totalEntrysCard ? (
+          <PlaceholderCard />
+        ) : (
+          showTotalEntrysCard && (
+            <div className="w-full mb-6 p-2">
+              <Card className="h-full p-4 flex w-full items-center">
+                <h2 className="text-xl font-semibold">
+                  Total Number of entries: {totalEntrys}
+                </h2>
+              </Card>
             </div>
+          )
+        )}
+
+        {/* Category Breakdown */}
+        {!localStorageValuesFetched.categoryBreakdownCard ? (
+          <PlaceholderCard />
+        ) : (
+          showCategoryBreakdownCard && (
             <div
-              className={`${
-                entryViewMode === "list"
-                  ? "space-y-4"
-                  : "grid grid-cols-2 gap-4"
-              } h-[calc(100vh-300px)] overflow-y-auto`}
+              id={`${styles["categoryBreakdown"]}`}
+              className="w-full mb-6 p-2 md:w-full lg:w-1/2 xl:w-1/3"
             >
-              {isLoading ? (
-                Array(3)
-                  .fill(null)
-                  .map((_, index) => (
-                    <div key={index}>{renderSkeletonCard()}</div>
-                  ))
-              ) : filteredEntrys && filteredEntrys.length > 0 ? (
-                filteredEntrys.map((entrie, index) => (
-                  <div
-                    key={`entrie-${index}`}
-                    onClick={(e) => handleEntryClick(e, entrie)}
-                  >
-                    <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
-                      <CardHeader>
-                        <CardTitle className="flex justify-between items-center">
-                          {entrie.title}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleDeleteClick(e, entrie)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p>
-                          {entrie.entry
-                            ? entrie.entry.substring(0, 100) + "..."
-                            : "No entry"}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-2">
-                          Category: {entrie.category}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))
-              ) : (
-                <p>No entries found</p>
-              )}
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">Category Breakdown</h2>
+                <div className="flex justify-center items-center w-full h-full">
+                  <CategoryBreakdown data={data} />
+                </div>
+              </Card>
             </div>
-          </div>
-        </div>
+          )
+        )}
+
+        {/* Recent Activity */}
+        {!localStorageValuesFetched.recentEntriesCard ? (
+          <PlaceholderCard />
+        ) : (
+          showRecentEntriesCard && (
+            <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">Recent Activity</h2>
+                <ul>
+                  {recentEntries.map((entry, index) => (
+                    <li key={index} className="border-b py-2">
+                      <span className="font-bold">{entry.title}</span> -{" "}
+                      {entry.date}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </div>
+          )
+        )}
+
+        {/* Upcoming Entries/Reminders */}
+        {!localStorageValuesFetched.upcomingEntriesCard ? (
+          <PlaceholderCard />
+        ) : (
+          showUpcomingEntriesCard && (
+            <div className="w-full mb-6 md:w-1/2 lg:w-1/3 p-2">
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold">
+                  Upcoming Entries/Reminders
+                </h2>
+                <ul>
+                  {upcomingEntries.length > 0 ? (
+                    upcomingEntries.map((entry, index) => (
+                      <li key={index} className="border-b py-2">
+                        <span className="font-bold">{entry.title}</span> -{" "}
+                        {entry.date}
+                      </li>
+                    ))
+                  ) : (
+                    <p>No upcoming entries.</p>
+                  )}
+                </ul>
+              </Card>
+            </div>
+          )
+        )}
+
+        {/* Favorite Entries */}
+        {!localStorageValuesFetched.favoriteEntrysCard ? (
+          <PlaceholderCard />
+        ) : (
+          showFavoriteEntrysCard && (
+            <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
+              <Card className="h-full p-4">
+                <h2 className="text-xl font-semibold mb-4">Favorite Entries</h2>
+                {favoriteEntries.length > 0 ? (
+                  <ul className="space-y-2">
+                    {favoriteEntries.map((entry, index) => (
+                      <li
+                        key={index}
+                        className="flex items-center space-x-2 border-b py-2"
+                      >
+                        <StarIcon className="w-4 h-4 text-yellow-400" />
+                        <span className="font-medium">{entry.title}</span>
+                        <span className="text-sm text-gray-500">
+                          - {entry.date}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-center text-gray-500">
+                    No favorite entries yet.
+                  </p>
+                )}
+              </Card>
+            </div>
+          )
+        )}
       </div>
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              entrie.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+    </div>
+  );
+}
+
+// Placeholder component
+function PlaceholderCard() {
+  return (
+    <div className="w-full mb-6 p-2 md:w-1/2 xl:w-1/3">
+      <Card className="h-full p-4">
+        <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
+        <div className="flex justify-center items-center w-full h-80">
+          <div className="animate-pulse bg-gray-300 h-full w-full rounded"></div>
+        </div>
+      </Card>
     </div>
   );
 }

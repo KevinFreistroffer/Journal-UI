@@ -65,6 +65,7 @@ export const getUser = cache(async () => {
       return null;
     } else {
       const body = await response.json();
+      console.log("DAL getUser response", body);
       return body.data;
     }
   } catch (error: unknown) {

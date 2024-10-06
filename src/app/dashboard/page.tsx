@@ -1,4 +1,4 @@
-import UserDashboard from "./UserDashboardV2";
+import UserDashboard from "./UserDashboard";
 import { verifySession } from "@/lib/dal";
 import { redirect } from "next/navigation";
 
