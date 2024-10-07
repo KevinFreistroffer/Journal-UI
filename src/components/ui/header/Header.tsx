@@ -10,6 +10,8 @@ import styles from "./Header.module.css";
 import { UserIcon } from "lucide-react";
 import { useSearch } from "@/SearchContext";
 import { useRef } from "react"; // Import useRef
+import SearchInput from "../SearchInput/SearchInput";
+import { useCallback } from "react"; // Ensure useCallback is imported
 
 export interface IMenuItem {
   href: string;
@@ -22,8 +24,8 @@ export default function Header() {
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const { query, filteredEntries, handleSearch, setFilteredEntries } =
-    useSearch(); // Use the useSearch hook
-  const dropdownRef = useRef<HTMLUListElement | null>(null); // Create a ref for the dropdown
+    useSearch();
+  const dropdownRef = useRef<HTMLUListElement | null>(null);
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -47,7 +49,7 @@ export default function Header() {
           ? [
               { href: "/dashboard", label: "Dashboard" },
               { href: "/entries", label: "Entries" },
-              { href: "/entry", label: "New Entry" },
+              { href: "/entry/write", label: "New Entry" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -62,22 +64,25 @@ export default function Header() {
     router.push(`/entry/${id}`); // Navigate to the entry page with the selected journal id
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
-      // Hide dropdown logic here (e.g., set a state to control visibility)
-      setFilteredEntries([]); // Assuming you have a state to control the dropdown visibility
-    }
-  };
+  const handleClickOutside = useCallback(
+    (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        // Hide dropdown logic here (e.g., set a state to control visibility)
+        setFilteredEntries([]); // Assuming you have a state to control the dropdown visibility
+      }
+    },
+    [dropdownRef]
+  ); // Add dependencies if needed
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside); // Add event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside); // Clean up
     };
-  }, []);
+  }, [handleClickOutside]);
 
   return (
     <header
@@ -87,37 +92,24 @@ export default function Header() {
       }`}
     >
       <div className="p-8 flex h-14 items-center justify-between w-full">
-        {/* Search Input Section */}
-        <div className="relative">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => handleSearch(e.target.value, user?.entries || [])}
-            placeholder="Search..."
-            className="border rounded p-2"
-          />
-          {filteredEntries.length > 0 && (
-            <ul
-              ref={dropdownRef}
-              className="absolute bg-white border rounded shadow-lg mt-1 w-full"
-            >
-              {filteredEntries.map((entry, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleResultSelect(entry._id)}
-                  className="p-2 cursor-pointer hover:bg-gray-200"
-                >
-                  {entry.title}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="hidden md:flex items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">Entries</span>
+        {/* Move Entries title to the left */}
+        <div className="flex-1 hidden md:block ">
+          <Link href="/" passHref>
+            <h1 className="text-lg font-semibold md:text-xl">Entries</h1>
           </Link>
         </div>
+        {/* Search Input Section moved to the right */}
+        {isLoading ? ( // Add loading condition for SearchInput
+          <div className="w-40 h-6 bg-gray-200 animate-pulse rounded mr-4"></div> // Placeholder for SearchInput
+        ) : (
+          <SearchInput
+            query={query}
+            handleSearch={handleSearch}
+            userEntries={user?.entries || []}
+            className="hidden md:block mr-4"
+          />
+        )}
+
         {isLoading ? (
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <div className="w-20 h-4 bg-gray-200 animate-pulse rounded"></div>
@@ -166,9 +158,19 @@ export default function Header() {
             {isLoading ? (
               <div className="w-40 h-6 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <h1 className="text-lg font-semibold md:text-xl">Entries</h1>
+              <Link href="/" passHref>
+                <h1 className="text-lg font-semibold md:text-xl cursor-pointer">
+                  Entries
+                </h1>
+              </Link>
             )}
           </div>
+          <SearchInput
+            query={query}
+            handleSearch={handleSearch}
+            userEntries={user?.entries || []}
+            className="md:hidden"
+          />
         </div>
       </div>
     </header>

@@ -22,7 +22,9 @@ export function MenuItems({ menuItems }: { menuItems: MenuItem[] }) {
               key={index}
               href={item.href}
               className={`transition-colors hover:text-foreground/80 ${
-                pathname === item.href
+                item.label === "New Entry"
+                  ? "bg-blue-500 text-white rounded px-4 py-2" // Button style for New Entry
+                  : pathname === item.href
                   ? "text-foreground"
                   : "text-foreground/60"
               }`}
