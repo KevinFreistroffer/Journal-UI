@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, useContext } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -21,6 +21,9 @@ import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import Carrot from "@/components/ui/Carrot/Carrot";
 import { Checkbox } from "@/components/ui/checkbox"; // Import the Checkbox component
+import { PartialWidthPageContainer } from "@/components/ui/PartialWidthPageContainer"; // Import the PageWrapper component
+import { ModalContext } from "@/GlobalModalContext"; // Import ModalContext
+import GlobalModal from "@/components/ui/GlobalModal"; // Import GlobalModal
 
 export default function EntrysPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -32,6 +35,8 @@ export default function EntrysPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
+  const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null); // State to hold the entry ID to delete
 
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
@@ -145,15 +150,17 @@ export default function EntrysPage() {
     }
   };
 
-  const handleDelete = async (entryId: string) => {
-    setLoadingEntryId(entryId);
+  const handleDelete = async () => {
+    if (!entryToDelete) return; // Exit if no entry is set for deletion
+
+    setLoadingEntryId(entryToDelete);
     try {
       const response = await fetch(`/api/user/entry/delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ entryId }),
+        body: JSON.stringify({ entryId: entryToDelete }),
       });
 
       if (!response.ok) {
@@ -162,17 +169,21 @@ export default function EntrysPage() {
 
       // Remove the deleted entry from the state
       const updatedEntries = user.entries.filter(
-        (entry) => entry._id !== entryId
+        (entry) => entry._id !== entryToDelete
       );
       // Update the user state with the new entries array
-      // You might need to adjust this based on how your useAuth hook works
-      // For example, you might have a setUser function in your useAuth hook
       // setUser({ ...user, entries: updatedEntries });
     } catch (error) {
       console.error("Error deleting entry:", error);
     } finally {
-      setLoadingEntryId(null);
+      setLoadingEntryId(null); // Reset loading state
+      setEntryToDelete(null); // Reset the entry to delete
     }
+  };
+
+  const openDeleteModal = (entryId: string) => {
+    setEntryToDelete(entryId); // Set the entry ID to delete
+    openModal(); // Open the GlobalModal
   };
 
   newEntries.forEach((entry) => {
@@ -204,7 +215,9 @@ export default function EntrysPage() {
   };
 
   return (
-    <div className="p-6 min-h-screen">
+    <PartialWidthPageContainer className="flex flex-col">
+      {" "}
+      {/* Wrap the entire content in PageWrapper */}
       <h1 className="text-3xl font-bold mb-6">Your Entries</h1>
       <div className="flex space-x-2 mb-4 items-center">
         <Checkbox
@@ -273,7 +286,7 @@ export default function EntrysPage() {
           filteredEntries.map((entry, index) => (
             <Card
               key={index}
-              className="hover:shadow-lg transition-shadow duration-200 flex flex-col"
+              className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${selectedEntries.includes(entry._id) ? 'bg-green-200' : ''}`} // Reset background color for selected entries
             >
               <div className="flex flex-col flex-grow">
                 <CardHeader>
@@ -300,14 +313,16 @@ export default function EntrysPage() {
                           >
                             <XIcon className="h-6 w-6 text-yellow-500" />
                           </button>
-                          {/* Add arrow icon in the bottom left corner */}
                           <Carrot className="absolute bottom-0 left-0" />
                         </div>
                       )}
                       <BookOpenText
                         className="w-8 h-8 cursor-pointer"
                         onClick={() => {
-                          localStorageService.setItem("selectedEntry", entry);
+                          localStorageService.setItem(
+                            "selectedEntry",
+                            entry._id
+                          );
                           router.push(`/entry/${entry._id}`);
                         }}
                       />
@@ -316,33 +331,24 @@ export default function EntrysPage() {
                 </CardHeader>
                 <CardContent>{/* ... existing CardContent ... */}</CardContent>
                 <CardFooter className="mt-auto flex justify-between items-end">
-                  <div className="flex items-center">
-                    <Checkbox
-                      checked={selectedEntries.includes(entry._id)}
-                      onCheckedChange={(checked) =>
-                        handleSelectEntry(entry._id, checked as boolean)
-                      }
-                      className="mr-2"
-                    />
-                    <div className="flex flex-col">
-                      <p>{entry.category}</p>
-                      <p className="text-sm text-gray-500">{entry.date}</p>
-                      {showSentiment && (
-                        <div className="flex items-center text-sm mt-1">
-                          <span className="mr-2">Sentiment:</span>
-                          <div
-                            className="rounded-full"
-                            style={{
-                              width: "10px",
-                              height: "10px",
-                              backgroundColor: getSentimentColor(
-                                analyzeSentiment(entry.entry).score
-                              ),
-                            }}
-                          ></div>
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex flex-col">
+                    <p>{entry.category}</p>
+                    <p className="text-sm text-gray-500">{entry.date}</p>
+                    {showSentiment && (
+                      <div className="flex items-center text-sm mt-1">
+                        <span className="mr-2">Sentiment:</span>
+                        <div
+                          className="rounded-full"
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            backgroundColor: getSentimentColor(
+                              analyzeSentiment(entry.entry).score
+                            ),
+                          }}
+                        ></div>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center">
                     {loadingEntryId === entry._id ? (
@@ -356,7 +362,7 @@ export default function EntrysPage() {
                         />
                         <Trash2
                           className="w-5 h-5 text-red-500 cursor-pointer"
-                          onClick={() => handleDelete(entry._id)}
+                          onClick={() => openDeleteModal(entry._id)} // Open GlobalModal on click
                         />
                       </>
                     )}
@@ -367,6 +373,8 @@ export default function EntrysPage() {
           ))
         )}
       </div>
-    </div>
+      {/* Global Modal */}
+      <GlobalModal onConfirm={handleDelete} onClose={() => closeModal()} />
+    </PartialWidthPageContainer>
   );
 }

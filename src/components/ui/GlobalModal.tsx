@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useContext } from "react";
+import React, { useContext, ReactNode } from "react"; // Added ReactNode import
 import { ModalContext } from "@/GlobalModalContext";
 import { useAuth } from "@/hooks/useAuth";
 
-const GlobalModal: React.FC = () => {
+// Updated the component to accept children
+const GlobalModal: React.FC<{ children?: ReactNode }> = ({ children }) => {
   const context = useContext(ModalContext);
   const { user } = useAuth();
   if (!context?.isOpen) return null;
@@ -13,7 +14,17 @@ const GlobalModal: React.FC = () => {
     <div className="modal-overlay">
       <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
-          <h2 className="text-xl font-bold mb-4">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default GlobalModal;
+
+/**
+ * <h2 className="text-xl font-bold mb-4">
             This page is disabled until you verify your account.
           </h2>
           <p className="mb-4">
@@ -37,10 +48,4 @@ const GlobalModal: React.FC = () => {
           >
             Close
           </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default GlobalModal;
+ */

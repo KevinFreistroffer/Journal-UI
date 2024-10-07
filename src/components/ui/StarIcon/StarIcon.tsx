@@ -6,12 +6,14 @@ interface IProps {
   filled?: boolean; // Determines if the star is filled
   onClick?: () => void; // Click handler
   size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 const StarIcon: React.FC<IProps> = ({
   filled = false,
   onClick,
   size = "md",
+  className,
 }) => {
   const [isHovered, setIsHovered] = useState(false); // State for hover
 
@@ -26,7 +28,7 @@ const StarIcon: React.FC<IProps> = ({
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)} // Set hover state
       onMouseLeave={() => setIsHovered(false)} // Reset hover state
-      className={`star-icon ${sizeClasses[size]} flex items-center justify-center cursor-pointer`}
+      className={`star-icon ${sizeClasses[size]} flex items-center justify-center cursor-pointer ${className}`}
       style={
         {
           // backgroundColor: backgroundColor,

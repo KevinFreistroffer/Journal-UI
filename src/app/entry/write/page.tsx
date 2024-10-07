@@ -65,6 +65,9 @@ function WritePage() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
+  const [totalWords, setTotalWords] = useState(0); // State for total words in current entry
+  const [averageWords, setAverageWords] = useState(0); // State for average words across all entries
+  const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -138,6 +141,24 @@ function WritePage() {
       setIsCategoryCreated(false);
     }
   }, [newCategoryName, isCategoryCreated]);
+
+  useEffect(() => {
+    // Calculate total words in the current entry
+    const wordCount = entry.trim().split(/\s+/).filter(Boolean).length;
+    setTotalWords(wordCount);
+
+    // Calculate average words across all entries
+    if (entries.length > 0) {
+      const totalWordsInEntries = entries.reduce(
+        (acc, curr) =>
+          acc + curr.entry.trim().split(/\s+/).filter(Boolean).length,
+        0
+      );
+      setAverageWords(Math.round(totalWordsInEntries / entries.length));
+    } else {
+      setAverageWords(0);
+    }
+  }, [entry, entries]);
 
   const handleCreateEntry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -312,134 +333,167 @@ function WritePage() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="w-full p-6 overflow-y-auto max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
-          <form onSubmit={handleCreateEntry} className="space-y-4">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="entry">Entry</Label>
-              <Textarea
-                id="entry"
-                value={entry}
-                onChange={(e) => setEntry(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Select
-                    onValueChange={setSelectedCategory}
-                    value={selectedCategory}
-                    className="w-2/3"
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      {categories.length > 0 ? (
-                        categories.map((cat, index) => (
-                          <SelectItem key={index} value={cat.category}>
-                            {cat.category}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="disabled" disabled>
-                          No categories available
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setIsAddingCategory(!isAddingCategory)}
-                    className="w-1/3"
-                  >
-                    {isAddingCategory ? (
-                      <>
-                        <X size={20} className="mr-2" />
-                        Cancel
-                      </>
-                    ) : (
-                      <>
-                        <PlusIcon className="mr-2" />
-                        Add
-                      </>
-                    )}
-                  </Button>
-                </div>
-                {isAddingCategory && (
+      <div className="w-full p-6 overflow-y-auto max-w-4xl mx-auto flex">
+        <div className="w-2/3 flex flex-col">
+          {" "}
+          {/* Main form section */}
+          <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
+            <form onSubmit={handleCreateEntry} className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="entry">Entry</Label>
+                <Textarea
+                  id="entry"
+                  value={entry}
+                  onChange={(e) => setEntry(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <div className="flex flex-col space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Input
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      placeholder="New category"
+                    <Select
+                      onValueChange={setSelectedCategory}
+                      value={selectedCategory}
                       className="w-2/3"
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {categories.length > 0 ? (
+                          categories.map((cat, index) => (
+                            <SelectItem key={index} value={cat.category}>
+                              {cat.category}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="disabled" disabled>
+                            No categories available
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                     <Button
                       type="button"
-                      onClick={handleAddCategory}
+                      variant="ghost"
+                      onClick={() => setIsAddingCategory(!isAddingCategory)}
                       className="w-1/3"
                     >
-                      Add
+                      {isAddingCategory ? (
+                        <>
+                          <X size={20} className="mr-2" />
+                          Cancel
+                        </>
+                      ) : (
+                        <>
+                          <PlusIcon className="mr-2" />
+                          Add
+                        </>
+                      )}
                     </Button>
                   </div>
+                  {isAddingCategory && (
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="New category"
+                        className="w-2/3"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleAddCategory}
+                        className="w-1/3"
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  )}
+                  {showCategorySuccessIcon && (
+                    <div className="flex items-center">
+                      <Check size={20} className="text-green-500 mr-2" />
+                      <span className="text-green-500">
+                        Category added successfully!
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {categoryCreatedErrorMessage && (
+                  <p className="text-red-500 mt-1">
+                    {categoryCreatedErrorMessage}
+                  </p>
                 )}
-                {showCategorySuccessIcon && (
+              </div>
+              <div className="flex items-center">
+                <Label htmlFor="favorite" className="mr-2">
+                  Favorite
+                </Label>
+                <input
+                  type="checkbox"
+                  id="favorite"
+                  checked={favorite}
+                  onChange={(e) => {
+                    console.log(e.target.checked, typeof e.target.checked);
+                    setFavorite(e.target.checked);
+                  }}
+                />
+              </div>
+              <div className="flex items-center">
+                <Button
+                  type="submit"
+                  disabled={isSaving || !title || !entry}
+                  className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+                >
+                  {isSaving ? "Saving..." : "Create Entrie"}
+                </Button>
+                {showEntrySuccessIcon && (
                   <div className="flex items-center">
-                    <Check size={20} className="text-green-500 mr-2" />
-                    <span className="text-green-500">Category added successfully!</span>
+                    <CheckCircle className="text-green-500 mr-2" />
+                    <p className="text-green-500">
+                      Entrie created successfully!
+                    </p>
                   </div>
                 )}
               </div>
-              {categoryCreatedErrorMessage && (
-                <p className="text-red-500 mt-1">
-                  {categoryCreatedErrorMessage}
-                </p>
-              )}
+            </form>
+          </div>
+        </div>
+        <div className="w-1/3 pl-6 flex flex-col">
+          {" "}
+          {/* Metrics section */}
+          <div className="flex justify-end items-center mb-0 ">
+            <Button
+              type="button"
+              onClick={() => setShowMetrics(!showMetrics)}
+              variant="ghost"
+              className="text-xs pb-0 mb-0"
+            >
+              {showMetrics ? "Hide" : "Show"}
+            </Button>
+          </div>
+          {showMetrics && ( // Conditionally render metrics section
+            <div className="bg-gray-100 p-4 rounded-md shadow-md flex-grow">
+              <p className="text-sm">
+                <strong>Total Words in Current Entry:</strong> {totalWords}
+              </p>
+              <p className="text-sm">
+                <strong>Average Words Across All Entries:</strong>{" "}
+                {averageWords}
+              </p>
             </div>
-            <div className="flex items-center">
-              <Label htmlFor="favorite" className="mr-2">
-                Favorite
-              </Label>
-              <input
-                type="checkbox"
-                id="favorite"
-                checked={favorite}
-                onChange={(e) => {
-                  console.log(e.target.checked, typeof e.target.checked);
-                  setFavorite(e.target.checked);
-                }}
-              />
-            </div>
-            <div className="flex items-center">
-              <Button
-                type="submit"
-                disabled={isSaving || !title || !entry}
-                className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-              >
-                {isSaving ? "Saving..." : "Create Entrie"}
-              </Button>
-              {showEntrySuccessIcon && (
-                <div className="flex items-center">
-                  <CheckCircle className="text-green-500 animate-fade-in-out" />
-                  <p className="text-green-500">Entrie created successfully!</p>
-                </div>
-              )}
-            </div>
-          </form>
+          )}
         </div>
       </div>
       <div
