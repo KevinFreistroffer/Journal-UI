@@ -59,7 +59,7 @@ function WritePage() {
     useState(""); // State for error message
   const [isCategoryCreated, setIsCategoryCreated] = useState(false); // State to track if category is created
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
@@ -245,6 +245,8 @@ function WritePage() {
         setCategoryCreatedErrorMessage("Category already exists.");
         return;
       }
+
+      
 
       // Add new category to the list
       setCategories([...categories, { category: newCategoryName.trim() }]);
