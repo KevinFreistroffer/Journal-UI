@@ -38,7 +38,8 @@ export const getFrequentKeywords = (
 
   return res
     .out("topk")
-    .sort((a, b) => {
+    .filter((keyword: IKeywordFrequency) => keyword.normal.trim() !== "") // {{ edit_1 }}: Filter out empty strings
+    .sort((a: IKeywordFrequency, b: IKeywordFrequency) => {
       if (b.count === a.count) {
         return a.normal.localeCompare(b.normal); // Sort alphabetically if counts are equal
       }

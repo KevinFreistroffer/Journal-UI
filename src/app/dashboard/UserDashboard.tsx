@@ -296,6 +296,8 @@ function UserDashboard() {
             setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
             showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
             setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
+            showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
+            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
           />
         </Card>
 
@@ -329,10 +331,20 @@ function UserDashboard() {
                   id={`${styles["categoryBreakdown"]}`}
                   className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3"
                 >
-                  <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold">
-                      Category Breakdown
-                    </h2>
+                  <Card className="h-full p-4 relative">
+                    {" "}
+                    {/* Added relative positioning */}
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl font-semibold">
+                        Category Breakdown
+                      </h2>
+                      <Link
+                        href="/categories"
+                        className="text-sm self-center text-blue-500"
+                      >
+                        Manage
+                      </Link>
+                    </div>
                     <div className="flex justify-center items-center w-full h-full">
                       <CategoryBreakdown data={data} />
                     </div>

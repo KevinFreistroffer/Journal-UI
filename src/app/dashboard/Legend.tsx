@@ -3,6 +3,32 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 
+// New LegendItem component
+function LegendItem({
+  id,
+  label,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label htmlFor={id} className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="form-checkbox h-4 w-4 text-blue-600"
+      />
+      <span className="text-sm">{label}</span>
+    </label>
+  );
+}
+
 const Legend = ({
   isMobile,
   isLegendOpen,
@@ -235,35 +261,31 @@ const Legend = ({
             Favorite Entries
           </label>
         </div>
+        <div className="mr-4 mb-2 w-full">
+          <label
+            htmlFor="keywordFrequencyCard"
+            className="flex items-center text-sm"
+          >
+            <input
+              type="checkbox"
+              id="keywordFrequencyCard"
+              checked={showKeywordFrequencyCard}
+              onChange={() => {
+                const newValue = !showKeywordFrequencyCard;
+                setShowKeywordFrequencyCard(newValue);
+                localStorageService.setItem(
+                  "showKeywordFrequencyCard",
+                  newValue
+                );
+              }}
+              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+            />
+            Keyword Frequency
+          </label>
+        </div>
       </div>
     </>
   );
 };
-
-// New LegendItem component
-function LegendItem({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  checked: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <label htmlFor={id} className="flex items-center space-x-2">
-      <input
-        type="checkbox"
-        id={id}
-        checked={checked}
-        onChange={onChange}
-        className="form-checkbox h-4 w-4 text-blue-600"
-      />
-      <span className="text-sm">{label}</span>
-    </label>
-  );
-}
 
 export default Legend;
