@@ -74,6 +74,7 @@ function WritePage() {
   const [totalWords, setTotalWords] = useState(0); // State for total words in current entry
   const [averageWords, setAverageWords] = useState(0); // State for average words across all entries
   const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
+  const [categoryExists, setCategoryExists] = useState(false); // State to track if the category already exists
 
   const [createEntryState, createEntryAction] = useFormState(
     createEntry.bind(null, user?._id || ""),
@@ -100,6 +101,13 @@ function WritePage() {
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ... existing code ...
+
+    // Reset error and success messages at the start of the function
+    setCategoryCreatedErrorMessage(""); // Clear any existing error message
+    setShowCreatedCategorySuccessIcon(false); // Hide success icon
+
     if (newCategoryName) {
       setIsCreatingCategoryLoading(true); // Show loading indicator
 
@@ -319,7 +327,7 @@ function WritePage() {
         <div className="w-2/3 flex flex-col">
           {" "}
           {/* Main form section */}
-          <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
+          {/* <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1> */}
           <div>
             <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
             <form action={createEntryAction} className="space-y-4">
@@ -391,14 +399,38 @@ function WritePage() {
                     <div className="flex items-center space-x-2">
                       <Input
                         value={newCategoryName}
-                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        onChange={(e) => {
+                          const newName = e.target.value;
+                          setNewCategoryName(newName);
+                          setShowCreatedCategorySuccessIcon(false); // Hide success icon on input change
+
+                          // Check if the category already exists
+                          const exists = categories.some(
+                            ({ category }) =>
+                              category.toLowerCase() === newName.toLowerCase()
+                          );
+                          setCategoryExists(exists); // Update categoryExists state
+
+                          // Set error message if the category exists
+                          if (exists) {
+                            setCategoryCreatedErrorMessage(
+                              "Category already exists."
+                            ); // Show error message
+                          } else {
+                            setCategoryCreatedErrorMessage(""); // Clear error message if it doesn't exist
+                          }
+                        }}
                         placeholder="New category"
                         className="w-2/3"
                       />
                       <Button
                         type="button" // Change to submit type
                         className="w-1/3"
-                        disabled={isCreatingCategoryLoading} // Disable button while loading
+                        disabled={
+                          isCreatingCategoryLoading ||
+                          categoryExists ||
+                          newCategoryName.trim() === ""
+                        } // Disable button if loading, category exists, or input is empty
                         onClick={handleCreateCategory}
                       >
                         {isCreatingCategoryLoading ? ( // Show spinner if loading
@@ -418,7 +450,7 @@ function WritePage() {
                     </div>
                   )}
                 </div>
-                {categoryCreatedErrorMessage && (
+                {categoryCreatedErrorMessage && ( // Show error message if it exists
                   <p className="text-red-500 mt-1">
                     {categoryCreatedErrorMessage}
                   </p>
@@ -426,7 +458,7 @@ function WritePage() {
               </div>
               <div className="flex items-center">
                 <Label htmlFor="favorite" className="mr-2">
-                  Favorite
+                  Favorite this entry?
                 </Label>
                 <input
                   type="checkbox"

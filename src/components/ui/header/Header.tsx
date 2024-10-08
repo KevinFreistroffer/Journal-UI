@@ -74,7 +74,7 @@ export default function Header() {
         setFilteredEntries([]); // Assuming you have a state to control the dropdown visibility
       }
     },
-    [dropdownRef]
+    [dropdownRef, setFilteredEntries]
   ); // Add dependencies if needed
 
   useEffect(() => {
