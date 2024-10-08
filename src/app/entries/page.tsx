@@ -37,6 +37,7 @@ export default function EntrysPage() {
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null); // State to hold the entry ID to delete
+  const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
 
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
@@ -198,6 +199,11 @@ export default function EntrysPage() {
     ? user.entries.filter((entry) => entry.favorite)
     : user.entries;
 
+  // Filter entries by selected date
+  const dateFilteredEntries = selectedDate
+    ? filteredEntries.filter((entry) => new Date(entry.date).toDateString() === new Date(selectedDate).toDateString())
+    : filteredEntries;
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedEntries(filteredEntries.map((entry) => entry._id));
@@ -267,6 +273,13 @@ export default function EntrysPage() {
         >
           {showFavoritesOnly ? "Show All" : "Show Favorites"}
         </button>
+        {/* Date filter input */}
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)} // Update selected date
+          className="border rounded p-2"
+        />
       </div>
       <div
         className={`grid ${
@@ -275,7 +288,7 @@ export default function EntrysPage() {
             : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         } gap-6`}
       >
-        {filteredEntries.length === 0 ? (
+        {dateFilteredEntries.length === 0 ? ( // Use dateFilteredEntries for rendering
           <div>
             <p>No entries found.</p>
             <Link href="/entry/write" className="text-blue-500 hover:underline">
@@ -283,7 +296,7 @@ export default function EntrysPage() {
             </Link>
           </div>
         ) : (
-          filteredEntries.map((entry, index) => (
+          dateFilteredEntries.map((entry, index) => (
             <Card
               key={index}
               className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${selectedEntries.includes(entry._id) ? 'bg-green-200' : ''}`} // Reset background color for selected entries
