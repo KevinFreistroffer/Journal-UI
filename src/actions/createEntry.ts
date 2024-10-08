@@ -2,27 +2,33 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { State, LoginFunction } from "@/app/login/types";
+import {
+  CreateEntryFunction,
+  ICreateEntryState,
+} from "@/app/entry/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 
-const LoginSchema = z.object({
-  usernameOrEmail: z.string(),
-  password: z.string(),
-  staySignedIn: z.boolean().optional(),
+const CreateEntrySchema = z.object({
+  title: z.string(),
+  entry: z.string(),
+  category: z.string(),
+  favorite: z.boolean().optional(),
 });
 
-export const login: LoginFunction = async (
-  prevState: State,
+export const createEntry: CreateEntryFunction = async (
+  userId: string,
+  prevState: ICreateEntryState,
   formData: FormData
 ) => {
   // Validate form data
-  const validatedFields = LoginSchema.safeParse({
-    usernameOrEmail: formData.get("usernameOrEmail"),
-    password: formData.get("password"),
-    staySignedIn: formData.has("staySignedIn")
-      ? formData.get("staySignedIn") === "true"
+  const validatedFields = CreateEntrySchema.safeParse({
+    title: formData.get("title"),
+    entry: formData.get("entry"),
+    category: formData.get("category"),
+    favorite: formData.has("favorite")
+      ? formData.get("favorite") === "true"
       : false,
   });
 
@@ -32,16 +38,16 @@ export const login: LoginFunction = async (
       redirect: null,
       user: null,
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Invalid login credentials.",
+      message: "Invalid entry.",
       success: false,
       isVerified: false,
     };
   }
 
-  const { usernameOrEmail, password, staySignedIn } = validatedFields.data;
+  const { title, entry, category, favorite } = validatedFields.data;
 
   try {
-    const response = await fetch("http://localhost:3001/user/login", {
+    const response = await fetch("http://localhost:3001/user/entry/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,9 +55,11 @@ export const login: LoginFunction = async (
         Cookie: cookies().toString(),
       },
       body: JSON.stringify({
-        usernameOrEmail,
-        password,
-        staySignedIn,
+        userId,
+        title,
+        entry,
+        category,
+        favorite,
       }),
     });
 
@@ -61,11 +69,9 @@ export const login: LoginFunction = async (
       const errorData = await response.json();
       return {
         errors: {},
-        redirect: null,
-        user: null,
-        message: errorData.message || "Failed to login.",
+        message: errorData.message || "Failed to create entry.",
         success: false,
-        isVerified: false,
+        user: null,
       };
     }
 
@@ -78,9 +84,7 @@ export const login: LoginFunction = async (
       );
       return {
         errors: {},
-        redirect: null,
-
-        message: "Failed to login. Please try again.",
+        message: "Failed to create entry. Please try again.",
         success: false,
         user: null,
         isVerified: false,
@@ -92,10 +96,8 @@ export const login: LoginFunction = async (
     if (!userData.isVerified) {
       return {
         errors: {},
-        redirect: null,
         user: userData,
-        message:
-          "Login successful, but the account is not verified. Please check your email for verification.",
+        message: "Entry created successfully.",
         success: true,
         isVerified: false,
       };
@@ -135,7 +137,7 @@ export const login: LoginFunction = async (
 
     return {
       errors: {},
-      message: "Login successful.",
+      message: "Entry created successfully.",
       redirect: "/dashboard",
       user: userData, // TODO: Not sure if this is the best way to do this.
       success: true,
@@ -147,7 +149,7 @@ export const login: LoginFunction = async (
       redirect: null,
       user: null,
       errors: prevState.errors ?? {},
-      message: "Server Error: Failed to login.",
+      message: "Server Error: Failed to create entry.",
       success: false,
       isVerified: false,
     };

@@ -32,21 +32,28 @@ import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
 import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
+import { useFormState } from "react-dom";
+import { ICreateCategoryState, ICreateEntryState } from "./types";
+import { createCategory } from "@/actions/createCategory";
+import { createEntry } from "@/actions/createEntry";
+
+const createEntryInitialState: ICreateEntryState = {
+  message: "",
+  errors: {},
+  success: false,
+  user: null,
+};
 
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedEntry } = useEntry();
-  const [entries, setEntrys] = useState<IEntry[]>([]);
-  //   const [filteredEntrys, setFilteredEntrys] = useState<IFrontEndEntry[]>(
-  //     []
-  //   );
+  const [entries, setEntries] = useState<IEntry[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [entry, setEntry] = useState("");
   const [favorite, setFavorite] = useState<boolean>(false); // State for favorite checkbox
-
   const [isSaving, setIsSaving] = useState(false);
   const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
@@ -64,10 +71,102 @@ function WritePage() {
   const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
   const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [showCategorySuccessIcon, setShowCategorySuccessIcon] = useState(false);
   const [totalWords, setTotalWords] = useState(0); // State for total words in current entry
   const [averageWords, setAverageWords] = useState(0); // State for average words across all entries
   const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
+
+  const [createEntryState, createEntryAction] = useFormState(
+    createEntry.bind(null, user?._id || ""),
+    createEntryInitialState
+  );
+
+  // const { openModal } = useContext(ModalContext);
+
+  // const handleOpenModal = () => {
+  //   openModal(<div>Your custom content here!</div>);
+  // };
+
+  const handleCloseCategoryModal = () => {
+    setShowCreatedCategorySuccessIcon(false); // Hide success icon
+    setIsCreateCategoryDialogOpen(false); // Close dialog immediately
+    setIsCategoryCreated(false); // Reset category created state
+    setNewCategoryName("");
+    setCategoryCreatedErrorMessage("");
+    setIsCreatingCategoryLoading(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current); // Clear the timeout if the dialog is closed
+    }
+  };
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newCategoryName) {
+      setIsCreatingCategoryLoading(true); // Show loading indicator
+
+      const categoryExists = categories.some(
+        ({ category }) =>
+          category.toLowerCase() === newCategoryName.toLowerCase()
+      );
+      if (categoryExists) {
+        setCategoryCreatedErrorMessage("Category already exists."); // Set error message if category exists
+        setIsCreatingCategoryLoading(false); // Hide loading indicator
+        return;
+      }
+
+      console.log(user, {
+        userId: user?._id,
+        category: newCategoryName,
+      });
+
+      try {
+        const response = await fetch(
+          "/api/user/category/create?returnUser=true",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user?._id,
+              category: newCategoryName,
+            }),
+          }
+        );
+
+        console.log("response", response.status, response.ok);
+
+        const body = await response.json();
+        console.log("body", body);
+
+        if (!response.ok) {
+          setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
+        } else {
+          console.log("response.ok", response.ok);
+          console.log("response.status", response.status);
+
+          console.log("created category data", body);
+          setUser(body.data);
+          setEntries(body.data.entries);
+          setCategories(body.data.entryCategories);
+          setNewCategoryName("");
+          setShowCreatedCategorySuccessIcon(true); // Show success icon
+          setIsCategoryCreated(true); // Set category created state
+
+          // Hide the success icon after 3 seconds
+          timeoutRef.current = setTimeout(() => {
+            setShowCreatedCategorySuccessIcon(false);
+          }, 3000);
+        }
+      } catch (error) {
+        console.error("Error creating category:", error);
+        setCategoryCreatedErrorMessage(
+          "An error occurred while creating the category."
+        ); // Set a generic error message
+      } finally {
+        setIsCreatingCategoryLoading(false); // Hide loading indicator
+      }
+    }
+  };
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -90,20 +189,8 @@ function WritePage() {
 
   useEffect(() => {
     if (user && user.entries) {
-      //   const formattedEntrys = user.entries.map((entrie, index) => ({
-      //     id: entrie._id,
-      //     title: entrie.title,
-      //     entry: entrie.entry,
-      //     category: entrie.category || "My Entries",
-      //     date: entrie.date,
-      //     selected: entrie.selected,
-      //   }));
-
-      //
-
-      setEntrys(user.entries);
+      setEntries(user.entries);
       setCategories(user.entryCategories);
-      //   setFilteredEntrys(formattedEntrys);
 
       const savedEntry = localStorageService.getItem<IEntry>("selectedEntry");
       if (savedEntry) {
@@ -113,19 +200,6 @@ function WritePage() {
           localStorageService.setItem("selectedEntry", updatedEntry);
         }
       }
-
-      //   const uniqueCategories = Array.from(
-      //     new Set(user.entries.map((j) => j.category))
-      //   );
-
-      //   //   if (uniqueCategories.length === 0) {
-      //   //     uniqueCategories.push({
-      //   //       _id: "1",
-      //   //       category: "My Entries",
-      //   //       selected: false,
-      //   //     });
-      //   //   }
-
       setSelectedCategory("");
     }
   }, [user, setSelectedEntry]);
@@ -160,66 +234,6 @@ function WritePage() {
     }
   }, [entry, entries]);
 
-  const handleCreateEntry = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    const newEntry = {
-      title,
-      entry,
-      category:
-        categories.length === 0 || selectedCategory.trim() === ""
-          ? "Uncategorized"
-          : selectedCategory,
-      userId: user?._id,
-      favorite,
-    };
-
-    try {
-      const response = await fetch(`/api/user/entry/create`, {
-        method: "POST",
-        body: JSON.stringify(newEntry),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create entrie");
-      }
-
-      if (response.status === 200) {
-        const body = await response.json();
-
-        const userData = body.data;
-
-        setUser(userData);
-        setEntrys(userData.entries);
-        // setFilteredEntrys(userData.entries);
-        if (userData.entryCategories && userData.entryCategories.length > 0) {
-          setCategories(userData.entryCategories);
-        }
-        setTitle("");
-        setEntry("");
-        setFavorite(false); // Reset favorite checkbox
-        setShowEntrySuccessIcon(true);
-        setTimeout(() => setShowEntrySuccessIcon(false), 3000);
-      }
-    } catch (error) {
-      console.error("Error creating entrie:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCloseCategoryModal = () => {
-    setShowCreatedCategorySuccessIcon(false); // Hide success icon
-    setIsCreateCategoryDialogOpen(false); // Close dialog immediately
-    setIsCategoryCreated(false); // Reset category created state
-    setNewCategoryName("");
-    setCategoryCreatedErrorMessage("");
-    setIsCreatingCategoryLoading(false);
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current); // Clear the timeout if the dialog is closed
-    }
-  };
-
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -227,40 +241,6 @@ function WritePage() {
       }
     };
   }, []);
-  // const { openModal } = useContext(ModalContext);
-
-  // const handleOpenModal = () => {
-  //   openModal(<div>Your custom content here!</div>);
-  // };
-
-  const handleAddCategory = () => {
-    if (newCategoryName.trim()) {
-      // Check if category already exists
-      if (
-        categories.some(
-          (cat) =>
-            cat.category.toLowerCase() === newCategoryName.trim().toLowerCase()
-        )
-      ) {
-        setCategoryCreatedErrorMessage("Category already exists.");
-        return;
-      }
-
-      
-
-      // Add new category to the list
-      setCategories([...categories, { category: newCategoryName.trim() }]);
-      setSelectedCategory(newCategoryName.trim());
-      setNewCategoryName("");
-      setIsAddingCategory(false);
-      setCategoryCreatedErrorMessage("");
-
-      // Show success icon and hide it after 3 seconds
-      setShowCategorySuccessIcon(true);
-
-      // setTimeout(() => setShowCategorySuccessIcon(false), 3000);
-    }
-  };
 
   // Check if the user is verified
   if (isLoading) {
@@ -342,7 +322,7 @@ function WritePage() {
           <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1>
           <div>
             <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
-            <form onSubmit={handleCreateEntry} className="space-y-4">
+            <form action={createEntryAction} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
                 <Input
@@ -406,6 +386,7 @@ function WritePage() {
                       )}
                     </Button>
                   </div>
+
                   {isAddingCategory && (
                     <div className="flex items-center space-x-2">
                       <Input
@@ -415,15 +396,20 @@ function WritePage() {
                         className="w-2/3"
                       />
                       <Button
-                        type="button"
-                        onClick={handleAddCategory}
+                        type="button" // Change to submit type
                         className="w-1/3"
+                        disabled={isCreatingCategoryLoading} // Disable button while loading
+                        onClick={handleCreateCategory}
                       >
-                        Add
+                        {isCreatingCategoryLoading ? ( // Show spinner if loading
+                          <Spinner />
+                        ) : (
+                          "Add"
+                        )}
                       </Button>
                     </div>
                   )}
-                  {showCategorySuccessIcon && (
+                  {showCreatedCategorySuccessIcon && (
                     <div className="flex items-center">
                       <Check size={20} className="text-green-500 mr-2" />
                       <span className="text-green-500">
