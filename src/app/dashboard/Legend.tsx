@@ -11,6 +11,8 @@ const Legend = ({
   setShowTotalEntrysCard,
   showCategoryBreakdownCard,
   setShowCategoryBreakdownCard,
+  showKeywordFrequencyCard,
+  setShowKeywordFrequencyCard,
   showRecentEntriesCard,
   setShowRecentEntriesCard,
   showUpcomingEntriesCard,
@@ -31,6 +33,8 @@ const Legend = ({
   setShowUpcomingEntriesCard: (showUpcomingEntriesCard: boolean) => void;
   showFavoriteEntrysCard: boolean;
   setShowFavoriteEntrysCard: (showFavoriteEntrysCard: boolean) => void;
+  showKeywordFrequencyCard: boolean;
+  setShowKeywordFrequencyCard: (showKeywordFrequencyCard: boolean) => void;
 }) => {
   return isMobile ? (
     <div className="relative mb-4 md:mb-0">
@@ -104,6 +108,19 @@ const Legend = ({
                   setShowFavoriteEntrysCard(newValue);
                   localStorageService.setItem(
                     "showFavoriteEntrysCard",
+                    newValue
+                  );
+                }}
+              />
+              <LegendItem
+                id="keywordFrequencyCard"
+                label="Keyword Frequency"
+                checked={showKeywordFrequencyCard}
+                onChange={() => {
+                  const newValue = !showKeywordFrequencyCard;
+                  setShowKeywordFrequencyCard(newValue);
+                  localStorageService.setItem(
+                    "showKeywordFrequencyCard",
                     newValue
                   );
                 }}

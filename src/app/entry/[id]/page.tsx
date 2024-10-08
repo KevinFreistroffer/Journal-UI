@@ -49,7 +49,7 @@ export default function EntryPage() {
     };
 
     handleSearchParamsChange();
-  }, [searchParams, user]);
+  }, [searchParams, user, id]);
 
   const handleGoBack = () => {
     router.push("/dashboard");

@@ -14,6 +14,13 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import Legend from "@/app/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
@@ -53,21 +60,64 @@ function UserDashboard() {
   const [keywordFrequency, setKeywordFrequency] = useState<IKeywordFrequency[]>(
     []
   );
+  const [selectedKeywordType, setSelectedKeywordType] = useState<
+    "nouns" | "verbs" | "adjectives" | "terms"
+  >("nouns"); // New state for dropdown selection
   const entries = user?.entries;
+  const [isLoadingKeywordFrequency, setIsLoadingKeywordFrequency] =
+    useState(false); // New loading state
+  const [isSelectOpen, setIsSelectOpen] = useState(false); // New state for managing open state
 
+  const handleValueChange = (value: string) => {
+    setIsLoadingKeywordFrequency(true);
+    setSelectedKeywordType(value);
+    setIsSelectOpen(false); // Close the select when an option is selected
+  };
+
+  // I guess this would set the initial words?
   useEffect(() => {
     if (user) {
-      // ... existing code ...
-
-      // Calculate keyword frequency
+      setIsLoadingKeywordFrequency(true); // Start loading
       const allEntriesText =
         entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
-      console.log("allEntriesText", allEntriesText);
-      const frequencyData = getFrequentKeywords(allEntriesText, 15);
-      console.log("frequencyData", frequencyData);
+
+      const frequencyData = getFrequentKeywords(
+        allEntriesText,
+        15,
+        selectedKeywordType
+      );
       setKeywordFrequency(frequencyData);
+      setIsLoadingKeywordFrequency(false); // End loading
     }
-  }, [user, entries, keywordFrequency]);
+  }, [entries, user, selectedKeywordType]);
+
+  useEffect(() => {
+    console.log("selectedKeywordType", selectedKeywordType);
+
+    const allEntriesText =
+      entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+
+    console.log("allEntriesText", allEntriesText);
+
+    if (selectedKeywordType === "nouns") {
+      const nounsFrequency = getFrequentKeywords(allEntriesText, 15, "nouns");
+      setKeywordFrequency(nounsFrequency);
+    } else if (selectedKeywordType === "verbs") {
+      const verbsFrequency = getFrequentKeywords(allEntriesText, 15, "verbs");
+      setKeywordFrequency(verbsFrequency);
+    } else if (selectedKeywordType === "adjectives") {
+      const adjectivesFrequency = getFrequentKeywords(
+        allEntriesText,
+        15,
+        "adjectives"
+      );
+      setKeywordFrequency(adjectivesFrequency);
+    } else if (selectedKeywordType === "terms") {
+      const termsFrequency = getFrequentKeywords(allEntriesText, 15, "terms");
+      setKeywordFrequency(termsFrequency);
+    }
+    setIsLoadingKeywordFrequency(false);
+  }, [selectedKeywordType, entries]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -244,6 +294,8 @@ function UserDashboard() {
             setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
             showFavoriteEntrysCard={showFavoriteEntrysCard}
             setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
+            showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
+            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
           />
         </Card>
 
@@ -372,20 +424,57 @@ function UserDashboard() {
               )
             )}
 
+            {/* Keyword Frequency Card */}
             {!localStorageValuesFetched.keywordFrequencyCard ? (
               <PlaceholderCard />
             ) : (
               showKeywordFrequencyCard && (
                 <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
                   <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold">Keyword Frequency</h2>
-                    <ul>
-                      {keywordFrequency.map(({ normal, count }, index) => (
-                        <li key={index} className="border-b py-2">
-                          <span className="font-bold">{normal}</span>: {count}
-                        </li>
-                      ))}
-                    </ul>
+                    <h2 className="text-xl font-semibold mb-2">
+                      Keyword Frequency
+                    </h2>
+                    {/* Dropdown for selecting keyword type */}
+
+                    <Select
+                      value={selectedKeywordType}
+                      onValueChange={handleValueChange} // Use the new handler
+                      open={isSelectOpen} // Pass the open prop
+                      onOpenChange={setIsSelectOpen} // Manage open state
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {[
+                          { value: "nouns", label: "Nouns" },
+                          { value: "verbs", label: "Verbs" },
+                          { value: "adjectives", label: "Adjectives" },
+                          { value: "terms", label: "Terms" },
+                        ].map(({ value, label }) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {isLoadingKeywordFrequency ? ( // Conditional rendering for loading spinner
+                      <div className="flex justify-center items-center">
+                        <div className="loader"></div>{" "}
+                        {/* Add your spinner here */}
+                      </div>
+                    ) : (
+                      <ul className="max-h-60 overflow-y-auto p-6 mt-3">
+                        {keywordFrequency.map(({ normal, count }, index) => (
+                          <li
+                            key={index}
+                            className="border-b py-2 flex justify-between"
+                          >
+                            <span className="font-bold">{normal}:</span> {count}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </Card>
                 </div>
               )
