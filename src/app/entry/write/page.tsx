@@ -358,6 +358,7 @@ function WritePage() {
                       onValueChange={setSelectedCategory}
                       value={selectedCategory}
                       className="w-2/3"
+                      name="category"
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />

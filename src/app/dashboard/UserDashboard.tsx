@@ -61,8 +61,10 @@ function UserDashboard() {
 
       // Calculate keyword frequency
       const allEntriesText =
-        entries?.map(({ title, entry }) => title + " " + entry).join(" ") || ""; // Assuming entries have a content field
-      const frequencyData = getFrequentKeywords(allEntriesText);
+        entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+      console.log("allEntriesText", allEntriesText);
+      const frequencyData = getFrequentKeywords(allEntriesText, 15);
+      console.log("frequencyData", frequencyData);
       setKeywordFrequency(frequencyData);
     }
   }, [user, entries, keywordFrequency]);
