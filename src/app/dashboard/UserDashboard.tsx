@@ -296,8 +296,6 @@ function UserDashboard() {
             setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
             showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
             setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
-            showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
-            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
           />
         </Card>
 
