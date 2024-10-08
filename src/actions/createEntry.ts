@@ -22,6 +22,7 @@ export const createEntry: CreateEntryFunction = async (
   prevState: ICreateEntryState,
   formData: FormData
 ) => {
+  console.log("createEntry action", formData);
   // Validate form data
   const validatedFields = CreateEntrySchema.safeParse({
     title: formData.get("title"),
@@ -31,9 +32,10 @@ export const createEntry: CreateEntryFunction = async (
       ? formData.get("favorite") === "true"
       : false,
   });
-
+  console.log("validatedFields", validatedFields);
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
+    console.log("validatedFields", validatedFields.error.flatten().fieldErrors);
     return {
       redirect: null,
       user: null,

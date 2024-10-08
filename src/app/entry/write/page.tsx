@@ -28,7 +28,6 @@ import {
   Check,
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
-
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
 import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
@@ -335,6 +334,7 @@ function WritePage() {
                 <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
+                  name="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
@@ -344,6 +344,7 @@ function WritePage() {
                 <Label htmlFor="entry">Entry</Label>
                 <Textarea
                   id="entry"
+                  name="entry"
                   value={entry}
                   onChange={(e) => setEntry(e.target.value)}
                   required
@@ -463,6 +464,7 @@ function WritePage() {
                 <input
                   type="checkbox"
                   id="favorite"
+                  name="favorite"
                   checked={favorite}
                   onChange={(e) => {
                     console.log(e.target.checked, typeof e.target.checked);

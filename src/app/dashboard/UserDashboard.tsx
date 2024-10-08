@@ -12,6 +12,9 @@ import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Legend from "@/app/dashboard/Legend";
+import { getFrequentKeywords } from "@/lib/utils";
+import { IKeywordFrequency } from "@/lib/utils";
+
 export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
   // For example, you might want to include a formatted date or a flag for upcoming entries
@@ -34,18 +37,35 @@ function UserDashboard() {
   const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(false);
   const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(false);
   const [showFavoriteEntrysCard, setShowFavoriteEntrysCard] = useState(false);
+  const [showKeywordFrequencyCard, setShowKeywordFrequencyCard] =
+    useState(false);
   const [localStorageValuesFetched, setLocalStorageValuesFetched] = useState({
     totalEntrysCard: false,
     categoryBreakdownCard: false,
     recentEntriesCard: false,
     upcomingEntriesCard: false,
     favoriteEntrysCard: false,
+    keywordFrequencyCard: false,
   });
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [favoriteEntries, setFavoriteEntries] = useState<IFrontEndEntry[]>([]);
-
+  const [keywordFrequency, setKeywordFrequency] = useState<IKeywordFrequency[]>(
+    []
+  );
   const entries = user?.entries;
+
+  useEffect(() => {
+    if (user) {
+      // ... existing code ...
+
+      // Calculate keyword frequency
+      const allEntriesText =
+        entries?.map(({ title, entry }) => title + " " + entry).join(" ") || ""; // Assuming entries have a content field
+      const frequencyData = getFrequentKeywords(allEntriesText);
+      setKeywordFrequency(frequencyData);
+    }
+  }, [user, entries, keywordFrequency]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -173,6 +193,16 @@ function UserDashboard() {
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
         favoriteEntrysCard: true,
+      }));
+
+      const showKeywordFrequencyCard: boolean | null =
+        localStorageService.getItem<boolean>("showKeywordFrequencyCard");
+      setShowKeywordFrequencyCard(
+        showKeywordFrequencyCard !== null ? showKeywordFrequencyCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        keywordFrequencyCard: true,
       }));
     };
 
@@ -335,6 +365,25 @@ function UserDashboard() {
                         No favorite entries yet.
                       </p>
                     )}
+                  </Card>
+                </div>
+              )
+            )}
+
+            {!localStorageValuesFetched.keywordFrequencyCard ? (
+              <PlaceholderCard />
+            ) : (
+              showKeywordFrequencyCard && (
+                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold">Keyword Frequency</h2>
+                    <ul>
+                      {keywordFrequency.map(({ normal, count }, index) => (
+                        <li key={index} className="border-b py-2">
+                          <span className="font-bold">{normal}</span>: {count}
+                        </li>
+                      ))}
+                    </ul>
                   </Card>
                 </div>
               )

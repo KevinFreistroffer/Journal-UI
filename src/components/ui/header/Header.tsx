@@ -172,6 +172,13 @@ export default function Header() {
             className="md:hidden"
           />
         </div>
+        {/* {!isLoading &&
+          user && ( // Check if user is loaded and exists
+            <div className="flex items-center space-x-2 ml-auto">
+              <UserIcon className="w-6 h-6 rounded-full" />
+              <span className="truncate max-w-[20ch]">{user.username}</span>
+            </div>
+          )} */}
       </div>
     </header>
   );
