@@ -11,38 +11,12 @@ import styles from "@/app/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
+import Legend from "@/app/dashboard/Legend";
 export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
   // For example, you might want to include a formatted date or a flag for upcoming entries
   formattedDate?: string; // Optional formatted date string for display
   isUpcoming?: boolean; // Flag to indicate if the entry is upcoming
-}
-
-// New LegendItem component
-function LegendItem({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  checked: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <label htmlFor={id} className="flex items-center space-x-2">
-      <input
-        type="checkbox"
-        id={id}
-        checked={checked}
-        onChange={onChange}
-        className="form-checkbox h-4 w-4 text-blue-600"
-      />
-      <span className="text-sm">{label}</span>
-    </label>
-  );
 }
 
 function UserDashboard() {
@@ -218,351 +192,155 @@ function UserDashboard() {
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
       {/* Legend and Buttons Container */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-        {/* Legend */}
-        {isMobile ? (
-          <div className="relative mb-4 md:mb-0">
-            <button
-              onClick={() => setIsLegendOpen(!isLegendOpen)}
-              className="flex items-center justify-between w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded"
-            >
-              <span>Toggle Dashboard Cards</span>
-              {isLegendOpen ? (
-                <ChevronUp size={20} />
-              ) : (
-                <ChevronDown size={20} />
-              )}
-            </button>
-            {isLegendOpen && (
-              <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2">Legend</h2>
-                  <div className="flex flex-col space-y-2">
-                    <LegendItem
-                      id="totalEntrysCard"
-                      label="Total Entries"
-                      checked={showTotalEntrysCard}
-                      onChange={() => {
-                        const newValue = !showTotalEntrysCard;
-                        setShowTotalEntrysCard(newValue);
-                        localStorageService.setItem(
-                          "showTotalEntrysCard",
-                          newValue
-                        );
-                      }}
-                    />
-                    <LegendItem
-                      id="categoryBreakdownCard"
-                      label="Category Breakdown"
-                      checked={showCategoryBreakdownCard}
-                      onChange={() => {
-                        const newValue = !showCategoryBreakdownCard;
-                        setShowCategoryBreakdownCard(newValue);
-                        localStorageService.setItem(
-                          "showCategoryBreakdownCard",
-                          newValue
-                        );
-                      }}
-                    />
-                    <LegendItem
-                      id="recentEntriesCard"
-                      label="Recent Entries"
-                      checked={showRecentEntriesCard}
-                      onChange={() => {
-                        const newValue = !showRecentEntriesCard;
-                        setShowRecentEntriesCard(newValue);
-                        localStorageService.setItem(
-                          "showRecentEntriesCard",
-                          newValue
-                        );
-                      }}
-                    />
-                    <LegendItem
-                      id="upcomingEntriesCard"
-                      label="Upcoming Entries"
-                      checked={showUpcomingEntriesCard}
-                      onChange={() => {
-                        const newValue = !showUpcomingEntriesCard;
-                        setShowUpcomingEntriesCard(newValue);
-                        localStorageService.setItem(
-                          "showUpcomingEntriesCard",
-                          newValue
-                        );
-                      }}
-                    />
-                    <LegendItem
-                      id="favoriteEntrysCard"
-                      label="Favorite Entries"
-                      checked={showFavoriteEntrysCard}
-                      onChange={() => {
-                        const newValue = !showFavoriteEntrysCard;
-                        setShowFavoriteEntrysCard(newValue);
-                        localStorageService.setItem(
-                          "showFavoriteEntrysCard",
-                          newValue
-                        );
-                      }}
-                    />
-                  </div>
+      <div className="flex flex-col md:flex-row mb-6">
+        {/* Side Section for Legend */}
+        <Card className="w-full md:w-1/6 p-4 mt-2 bg-gray-100">
+          {" "}
+          {/* Wrapped in Card and removed border */}
+          {/* Removed border and rounded classes */}
+          <Legend
+            isMobile={isMobile}
+            isLegendOpen={isLegendOpen}
+            setIsLegendOpen={setIsLegendOpen}
+            showTotalEntrysCard={showTotalEntrysCard}
+            setShowTotalEntrysCard={setShowTotalEntrysCard}
+            showCategoryBreakdownCard={showCategoryBreakdownCard}
+            setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
+            showRecentEntriesCard={showRecentEntriesCard}
+            setShowRecentEntriesCard={setShowRecentEntriesCard}
+            showUpcomingEntriesCard={showUpcomingEntriesCard}
+            setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
+            showFavoriteEntrysCard={showFavoriteEntrysCard}
+            setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
+          />
+        </Card>
+
+        {/* Main Content Area */}
+        <div className="flex flex-col md:flex-row md:flex-wrap w-full md:w-3/4">
+          {" "}
+          {/* Adjust width as needed */}
+          {/* Dashboard Content */}
+          <div className="flex flex-col md:flex-row md:flex-wrap">
+            {/* Total Number of Entries */}
+            {!localStorageValuesFetched.totalEntrysCard ? (
+              <PlaceholderCard />
+            ) : (
+              showTotalEntrysCard && (
+                <div className="w-full mb-2 p-2">
+                  <Card className="h-full p-4 flex w-full items-center">
+                    <h2 className="text-xl font-semibold">
+                      Total Number of entries: {totalEntrys}
+                    </h2>
+                  </Card>
                 </div>
-              </div>
+              )
+            )}
+
+            {/* Category Breakdown */}
+            {!localStorageValuesFetched.categoryBreakdownCard ? (
+              <PlaceholderCard />
+            ) : (
+              showCategoryBreakdownCard && (
+                <div
+                  id={`${styles["categoryBreakdown"]}`}
+                  className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3"
+                >
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold">
+                      Category Breakdown
+                    </h2>
+                    <div className="flex justify-center items-center w-full h-full">
+                      <CategoryBreakdown data={data} />
+                    </div>
+                  </Card>
+                </div>
+              )
+            )}
+
+            {/* Recent Activity */}
+            {!localStorageValuesFetched.recentEntriesCard ? (
+              <PlaceholderCard />
+            ) : (
+              showRecentEntriesCard && (
+                <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold">Recent Activity</h2>
+                    <ul>
+                      {recentEntries.map((entry, index) => (
+                        <li key={index} className="border-b py-2">
+                          <span className="font-bold">{entry.title}</span> -{" "}
+                          {entry.date}
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                </div>
+              )
+            )}
+
+            {/* Upcoming Entries/Reminders */}
+            {!localStorageValuesFetched.upcomingEntriesCard ? (
+              <PlaceholderCard />
+            ) : (
+              showUpcomingEntriesCard && (
+                <div className="w-full mb-2 md:w-1/2 lg:w-1/3 p-2">
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold">
+                      Upcoming Entries/Reminders
+                    </h2>
+                    <ul>
+                      {upcomingEntries.length > 0 ? (
+                        upcomingEntries.map((entry, index) => (
+                          <li key={index} className="border-b py-2">
+                            <span className="font-bold">{entry.title}</span> -{" "}
+                            {entry.date}
+                          </li>
+                        ))
+                      ) : (
+                        <p>No upcoming entries.</p>
+                      )}
+                    </ul>
+                  </Card>
+                </div>
+              )
+            )}
+
+            {/* Favorite Entries */}
+            {!localStorageValuesFetched.favoriteEntrysCard ? (
+              <PlaceholderCard />
+            ) : (
+              showFavoriteEntrysCard && (
+                <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold mb-4">
+                      Favorite Entries
+                    </h2>
+                    {favoriteEntries.length > 0 ? (
+                      <ul className="space-y-2">
+                        {favoriteEntries.map((entry, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center space-x-2 border-b py-2"
+                          >
+                            <StarIcon className="w-4 h-4 text-yellow-400" />
+                            <span className="font-medium">{entry.title}</span>
+                            <span className="text-sm text-gray-500">
+                              - {entry.date}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-center text-gray-500">
+                        No favorite entries yet.
+                      </p>
+                    )}
+                  </Card>
+                </div>
+              )
             )}
           </div>
-        ) : (
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Legend</h2>
-            <div className="flex flex-wrap">
-              <div className="mr-4 mb-2">
-                <label
-                  htmlFor="totalEntrysCard"
-                  className="flex items-center text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    id="totalEntrysCard"
-                    checked={showTotalEntrysCard}
-                    onChange={() => {
-                      const newValue = !showTotalEntrysCard;
-                      setShowTotalEntrysCard(newValue);
-                      localStorageService.setItem(
-                        "showTotalEntrysCard",
-                        newValue
-                      );
-                    }}
-                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
-                  />
-                  Total Entries
-                </label>
-              </div>
-              <div className="mr-4 mb-2">
-                <label
-                  htmlFor="categoryBreakdownCard"
-                  className="flex items-center text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    id="categoryBreakdownCard"
-                    checked={showCategoryBreakdownCard}
-                    onChange={() => {
-                      const newValue = !showCategoryBreakdownCard;
-                      setShowCategoryBreakdownCard(newValue);
-                      localStorageService.setItem(
-                        "showCategoryBreakdownCard",
-                        newValue
-                      );
-                    }}
-                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
-                  />
-                  Category Breakdown
-                </label>
-              </div>
-              <div className="mr-4 mb-2">
-                <label
-                  htmlFor="recentEntriesCard"
-                  className="flex items-center text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    id="recentEntriesCard"
-                    checked={showRecentEntriesCard}
-                    onChange={() => {
-                      const newValue = !showRecentEntriesCard;
-                      setShowRecentEntriesCard(newValue);
-                      localStorageService.setItem(
-                        "showRecentEntriesCard",
-                        newValue
-                      );
-                    }}
-                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
-                  />
-                  Recent Entries
-                </label>
-              </div>
-              <div className="mr-4 mb-2">
-                <label
-                  htmlFor="upcomingEntriesCard"
-                  className="flex items-center text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    id="upcomingEntriesCard"
-                    checked={showUpcomingEntriesCard}
-                    onChange={() => {
-                      const newValue = !showUpcomingEntriesCard;
-                      setShowUpcomingEntriesCard(newValue);
-                      localStorageService.setItem(
-                        "showUpcomingEntriesCard",
-                        newValue
-                      );
-                    }}
-                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
-                  />
-                  Upcoming Entries
-                </label>
-              </div>
-              <div className="mr-4 mb-2">
-                <label
-                  htmlFor="favoriteEntrysCard"
-                  className="flex items-center text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    id="favoriteEntrysCard"
-                    checked={showFavoriteEntrysCard}
-                    onChange={() => {
-                      const newValue = !showFavoriteEntrysCard;
-                      setShowFavoriteEntrysCard(newValue);
-                      localStorageService.setItem(
-                        "showFavoriteEntrysCard",
-                        newValue
-                      );
-                    }}
-                    className="mr-2 form-checkbox h-3 w-3 text-blue-600"
-                  />
-                  Favorite Entries
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Buttons for creating new entry and viewing all entries */}
-        <div className="flex flex-col md:flex-row">
-          <Link
-            href="/entry/write"
-            className="w-full md:w-auto bg-green-500 hover:bg-green-700 text-white font-500 py-2 px-4 rounded text-center mb-2 md:mb-0 md:mr-4"
-          >
-            Create New Entry
-          </Link>
-          <Link
-            href="/entries"
-            className="w-full md:w-auto bg-blue-500 hover:bg-blue-700 text-white font-500 py-2 px-4 rounded text-center"
-          >
-            View All Entries
-          </Link>
         </div>
-      </div>
-
-      {/* Dashboard Content */}
-      <div className="flex flex-col md:flex-row md:flex-wrap">
-        <h1>{!localStorageValuesFetched.totalEntrysCard.toString()}</h1>
-
-        {/* Total Number of Entries */}
-        {!localStorageValuesFetched.totalEntrysCard ? (
-          <PlaceholderCard />
-        ) : (
-          showTotalEntrysCard && (
-            <div className="w-full mb-6 p-2">
-              <Card className="h-full p-4 flex w-full items-center">
-                <h2 className="text-xl font-semibold">
-                  Total Number of entries: {totalEntrys}
-                </h2>
-              </Card>
-            </div>
-          )
-        )}
-
-        {/* Category Breakdown */}
-        {!localStorageValuesFetched.categoryBreakdownCard ? (
-          <PlaceholderCard />
-        ) : (
-          showCategoryBreakdownCard && (
-            <div
-              id={`${styles["categoryBreakdown"]}`}
-              className="w-full mb-6 p-2 md:w-full lg:w-1/2 xl:w-1/3"
-            >
-              <Card className="h-full p-4">
-                <h2 className="text-xl font-semibold">Category Breakdown</h2>
-                <div className="flex justify-center items-center w-full h-full">
-                  <CategoryBreakdown data={data} />
-                </div>
-              </Card>
-            </div>
-          )
-        )}
-
-        {/* Recent Activity */}
-        {!localStorageValuesFetched.recentEntriesCard ? (
-          <PlaceholderCard />
-        ) : (
-          showRecentEntriesCard && (
-            <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
-              <Card className="h-full p-4">
-                <h2 className="text-xl font-semibold">Recent Activity</h2>
-                <ul>
-                  {recentEntries.map((entry, index) => (
-                    <li key={index} className="border-b py-2">
-                      <span className="font-bold">{entry.title}</span> -{" "}
-                      {entry.date}
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            </div>
-          )
-        )}
-
-        {/* Upcoming Entries/Reminders */}
-        {!localStorageValuesFetched.upcomingEntriesCard ? (
-          <PlaceholderCard />
-        ) : (
-          showUpcomingEntriesCard && (
-            <div className="w-full mb-6 md:w-1/2 lg:w-1/3 p-2">
-              <Card className="h-full p-4">
-                <h2 className="text-xl font-semibold">
-                  Upcoming Entries/Reminders
-                </h2>
-                <ul>
-                  {upcomingEntries.length > 0 ? (
-                    upcomingEntries.map((entry, index) => (
-                      <li key={index} className="border-b py-2">
-                        <span className="font-bold">{entry.title}</span> -{" "}
-                        {entry.date}
-                      </li>
-                    ))
-                  ) : (
-                    <p>No upcoming entries.</p>
-                  )}
-                </ul>
-              </Card>
-            </div>
-          )
-        )}
-
-        {/* Favorite Entries */}
-        {!localStorageValuesFetched.favoriteEntrysCard ? (
-          <PlaceholderCard />
-        ) : (
-          showFavoriteEntrysCard && (
-            <div className="w-full mb-6 md:w-1/2 xl:w-1/3 p-2">
-              <Card className="h-full p-4">
-                <h2 className="text-xl font-semibold mb-4">Favorite Entries</h2>
-                {favoriteEntries.length > 0 ? (
-                  <ul className="space-y-2">
-                    {favoriteEntries.map((entry, index) => (
-                      <li
-                        key={index}
-                        className="flex items-center space-x-2 border-b py-2"
-                      >
-                        <StarIcon className="w-4 h-4 text-yellow-400" />
-                        <span className="font-medium">{entry.title}</span>
-                        <span className="text-sm text-gray-500">
-                          - {entry.date}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-center text-gray-500">
-                    No favorite entries yet.
-                  </p>
-                )}
-              </Card>
-            </div>
-          )
-        )}
-
-
       </div>
     </div>
   );
