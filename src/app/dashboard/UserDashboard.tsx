@@ -23,6 +23,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend as ChartLegend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  ChartLegend
+);
 
 export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
@@ -55,6 +74,7 @@ function UserDashboard() {
     upcomingEntriesCard: false,
     favoriteEntrysCard: false,
     keywordFrequencyCard: false,
+    entryTimeCard: false,
   });
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -69,6 +89,8 @@ function UserDashboard() {
   const [isLoadingKeywordFrequency, setIsLoadingKeywordFrequency] =
     useState(false); // New loading state
   const [isSelectOpen, setIsSelectOpen] = useState(false); // New state for managing open state
+  const [showEntryTimeCard, setShowEntryTimeCard] = useState(false);
+  const [entryTimeData, setEntryTimeData] = useState<{ [key: string]: number }>({});
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -258,10 +280,29 @@ function UserDashboard() {
         ...prev,
         keywordFrequencyCard: true,
       }));
+
+      const showEntryTimeCard: boolean | null = localStorageService.getItem<boolean>("showEntryTimeCard");
+      setShowEntryTimeCard(showEntryTimeCard !== null ? showEntryTimeCard : true);
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        entryTimeCard: true,
+      }));
     };
 
     fetchLocalStorageValues();
   }, []);
+
+  useEffect(() => {
+    if (user && entries) {
+      const timeData: { [key: string]: number } = {};
+      entries.forEach(entry => {
+        const hour = new Date(entry.date).getHours();
+        const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
+        timeData[timeSlot] = (timeData[timeSlot] || 0) + 1;
+      });
+      setEntryTimeData(timeData);
+    }
+  }, [user, entries]);
 
   if (isLoading) {
     return <div className="p-6 min-h-screen">Loading...</div>; // Add your spinner or loading state here
@@ -298,6 +339,8 @@ function UserDashboard() {
             setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
             showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
             setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
+            showEntryTimeCard={showEntryTimeCard}
+            setShowEntryTimeCard={setShowEntryTimeCard}
           />
         </Card>
 
@@ -495,6 +538,53 @@ function UserDashboard() {
                         ))}
                       </ul>
                     )}
+                  </Card>
+                </div>
+              )
+            )}
+
+            {/* Entry Time Card */}
+            {!localStorageValuesFetched.entryTimeCard ? (
+              <PlaceholderCard />
+            ) : (
+              showEntryTimeCard && (
+                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold mb-4">Entry Time Distribution</h2>
+                    <Bar
+                      data={{
+                        labels: Object.keys(entryTimeData).sort(),
+                        datasets: [
+                          {
+                            label: 'Number of Entries',
+                            data: Object.values(entryTimeData),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                          },
+                        ],
+                      }}
+                      options={{
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            title: {
+                              display: true,
+                              text: 'Number of Entries',
+                            },
+                          },
+                          x: {
+                            title: {
+                              display: true,
+                              text: 'Time of Day',
+                            },
+                          },
+                        },
+                        plugins: {
+                          legend: {
+                            display: false,
+                          },
+                        },
+                      }}
+                    />
                   </Card>
                 </div>
               )

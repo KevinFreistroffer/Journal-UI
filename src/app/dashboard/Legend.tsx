@@ -45,6 +45,8 @@ const Legend = ({
   setShowUpcomingEntriesCard,
   showFavoriteEntrysCard,
   setShowFavoriteEntrysCard,
+  showEntryTimeCard,
+  setShowEntryTimeCard,
 }: {
   isMobile: boolean;
   isLegendOpen: boolean;
@@ -61,6 +63,8 @@ const Legend = ({
   setShowFavoriteEntrysCard: (showFavoriteEntrysCard: boolean) => void;
   showKeywordFrequencyCard: boolean;
   setShowKeywordFrequencyCard: (showKeywordFrequencyCard: boolean) => void;
+  showEntryTimeCard: boolean;
+  setShowEntryTimeCard: (showEntryTimeCard: boolean) => void;
 }) => {
   return isMobile ? (
     <div className="relative mb-4 md:mb-0">
@@ -149,6 +153,16 @@ const Legend = ({
                     "showKeywordFrequencyCard",
                     newValue
                   );
+                }}
+              />
+              <LegendItem
+                id="entryTimeCard"
+                label="Entry Time"
+                checked={showEntryTimeCard}
+                onChange={() => {
+                  const newValue = !showEntryTimeCard;
+                  setShowEntryTimeCard(newValue);
+                  localStorageService.setItem("showEntryTimeCard", newValue);
                 }}
               />
             </div>
