@@ -50,6 +50,13 @@ export interface IFrontEndEntry extends IEntry {
   isUpcoming?: boolean; // Flag to indicate if the entry is upcoming
 }
 
+const formatTime = (hour: string) => {
+  const hourNum = parseInt(hour);
+  if (hourNum === 0) return '12 AM';
+  if (hourNum === 12) return '12 PM';
+  return hourNum > 12 ? `${hourNum - 12} PM` : `${hourNum} AM`;
+};
+
 function UserDashboard() {
   const { user, isLoading } = useAuth();
   const [totalEntrys, setTotalEntrys] = useState(user?.entries?.length || 0);
@@ -90,7 +97,9 @@ function UserDashboard() {
     useState(false); // New loading state
   const [isSelectOpen, setIsSelectOpen] = useState(false); // New state for managing open state
   const [showEntryTimeCard, setShowEntryTimeCard] = useState(false);
-  const [entryTimeData, setEntryTimeData] = useState<{ [key: string]: number }>({});
+  const [entryTimeData, setEntryTimeData] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -281,8 +290,11 @@ function UserDashboard() {
         keywordFrequencyCard: true,
       }));
 
-      const showEntryTimeCard: boolean | null = localStorageService.getItem<boolean>("showEntryTimeCard");
-      setShowEntryTimeCard(showEntryTimeCard !== null ? showEntryTimeCard : true);
+      const showEntryTimeCard: boolean | null =
+        localStorageService.getItem<boolean>("showEntryTimeCard");
+      setShowEntryTimeCard(
+        showEntryTimeCard !== null ? showEntryTimeCard : true
+      );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
         entryTimeCard: true,
@@ -295,9 +307,11 @@ function UserDashboard() {
   useEffect(() => {
     if (user && entries) {
       const timeData: { [key: string]: number } = {};
-      entries.forEach(entry => {
-        const hour = new Date(entry.date).getHours();
-        const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
+      entries.forEach((entry) => {
+        const hour = new Date(entry.createdAt as Date).getHours();
+        console.log("hour", hour);
+        const timeSlot = `${hour.toString().padStart(2, "0")}:00`;
+        console.log("timeSlot", timeSlot);
         timeData[timeSlot] = (timeData[timeSlot] || 0) + 1;
       });
       setEntryTimeData(timeData);
@@ -550,15 +564,19 @@ function UserDashboard() {
               showEntryTimeCard && (
                 <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
                   <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold mb-4">Entry Time Distribution</h2>
+                    <h2 className="text-xl font-semibold mb-4">
+                      Entry Time Distribution
+                    </h2>
                     <Bar
                       data={{
-                        labels: Object.keys(entryTimeData).sort(),
+                        labels: Object.keys(entryTimeData)
+                          .sort((a, b) => parseInt(a) - parseInt(b))
+                          .map(hour => formatTime(hour)),
                         datasets: [
                           {
-                            label: 'Number of Entries',
+                            label: "Number of Entries",
                             data: Object.values(entryTimeData),
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            backgroundColor: "rgba(75, 192, 192, 0.6)",
                           },
                         ],
                       }}
@@ -568,13 +586,13 @@ function UserDashboard() {
                             beginAtZero: true,
                             title: {
                               display: true,
-                              text: 'Number of Entries',
+                              text: "Number of Entries",
                             },
                           },
                           x: {
                             title: {
                               display: true,
-                              text: 'Time of Day',
+                              text: "Time of Day",
                             },
                           },
                         },

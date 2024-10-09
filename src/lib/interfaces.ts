@@ -7,8 +7,8 @@ export interface IEntry {
   selected: boolean;
   sentiment?: string;
   sentimentColor?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
   favorite?: boolean;
 }
 
@@ -29,6 +29,6 @@ export interface IUser {
   // password and
   entries: IEntry[];
   entryCategories: ICategory[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

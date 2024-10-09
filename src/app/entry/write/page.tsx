@@ -479,7 +479,7 @@ function WritePage() {
                   disabled={isSaving || !title || !entry}
                   className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
                 >
-                  {isSaving ? "Saving..." : "Create Entrie"}
+                  {isSaving ? "Saving..." : "Create Journal"}
                 </Button>
                 {showEntrySuccessIcon && (
                   <div className="flex items-center">
