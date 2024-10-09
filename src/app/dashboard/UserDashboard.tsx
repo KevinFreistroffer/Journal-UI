@@ -52,8 +52,8 @@ export interface IFrontEndEntry extends IEntry {
 
 const formatTime = (hour: string) => {
   const hourNum = parseInt(hour);
-  if (hourNum === 0) return '12 AM';
-  if (hourNum === 12) return '12 PM';
+  if (hourNum === 0) return "12 AM";
+  if (hourNum === 12) return "12 PM";
   return hourNum > 12 ? `${hourNum - 12} PM` : `${hourNum} AM`;
 };
 
@@ -100,6 +100,18 @@ function UserDashboard() {
   const [entryTimeData, setEntryTimeData] = useState<{ [key: string]: number }>(
     {}
   );
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -370,10 +382,16 @@ function UserDashboard() {
             ) : (
               showTotalEntrysCard && (
                 <div className="w-full mb-2 p-2">
-                  <Card className="h-full p-4 flex w-full items-center">
+                  <Card className="h-full p-4 flex w-full items-center justify-between">
                     <h2 className="text-xl font-semibold">
                       Total Number of entries: {totalEntrys}
                     </h2>
+                    <Link
+                      href="/entries"
+                      className="text-sm self-center text-grey-500 font-black"
+                    >
+                      View
+                    </Link>
                   </Card>
                 </div>
               )
@@ -422,7 +440,7 @@ function UserDashboard() {
                       {recentEntries.map((entry, index) => (
                         <li key={index} className="border-b py-2">
                           <span className="font-bold">{entry.title}</span> -{" "}
-                          {entry.date}
+                          {formatDate(entry.date)}
                         </li>
                       ))}
                     </ul>
@@ -446,7 +464,7 @@ function UserDashboard() {
                         upcomingEntries.map((entry, index) => (
                           <li key={index} className="border-b py-2">
                             <span className="font-bold">{entry.title}</span> -{" "}
-                            {entry.date}
+                            {formatDate(entry.date)}
                           </li>
                         ))
                       ) : (
@@ -465,9 +483,17 @@ function UserDashboard() {
               showFavoriteEntrysCard && (
                 <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
                   <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold mb-4">
-                      Favorite Entries
-                    </h2>
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl font-semibold mb-4">
+                        Favorite Entries
+                      </h2>
+                      <Link
+                        href="/entries/favorites"
+                        className="text-sm self-center text-grey-500 font-black"
+                      >
+                        Manage
+                      </Link>
+                    </div>
                     {favoriteEntries.length > 0 ? (
                       <ul className="space-y-2">
                         {favoriteEntries.map((entry, index) => (
@@ -476,10 +502,21 @@ function UserDashboard() {
                             className="flex items-center space-x-2 border-b py-2"
                           >
                             <StarIcon className="w-4 h-4 text-yellow-400" />
-                            <span className="font-medium">{entry.title}</span>
-                            <span className="text-sm text-gray-500">
-                              - {entry.date}
-                            </span>
+                            <Link
+                              href={`/entry/${entry._id}`}
+                              onClick={() => {
+                                localStorageService.setItem(
+                                  "selectedEntry",
+                                  entry
+                                );
+                              }}
+                              className="flex-grow hover:underline"
+                            >
+                              <span className="font-medium">{entry.title}</span>
+                              <span className="text-sm text-gray-500 ml-2">
+                                - {formatDate(entry.date)}
+                              </span>
+                            </Link>
                           </li>
                         ))}
                       </ul>
@@ -571,7 +608,7 @@ function UserDashboard() {
                       data={{
                         labels: Object.keys(entryTimeData)
                           .sort((a, b) => parseInt(a) - parseInt(b))
-                          .map(hour => formatTime(hour)),
+                          .map((hour) => formatTime(hour)),
                         datasets: [
                           {
                             label: "Number of Entries",
