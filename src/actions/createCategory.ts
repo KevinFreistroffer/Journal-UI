@@ -2,11 +2,11 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { ICreateCategoryState } from "@/app/entry/write/types";
+import { ICreateCategoryState } from "@/app/journal/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
-import { CreateCategoryFunction } from "@/app/entry/write/types";
+import { CreateCategoryFunction } from "@/app/journal/write/types";
 
 const CategorySchema = z.object({
   category: z.string(),
@@ -43,7 +43,7 @@ export const createCategory: CreateCategoryFunction = async (
 
   try {
     const response = await fetch(
-      "http://localhost:3001/user/entry/category/create?returnUser=true",
+      "http://localhost:3001/user/journal/category/create?returnUser=true",
       {
         method: "POST",
         headers: {
@@ -106,7 +106,7 @@ export const createCategory: CreateCategoryFunction = async (
 //   setIsSaving(true);
 //   const newEntry = {
 //     title,
-//     entry,
+//     journal,
 //     category:
 //       categories.length === 0 || selectedCategory.trim() === ""
 //         ? "Uncategorized"
@@ -116,13 +116,13 @@ export const createCategory: CreateCategoryFunction = async (
 //   };
 
 //   try {
-//     const response = await fetch(`/api/user/entry/create`, {
+//     const response = await fetch(`/api/user/journal/create`, {
 //       method: "POST",
 //       body: JSON.stringify(newEntry),
 //     });
 
 //     if (!response.ok) {
-//       throw new Error("Failed to create entry");
+//       throw new Error("Failed to create journal");
 //     }
 
 //     if (response.status === 200) {
@@ -131,10 +131,10 @@ export const createCategory: CreateCategoryFunction = async (
 //       const userData = body.data;
 
 //       setUser(userData);
-//       setEntries(userData.entries);
-//       // setFilteredEntrys(userData.entries);
-//       if (userData.entryCategories && userData.entryCategories.length > 0) {
-//         setCategories(userData.entryCategories);
+//       setEntries(userData.journals);
+//       // setFilteredEntrys(userData.journals);
+//       if (userData.journalCategories && userData.journalCategories.length > 0) {
+//         setCategories(userData.journalCategories);
 //       }
 //       setTitle("");
 //       setEntry("");
@@ -143,7 +143,7 @@ export const createCategory: CreateCategoryFunction = async (
 //       setTimeout(() => setShowEntrySuccessIcon(false), 3000);
 //     }
 //   } catch (error) {
-//     console.error("Error creating entry:", error);
+//     console.error("Error creating journal:", error);
 //   } finally {
 //     setIsSaving(false);
 //   }

@@ -11,10 +11,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { userId, title, entry, category, favorite } = body;
+    const { userId, title, journal, category, favorite } = body;
     console.log(body);
 
-    const response = await fetch(`${process.env.API_URL}/user/entry/create`, {
+    const response = await fetch(`${process.env.API_URL}/user/journal/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         userId,
         title,
-        entry,
+        journal,
         category,
         favorite,
       }),
@@ -35,36 +35,36 @@ export async function POST(req: Request) {
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
-        { error: errorData.message || "Failed to create entrie" },
+        { error: errorData.message || "Failed to create journal" },
         { status: response.status }
       );
     }
 
     return NextResponse.json(data, { status: 200 });
     // const body = await req.json();
-    // const { userId, entryIds } = body;
+    // const { userId, journalIds } = body;
 
-    // if (!userId || !entryIds || !Array.isArray(entryIds)) {
+    // if (!userId || !journalIds || !Array.isArray(journalIds)) {
     //   return NextResponse.json(
     //     { error: "Invalid request body" },
     //     { status: 400 }
     //   );
     // }
 
-    // const response = await fetch(`${process.env.API_URL}/user/entry/delete`, {
+    // const response = await fetch(`${process.env.API_URL}/user/journal/delete`, {
     //   method: "DELETE",
     //   headers: {
     //     "Content-Type": "application/json",
     //     Accept: "application/json",
     //     Cookie: cookies().toString(),
     //   },
-    //   body: JSON.stringify({ userId, entryIds }),
+    //   body: JSON.stringify({ userId, journalIds }),
     // });
 
     // if (!response.ok) {
     //   const errorData = await response.json();
     //   return NextResponse.json(
-    //     { error: errorData.message || "Failed to delete entrie(s)" },
+    //     { error: errorData.message || "Failed to delete journal(s)" },
     //     { status: response.status }
     //   );
     // }
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     // const data = await response.json();
     // return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error("Error deleting entrie(s):", error);
+    console.error("Error deleting journal(s):", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

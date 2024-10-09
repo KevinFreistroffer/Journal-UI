@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (user) {
           setUser(user);
-          // setFilteredEntries(user.entries);
+          // setFilteredEntries(user.journals);
         }
       } catch (error) {
         console.error("Error verifying session:", error);

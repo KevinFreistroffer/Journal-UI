@@ -48,8 +48,8 @@ export default function Header() {
         user
           ? [
               { href: "/dashboard", label: "Dashboard" },
-              { href: "/entries", label: "Entries" },
-              { href: "/entry/write", label: "New Entry" },
+              { href: "/journals", label: "Journals" },
+              { href: "/journal/write", label: "New Journal" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -61,7 +61,7 @@ export default function Header() {
 
   const handleResultSelect = (id: string) => {
     console.log("id", id);
-    router.push(`/entry/${id}`); // Navigate to the entry page with the selected journal id
+    router.push(`/journal/${id}`); // Navigate to the journal page with the selected journal id
   };
 
   const handleClickOutside = useCallback(
@@ -92,10 +92,10 @@ export default function Header() {
       }`}
     >
       <div className="p-8 flex h-14 items-center justify-between w-full">
-        {/* Move Entries title to the left */}
+        {/* Move Journals title to the left */}
         <div className="flex-1 hidden md:block ">
           <Link href="/" passHref>
-            <h1 className="text-lg font-semibold md:text-xl">Entries</h1>
+            <h1 className="text-lg font-semibold md:text-xl">Journals</h1>
           </Link>
         </div>
         {/* Search Input Section moved to the right */}
@@ -105,7 +105,7 @@ export default function Header() {
           <SearchInput
             query={query}
             handleSearch={handleSearch}
-            userEntries={user?.entries || []}
+            userEntries={user?.journals || []}
             className="hidden md:block mr-4"
           />
         )}
@@ -160,7 +160,7 @@ export default function Header() {
             ) : (
               <Link href="/" passHref>
                 <h1 className="text-lg font-semibold md:text-xl cursor-pointer">
-                  Entries
+                  Journals
                 </h1>
               </Link>
             )}
@@ -168,7 +168,7 @@ export default function Header() {
           <SearchInput
             query={query}
             handleSearch={handleSearch}
-            userEntries={user?.entries || []}
+            userEntries={user?.journals || []}
             className="md:hidden"
           />
         </div>

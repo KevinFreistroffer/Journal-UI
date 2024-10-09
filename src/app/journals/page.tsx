@@ -29,14 +29,14 @@ export default function EntrysPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showHelperText, setShowHelperText] = useState<boolean>(false);
-  const [favoriteEntrys, setFavoriteEntrys] = useState<string[]>([]); // State for favorite entries
+  const [favoriteEntrys, setFavoriteEntrys] = useState<string[]>([]); // State for favorite journals
   const [loadingEntryId, setLoadingEntryId] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
-  const [entryToDelete, setEntryToDelete] = useState<string | null>(null); // State to hold the entry ID to delete
+  const [journalToDelete, setEntryToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
 
   const handleCloseHelper = () => {
@@ -86,8 +86,8 @@ export default function EntrysPage() {
     );
   }
 
-  const getFrequentKeywords = (entries: any) => {
-    const text = entries.join(" "); // Combine all entries into one text block
+  const getFrequentKeywords = (journals: any) => {
+    const text = journals.join(" "); // Combine all journals into one text block
     const doc = nlp(text);
 
     // Get most frequent nouns or verbs
@@ -96,14 +96,14 @@ export default function EntrysPage() {
     return keywords.slice(0, 5); // Get top 5 most frequent words
   };
 
-  const entries = [
+  const journals = [
     "Today I worked on my project. It was a productive day.",
     "I had a meeting and it went well.",
     "The project is almost done, just need to finish a few tasks.",
   ];
   const sentiment = new Sentiment();
-  const analyzeSentiment = (entry) => {
-    const result = sentiment.analyze(entry);
+  const analyzeSentiment = (journal) => {
+    const result = sentiment.analyze(journal);
     return result; // result.score will give you a sentiment score
   };
 
@@ -126,16 +126,16 @@ export default function EntrysPage() {
     }
   };
 
-  const handleFavorite = async (entryId: string) => {
-    setLoadingEntryId(entryId); // Set the loading state for the specific entrie
+  const handleFavorite = async (journalId: string) => {
+    setLoadingEntryId(journalId); // Set the loading state for the specific journal
     try {
-      // Send API request to edit the entrie
-      const response = await fetch(`api/user/entry/edit`, {
+      // Send API request to edit the journal
+      const response = await fetch(`api/user/journal/edit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ entryId, favorite: true }), // Include the entrie ID in the request body
+        body: JSON.stringify({ journalId, favorite: true }), // Include the journal ID in the request body
       });
 
       if (!response.ok) {
@@ -152,71 +152,75 @@ export default function EntrysPage() {
   };
 
   const handleDelete = async () => {
-    if (!entryToDelete) return; // Exit if no entry is set for deletion
+    if (!journalToDelete) return; // Exit if no journal is set for deletion
 
-    setLoadingEntryId(entryToDelete);
+    setLoadingEntryId(journalToDelete);
     try {
-      const response = await fetch(`/api/user/entry/delete`, {
+      const response = await fetch(`/api/user/journal/delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ entryId: entryToDelete }),
+        body: JSON.stringify({ journalId: journalToDelete }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete entry");
+        throw new Error("Failed to delete journal");
       }
 
-      // Remove the deleted entry from the state
-      const updatedEntries = user.entries.filter(
-        (entry) => entry._id !== entryToDelete
+      // Remove the deleted journal from the state
+      const updatedEntries = user.journals.filter(
+        (journal) => journal._id !== journalToDelete
       );
-      // Update the user state with the new entries array
-      // setUser({ ...user, entries: updatedEntries });
+      // Update the user state with the new journals array
+      // setUser({ ...user, journals: updatedEntries });
     } catch (error) {
-      console.error("Error deleting entry:", error);
+      console.error("Error deleting journal:", error);
     } finally {
       setLoadingEntryId(null); // Reset loading state
-      setEntryToDelete(null); // Reset the entry to delete
+      setEntryToDelete(null); // Reset the journal to delete
     }
   };
 
-  const openDeleteModal = (entryId: string) => {
-    setEntryToDelete(entryId); // Set the entry ID to delete
+  const openDeleteModal = (journalId: string) => {
+    setEntryToDelete(journalId); // Set the journal ID to delete
     openModal(); // Open the GlobalModal
   };
 
-  newEntries.forEach((entry) => {
-    const sentimentResult = analyzeSentiment(entry);
+  newEntries.forEach((journal) => {
+    const sentimentResult = analyzeSentiment(journal);
     // const color = getSentimentColor(sentimentResult.score);
     // console.log(
-    //   `Entry: "${entry}" | Score: ${sentimentResult.score} | Color: ${color}`
+    //   `Journal: "${journal}" | Score: ${sentimentResult.score} | Color: ${color}`
     // );
   });
 
   const filteredEntries = showFavoritesOnly
-    ? user.entries.filter((entry) => entry.favorite)
-    : user.entries;
+    ? user.journals.filter((journal) => journal.favorite)
+    : user.journals;
 
-  // Filter entries by selected date
+  // Filter journals by selected date
   const dateFilteredEntries = selectedDate
-    ? filteredEntries.filter((entry) => new Date(entry.date).toDateString() === new Date(selectedDate).toDateString())
+    ? filteredEntries.filter(
+        (journal) =>
+          new Date(journal.date).toDateString() ===
+          new Date(selectedDate).toDateString()
+      )
     : filteredEntries;
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedEntries(filteredEntries.map((entry) => entry._id));
+      setSelectedEntries(filteredEntries.map((journal) => journal._id));
     } else {
       setSelectedEntries([]);
     }
   };
 
-  const handleSelectEntry = (entryId: string, checked: boolean) => {
+  const handleSelectEntry = (journalId: string, checked: boolean) => {
     if (checked) {
-      setSelectedEntries((prev) => [...prev, entryId]);
+      setSelectedEntries((prev) => [...prev, journalId]);
     } else {
-      setSelectedEntries((prev) => prev.filter((id) => id !== entryId));
+      setSelectedEntries((prev) => prev.filter((id) => id !== journalId));
     }
   };
 
@@ -224,7 +228,7 @@ export default function EntrysPage() {
     <PartialWidthPageContainer className="flex flex-col">
       {" "}
       {/* Wrap the entire content in PageWrapper */}
-      <h1 className="text-3xl font-bold mb-6">Your Entries</h1>
+      <h1 className="text-3xl font-bold mb-6">Your Journals</h1>
       <div className="flex space-x-2 mb-4 items-center">
         <Checkbox
           id="select-all"
@@ -290,24 +294,29 @@ export default function EntrysPage() {
       >
         {dateFilteredEntries.length === 0 ? ( // Use dateFilteredEntries for rendering
           <div>
-            <p>No entries found.</p>
-            <Link href="/entry/write" className="text-blue-500 hover:underline">
-              Create an entry
+            <p>No journals found.</p>
+            <Link
+              href="/journal/write"
+              className="text-blue-500 hover:underline"
+            >
+              Create an journal
             </Link>
           </div>
         ) : (
-          dateFilteredEntries.map((entry, index) => (
+          dateFilteredEntries.map((journal, index) => (
             <Card
               key={index}
-              className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${selectedEntries.includes(entry._id) ? 'bg-green-200' : ''}`} // Reset background color for selected entries
+              className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
+                selectedEntries.includes(journal._id) ? "bg-green-200" : ""
+              }`} // Reset background color for selected journals
             >
               <div className="flex flex-col flex-grow">
                 <CardHeader>
                   <div className="flex justify-between items-center">
                     <CardTitle className="wrap text-wrap overflow-wrap">
-                      {entry.title.length > 30
-                        ? `${entry.title.substring(0, 30)}...`
-                        : entry.title}
+                      {journal.title.length > 30
+                        ? `${journal.title.substring(0, 30)}...`
+                        : journal.title}
                     </CardTitle>
                     <div className="relative p-0 m-0">
                       {index === 0 && showHelperText && (
@@ -318,7 +327,7 @@ export default function EntrysPage() {
                         >
                           <strong className="font-bold">Tip! </strong>
                           <span className="block sm:inline">
-                            Click the book icon to read your entry!
+                            Click the book icon to read your journal!
                           </span>
                           <button
                             onClick={handleCloseHelper}
@@ -334,9 +343,9 @@ export default function EntrysPage() {
                         onClick={() => {
                           localStorageService.setItem(
                             "selectedEntry",
-                            entry._id
+                            journal._id
                           );
-                          router.push(`/entry/${entry._id}`);
+                          router.push(`/journal/${journal._id}`);
                         }}
                       />
                     </div>
@@ -345,8 +354,8 @@ export default function EntrysPage() {
                 <CardContent>{/* ... existing CardContent ... */}</CardContent>
                 <CardFooter className="mt-auto flex justify-between items-end">
                   <div className="flex flex-col">
-                    <p>{entry.category}</p>
-                    <p className="text-sm text-gray-500">{entry.date}</p>
+                    <p>{journal.category}</p>
+                    <p className="text-sm text-gray-500">{journal.date}</p>
                     {showSentiment && (
                       <div className="flex items-center text-sm mt-1">
                         <span className="mr-2">Sentiment:</span>
@@ -356,7 +365,7 @@ export default function EntrysPage() {
                             width: "10px",
                             height: "10px",
                             backgroundColor: getSentimentColor(
-                              analyzeSentiment(entry.entry).score
+                              analyzeSentiment(journal.journal).score
                             ),
                           }}
                         ></div>
@@ -364,18 +373,18 @@ export default function EntrysPage() {
                     )}
                   </div>
                   <div className="flex items-center">
-                    {loadingEntryId === entry._id ? (
+                    {loadingEntryId === journal._id ? (
                       <Spinner size="sm" />
                     ) : (
                       <>
                         <StarIcon
-                          filled={entry.favorite}
-                          onClick={() => handleFavorite(entry._id)}
+                          filled={journal.favorite}
+                          onClick={() => handleFavorite(journal._id)}
                           className="mr-2"
                         />
                         <Trash2
                           className="w-5 h-5 text-red-500 cursor-pointer"
-                          onClick={() => openDeleteModal(entry._id)} // Open GlobalModal on click
+                          onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
                         />
                       </>
                     )}

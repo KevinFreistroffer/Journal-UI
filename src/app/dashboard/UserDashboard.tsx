@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { IEntry } from "@/lib/interfaces";
+import { IJournal } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ConstructionIcon, StarIcon } from "lucide-react";
@@ -43,11 +43,11 @@ ChartJS.register(
   ChartLegend
 );
 
-export interface IFrontEndEntry extends IEntry {
+export interface IFrontEndEntry extends IJournal {
   // Add any additional properties specific to the frontend representation
-  // For example, you might want to include a formatted date or a flag for upcoming entries
+  // For example, you might want to include a formatted date or a flag for upcoming journals
   formattedDate?: string; // Optional formatted date string for display
-  isUpcoming?: boolean; // Flag to indicate if the entry is upcoming
+  isUpcoming?: boolean; // Flag to indicate if the journal is upcoming
 }
 
 const formatTime = (hour: string) => {
@@ -59,7 +59,7 @@ const formatTime = (hour: string) => {
 
 function UserDashboard() {
   const { user, isLoading } = useAuth();
-  const [totalEntrys, setTotalEntrys] = useState(user?.entries?.length || 0);
+  const [totalEntrys, setTotalEntrys] = useState(user?.journals?.length || 0);
   const [categoryData, setCategoryData] = useState<
     { title: string; value: number; color: string }[]
   >([]);
@@ -81,7 +81,7 @@ function UserDashboard() {
     upcomingEntriesCard: false,
     favoriteEntrysCard: false,
     keywordFrequencyCard: false,
-    entryTimeCard: false,
+    journalTimeCard: false,
   });
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -92,14 +92,14 @@ function UserDashboard() {
   const [selectedKeywordType, setSelectedKeywordType] = useState<
     "nouns" | "verbs" | "adjectives" | "terms"
   >("nouns"); // New state for dropdown selection
-  const entries = user?.entries;
+  const journals = user?.journals;
   const [isLoadingKeywordFrequency, setIsLoadingKeywordFrequency] =
     useState(false); // New loading state
   const [isSelectOpen, setIsSelectOpen] = useState(false); // New state for managing open state
   const [showEntryTimeCard, setShowEntryTimeCard] = useState(false);
-  const [entryTimeData, setEntryTimeData] = useState<{ [key: string]: number }>(
-    {}
-  );
+  const [journalTimeData, setEntryTimeData] = useState<{
+    [key: string]: number;
+  }>({});
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -124,7 +124,9 @@ function UserDashboard() {
     if (user) {
       setIsLoadingKeywordFrequency(true); // Start loading
       const allEntriesText =
-        entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+        journals
+          ?.map(({ title, journal }) => title + " " + journal)
+          .join(" ") || "";
 
       const frequencyData = getFrequentKeywords(
         allEntriesText,
@@ -134,13 +136,14 @@ function UserDashboard() {
       // setKeywordFrequency(frequencyData);
       setIsLoadingKeywordFrequency(false); // End loading
     }
-  }, [entries, user, selectedKeywordType]);
+  }, [journals, user, selectedKeywordType]);
 
   useEffect(() => {
     console.log("selectedKeywordType", selectedKeywordType);
 
     const allEntriesText =
-      entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+      journals?.map(({ title, journal }) => title + " " + journal).join(" ") ||
+      "";
 
     console.log("allEntriesText", allEntriesText);
 
@@ -162,7 +165,7 @@ function UserDashboard() {
       setKeywordFrequency(termsFrequency);
     }
     setIsLoadingKeywordFrequency(false);
-  }, [selectedKeywordType, entries]);
+  }, [selectedKeywordType, journals]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -177,10 +180,10 @@ function UserDashboard() {
 
   useEffect(() => {
     if (user) {
-      setTotalEntrys(entries?.length || 0);
+      setTotalEntrys(journals?.length || 0);
 
       // Calculate category breakdown
-      const categories = user?.entryCategories.reduce((acc, category) => {
+      const categories = user?.journalCategories.reduce((acc, category) => {
         acc[category.category] = (acc[category.category] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -205,13 +208,11 @@ function UserDashboard() {
         );
 
         setCategoryData(
-          Object.entries(categories).map(([title, value]) => {
-            return {
-              title,
-              value,
-              color: getRandomColor(),
-            };
-          })
+          Object.entries(categories).map(([title, value]) => ({
+            title,
+            value: Number(value), // Convert value to number
+            color: getRandomColor(), // Assuming this function exists
+          }))
         );
 
         const data: ICategoryBreakdown[] = categoryData.map(
@@ -226,19 +227,23 @@ function UserDashboard() {
         setData(data);
       }
 
-      // Get recent entries (last 5 for example)
-      setRecentEntries(entries?.slice(-5).reverse() || []);
+      // Get recent journals (last 5 for example)
+      setRecentEntries(journals?.slice(-5).reverse() || []);
 
-      // Get upcoming entries (assuming you have a date field)
+      // Get upcoming journals (assuming you have a date field)
       const today = new Date();
       setUpcomingEntries(
-        entries?.filter((entrie) => new Date(entrie.date) > today) || []
+        journals?.filter(
+          (journal: IJournal) => new Date(journal.date) > today
+        ) || []
       );
 
-      // Get favorite entries
-      setFavoriteEntries(entries?.filter((entry) => entry.favorite) || []);
+      // Get favorite journals
+      setFavoriteEntries(
+        journals?.filter((journal: IJournal) => journal.favorite) || []
+      );
     }
-  }, [user, entries]);
+  }, [user, journals]);
 
   useEffect(() => {
     const fetchLocalStorageValues = () => {
@@ -309,7 +314,7 @@ function UserDashboard() {
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
-        entryTimeCard: true,
+        journalTimeCard: true,
       }));
     };
 
@@ -317,10 +322,10 @@ function UserDashboard() {
   }, []);
 
   useEffect(() => {
-    if (user && entries) {
+    if (user && journals) {
       const timeData: { [key: string]: number } = {};
-      entries.forEach((entry) => {
-        const hour = new Date(entry.createdAt as Date).getHours();
+      journals.forEach((journal) => {
+        const hour = new Date(journal.createdAt as Date).getHours();
         console.log("hour", hour);
         const timeSlot = `${hour.toString().padStart(2, "0")}:00`;
         console.log("timeSlot", timeSlot);
@@ -328,7 +333,7 @@ function UserDashboard() {
       });
       setEntryTimeData(timeData);
     }
-  }, [user, entries]);
+  }, [user, journals]);
 
   if (isLoading) {
     return <div className="p-6 min-h-screen">Loading...</div>; // Add your spinner or loading state here
@@ -384,10 +389,10 @@ function UserDashboard() {
                 <div className="w-full mb-2 p-2">
                   <Card className="h-full p-4 flex w-full items-center justify-between">
                     <h2 className="text-xl font-semibold">
-                      Total Number of entries: {totalEntrys}
+                      Total Number of journals: {totalEntrys}
                     </h2>
                     <Link
-                      href="/entries"
+                      href="/journals"
                       className="text-sm self-center text-grey-500 font-black"
                     >
                       View
@@ -437,10 +442,10 @@ function UserDashboard() {
                   <Card className="h-full p-4">
                     <h2 className="text-xl font-semibold">Recent Activity</h2>
                     <ul>
-                      {recentEntries.map((entry, index) => (
+                      {recentEntries.map((journal, index) => (
                         <li key={index} className="border-b py-2">
-                          <span className="font-bold">{entry.title}</span> -{" "}
-                          {formatDate(entry.date)}
+                          <span className="font-bold">{journal.title}</span> -{" "}
+                          {formatDate(journal.date)}
                         </li>
                       ))}
                     </ul>
@@ -461,14 +466,14 @@ function UserDashboard() {
                     </h2>
                     <ul>
                       {upcomingEntries.length > 0 ? (
-                        upcomingEntries.map((entry, index) => (
+                        upcomingEntries.map((journal, index) => (
                           <li key={index} className="border-b py-2">
-                            <span className="font-bold">{entry.title}</span> -{" "}
-                            {formatDate(entry.date)}
+                            <span className="font-bold">{journal.title}</span> -{" "}
+                            {formatDate(journal.date)}
                           </li>
                         ))
                       ) : (
-                        <p>No upcoming entries.</p>
+                        <p>No upcoming journals.</p>
                       )}
                     </ul>
                   </Card>
@@ -488,7 +493,7 @@ function UserDashboard() {
                         Favorite Entries
                       </h2>
                       <Link
-                        href="/entries/favorites"
+                        href="/journals/favorites"
                         className="text-sm self-center text-grey-500 font-black"
                       >
                         Manage
@@ -496,25 +501,27 @@ function UserDashboard() {
                     </div>
                     {favoriteEntries.length > 0 ? (
                       <ul className="space-y-2">
-                        {favoriteEntries.map((entry, index) => (
+                        {favoriteEntries.map((journal, index) => (
                           <li
                             key={index}
                             className="flex items-center space-x-2 border-b py-2"
                           >
                             <StarIcon className="w-4 h-4 text-yellow-400" />
                             <Link
-                              href={`/entry/${entry._id}`}
+                              href={`/journal/${journal._id}`}
                               onClick={() => {
                                 localStorageService.setItem(
                                   "selectedEntry",
-                                  entry
+                                  journal
                                 );
                               }}
                               className="flex-grow hover:underline"
                             >
-                              <span className="font-medium">{entry.title}</span>
+                              <span className="font-medium">
+                                {journal.title}
+                              </span>
                               <span className="text-sm text-gray-500 ml-2">
-                                - {formatDate(entry.date)}
+                                - {formatDate(journal.date)}
                               </span>
                             </Link>
                           </li>
@@ -522,7 +529,7 @@ function UserDashboard() {
                       </ul>
                     ) : (
                       <p className="text-center text-gray-500">
-                        No favorite entries yet.
+                        No favorite journals yet.
                       </p>
                     )}
                   </Card>
@@ -595,7 +602,7 @@ function UserDashboard() {
             )}
 
             {/* Entry Time Card */}
-            {!localStorageValuesFetched.entryTimeCard ? (
+            {!localStorageValuesFetched.journalTimeCard ? (
               <PlaceholderCard />
             ) : (
               showEntryTimeCard && (
@@ -606,13 +613,13 @@ function UserDashboard() {
                     </h2>
                     <Bar
                       data={{
-                        labels: Object.keys(entryTimeData)
+                        labels: Object.keys(journalTimeData)
                           .sort((a, b) => parseInt(a) - parseInt(b))
                           .map((hour) => formatTime(hour)),
                         datasets: [
                           {
                             label: "Number of Entries",
-                            data: Object.values(entryTimeData),
+                            data: Object.values(journalTimeData),
                             backgroundColor: "rgba(75, 192, 192, 0.6)",
                           },
                         ],

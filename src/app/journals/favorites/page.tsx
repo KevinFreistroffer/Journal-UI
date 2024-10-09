@@ -1,6 +1,6 @@
 "use client";
 
-import { IEntry } from "@/lib/interfaces";
+import { IJournal } from "@/lib/interfaces";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Spinner } from "@/components/ui/spinner";
@@ -15,14 +15,14 @@ import { useRouter } from "next/navigation";
 import { PartialWidthPageContainer } from "@/components/ui/PartialWidthPageContainer";
 
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState<IEntry[]>([]);
+  const [favorites, setFavorites] = useState<IJournal[]>([]);
   const [selectedJournals, setSelectedJournals] = useState<string[]>([]);
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (user) {
-      setFavorites(user.entries.filter((entry) => entry.favorite));
+      setFavorites(user.journals.filter((journal) => journal.favorite));
     }
   }, [user]);
 
@@ -35,14 +35,14 @@ export default function FavoritesPage() {
   };
 
   const handleUnfavorite = async () => {
-    //     const updatedEntries = user?.entries.map((entry) => {
-    //       if (selectedJournals.includes(entry._id)) {
-    //         return { ...entry, favorite: false };
+    //     const updatedEntries = user?.journals.map((journal) => {
+    //       if (selectedJournals.includes(journal._id)) {
+    //         return { ...journal, favorite: false };
     //       }
-    //       return entry;
+    //       return journal;
     //     });
     //     if (updatedEntries) {
-    //       await updateUser(user.uid, { entries: updatedEntries });
+    //       await updateUser(user.uid, { journals: updatedEntries });
     //     }
     //   };
     //
@@ -56,8 +56,8 @@ export default function FavoritesPage() {
     }
   };
 
-  const handleJournalClick = (entryId: string) => {
-    router.push(`/entry/${entryId}`);
+  const handleJournalClick = (journalId: string) => {
+    router.push(`/journal/${journalId}`);
   };
 
   return (

@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntry } from "@/hooks/useEntry";
-import { IEntry, ICategory } from "@/lib/interfaces";
+import { IJournal, ICategory } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -46,12 +46,12 @@ const createEntryInitialState: ICreateEntryState = {
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedEntry } = useEntry();
-  const [entries, setEntries] = useState<IEntry[]>([]);
+  const [journals, setEntries] = useState<IJournal[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
-  const [entry, setEntry] = useState("");
+  const [journal, setEntry] = useState("");
   const [favorite, setFavorite] = useState<boolean>(false); // State for favorite checkbox
   const [isSaving, setIsSaving] = useState(false);
   const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
@@ -70,8 +70,8 @@ function WritePage() {
   const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
   const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [totalWords, setTotalWords] = useState(0); // State for total words in current entry
-  const [averageWords, setAverageWords] = useState(0); // State for average words across all entries
+  const [totalWords, setTotalWords] = useState(0); // State for total words in current journal
+  const [averageWords, setAverageWords] = useState(0); // State for average words across all journals
   const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
   const [categoryExists, setCategoryExists] = useState(false); // State to track if the category already exists
 
@@ -153,8 +153,8 @@ function WritePage() {
 
           console.log("created category data", body);
           setUser(body.data);
-          setEntries(body.data.entries);
-          setCategories(body.data.entryCategories);
+          setEntries(body.data.journals);
+          setCategories(body.data.journalCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
           setIsCategoryCreated(true); // Set category created state
@@ -188,20 +188,22 @@ function WritePage() {
   }, [isSidebarOpen]);
 
   useEffect(() => {
-    const savedEntry = localStorageService.getItem<IEntry>("selectedEntry");
+    const savedEntry = localStorageService.getItem<IJournal>("selectedEntry");
     if (savedEntry) {
       setSelectedEntry(savedEntry);
     }
   }, [setSelectedEntry]);
 
   useEffect(() => {
-    if (user && user.entries) {
-      setEntries(user.entries);
-      setCategories(user.entryCategories);
+    if (user && user.journals) {
+      setEntries(user.journals);
+      setCategories(user.journalCategories);
 
-      const savedEntry = localStorageService.getItem<IEntry>("selectedEntry");
+      const savedEntry = localStorageService.getItem<IJournal>("selectedEntry");
       if (savedEntry) {
-        const updatedEntry = user.entries.find((j) => j._id === savedEntry._id);
+        const updatedEntry = user.journals.find(
+          (j) => j._id === savedEntry._id
+        );
         if (updatedEntry) {
           setSelectedEntry(updatedEntry);
           localStorageService.setItem("selectedEntry", updatedEntry);
@@ -224,22 +226,22 @@ function WritePage() {
   }, [newCategoryName, isCategoryCreated]);
 
   useEffect(() => {
-    // Calculate total words in the current entry
-    const wordCount = entry.trim().split(/\s+/).filter(Boolean).length;
+    // Calculate total words in the current journal
+    const wordCount = journal.trim().split(/\s+/).filter(Boolean).length;
     setTotalWords(wordCount);
 
-    // Calculate average words across all entries
-    if (entries.length > 0) {
-      const totalWordsInEntries = entries.reduce(
+    // Calculate average words across all journals
+    if (journals.length > 0) {
+      const totalWordsInEntries = journals.reduce(
         (acc, curr) =>
-          acc + curr.entry.trim().split(/\s+/).filter(Boolean).length,
+          acc + curr.journal.trim().split(/\s+/).filter(Boolean).length,
         0
       );
-      setAverageWords(Math.round(totalWordsInEntries / entries.length));
+      setAverageWords(Math.round(totalWordsInEntries / journals.length));
     } else {
       setAverageWords(0);
     }
-  }, [entry, entries]);
+  }, [journal, journals]);
 
   useEffect(() => {
     return () => {
@@ -298,14 +300,14 @@ function WritePage() {
         </Button>
         <div className="flex flex-col items-center">
           <Link
-            href="/entries"
+            href="/journals"
             className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
               isSidebarOpen ? "justify-start" : "justify-center"
             }`}
           >
             <List />
             {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Entries ({entries.length})</span>
+              <span className="ml-2">Journals ({journals.length})</span>
             )}
           </Link>
           <Link
@@ -328,7 +330,7 @@ function WritePage() {
           {/* Main form section */}
           {/* <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1> */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Create New Entry</h2>
+            <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
             <form action={createEntryAction} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
@@ -341,11 +343,11 @@ function WritePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="entry">Entry</Label>
+                <Label htmlFor="journal">Journal</Label>
                 <Textarea
-                  id="entry"
-                  name="entry"
-                  value={entry}
+                  id="journal"
+                  name="journal"
+                  value={journal}
                   onChange={(e) => setEntry(e.target.value)}
                   required
                 />
@@ -460,7 +462,7 @@ function WritePage() {
               </div>
               <div className="flex items-center">
                 <Label htmlFor="favorite" className="mr-2">
-                  Favorite this entry?
+                  Favorite this journal?
                 </Label>
                 <input
                   type="checkbox"
@@ -476,7 +478,7 @@ function WritePage() {
               <div className="flex items-center">
                 <Button
                   type="submit"
-                  disabled={isSaving || !title || !entry}
+                  disabled={isSaving || !title || !journal}
                   className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
                 >
                   {isSaving ? "Saving..." : "Create Journal"}
@@ -509,10 +511,10 @@ function WritePage() {
           {showMetrics && ( // Conditionally render metrics section
             <div className="bg-gray-100 p-4 rounded-md shadow-md flex-grow">
               <p className="text-sm">
-                <strong>Total Words in Current Entry:</strong> {totalWords}
+                <strong>Total Words in Current Journal:</strong> {totalWords}
               </p>
               <p className="text-sm">
-                <strong>Average Words Across All Entries:</strong>{" "}
+                <strong>Average Words Across All Journals:</strong>{" "}
                 {averageWords}
               </p>
             </div>

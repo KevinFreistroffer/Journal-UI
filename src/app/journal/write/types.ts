@@ -14,7 +14,7 @@ export interface ICreateEntryState {
   message: string;
   errors: {
     title?: string[];
-    entry?: string[];
+    journal?: string[];
     category?: string[];
     catchAll?: string[];
   };

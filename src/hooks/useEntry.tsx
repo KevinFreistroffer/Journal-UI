@@ -1,16 +1,16 @@
 "use client";
 
 import React, { createContext, useState, useContext, ReactNode } from "react";
-import { IEntry } from "@/lib/interfaces";
+import { IJournal } from "@/lib/interfaces";
 interface EntryStateType {
-  selectedEntry: IEntry | null;
-  setSelectedEntry: (entrie: IEntry | null) => void;
+  selectedEntry: IJournal | null;
+  setSelectedEntry: (journal: IJournal | null) => void;
 }
 
 const EntryState = createContext<EntryStateType | undefined>(undefined);
 
 export function EntryProvider({ children }: { children: ReactNode }) {
-  const [selectedEntry, setSelectedEntry] = useState<IEntry | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<IJournal | null>(null);
 
   return (
     <EntryState.Provider value={{ selectedEntry, setSelectedEntry }}>
