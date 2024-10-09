@@ -73,7 +73,7 @@ const CategoriesPage: React.FC = () => {
   // };
 
   return (
-    <div>
+    <div className="p-4 min-h-screen">
       <h1>Categories</h1>
       <ul>
         {categories.map(({ name }, index) => (

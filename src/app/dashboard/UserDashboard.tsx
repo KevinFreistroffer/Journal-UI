@@ -338,7 +338,7 @@ function UserDashboard() {
                       </h2>
                       <Link
                         href="/categories"
-                        className="text-sm self-center text-blue-500"
+                        className="text-sm self-center text-grey-500 font-black"
                       >
                         Manage
                       </Link>
