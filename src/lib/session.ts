@@ -1,7 +1,7 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { CLIENT_SESSION, API_AUTHORIZATION_TOKEN_NAME } from "@/lib/constants";
+import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
 const secretKey = process.env.SESSION_SECRET;
 console.log("secretKey", secretKey);
 const encodedKey = new TextEncoder().encode(secretKey?.toString());
@@ -68,5 +68,5 @@ export async function updateSession() {
 
 export function deleteSession() {
   cookies().delete(CLIENT_SESSION);
-  cookies().delete(API_AUTHORIZATION_TOKEN_NAME);
+  cookies().delete(SESSION_TOKEN);
 }
