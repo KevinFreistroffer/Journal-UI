@@ -14,6 +14,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import Legend from "@/app/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
+import * as Label from "@radix-ui/react-label";
 import {
   Select,
   SelectTrigger,
@@ -21,6 +22,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 export interface IFrontEndEntry extends IEntry {
   // Add any additional properties specific to the frontend representation
@@ -86,7 +88,7 @@ function UserDashboard() {
         15,
         selectedKeywordType
       );
-      setKeywordFrequency(frequencyData);
+      // setKeywordFrequency(frequencyData);
       setIsLoadingKeywordFrequency(false); // End loading
     }
   }, [entries, user, selectedKeywordType]);
@@ -304,7 +306,7 @@ function UserDashboard() {
           {" "}
           {/* Adjust width as needed */}
           {/* Dashboard Content */}
-          <div className="flex flex-col md:flex-row md:flex-wrap">
+          <div className="flex w-full flex-col md:flex-row md:flex-wrap">
             {/* Total Number of Entries */}
             {!localStorageValuesFetched.totalEntrysCard ? (
               <PlaceholderCard />
@@ -322,7 +324,7 @@ function UserDashboard() {
 
             {/* Category Breakdown */}
             {!localStorageValuesFetched.categoryBreakdownCard ? (
-              <PlaceholderCard />
+              <PlaceholderCard className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3" />
             ) : (
               showCategoryBreakdownCard && (
                 <div
@@ -439,39 +441,47 @@ function UserDashboard() {
               <PlaceholderCard />
             ) : (
               showKeywordFrequencyCard && (
-                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
-                  <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold mb-2">
+                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3 p-2">
+                  <Card className="h-full p-4 min-h-96">
+                    <h2 className="text-xl font-semibold mb-4">
                       Keyword Frequency
                     </h2>
-                    {/* Dropdown for selecting keyword type */}
+                    {/* Replace Select with Radio Buttons in a single row */}
 
-                    <Select
-                      value={selectedKeywordType}
-                      onValueChange={handleValueChange} // Use the new handler
-                      open={isSelectOpen} // Pass the open prop
-                      onOpenChange={setIsSelectOpen} // Manage open state
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
+                    <div className="flex flex-col mb-4">
+                      <Label.Root className="LabelRoot mb-2">
+                        Keyword type
+                      </Label.Root>
+                      <div className="flex">
                         {[
                           { value: "nouns", label: "Nouns" },
                           { value: "verbs", label: "Verbs" },
                           { value: "adjectives", label: "Adjectives" },
                           { value: "terms", label: "Terms" },
                         ].map(({ value, label }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
+                          <div key={value} className="flex items-center mr-4">
+                            <input
+                              type="radio"
+                              id={value}
+                              name="keywordType"
+                              value={value}
+                              checked={selectedKeywordType === value}
+                              onChange={() => handleValueChange(value)} // Use the existing handler
+                              className="mr-2"
+                            />
+                            <Label.Root
+                              htmlFor={value}
+                              className="cursor-pointer"
+                            >
+                              {label}
+                            </Label.Root>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    </div>
                     {isLoadingKeywordFrequency ? ( // Conditional rendering for loading spinner
-                      <div className="flex justify-center items-center">
-                        <div className="loader"></div>{" "}
-                        {/* Add your spinner here */}
+                      <div className="flex justify-center h-full items-center max-h-60  p-6 mt-3 ">
+                        <Spinner />
                       </div>
                     ) : (
                       <ul className="max-h-60 overflow-y-auto p-6 mt-3">
@@ -495,11 +505,10 @@ function UserDashboard() {
     </div>
   );
 }
-
 // Placeholder component
 function PlaceholderCard() {
   return (
-    <div className="w-full mb-6 p-2 md:w-1/2 xl:w-1/3">
+    <div className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3">
       <Card className="h-full p-4">
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">
