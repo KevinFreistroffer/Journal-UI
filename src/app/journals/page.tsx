@@ -374,7 +374,7 @@ export default function EntrysPage() {
                   </div>
                   <div className="flex items-center">
                     {loadingEntryId === journal._id ? (
-                      <Spinner size="sm" />
+                      <Spinner size="sm" className="mr-2" />
                     ) : (
                       <>
                         <StarIcon
@@ -382,12 +382,12 @@ export default function EntrysPage() {
                           onClick={() => handleFavorite(journal._id)}
                           className="mr-2"
                         />
-                        <Trash2
-                          className="w-5 h-5 text-red-500 cursor-pointer"
-                          onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
-                        />
                       </>
-                    )}
+                    )}{" "}
+                    <Trash2
+                      className="w-5 h-5 text-red-500 cursor-pointer"
+                      onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
+                    />
                   </div>
                 </CardFooter>
               </div>

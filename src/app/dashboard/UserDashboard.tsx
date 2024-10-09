@@ -393,7 +393,7 @@ function UserDashboard() {
                     </h2>
                     <Link
                       href="/journals"
-                      className="text-sm self-center text-grey-500 font-black"
+                      className="text-sm self-center text-blue-500 font-normal"
                     >
                       View
                     </Link>
@@ -420,7 +420,7 @@ function UserDashboard() {
                       </h2>
                       <Link
                         href="/categories"
-                        className="text-sm self-center text-grey-500 font-black"
+                        className="text-sm self-center text-blue-500 font-normal"
                       >
                         Manage
                       </Link>
@@ -454,7 +454,7 @@ function UserDashboard() {
               )
             )}
 
-            {/* Upcoming Entries/Reminders */}
+            {/* Upcoming Journals/Reminders */}
             {!localStorageValuesFetched.upcomingEntriesCard ? (
               <PlaceholderCard />
             ) : (
@@ -462,7 +462,7 @@ function UserDashboard() {
                 <div className="w-full mb-2 md:w-1/2 lg:w-1/3 p-2">
                   <Card className="h-full p-4">
                     <h2 className="text-xl font-semibold">
-                      Upcoming Entries/Reminders
+                      Upcoming Journals/Reminders
                     </h2>
                     <ul>
                       {upcomingEntries.length > 0 ? (
@@ -481,7 +481,7 @@ function UserDashboard() {
               )
             )}
 
-            {/* Favorite Entries */}
+            {/* Favorite Journals */}
             {!localStorageValuesFetched.favoriteEntrysCard ? (
               <PlaceholderCard />
             ) : (
@@ -490,11 +490,11 @@ function UserDashboard() {
                   <Card className="h-full p-4">
                     <div className="flex justify-between items-center">
                       <h2 className="text-xl font-semibold mb-4">
-                        Favorite Entries
+                        Favorite Journals
                       </h2>
                       <Link
                         href="/journals/favorites"
-                        className="text-sm self-center text-grey-500 font-black"
+                        className="text-sm self-center text-blue-500 font-normal"
                       >
                         Manage
                       </Link>
@@ -609,7 +609,7 @@ function UserDashboard() {
                 <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
                   <Card className="h-full p-4">
                     <h2 className="text-xl font-semibold mb-4">
-                      Entry Time Distribution
+                      Journal Time Distribution
                     </h2>
                     <Bar
                       data={{

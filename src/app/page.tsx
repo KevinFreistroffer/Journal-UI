@@ -1,9 +1,38 @@
 import CookieStatus from "@/components/ui/CookieStatus";
 import Image from "next/image";
+import PushNotificationManager from "@/components/ui/PWA/PushNotificationManager";
+import InstallPrompt from "@/components/ui/PWA/InstallPrompt";
+import {
+  subscribeUser,
+  unsubscribeUser,
+  sendNotification,
+} from "@/actions/pwa";
+
+export function urlBase64ToUint8Array(base64String: string) {
+  try {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  } catch (error) {
+    console.error("Error decoding base64 string:", error);
+    return new Uint8Array(0); // Return an empty array in case of error
+  }
+}
 
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <PushNotificationManager />
+      <InstallPrompt />
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"
