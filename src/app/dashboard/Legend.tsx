@@ -29,7 +29,27 @@ function LegendItem({
   );
 }
 
-const Legend = ({
+interface LegendProps {
+  isMobile: boolean;
+  isLegendOpen: boolean;
+  setIsLegendOpen: (isOpen: boolean) => void;
+  showTotalEntrysCard: boolean;
+  setShowTotalEntrysCard: (show: boolean) => void;
+  showCategoryBreakdownCard: boolean;
+  setShowCategoryBreakdownCard: (show: boolean) => void;
+  showRecentEntriesCard: boolean;
+  setShowRecentEntriesCard: (show: boolean) => void;
+  showUpcomingEntriesCard: boolean;
+  setShowUpcomingEntriesCard: (show: boolean) => void;
+  showFavoriteEntrysCard: boolean;
+  setShowFavoriteEntrysCard: (show: boolean) => void;
+  showKeywordFrequencyCard: boolean;
+  setShowKeywordFrequencyCard: (show: boolean) => void;
+  showEntryTimeCard: boolean;
+  setShowEntryTimeCard: (show: boolean) => void;
+}
+
+const Legend: React.FC<LegendProps> = ({
   isMobile,
   isLegendOpen,
   setIsLegendOpen,
@@ -37,34 +57,16 @@ const Legend = ({
   setShowTotalEntrysCard,
   showCategoryBreakdownCard,
   setShowCategoryBreakdownCard,
-  showKeywordFrequencyCard,
-  setShowKeywordFrequencyCard,
   showRecentEntriesCard,
   setShowRecentEntriesCard,
   showUpcomingEntriesCard,
   setShowUpcomingEntriesCard,
   showFavoriteEntrysCard,
   setShowFavoriteEntrysCard,
+  showKeywordFrequencyCard,
+  setShowKeywordFrequencyCard,
   showEntryTimeCard,
   setShowEntryTimeCard,
-}: {
-  isMobile: boolean;
-  isLegendOpen: boolean;
-  setIsLegendOpen: (isLegendOpen: boolean) => void;
-  showTotalEntrysCard: boolean;
-  setShowTotalEntrysCard: (showTotalEntrysCard: boolean) => void;
-  showCategoryBreakdownCard: boolean;
-  setShowCategoryBreakdownCard: (showCategoryBreakdownCard: boolean) => void;
-  showRecentEntriesCard: boolean;
-  setShowRecentEntriesCard: (showRecentEntriesCard: boolean) => void;
-  showUpcomingEntriesCard: boolean;
-  setShowUpcomingEntriesCard: (showUpcomingEntriesCard: boolean) => void;
-  showFavoriteEntrysCard: boolean;
-  setShowFavoriteEntrysCard: (showFavoriteEntrysCard: boolean) => void;
-  showKeywordFrequencyCard: boolean;
-  setShowKeywordFrequencyCard: (showKeywordFrequencyCard: boolean) => void;
-  showEntryTimeCard: boolean;
-  setShowEntryTimeCard: (showEntryTimeCard: boolean) => void;
 }) => {
   return isMobile ? (
     <div className="relative mb-4 md:mb-0">
@@ -295,6 +297,22 @@ const Legend = ({
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
             Keyword Frequency
+          </label>
+        </div>
+        <div className="mr-4 mb-2 w-full">
+          <label htmlFor="entryTimeCard" className="flex items-center text-sm">
+            <input
+              type="checkbox"
+              id="entryTimeCard"
+              checked={showEntryTimeCard}
+              onChange={() => {
+                const newValue = !showEntryTimeCard;
+                setShowEntryTimeCard(newValue);
+                localStorageService.setItem("showEntryTimeCard", newValue);
+              }}
+              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+            />
+            Entry Time
           </label>
         </div>
       </div>

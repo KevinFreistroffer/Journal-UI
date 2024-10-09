@@ -351,8 +351,8 @@ function UserDashboard() {
             setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
             showFavoriteEntrysCard={showFavoriteEntrysCard}
             setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
-            showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
-            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
+            showKeywordFrequencyCard={showKeywordFrequencyCard}
+            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
             showEntryTimeCard={showEntryTimeCard}
             setShowEntryTimeCard={setShowEntryTimeCard}
           />
