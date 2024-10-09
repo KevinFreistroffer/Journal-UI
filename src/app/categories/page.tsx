@@ -9,7 +9,7 @@ const CategoriesPage: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      setCategories(user.entryCategories);
+      setCategories(user.journalCategories);
     }
   }, [user]);
 
@@ -50,8 +50,8 @@ const CategoriesPage: React.FC = () => {
   //         setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
   //       } else {
   //         setUser(body.data);
-  //         setEntrys(body.data.entries);
-  //         setCategories(body.data.entryCategories);
+  //         setEntrys(body.data.journals);
+  //         setCategories(body.data.journalCategories);
   //         setNewCategoryName("");
   //         setShowCreatedCategorySuccessIcon(true); // Show success icon
   //         setIsCategoryCreated(true); // Set category created state
@@ -73,7 +73,7 @@ const CategoriesPage: React.FC = () => {
   // };
 
   return (
-    <div>
+    <div className="p-4 min-h-screen">
       <h1>Categories</h1>
       <ul>
         {categories.map(({ name }, index) => (

@@ -23,7 +23,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Entries",
+  title: "Journals",
   description: "Entrie your life",
 };
 

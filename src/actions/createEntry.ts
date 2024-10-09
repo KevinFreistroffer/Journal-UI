@@ -5,14 +5,14 @@ import { cookies } from "next/headers";
 import {
   CreateEntryFunction,
   ICreateEntryState,
-} from "@/app/entry/write/types";
+} from "@/app/journal/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 
 const CreateEntrySchema = z.object({
   title: z.string(),
-  entry: z.string(),
+  journal: z.string(),
   category: z.string(),
   favorite: z.boolean().optional(),
 });
@@ -26,7 +26,7 @@ export const createEntry: CreateEntryFunction = async (
   // Validate form data
   const validatedFields = CreateEntrySchema.safeParse({
     title: formData.get("title"),
-    entry: formData.get("entry"),
+    journal: formData.get("journal"),
     category: formData.get("category"),
     favorite: formData.has("favorite")
       ? formData.get("favorite") === "true"
@@ -40,16 +40,16 @@ export const createEntry: CreateEntryFunction = async (
       redirect: null,
       user: null,
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Invalid entry.",
+      message: "Invalid journal.",
       success: false,
       isVerified: false,
     };
   }
 
-  const { title, entry, category, favorite } = validatedFields.data;
+  const { title, journal, category, favorite } = validatedFields.data;
 
   try {
-    const response = await fetch("http://localhost:3001/user/entry/create", {
+    const response = await fetch("http://localhost:3001/user/journal/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export const createEntry: CreateEntryFunction = async (
       body: JSON.stringify({
         userId,
         title,
-        entry,
+        journal,
         category,
         favorite,
       }),
@@ -71,7 +71,7 @@ export const createEntry: CreateEntryFunction = async (
       const errorData = await response.json();
       return {
         errors: {},
-        message: errorData.message || "Failed to create entry.",
+        message: errorData.message || "Failed to create journal.",
         success: false,
         user: null,
       };
@@ -86,7 +86,7 @@ export const createEntry: CreateEntryFunction = async (
       );
       return {
         errors: {},
-        message: "Failed to create entry. Please try again.",
+        message: "Failed to create journal. Please try again.",
         success: false,
         user: null,
         isVerified: false,
@@ -99,7 +99,7 @@ export const createEntry: CreateEntryFunction = async (
       return {
         errors: {},
         user: userData,
-        message: "Entry created successfully.",
+        message: "Journal created successfully.",
         success: true,
         isVerified: false,
       };
@@ -139,7 +139,7 @@ export const createEntry: CreateEntryFunction = async (
 
     return {
       errors: {},
-      message: "Entry created successfully.",
+      message: "Journal created successfully.",
       redirect: "/dashboard",
       user: userData, // TODO: Not sure if this is the best way to do this.
       success: true,
@@ -151,7 +151,7 @@ export const createEntry: CreateEntryFunction = async (
       redirect: null,
       user: null,
       errors: prevState.errors ?? {},
-      message: "Server Error: Failed to create entry.",
+      message: "Server Error: Failed to create journal.",
       success: false,
       isVerified: false,
     };

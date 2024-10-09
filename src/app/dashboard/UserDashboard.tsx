@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { IEntry } from "@/lib/interfaces";
+import { IJournal } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ConstructionIcon, StarIcon } from "lucide-react";
@@ -14,6 +14,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import Legend from "@/app/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
+import * as Label from "@radix-ui/react-label";
 import {
   Select,
   SelectTrigger,
@@ -21,17 +22,44 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend as ChartLegend,
+} from "chart.js";
 
-export interface IFrontEndEntry extends IEntry {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  ChartLegend
+);
+
+export interface IFrontEndEntry extends IJournal {
   // Add any additional properties specific to the frontend representation
-  // For example, you might want to include a formatted date or a flag for upcoming entries
+  // For example, you might want to include a formatted date or a flag for upcoming journals
   formattedDate?: string; // Optional formatted date string for display
-  isUpcoming?: boolean; // Flag to indicate if the entry is upcoming
+  isUpcoming?: boolean; // Flag to indicate if the journal is upcoming
 }
+
+const formatTime = (hour: string) => {
+  const hourNum = parseInt(hour);
+  if (hourNum === 0) return "12 AM";
+  if (hourNum === 12) return "12 PM";
+  return hourNum > 12 ? `${hourNum - 12} PM` : `${hourNum} AM`;
+};
 
 function UserDashboard() {
   const { user, isLoading } = useAuth();
-  const [totalEntrys, setTotalEntrys] = useState(user?.entries?.length || 0);
+  const [totalEntrys, setTotalEntrys] = useState(user?.journals?.length || 0);
   const [categoryData, setCategoryData] = useState<
     { title: string; value: number; color: string }[]
   >([]);
@@ -53,6 +81,7 @@ function UserDashboard() {
     upcomingEntriesCard: false,
     favoriteEntrysCard: false,
     keywordFrequencyCard: false,
+    journalTimeCard: false,
   });
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -63,10 +92,26 @@ function UserDashboard() {
   const [selectedKeywordType, setSelectedKeywordType] = useState<
     "nouns" | "verbs" | "adjectives" | "terms"
   >("nouns"); // New state for dropdown selection
-  const entries = user?.entries;
+  const journals = user?.journals;
   const [isLoadingKeywordFrequency, setIsLoadingKeywordFrequency] =
     useState(false); // New loading state
   const [isSelectOpen, setIsSelectOpen] = useState(false); // New state for managing open state
+  const [showEntryTimeCard, setShowEntryTimeCard] = useState(false);
+  const [journalTimeData, setEntryTimeData] = useState<{
+    [key: string]: number;
+  }>({});
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -79,23 +124,26 @@ function UserDashboard() {
     if (user) {
       setIsLoadingKeywordFrequency(true); // Start loading
       const allEntriesText =
-        entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+        journals
+          ?.map(({ title, journal }) => title + " " + journal)
+          .join(" ") || "";
 
       const frequencyData = getFrequentKeywords(
         allEntriesText,
         15,
         selectedKeywordType
       );
-      setKeywordFrequency(frequencyData);
+      // setKeywordFrequency(frequencyData);
       setIsLoadingKeywordFrequency(false); // End loading
     }
-  }, [entries, user, selectedKeywordType]);
+  }, [journals, user, selectedKeywordType]);
 
   useEffect(() => {
     console.log("selectedKeywordType", selectedKeywordType);
 
     const allEntriesText =
-      entries?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+      journals?.map(({ title, journal }) => title + " " + journal).join(" ") ||
+      "";
 
     console.log("allEntriesText", allEntriesText);
 
@@ -117,7 +165,7 @@ function UserDashboard() {
       setKeywordFrequency(termsFrequency);
     }
     setIsLoadingKeywordFrequency(false);
-  }, [selectedKeywordType, entries]);
+  }, [selectedKeywordType, journals]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -132,10 +180,10 @@ function UserDashboard() {
 
   useEffect(() => {
     if (user) {
-      setTotalEntrys(entries?.length || 0);
+      setTotalEntrys(journals?.length || 0);
 
       // Calculate category breakdown
-      const categories = user?.entryCategories.reduce((acc, category) => {
+      const categories = user?.journalCategories.reduce((acc, category) => {
         acc[category.category] = (acc[category.category] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -160,13 +208,11 @@ function UserDashboard() {
         );
 
         setCategoryData(
-          Object.entries(categories).map(([title, value]) => {
-            return {
-              title,
-              value,
-              color: getRandomColor(),
-            };
-          })
+          Object.entries(categories).map(([title, value]) => ({
+            title,
+            value: Number(value), // Convert value to number
+            color: getRandomColor(), // Assuming this function exists
+          }))
         );
 
         const data: ICategoryBreakdown[] = categoryData.map(
@@ -181,19 +227,23 @@ function UserDashboard() {
         setData(data);
       }
 
-      // Get recent entries (last 5 for example)
-      setRecentEntries(entries?.slice(-5).reverse() || []);
+      // Get recent journals (last 5 for example)
+      setRecentEntries(journals?.slice(-5).reverse() || []);
 
-      // Get upcoming entries (assuming you have a date field)
+      // Get upcoming journals (assuming you have a date field)
       const today = new Date();
       setUpcomingEntries(
-        entries?.filter((entrie) => new Date(entrie.date) > today) || []
+        journals?.filter(
+          (journal: IJournal) => new Date(journal.date) > today
+        ) || []
       );
 
-      // Get favorite entries
-      setFavoriteEntries(entries?.filter((entry) => entry.favorite) || []);
+      // Get favorite journals
+      setFavoriteEntries(
+        journals?.filter((journal: IJournal) => journal.favorite) || []
+      );
     }
-  }, [user, entries]);
+  }, [user, journals]);
 
   useEffect(() => {
     const fetchLocalStorageValues = () => {
@@ -256,10 +306,34 @@ function UserDashboard() {
         ...prev,
         keywordFrequencyCard: true,
       }));
+
+      const showEntryTimeCard: boolean | null =
+        localStorageService.getItem<boolean>("showEntryTimeCard");
+      setShowEntryTimeCard(
+        showEntryTimeCard !== null ? showEntryTimeCard : true
+      );
+      setLocalStorageValuesFetched((prev) => ({
+        ...prev,
+        journalTimeCard: true,
+      }));
     };
 
     fetchLocalStorageValues();
   }, []);
+
+  useEffect(() => {
+    if (user && journals) {
+      const timeData: { [key: string]: number } = {};
+      journals.forEach((journal) => {
+        const hour = new Date(journal.createdAt as Date).getHours();
+        console.log("hour", hour);
+        const timeSlot = `${hour.toString().padStart(2, "0")}:00`;
+        console.log("timeSlot", timeSlot);
+        timeData[timeSlot] = (timeData[timeSlot] || 0) + 1;
+      });
+      setEntryTimeData(timeData);
+    }
+  }, [user, journals]);
 
   if (isLoading) {
     return <div className="p-6 min-h-screen">Loading...</div>; // Add your spinner or loading state here
@@ -294,8 +368,10 @@ function UserDashboard() {
             setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
             showFavoriteEntrysCard={showFavoriteEntrysCard}
             setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
-            showKeywordFrequencyCard={showKeywordFrequencyCard} // Added this line
-            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard} // Added this line
+            showKeywordFrequencyCard={showKeywordFrequencyCard}
+            setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
+            showEntryTimeCard={showEntryTimeCard}
+            setShowEntryTimeCard={setShowEntryTimeCard}
           />
         </Card>
 
@@ -304,17 +380,23 @@ function UserDashboard() {
           {" "}
           {/* Adjust width as needed */}
           {/* Dashboard Content */}
-          <div className="flex flex-col md:flex-row md:flex-wrap">
+          <div className="flex w-full flex-col md:flex-row md:flex-wrap">
             {/* Total Number of Entries */}
             {!localStorageValuesFetched.totalEntrysCard ? (
               <PlaceholderCard />
             ) : (
               showTotalEntrysCard && (
                 <div className="w-full mb-2 p-2">
-                  <Card className="h-full p-4 flex w-full items-center">
+                  <Card className="h-full p-4 flex w-full items-center justify-between">
                     <h2 className="text-xl font-semibold">
-                      Total Number of entries: {totalEntrys}
+                      Total Number of journals: {totalEntrys}
                     </h2>
+                    <Link
+                      href="/journals"
+                      className="text-sm self-center text-grey-500 font-black"
+                    >
+                      View
+                    </Link>
                   </Card>
                 </div>
               )
@@ -322,7 +404,7 @@ function UserDashboard() {
 
             {/* Category Breakdown */}
             {!localStorageValuesFetched.categoryBreakdownCard ? (
-              <PlaceholderCard />
+              <PlaceholderCard className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3" />
             ) : (
               showCategoryBreakdownCard && (
                 <div
@@ -338,7 +420,7 @@ function UserDashboard() {
                       </h2>
                       <Link
                         href="/categories"
-                        className="text-sm self-center text-blue-500"
+                        className="text-sm self-center text-grey-500 font-black"
                       >
                         Manage
                       </Link>
@@ -360,10 +442,10 @@ function UserDashboard() {
                   <Card className="h-full p-4">
                     <h2 className="text-xl font-semibold">Recent Activity</h2>
                     <ul>
-                      {recentEntries.map((entry, index) => (
+                      {recentEntries.map((journal, index) => (
                         <li key={index} className="border-b py-2">
-                          <span className="font-bold">{entry.title}</span> -{" "}
-                          {entry.date}
+                          <span className="font-bold">{journal.title}</span> -{" "}
+                          {formatDate(journal.date)}
                         </li>
                       ))}
                     </ul>
@@ -384,14 +466,14 @@ function UserDashboard() {
                     </h2>
                     <ul>
                       {upcomingEntries.length > 0 ? (
-                        upcomingEntries.map((entry, index) => (
+                        upcomingEntries.map((journal, index) => (
                           <li key={index} className="border-b py-2">
-                            <span className="font-bold">{entry.title}</span> -{" "}
-                            {entry.date}
+                            <span className="font-bold">{journal.title}</span> -{" "}
+                            {formatDate(journal.date)}
                           </li>
                         ))
                       ) : (
-                        <p>No upcoming entries.</p>
+                        <p>No upcoming journals.</p>
                       )}
                     </ul>
                   </Card>
@@ -406,27 +488,48 @@ function UserDashboard() {
               showFavoriteEntrysCard && (
                 <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
                   <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold mb-4">
-                      Favorite Entries
-                    </h2>
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl font-semibold mb-4">
+                        Favorite Entries
+                      </h2>
+                      <Link
+                        href="/journals/favorites"
+                        className="text-sm self-center text-grey-500 font-black"
+                      >
+                        Manage
+                      </Link>
+                    </div>
                     {favoriteEntries.length > 0 ? (
                       <ul className="space-y-2">
-                        {favoriteEntries.map((entry, index) => (
+                        {favoriteEntries.map((journal, index) => (
                           <li
                             key={index}
                             className="flex items-center space-x-2 border-b py-2"
                           >
                             <StarIcon className="w-4 h-4 text-yellow-400" />
-                            <span className="font-medium">{entry.title}</span>
-                            <span className="text-sm text-gray-500">
-                              - {entry.date}
-                            </span>
+                            <Link
+                              href={`/journal/${journal._id}`}
+                              onClick={() => {
+                                localStorageService.setItem(
+                                  "selectedEntry",
+                                  journal
+                                );
+                              }}
+                              className="flex-grow hover:underline"
+                            >
+                              <span className="font-medium">
+                                {journal.title}
+                              </span>
+                              <span className="text-sm text-gray-500 ml-2">
+                                - {formatDate(journal.date)}
+                              </span>
+                            </Link>
                           </li>
                         ))}
                       </ul>
                     ) : (
                       <p className="text-center text-gray-500">
-                        No favorite entries yet.
+                        No favorite journals yet.
                       </p>
                     )}
                   </Card>
@@ -439,39 +542,47 @@ function UserDashboard() {
               <PlaceholderCard />
             ) : (
               showKeywordFrequencyCard && (
-                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
-                  <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold mb-2">
+                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3 p-2">
+                  <Card className="h-full p-4 min-h-96">
+                    <h2 className="text-xl font-semibold mb-4">
                       Keyword Frequency
                     </h2>
-                    {/* Dropdown for selecting keyword type */}
+                    {/* Replace Select with Radio Buttons in a single row */}
 
-                    <Select
-                      value={selectedKeywordType}
-                      onValueChange={handleValueChange} // Use the new handler
-                      open={isSelectOpen} // Pass the open prop
-                      onOpenChange={setIsSelectOpen} // Manage open state
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
+                    <div className="flex flex-col mb-4">
+                      <Label.Root className="LabelRoot mb-2">
+                        Keyword type
+                      </Label.Root>
+                      <div className="flex">
                         {[
                           { value: "nouns", label: "Nouns" },
                           { value: "verbs", label: "Verbs" },
                           { value: "adjectives", label: "Adjectives" },
                           { value: "terms", label: "Terms" },
                         ].map(({ value, label }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
+                          <div key={value} className="flex items-center mr-4">
+                            <input
+                              type="radio"
+                              id={value}
+                              name="keywordType"
+                              value={value}
+                              checked={selectedKeywordType === value}
+                              onChange={() => handleValueChange(value)} // Use the existing handler
+                              className="mr-2"
+                            />
+                            <Label.Root
+                              htmlFor={value}
+                              className="cursor-pointer"
+                            >
+                              {label}
+                            </Label.Root>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    </div>
                     {isLoadingKeywordFrequency ? ( // Conditional rendering for loading spinner
-                      <div className="flex justify-center items-center">
-                        <div className="loader"></div>{" "}
-                        {/* Add your spinner here */}
+                      <div className="flex justify-center h-full items-center max-h-60  p-6 mt-3 ">
+                        <Spinner />
                       </div>
                     ) : (
                       <ul className="max-h-60 overflow-y-auto p-6 mt-3">
@@ -489,17 +600,67 @@ function UserDashboard() {
                 </div>
               )
             )}
+
+            {/* Entry Time Card */}
+            {!localStorageValuesFetched.journalTimeCard ? (
+              <PlaceholderCard />
+            ) : (
+              showEntryTimeCard && (
+                <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
+                  <Card className="h-full p-4">
+                    <h2 className="text-xl font-semibold mb-4">
+                      Entry Time Distribution
+                    </h2>
+                    <Bar
+                      data={{
+                        labels: Object.keys(journalTimeData)
+                          .sort((a, b) => parseInt(a) - parseInt(b))
+                          .map((hour) => formatTime(hour)),
+                        datasets: [
+                          {
+                            label: "Number of Entries",
+                            data: Object.values(journalTimeData),
+                            backgroundColor: "rgba(75, 192, 192, 0.6)",
+                          },
+                        ],
+                      }}
+                      options={{
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            title: {
+                              display: true,
+                              text: "Number of Entries",
+                            },
+                          },
+                          x: {
+                            title: {
+                              display: true,
+                              text: "Time of Day",
+                            },
+                          },
+                        },
+                        plugins: {
+                          legend: {
+                            display: false,
+                          },
+                        },
+                      }}
+                    />
+                  </Card>
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 // Placeholder component
 function PlaceholderCard() {
   return (
-    <div className="w-full mb-6 p-2 md:w-1/2 xl:w-1/3">
+    <div className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3">
       <Card className="h-full p-4">
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">

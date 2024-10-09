@@ -9,7 +9,7 @@ import { localStorageService } from "@/lib/services/localStorageService";
 import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/hooks/useAuth";
-import { IEntry } from "@/lib/interfaces";
+import { IJournal } from "@/lib/interfaces";
 
 export default function EntryPage() {
   const router = useRouter();
@@ -22,15 +22,15 @@ export default function EntryPage() {
   const id = searchParams.get("id");
 
   useEffect(() => {
-    const savedEntry = localStorageService.getItem<IEntry>("selectedEntry");
+    const savedEntry = localStorageService.getItem<IJournal>("selectedEntry");
 
     if (savedEntry) {
-      setSelectedEntry(savedEntry); // Set state with saved entry
+      setSelectedEntry(savedEntry); // Set state with saved journal
     } else {
-      const foundEntry = user?.entries.find((entry) => entry._id === id); // Changed variable name for clarity
+      const foundEntry = user?.journals.find((journal) => journal._id === id); // Changed variable name for clarity
 
       if (foundEntry) {
-        setSelectedEntry(foundEntry); // Set state with found entry
+        setSelectedEntry(foundEntry); // Set state with found journal
 
         localStorageService.setItem("selectedEntry", foundEntry);
       }
@@ -40,11 +40,11 @@ export default function EntryPage() {
   useEffect(() => {
     const handleSearchParamsChange = () => {
       console.log("handleSearchParamsChange", id);
-      const savedEntry = user?.entries.find((entry) => entry._id === id);
+      const savedEntry = user?.journals.find((journal) => journal._id === id);
 
       if (savedEntry) {
-        setSelectedEntry(savedEntry); // Set state with saved entry
-        localStorageService.setItem("selectedEntry", savedEntry); // Save entry to local storage
+        setSelectedEntry(savedEntry); // Set state with saved journal
+        localStorageService.setItem("selectedEntry", savedEntry); // Save journal to local storage
       }
     };
 
@@ -72,7 +72,7 @@ export default function EntryPage() {
               <CardTitle>{selectedEntry.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>{selectedEntry.entry}</p>
+              <p>{selectedEntry.journal}</p>
               <p className="text-sm text-gray-500 mt-2">
                 Category: {selectedEntry.category}
               </p>

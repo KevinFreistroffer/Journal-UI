@@ -12,20 +12,20 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getFrequentKeywords = (
-  entriesText: string,
+  journalsText: string,
   returnTopMost: number = 15,
   type: "nouns" | "verbs" | "adjectives" | "terms" = "nouns"
 ): IKeywordFrequency[] => {
   console.log("getFrequentKeywords", type);
   let res;
   if (type === "nouns") {
-    res = nlp(entriesText).nouns();
+    res = nlp(journalsText).nouns();
   } else if (type === "verbs") {
-    res = nlp(entriesText).verbs();
+    res = nlp(journalsText).verbs();
   } else if (type === "adjectives") {
-    res = nlp(entriesText).adjectives();
+    res = nlp(journalsText).adjectives();
   } else if (type === "terms") {
-    res = nlp(entriesText).terms();
+    res = nlp(journalsText).terms();
   }
 
   console.log("res", res);

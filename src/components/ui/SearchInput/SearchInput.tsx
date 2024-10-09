@@ -2,7 +2,7 @@ import React from "react";
 
 interface SearchInputProps {
   query: string;
-  handleSearch: (value: string, entries: any[]) => void; // Adjust the type as necessary
+  handleSearch: (value: string, journals: any[]) => void; // Adjust the type as necessary
   userEntries: any[]; // Adjust the type as necessary
   className?: string;
 }
@@ -26,7 +26,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         type="text"
         value={query}
         onChange={(e) => handleSearch(e.target.value, userEntries)}
-        placeholder="Search entries..."
+        placeholder="Search journals..."
         className={`border rounded p-2 pr-10 ${className}`} // Added padding to the right for the icon
       />
       <span

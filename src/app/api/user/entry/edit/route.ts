@@ -11,9 +11,9 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { userId, entryId, favorite } = body;
+    const { userId, journalId, favorite } = body;
 
-    const response = await fetch(`${process.env.API_URL}/user/entry/edit`, {
+    const response = await fetch(`${process.env.API_URL}/user/journal/edit`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ export async function PUT(req: Request) {
       },
       body: JSON.stringify({
         userId,
-        entryId,
+        journalId,
         favorite,
       }),
     });
@@ -30,7 +30,7 @@ export async function PUT(req: Request) {
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
-        { error: errorData.message || "Failed to delete entrie(s)" },
+        { error: errorData.message || "Failed to delete journal(s)" },
         { status: response.status }
       );
     }
@@ -39,7 +39,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error("Error deleting entrie(s):", error);
+    console.error("Error deleting journal(s):", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

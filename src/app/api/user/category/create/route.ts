@@ -26,7 +26,7 @@ export async function POST(
     }
 
     const response = await fetch(
-      `${process.env.API_URL}/user/entry/category/create?${
+      `${process.env.API_URL}/user/journal/category/create?${
         returnUser &&
         typeof returnUser === "string" &&
         ["true", "false"].includes(returnUser.toLowerCase())

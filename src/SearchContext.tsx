@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useState, useContext } from "react";
-import { IEntry } from "@/types/IEntry";
+import { IJournal } from "@/types/IJournal";
 
 export interface ISearchContext {
   query: string;
-  filteredEntries: IEntry[];
-  handleSearch: (searchQuery: string, entries: IEntry[]) => void;
-  setFilteredEntries: (entries: IEntry[]) => void;
+  filteredEntries: IJournal[];
+  handleSearch: (searchQuery: string, journals: IJournal[]) => void;
+  setFilteredEntries: (journals: IJournal[]) => void;
 }
 
 const SearchContext = createContext<ISearchContext>({
@@ -27,21 +27,21 @@ export function SearchProvider({
   children: React.ReactNode | React.ReactNode[];
 }) {
   const [query, setQuery] = useState("");
-  const [filteredEntries, setFilteredEntries] = useState<IEntry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<IJournal[]>([]);
 
-  const handleSearch = (searchQuery: string, entries: IEntry[]) => {
+  const handleSearch = (searchQuery: string, journals: IJournal[]) => {
     console.log("searchQuery", searchQuery);
     setQuery(searchQuery);
     if (searchQuery.trim()) {
-      const result = entries.filter(
-        (entry: IEntry) =>
-          entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          entry.entry.toLowerCase().includes(searchQuery.toLowerCase())
+      const result = journals.filter(
+        (journal: IJournal) =>
+          journal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          journal.journal.toLowerCase().includes(searchQuery.toLowerCase())
       );
       console.log("result", result);
       setFilteredEntries(result);
     } else {
-      setFilteredEntries(entries); // Reset if search is cleared
+      setFilteredEntries(journals); // Reset if search is cleared
     }
   };
 

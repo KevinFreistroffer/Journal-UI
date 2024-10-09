@@ -29,7 +29,27 @@ function LegendItem({
   );
 }
 
-const Legend = ({
+interface LegendProps {
+  isMobile: boolean;
+  isLegendOpen: boolean;
+  setIsLegendOpen: (isOpen: boolean) => void;
+  showTotalEntrysCard: boolean;
+  setShowTotalEntrysCard: (show: boolean) => void;
+  showCategoryBreakdownCard: boolean;
+  setShowCategoryBreakdownCard: (show: boolean) => void;
+  showRecentEntriesCard: boolean;
+  setShowRecentEntriesCard: (show: boolean) => void;
+  showUpcomingEntriesCard: boolean;
+  setShowUpcomingEntriesCard: (show: boolean) => void;
+  showFavoriteEntrysCard: boolean;
+  setShowFavoriteEntrysCard: (show: boolean) => void;
+  showKeywordFrequencyCard: boolean;
+  setShowKeywordFrequencyCard: (show: boolean) => void;
+  showEntryTimeCard: boolean;
+  setShowEntryTimeCard: (show: boolean) => void;
+}
+
+const Legend: React.FC<LegendProps> = ({
   isMobile,
   isLegendOpen,
   setIsLegendOpen,
@@ -37,30 +57,16 @@ const Legend = ({
   setShowTotalEntrysCard,
   showCategoryBreakdownCard,
   setShowCategoryBreakdownCard,
-  showKeywordFrequencyCard,
-  setShowKeywordFrequencyCard,
   showRecentEntriesCard,
   setShowRecentEntriesCard,
   showUpcomingEntriesCard,
   setShowUpcomingEntriesCard,
   showFavoriteEntrysCard,
   setShowFavoriteEntrysCard,
-}: {
-  isMobile: boolean;
-  isLegendOpen: boolean;
-  setIsLegendOpen: (isLegendOpen: boolean) => void;
-  showTotalEntrysCard: boolean;
-  setShowTotalEntrysCard: (showTotalEntrysCard: boolean) => void;
-  showCategoryBreakdownCard: boolean;
-  setShowCategoryBreakdownCard: (showCategoryBreakdownCard: boolean) => void;
-  showRecentEntriesCard: boolean;
-  setShowRecentEntriesCard: (showRecentEntriesCard: boolean) => void;
-  showUpcomingEntriesCard: boolean;
-  setShowUpcomingEntriesCard: (showUpcomingEntriesCard: boolean) => void;
-  showFavoriteEntrysCard: boolean;
-  setShowFavoriteEntrysCard: (showFavoriteEntrysCard: boolean) => void;
-  showKeywordFrequencyCard: boolean;
-  setShowKeywordFrequencyCard: (showKeywordFrequencyCard: boolean) => void;
+  showKeywordFrequencyCard,
+  setShowKeywordFrequencyCard,
+  showEntryTimeCard,
+  setShowEntryTimeCard,
 }) => {
   return isMobile ? (
     <div className="relative mb-4 md:mb-0">
@@ -78,7 +84,7 @@ const Legend = ({
             <div className="flex flex-col space-y-2">
               <LegendItem
                 id="totalEntrysCard"
-                label="Total Entries"
+                label="Total Journals"
                 checked={showTotalEntrysCard}
                 onChange={() => {
                   const newValue = !showTotalEntrysCard;
@@ -101,7 +107,7 @@ const Legend = ({
               />
               <LegendItem
                 id="recentEntriesCard"
-                label="Recent Entries"
+                label="Recent Journals"
                 checked={showRecentEntriesCard}
                 onChange={() => {
                   const newValue = !showRecentEntriesCard;
@@ -114,7 +120,7 @@ const Legend = ({
               />
               <LegendItem
                 id="upcomingEntriesCard"
-                label="Upcoming Entries"
+                label="Upcoming Journals"
                 checked={showUpcomingEntriesCard}
                 onChange={() => {
                   const newValue = !showUpcomingEntriesCard;
@@ -127,7 +133,7 @@ const Legend = ({
               />
               <LegendItem
                 id="favoriteEntrysCard"
-                label="Favorite Entries"
+                label="Favorite Journals"
                 checked={showFavoriteEntrysCard}
                 onChange={() => {
                   const newValue = !showFavoriteEntrysCard;
@@ -149,6 +155,16 @@ const Legend = ({
                     "showKeywordFrequencyCard",
                     newValue
                   );
+                }}
+              />
+              <LegendItem
+                id="journalTimeCard"
+                label="Journal Time"
+                checked={showEntryTimeCard}
+                onChange={() => {
+                  const newValue = !showEntryTimeCard;
+                  setShowEntryTimeCard(newValue);
+                  localStorageService.setItem("showEntryTimeCard", newValue);
                 }}
               />
             </div>
@@ -176,7 +192,7 @@ const Legend = ({
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
-            Total Entries
+            Total Journals
           </label>
         </div>
         <div className="mr-4 mb-2 w-full">
@@ -217,7 +233,7 @@ const Legend = ({
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
-            Recent Entries
+            Recent Journals
           </label>
         </div>
         <div className="mr-4 mb-2 w-full">
@@ -239,7 +255,7 @@ const Legend = ({
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
-            Upcoming Entries
+            Upcoming Journals
           </label>
         </div>
         <div className="mr-4 mb-2 w-full">
@@ -258,7 +274,7 @@ const Legend = ({
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
-            Favorite Entries
+            Favorite Journals
           </label>
         </div>
         <div className="mr-4 mb-2 w-full">
@@ -281,6 +297,25 @@ const Legend = ({
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
             Keyword Frequency
+          </label>
+        </div>
+        <div className="mr-4 mb-2 w-full">
+          <label
+            htmlFor="journalTimeCard"
+            className="flex items-center text-sm"
+          >
+            <input
+              type="checkbox"
+              id="journalTimeCard"
+              checked={showEntryTimeCard}
+              onChange={() => {
+                const newValue = !showEntryTimeCard;
+                setShowEntryTimeCard(newValue);
+                localStorageService.setItem("showEntryTimeCard", newValue);
+              }}
+              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+            />
+            Journal Time
           </label>
         </div>
       </div>
