@@ -461,9 +461,17 @@ function UserDashboard() {
               showUpcomingEntriesCard && (
                 <div className="w-full mb-2 md:w-1/2 lg:w-1/3 p-2">
                   <Card className="h-full p-4">
-                    <h2 className="text-xl font-semibold">
-                      Upcoming Journals/Reminders
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold w-1/2">
+                        Upcoming Journals/Reminders
+                      </h2>
+                      <Link
+                        href="/reminders"
+                        className="text-sm text-blue-500 font-normal"
+                      >
+                        Manage
+                      </Link>
+                    </div>
                     <ul>
                       {upcomingEntries.length > 0 ? (
                         upcomingEntries.map((journal, index) => (
