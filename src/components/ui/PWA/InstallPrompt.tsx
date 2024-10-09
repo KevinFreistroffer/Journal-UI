@@ -20,11 +20,13 @@ function InstallPrompt() {
   }
 
   return (
-    <div>
-      <h3>Install App</h3>
-      <button>Add to Home Screen</button>
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg">
+      <h3 className="text-2xl font-semibold mb-4 text-gray-800">Install App</h3>
+      <button className="mb-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+        Add to Home Screen
+      </button>
       {isIOS && (
-        <p>
+        <p className="text-gray-700">
           To install this app on your iOS device, tap the share button
           <span role="img" aria-label="share icon">
             {" "}
@@ -42,11 +44,4 @@ function InstallPrompt() {
   );
 }
 
-export default function Page() {
-  return (
-    <div>
-      <PushNotificationManager />
-      <InstallPrompt />
-    </div>
-  );
-}
+export default InstallPrompt;

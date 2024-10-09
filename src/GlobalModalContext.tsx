@@ -1,22 +1,29 @@
 "use client";
 
-import React, { createContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode, useContext } from "react";
 
 export interface IIModalContextType {
   isOpen: boolean;
-  content: ReactNode;
-  openModal: (content: ReactNode) => void;
+  content: ReactNode | ReactNode[] | null;
+  openModal: (content: ReactNode | ReactNode[]) => void;
   closeModal: () => void;
+  setContent: React.Dispatch<React.SetStateAction<ReactNode>>; // Add this line
 }
 
-export const ModalContext = createContext<IModalContextType | undefined>(
-  undefined
-);
+export const ModalContext = createContext<IIModalContextType>({
+  isOpen: false,
+  content: null,
+  openModal: (content: ReactNode | ReactNode[]) => {},
+  closeModal: () => {},
+  setContent: () => {},
+});
+
+export const useModal = () => useContext(ModalContext);
 
 export const ModalProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [content, setContent] = useState<ReactNode>(null);
 
   const openModal = (content: ReactNode) => {
@@ -30,7 +37,9 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <ModalContext.Provider value={{ isOpen, content, openModal, closeModal }}>
+    <ModalContext.Provider
+      value={{ isOpen, content, openModal, closeModal, setContent }}
+    >
       {children}
     </ModalContext.Provider>
   );

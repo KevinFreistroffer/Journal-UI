@@ -396,7 +396,7 @@ export default function EntrysPage() {
         )}
       </div>
       {/* Global Modal */}
-      <GlobalModal onConfirm={handleDelete} onClose={() => closeModal()} />
+      <GlobalModal />
     </PartialWidthPageContainer>
   );
 }

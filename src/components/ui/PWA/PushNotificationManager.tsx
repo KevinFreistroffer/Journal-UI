@@ -70,24 +70,46 @@ function PushNotificationManager() {
   }
 
   return (
-    <div>
-      <h3>Push Notifications</h3>
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg">
+      <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+        Push Notifications
+      </h3>
       {subscription ? (
         <>
-          <p>You are subscribed to push notifications.</p>
-          <button onClick={unsubscribeFromPush}>Unsubscribe</button>
+          <p className="mb-4 text-green-600">
+            You are subscribed to push notifications.
+          </p>
+          <button
+            onClick={unsubscribeFromPush}
+            className="mb-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+          >
+            Unsubscribe
+          </button>
           <input
             type="text"
             placeholder="Enter notification message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            className="w-full mb-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button onClick={sendTestNotification}>Send Test</button>
+          <button
+            onClick={sendTestNotification}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+          >
+            Send Test
+          </button>
         </>
       ) : (
         <>
-          <p>You are not subscribed to push notifications.</p>
-          <button onClick={subscribeToPush}>Subscribe</button>
+          <p className="mb-4 text-yellow-600">
+            You are not subscribed to push notifications.
+          </p>
+          <button
+            onClick={subscribeToPush}
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+          >
+            Subscribe
+          </button>
         </>
       )}
     </div>

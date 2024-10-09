@@ -11,6 +11,8 @@ import { EntryProvider } from "@/hooks/useEntry";
 import { ModalProvider } from "@/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
 import { SearchProvider } from "@/SearchContext";
+import GlobalModal from "@/components/ui/GlobalModal";
+
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -53,6 +55,7 @@ export default async function RootLayout({
                     <CookieConsent
                       initialConsent={consentCookie !== undefined}
                     />
+                    <GlobalModal />
                     <Footer />
                   </ModalProvider>
                 </Theme>
