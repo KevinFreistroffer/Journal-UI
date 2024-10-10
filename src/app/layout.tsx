@@ -4,8 +4,9 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
-import Header from "@/components/ui/Header/Header";
+
 import { AuthProvider } from "@/hooks/useAuth";
+import Header from "@/components/ui/Header/Header";
 import Footer from "@/components/ui/Footer";
 import { JournalProvider } from "@/hooks/useJournal";
 import { ModalProvider } from "@/GlobalModalContext";
