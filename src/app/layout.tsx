@@ -11,8 +11,8 @@ import Footer from "@/components/ui/Footer";
 import { JournalProvider } from "@/hooks/useJournal";
 import { ModalProvider } from "@/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
-import { SearchProvider } from "@/SearchContext";
 import GlobalModal from "@/components/ui/GlobalModal";
+import { SearchProvider } from "@/SearchContext";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
