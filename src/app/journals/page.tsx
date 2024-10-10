@@ -10,33 +10,33 @@ import {
   CardTitle,
 } from "@/components/ui/card"; // Adjust the import based on your project structure
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
-import HelperText from "@/components/ui/HelperText/HelperText";
+// import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import { List, Grid, BookOpenText, XIcon, Star, Trash2 } from "lucide-react"; // Import icons for list, grid, and eye views
+import { List, Grid, BookOpenText, XIcon, Trash2 } from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
 import StarIcon from "@/components/ui/StarIcon/StarIcon";
-import { Tooltip } from "@radix-ui/themes";
+// import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import Carrot from "@/components/ui/Carrot/Carrot";
-import { Checkbox } from "@/components/ui/checkbox"; // Import the Checkbox component
+import { Checkbox } from "@/components/ui/Checkbox"; // Import the Checkbox component
 import { PartialWidthPageContainer } from "@/components/ui/PartialWidthPageContainer"; // Import the PageWrapper component
 import { ModalContext } from "@/GlobalModalContext"; // Import ModalContext
 import GlobalModal from "@/components/ui/GlobalModal"; // Import GlobalModal
 
-export default function EntrysPage() {
+export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showHelperText, setShowHelperText] = useState<boolean>(false);
-  const [favoriteEntrys, setFavoriteEntrys] = useState<string[]>([]); // State for favorite journals
-  const [loadingEntryId, setLoadingEntryId] = useState<string | null>(null);
+  // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
+  const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
-  const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
-  const [journalToDelete, setEntryToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
+  const { openModal } = useContext(ModalContext); // Get openModal and closeModal from context
+  const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
 
   const handleCloseHelper = () => {
@@ -127,7 +127,7 @@ export default function EntrysPage() {
   };
 
   const handleFavorite = async (journalId: string) => {
-    setLoadingEntryId(journalId); // Set the loading state for the specific journal
+    setLoadingJournalId(journalId); // Set the loading state for the specific journal
     try {
       // Send API request to edit the journal
       const response = await fetch(`api/user/journal/edit`, {
@@ -147,14 +147,14 @@ export default function EntrysPage() {
     } catch (error) {
       console.error("Error updating favorite status:", error);
     } finally {
-      setLoadingEntryId(null); // Reset loading state
+      setLoadingJournalId(null); // Reset loading state
     }
   };
 
   const handleDelete = async () => {
     if (!journalToDelete) return; // Exit if no journal is set for deletion
 
-    setLoadingEntryId(journalToDelete);
+    setLoadingJournalId(journalToDelete);
     try {
       const response = await fetch(`/api/user/journal/delete`, {
         method: "POST",
@@ -177,13 +177,13 @@ export default function EntrysPage() {
     } catch (error) {
       console.error("Error deleting journal:", error);
     } finally {
-      setLoadingEntryId(null); // Reset loading state
-      setEntryToDelete(null); // Reset the journal to delete
+      setLoadingJournalId(null); // Reset loading state
+      setJournalToDelete(null); // Reset the journal to delete
     }
   };
 
   const openDeleteModal = (journalId: string) => {
-    setEntryToDelete(journalId); // Set the journal ID to delete
+    setJournalToDelete(journalId); // Set the journal ID to delete
     openModal(); // Open the GlobalModal
   };
 
@@ -216,7 +216,7 @@ export default function EntrysPage() {
     }
   };
 
-  const handleSelectEntry = (journalId: string, checked: boolean) => {
+  const handleSelectJournal = (journalId: string, checked: boolean) => {
     if (checked) {
       setSelectedEntries((prev) => [...prev, journalId]);
     } else {
@@ -342,7 +342,7 @@ export default function EntrysPage() {
                         className="w-8 h-8 cursor-pointer"
                         onClick={() => {
                           localStorageService.setItem(
-                            "selectedEntry",
+                            "selectedJournal",
                             journal._id
                           );
                           router.push(`/journal/${journal._id}`);
@@ -365,7 +365,7 @@ export default function EntrysPage() {
                             width: "10px",
                             height: "10px",
                             backgroundColor: getSentimentColor(
-                              analyzeSentiment(journal.journal).score
+                              analyzeSentiment(journal.entry).score
                             ),
                           }}
                         ></div>
@@ -373,7 +373,7 @@ export default function EntrysPage() {
                     )}
                   </div>
                   <div className="flex items-center">
-                    {loadingEntryId === journal._id ? (
+                    {loadingJournalId === journal._id ? (
                       <Spinner size="sm" className="mr-2" />
                     ) : (
                       <>

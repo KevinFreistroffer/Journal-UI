@@ -101,7 +101,7 @@ export default function Header() {
         {/* Search Input Section moved to the right */}
         {isLoading ? ( // Add loading condition for SearchInput
           <div className="w-40 h-6 bg-gray-200 animate-pulse rounded mr-4"></div> // Placeholder for SearchInput
-        ) : (
+        ) : !user ? null : (
           <SearchInput
             query={query}
             handleSearch={handleSearch}

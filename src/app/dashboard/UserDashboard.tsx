@@ -43,7 +43,7 @@ ChartJS.register(
   ChartLegend
 );
 
-export interface IFrontEndEntry extends IJournal {
+export interface IFrontEndJournal extends IJournal {
   // Add any additional properties specific to the frontend representation
   // For example, you might want to include a formatted date or a flag for upcoming journals
   formattedDate?: string; // Optional formatted date string for display
@@ -59,33 +59,40 @@ const formatTime = (hour: string) => {
 
 function UserDashboard() {
   const { user, isLoading } = useAuth();
-  const [totalEntrys, setTotalEntrys] = useState(user?.journals?.length || 0);
+  const [totalJournals, setTotalJournals] = useState(
+    user?.journals?.length || 0
+  );
   const [categoryData, setCategoryData] = useState<
     { title: string; value: number; color: string }[]
   >([]);
-  const [recentEntries, setRecentEntries] = useState<IFrontEndEntry[]>([]);
-  const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndEntry[]>([]);
+  const [recentEntries, setRecentEntries] = useState<IFrontEndJournal[]>([]);
+  const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndJournal[]>(
+    []
+  );
   const [data, setData] = useState<ICategoryBreakdown[]>([]);
-  const [showTotalEntrysCard, setShowTotalEntrysCard] = useState(false);
+  const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(false);
   const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] =
     useState(false);
   const [showRecentEntriesCard, setShowRecentEntriesCard] = useState(false);
   const [showUpcomingEntriesCard, setShowUpcomingEntriesCard] = useState(false);
-  const [showFavoriteEntrysCard, setShowFavoriteEntrysCard] = useState(false);
+  const [showFavoriteJournalsCard, setShowFavoriteJournalsCard] =
+    useState(false);
   const [showKeywordFrequencyCard, setShowKeywordFrequencyCard] =
     useState(false);
   const [localStorageValuesFetched, setLocalStorageValuesFetched] = useState({
-    totalEntrysCard: false,
+    totalJournalsCard: false,
     categoryBreakdownCard: false,
     recentEntriesCard: false,
     upcomingEntriesCard: false,
-    favoriteEntrysCard: false,
+    favoriteJournalsCard: false,
     keywordFrequencyCard: false,
     journalTimeCard: false,
   });
-  const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isMobileLegendOpen, setIsMobileLegendOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [favoriteEntries, setFavoriteEntries] = useState<IFrontEndEntry[]>([]);
+  const [favoriteEntries, setFavoriteEntries] = useState<IFrontEndJournal[]>(
+    []
+  );
   const [keywordFrequency, setKeywordFrequency] = useState<IKeywordFrequency[]>(
     []
   );
@@ -96,8 +103,8 @@ function UserDashboard() {
   const [isLoadingKeywordFrequency, setIsLoadingKeywordFrequency] =
     useState(false); // New loading state
   const [isSelectOpen, setIsSelectOpen] = useState(false); // New state for managing open state
-  const [showEntryTimeCard, setShowEntryTimeCard] = useState(false);
-  const [journalTimeData, setEntryTimeData] = useState<{
+  const [showJournalTimeCard, setShowJournalTimeCard] = useState(false);
+  const [journalTimeData, setJournalTimeData] = useState<{
     [key: string]: number;
   }>({});
 
@@ -180,7 +187,7 @@ function UserDashboard() {
 
   useEffect(() => {
     if (user) {
-      setTotalEntrys(journals?.length || 0);
+      setTotalJournals(journals?.length || 0);
 
       // Calculate category breakdown
       const categories = user?.journalCategories.reduce((acc, category) => {
@@ -247,14 +254,14 @@ function UserDashboard() {
 
   useEffect(() => {
     const fetchLocalStorageValues = () => {
-      const showTotalEntrysCard: boolean | null =
-        localStorageService.getItem<boolean>("showTotalEntrysCard");
-      setShowTotalEntrysCard(
-        showTotalEntrysCard !== null ? showTotalEntrysCard : true
+      const showTotalJournalsCard: boolean | null =
+        localStorageService.getItem<boolean>("showTotalJournalsCard");
+      setShowTotalJournalsCard(
+        showTotalJournalsCard !== null ? showTotalJournalsCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
-        totalEntrysCard: true,
+        totalJournalsCard: true,
       }));
 
       const showCategoryBreakdownCard: boolean | null =
@@ -287,14 +294,14 @@ function UserDashboard() {
         upcomingEntriesCard: true,
       }));
 
-      const showFavoriteEntrysCard: boolean | null =
-        localStorageService.getItem<boolean>("showFavoriteEntrysCard");
-      setShowFavoriteEntrysCard(
-        showFavoriteEntrysCard !== null ? showFavoriteEntrysCard : true
+      const showFavoriteJournalsCard: boolean | null =
+        localStorageService.getItem<boolean>("showFavoriteJournalsCard");
+      setShowFavoriteJournalsCard(
+        showFavoriteJournalsCard !== null ? showFavoriteJournalsCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
-        favoriteEntrysCard: true,
+        favoriteJournalsCard: true,
       }));
 
       const showKeywordFrequencyCard: boolean | null =
@@ -307,10 +314,10 @@ function UserDashboard() {
         keywordFrequencyCard: true,
       }));
 
-      const showEntryTimeCard: boolean | null =
-        localStorageService.getItem<boolean>("showEntryTimeCard");
-      setShowEntryTimeCard(
-        showEntryTimeCard !== null ? showEntryTimeCard : true
+      const showJournalTimeCard: boolean | null =
+        localStorageService.getItem<boolean>("showJournalTimeCard");
+      setShowJournalTimeCard(
+        showJournalTimeCard !== null ? showJournalTimeCard : true
       );
       setLocalStorageValuesFetched((prev) => ({
         ...prev,
@@ -331,7 +338,7 @@ function UserDashboard() {
         console.log("timeSlot", timeSlot);
         timeData[timeSlot] = (timeData[timeSlot] || 0) + 1;
       });
-      setEntryTimeData(timeData);
+      setJournalTimeData(timeData);
     }
   }, [user, journals]);
 
@@ -351,27 +358,24 @@ function UserDashboard() {
       <div className="flex flex-col md:flex-row mb-6">
         {/* Side Section for Legend */}
         <Card className="w-full md:w-1/6 p-4 mt-2 bg-gray-100">
-          {" "}
-          {/* Wrapped in Card and removed border */}
-          {/* Removed border and rounded classes */}
           <Legend
             isMobile={isMobile}
-            isLegendOpen={isLegendOpen}
-            setIsLegendOpen={setIsLegendOpen}
-            showTotalEntrysCard={showTotalEntrysCard}
-            setShowTotalEntrysCard={setShowTotalEntrysCard}
+            isMobileLegendOpen={isMobileLegendOpen}
+            setIsMobileLegendOpen={setIsMobileLegendOpen}
+            showTotalJournalsCard={showTotalJournalsCard}
+            setShowTotalJournalsCard={setShowTotalJournalsCard}
             showCategoryBreakdownCard={showCategoryBreakdownCard}
             setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
             showRecentEntriesCard={showRecentEntriesCard}
             setShowRecentEntriesCard={setShowRecentEntriesCard}
             showUpcomingEntriesCard={showUpcomingEntriesCard}
             setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
-            showFavoriteEntrysCard={showFavoriteEntrysCard}
-            setShowFavoriteEntrysCard={setShowFavoriteEntrysCard}
+            showFavoriteJournalsCard={showFavoriteJournalsCard}
+            setShowFavoriteJournalsCard={setShowFavoriteJournalsCard}
             showKeywordFrequencyCard={showKeywordFrequencyCard}
             setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
-            showEntryTimeCard={showEntryTimeCard}
-            setShowEntryTimeCard={setShowEntryTimeCard}
+            showJournalTimeCard={showJournalTimeCard}
+            setShowJournalTimeCard={setShowJournalTimeCard}
           />
         </Card>
 
@@ -382,14 +386,14 @@ function UserDashboard() {
           {/* Dashboard Content */}
           <div className="flex w-full flex-col md:flex-row md:flex-wrap">
             {/* Total Number of Entries */}
-            {!localStorageValuesFetched.totalEntrysCard ? (
+            {!localStorageValuesFetched.totalJournalsCard ? (
               <PlaceholderCard />
             ) : (
-              showTotalEntrysCard && (
+              showTotalJournalsCard && (
                 <div className="w-full mb-2 p-2">
                   <Card className="h-full p-4 flex w-full items-center justify-between">
                     <h2 className="text-xl font-semibold">
-                      Total Number of journals: {totalEntrys}
+                      Total Number of journals: {totalJournals}
                     </h2>
                     <Link
                       href="/journals"
@@ -490,10 +494,10 @@ function UserDashboard() {
             )}
 
             {/* Favorite Journals */}
-            {!localStorageValuesFetched.favoriteEntrysCard ? (
+            {!localStorageValuesFetched.favoriteJournalsCard ? (
               <PlaceholderCard />
             ) : (
-              showFavoriteEntrysCard && (
+              showFavoriteJournalsCard && (
                 <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
                   <Card className="h-full p-4">
                     <div className="flex justify-between items-center">
@@ -519,7 +523,7 @@ function UserDashboard() {
                               href={`/journal/${journal._id}`}
                               onClick={() => {
                                 localStorageService.setItem(
-                                  "selectedEntry",
+                                  "selectedJournal",
                                   journal
                                 );
                               }}
@@ -609,11 +613,11 @@ function UserDashboard() {
               )
             )}
 
-            {/* Entry Time Card */}
+            {/* Journal Time Card */}
             {!localStorageValuesFetched.journalTimeCard ? (
               <PlaceholderCard />
             ) : (
-              showEntryTimeCard && (
+              showJournalTimeCard && (
                 <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
                   <Card className="h-full p-4">
                     <h2 className="text-xl font-semibold mb-4">

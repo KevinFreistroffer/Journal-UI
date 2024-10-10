@@ -36,7 +36,7 @@ export function SearchProvider({
       const result = journals.filter(
         (journal: IJournal) =>
           journal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          journal.journal.toLowerCase().includes(searchQuery.toLowerCase())
+          journal.entry.toLowerCase().includes(searchQuery.toLowerCase())
       );
       console.log("result", result);
       setFilteredEntries(result);

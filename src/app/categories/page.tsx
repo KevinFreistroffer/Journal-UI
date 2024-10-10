@@ -50,7 +50,7 @@ const CategoriesPage: React.FC = () => {
   //         setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
   //       } else {
   //         setUser(body.data);
-  //         setEntrys(body.data.journals);
+  //         setJournals(body.data.journals);
   //         setCategories(body.data.journalCategories);
   //         setNewCategoryName("");
   //         setShowCreatedCategorySuccessIcon(true); // Show success icon

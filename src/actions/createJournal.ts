@@ -3,28 +3,28 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import {
-  CreateEntryFunction,
-  ICreateEntryState,
+  CreateJournalFunction,
+  ICreateJournalState,
 } from "@/app/journal/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 
-const CreateEntrySchema = z.object({
+const CreateJournalSchema = z.object({
   title: z.string(),
   journal: z.string(),
   category: z.string(),
   favorite: z.boolean().optional(),
 });
 
-export const createEntry: CreateEntryFunction = async (
+export const createJournal: CreateJournalFunction = async (
   userId: string,
-  prevState: ICreateEntryState,
+  prevState: ICreateJournalState,
   formData: FormData
 ) => {
-  console.log("createEntry action", formData);
+  console.log("createJournal action", formData);
   // Validate form data
-  const validatedFields = CreateEntrySchema.safeParse({
+  const validatedFields = CreateJournalSchema.safeParse({
     title: formData.get("title"),
     journal: formData.get("journal"),
     category: formData.get("category"),

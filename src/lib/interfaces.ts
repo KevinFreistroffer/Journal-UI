@@ -1,7 +1,7 @@
 export interface IJournal {
   _id: string;
   title: string;
-  journal: string;
+  entry: string;
   category: string;
   date: string;
   selected: boolean;

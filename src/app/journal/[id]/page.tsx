@@ -6,33 +6,33 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { localStorageService } from "@/lib/services/localStorageService";
-import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
+import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { IJournal } from "@/lib/interfaces";
 
-export default function EntryPage() {
+export default function JournalPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedEntry, setSelectedEntry] = useState<IFrontEndEntry | null>(
-    null
-  ); // Added state for selectedEntry
+  const [selectedJournal, setSelectedJournal] =
+    useState<IFrontEndJournal | null>(null); // Added state for selectedJournal
   const { user } = useAuth();
   console.log("searchParams", searchParams);
   const id = searchParams.get("id");
 
   useEffect(() => {
-    const savedEntry = localStorageService.getItem<IJournal>("selectedEntry");
+    const savedJournal =
+      localStorageService.getItem<IJournal>("selectedJournal");
 
-    if (savedEntry) {
-      setSelectedEntry(savedEntry); // Set state with saved journal
+    if (savedJournal) {
+      setSelectedJournal(savedJournal); // Set state with saved journal
     } else {
-      const foundEntry = user?.journals.find((journal) => journal._id === id); // Changed variable name for clarity
+      const foundJournal = user?.journals.find((journal) => journal._id === id); // Changed variable name for clarity
 
-      if (foundEntry) {
-        setSelectedEntry(foundEntry); // Set state with found journal
+      if (foundJournal) {
+        setSelectedJournal(foundJournal); // Set state with found journal
 
-        localStorageService.setItem("selectedEntry", foundEntry);
+        localStorageService.setItem("selectedJournal", foundJournal);
       }
     }
   }, [id, user]); // Ensure this effect runs when id or user changes
@@ -40,11 +40,11 @@ export default function EntryPage() {
   useEffect(() => {
     const handleSearchParamsChange = () => {
       console.log("handleSearchParamsChange", id);
-      const savedEntry = user?.journals.find((journal) => journal._id === id);
+      const savedJournal = user?.journals.find((journal) => journal._id === id);
 
-      if (savedEntry) {
-        setSelectedEntry(savedEntry); // Set state with saved journal
-        localStorageService.setItem("selectedEntry", savedEntry); // Save journal to local storage
+      if (savedJournal) {
+        setSelectedJournal(savedJournal); // Set state with saved journal
+        localStorageService.setItem("selectedJournal", savedJournal); // Save journal to local storage
       }
     };
 
@@ -58,10 +58,10 @@ export default function EntryPage() {
   return (
     <div
       className={`container mx-auto p-4 min-h-screen ${
-        !selectedEntry ? "flex justify-center items-center" : ""
+        !selectedJournal ? "flex justify-center items-center" : ""
       }`}
     >
-      {!selectedEntry ? (
+      {!selectedJournal ? (
         <div className="">
           <Spinner />
         </div>
@@ -69,12 +69,12 @@ export default function EntryPage() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>{selectedEntry.title}</CardTitle>
+              <CardTitle>{selectedJournal.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>{selectedEntry.journal}</p>
+              <p>{selectedJournal.entry}</p>
               <p className="text-sm text-gray-500 mt-2">
-                Category: {selectedEntry.category}
+                Category: {selectedJournal.category}
               </p>
             </CardContent>
           </Card>

@@ -42,6 +42,7 @@ function PushNotificationManager() {
       return;
     }
     const registration = await navigator.serviceWorker.ready;
+
     const sub = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(

@@ -31,65 +31,72 @@ function LegendItem({
 
 interface LegendProps {
   isMobile: boolean;
-  isLegendOpen: boolean;
-  setIsLegendOpen: (isOpen: boolean) => void;
-  showTotalEntrysCard: boolean;
-  setShowTotalEntrysCard: (show: boolean) => void;
+  isMobileLegendOpen: boolean;
+  setIsMobileLegendOpen: (isOpen: boolean) => void;
+  showTotalJournalsCard: boolean;
+  setShowTotalJournalsCard: (show: boolean) => void;
   showCategoryBreakdownCard: boolean;
   setShowCategoryBreakdownCard: (show: boolean) => void;
   showRecentEntriesCard: boolean;
   setShowRecentEntriesCard: (show: boolean) => void;
   showUpcomingEntriesCard: boolean;
   setShowUpcomingEntriesCard: (show: boolean) => void;
-  showFavoriteEntrysCard: boolean;
-  setShowFavoriteEntrysCard: (show: boolean) => void;
+  showFavoriteJournalsCard: boolean;
+  setShowFavoriteJournalsCard: (show: boolean) => void;
   showKeywordFrequencyCard: boolean;
   setShowKeywordFrequencyCard: (show: boolean) => void;
-  showEntryTimeCard: boolean;
-  setShowEntryTimeCard: (show: boolean) => void;
+  showJournalTimeCard: boolean;
+  setShowJournalTimeCard: (show: boolean) => void;
 }
 
 const Legend: React.FC<LegendProps> = ({
   isMobile,
-  isLegendOpen,
-  setIsLegendOpen,
-  showTotalEntrysCard,
-  setShowTotalEntrysCard,
+  isMobileLegendOpen,
+  setIsMobileLegendOpen,
+  showTotalJournalsCard,
+  setShowTotalJournalsCard,
   showCategoryBreakdownCard,
   setShowCategoryBreakdownCard,
   showRecentEntriesCard,
   setShowRecentEntriesCard,
   showUpcomingEntriesCard,
   setShowUpcomingEntriesCard,
-  showFavoriteEntrysCard,
-  setShowFavoriteEntrysCard,
+  showFavoriteJournalsCard,
+  setShowFavoriteJournalsCard,
   showKeywordFrequencyCard,
   setShowKeywordFrequencyCard,
-  showEntryTimeCard,
-  setShowEntryTimeCard,
+  showJournalTimeCard,
+  setShowJournalTimeCard,
 }) => {
   return isMobile ? (
     <div className="relative mb-4 md:mb-0">
       <button
-        onClick={() => setIsLegendOpen(!isLegendOpen)}
+        onClick={() => setIsMobileLegendOpen(!isMobileLegendOpen)}
         className="flex items-center justify-between w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded"
       >
         <span>Toggle Dashboard Cards</span>
-        {isLegendOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        {isMobileLegendOpen ? (
+          <ChevronUp size={20} />
+        ) : (
+          <ChevronDown size={20} />
+        )}
       </button>
-      {isLegendOpen && (
+      {isMobileLegendOpen && (
         <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
           <div className="p-4">
             <h2 className="text-xl font-semibold mb-2">Toggle Metrics</h2>
             <div className="flex flex-col space-y-2">
               <LegendItem
-                id="totalEntrysCard"
+                id="totalJournalsCard"
                 label="Total Journals"
-                checked={showTotalEntrysCard}
+                checked={showTotalJournalsCard}
                 onChange={() => {
-                  const newValue = !showTotalEntrysCard;
-                  setShowTotalEntrysCard(newValue);
-                  localStorageService.setItem("showTotalEntrysCard", newValue);
+                  const newValue = !showTotalJournalsCard;
+                  setShowTotalJournalsCard(newValue);
+                  localStorageService.setItem(
+                    "showTotalJournalsCard",
+                    newValue
+                  );
                 }}
               />
               <LegendItem
@@ -132,14 +139,14 @@ const Legend: React.FC<LegendProps> = ({
                 }}
               />
               <LegendItem
-                id="favoriteEntrysCard"
+                id="favoriteJournalsCard"
                 label="Favorite Journals"
-                checked={showFavoriteEntrysCard}
+                checked={showFavoriteJournalsCard}
                 onChange={() => {
-                  const newValue = !showFavoriteEntrysCard;
-                  setShowFavoriteEntrysCard(newValue);
+                  const newValue = !showFavoriteJournalsCard;
+                  setShowFavoriteJournalsCard(newValue);
                   localStorageService.setItem(
-                    "showFavoriteEntrysCard",
+                    "showFavoriteJournalsCard",
                     newValue
                   );
                 }}
@@ -160,11 +167,11 @@ const Legend: React.FC<LegendProps> = ({
               <LegendItem
                 id="journalTimeCard"
                 label="Journal Time"
-                checked={showEntryTimeCard}
+                checked={showJournalTimeCard}
                 onChange={() => {
-                  const newValue = !showEntryTimeCard;
-                  setShowEntryTimeCard(newValue);
-                  localStorageService.setItem("showEntryTimeCard", newValue);
+                  const newValue = !showJournalTimeCard;
+                  setShowJournalTimeCard(newValue);
+                  localStorageService.setItem("showJournalTimeCard", newValue);
                 }}
               />
             </div>
@@ -178,17 +185,17 @@ const Legend: React.FC<LegendProps> = ({
       <div className="flex flex-wrap">
         <div className="mr-4 mb-2 w-full">
           <label
-            htmlFor="totalEntrysCard"
+            htmlFor="totalJournalsCard"
             className="flex items-center text-sm"
           >
             <input
               type="checkbox"
-              id="totalEntrysCard"
-              checked={showTotalEntrysCard}
+              id="totalJournalsCard"
+              checked={showTotalJournalsCard}
               onChange={() => {
-                const newValue = !showTotalEntrysCard;
-                setShowTotalEntrysCard(newValue);
-                localStorageService.setItem("showTotalEntrysCard", newValue);
+                const newValue = !showTotalJournalsCard;
+                setShowTotalJournalsCard(newValue);
+                localStorageService.setItem("showTotalJournalsCard", newValue);
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
@@ -260,17 +267,20 @@ const Legend: React.FC<LegendProps> = ({
         </div>
         <div className="mr-4 mb-2 w-full">
           <label
-            htmlFor="favoriteEntrysCard"
+            htmlFor="favoriteJournalsCard"
             className="flex items-center text-sm"
           >
             <input
               type="checkbox"
-              id="favoriteEntrysCard"
-              checked={showFavoriteEntrysCard}
+              id="favoriteJournalsCard"
+              checked={showFavoriteJournalsCard}
               onChange={() => {
-                const newValue = !showFavoriteEntrysCard;
-                setShowFavoriteEntrysCard(newValue);
-                localStorageService.setItem("showFavoriteEntrysCard", newValue);
+                const newValue = !showFavoriteJournalsCard;
+                setShowFavoriteJournalsCard(newValue);
+                localStorageService.setItem(
+                  "showFavoriteJournalsCard",
+                  newValue
+                );
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />
@@ -307,11 +317,11 @@ const Legend: React.FC<LegendProps> = ({
             <input
               type="checkbox"
               id="journalTimeCard"
-              checked={showEntryTimeCard}
+              checked={showJournalTimeCard}
               onChange={() => {
-                const newValue = !showEntryTimeCard;
-                setShowEntryTimeCard(newValue);
-                localStorageService.setItem("showEntryTimeCard", newValue);
+                const newValue = !showJournalTimeCard;
+                setShowJournalTimeCard(newValue);
+                localStorageService.setItem("showJournalTimeCard", newValue);
               }}
               className="mr-2 form-checkbox h-3 w-3 text-blue-600"
             />

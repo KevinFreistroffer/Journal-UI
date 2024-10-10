@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useEntry } from "@/hooks/useEntry";
+import { useJournal } from "@/hooks/useJournal";
 import { IJournal, ICategory } from "@/lib/interfaces";
 import { useRouter } from "next/navigation";
 import {
@@ -30,13 +30,15 @@ import {
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
-import { IFrontEndEntry } from "@/app/dashboard/UserDashboard";
+import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
 import { useFormState } from "react-dom";
-import { ICreateCategoryState, ICreateEntryState } from "./types";
+import { ICreateCategoryState, ICreateJournalState } from "./types";
 import { createCategory } from "@/actions/createCategory";
-import { createEntry } from "@/actions/createEntry";
+import { createJournal } from "@/actions/createJournal";
+import { useClipboard } from "use-clipboard-copy";
+import { SummarizerManager } from "node-summarizer";
 
-const createEntryInitialState: ICreateEntryState = {
+const createJournalInitialState: ICreateJournalState = {
   message: "",
   errors: {},
   success: false,
@@ -45,16 +47,16 @@ const createEntryInitialState: ICreateEntryState = {
 
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
-  const { setSelectedEntry } = useEntry();
-  const [journals, setEntries] = useState<IJournal[]>([]);
+  const { setSelectedJournal } = useJournal();
+  const [journals, setJournals] = useState<IJournal[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
-  const [journal, setEntry] = useState("");
+  const [journal, setJournal] = useState("");
   const [favorite, setFavorite] = useState<boolean>(false); // State for favorite checkbox
   const [isSaving, setIsSaving] = useState(false);
-  const [showEntrySuccessIcon, setShowEntrySuccessIcon] = useState(false);
+  const [showJournalSuccessIcon, setShowJournalSuccessIcon] = useState(false);
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
     useState(false); // State for dialog
   const [isCreatingCategoryLoading, setIsCreatingCategoryLoading] =
@@ -74,10 +76,12 @@ function WritePage() {
   const [averageWords, setAverageWords] = useState(0); // State for average words across all journals
   const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
   const [categoryExists, setCategoryExists] = useState(false); // State to track if the category already exists
-
-  const [createEntryState, createEntryAction] = useFormState(
-    createEntry.bind(null, user?._id || ""),
-    createEntryInitialState
+  const [summary, setSummary] = useState<string>("");
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const clipboard = useClipboard();
+  const [createJournalState, createJournalAction] = useFormState(
+    createJournal.bind(null, user?._id || ""),
+    createJournalInitialState
   );
 
   // const { openModal } = useContext(ModalContext);
@@ -153,7 +157,7 @@ function WritePage() {
 
           console.log("created category data", body);
           setUser(body.data);
-          setEntries(body.data.journals);
+          setJournals(body.data.journals);
           setCategories(body.data.journalCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
@@ -188,30 +192,32 @@ function WritePage() {
   }, [isSidebarOpen]);
 
   useEffect(() => {
-    const savedEntry = localStorageService.getItem<IJournal>("selectedEntry");
-    if (savedEntry) {
-      setSelectedEntry(savedEntry);
+    const savedJournal =
+      localStorageService.getItem<IJournal>("selectedJournal");
+    if (savedJournal) {
+      setSelectedJournal(savedJournal);
     }
-  }, [setSelectedEntry]);
+  }, [setSelectedJournal]);
 
   useEffect(() => {
     if (user && user.journals) {
-      setEntries(user.journals);
+      setJournals(user.journals);
       setCategories(user.journalCategories);
 
-      const savedEntry = localStorageService.getItem<IJournal>("selectedEntry");
-      if (savedEntry) {
-        const updatedEntry = user.journals.find(
-          (j) => j._id === savedEntry._id
+      const savedJournal =
+        localStorageService.getItem<IJournal>("selectedJournal");
+      if (savedJournal) {
+        const updatedJournal = user.journals.find(
+          (j) => j._id === savedJournal._id
         );
-        if (updatedEntry) {
-          setSelectedEntry(updatedEntry);
-          localStorageService.setItem("selectedEntry", updatedEntry);
+        if (updatedJournal) {
+          setSelectedJournal(updatedJournal);
+          localStorageService.setItem("selectedJournal", updatedJournal);
         }
       }
       setSelectedCategory("");
     }
-  }, [user, setSelectedEntry]);
+  }, [user, setSelectedJournal]);
 
   useEffect(() => {
     if (user && !user.isVerified) {
@@ -233,8 +239,8 @@ function WritePage() {
     // Calculate average words across all journals
     if (journals.length > 0) {
       const totalWordsInEntries = journals.reduce(
-        (acc, curr) =>
-          acc + curr.journal.trim().split(/\s+/).filter(Boolean).length,
+        (acc, journal) =>
+          acc + journal.entry.trim().split(/\s+/).filter(Boolean).length,
         0
       );
       setAverageWords(Math.round(totalWordsInEntries / journals.length));
@@ -250,6 +256,37 @@ function WritePage() {
       }
     };
   }, []);
+
+  // Updated summarizeJournal function
+  const summarizeJournal = async () => {
+    if (!journal.trim()) {
+      alert("Please write a journal first.");
+      return;
+    }
+
+    setIsSummarizing(true);
+    try {
+      const response = await fetch("/api/user/entry/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: journal }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate summary");
+      }
+
+      const data = await response.json();
+      setSummary(data.summary);
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      setSummary("An error occurred while generating the summary.");
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   // Check if the user is verified
   if (isLoading) {
@@ -331,7 +368,7 @@ function WritePage() {
           {/* <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1> */}
           <div>
             <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
-            <form action={createEntryAction} className="space-y-4">
+            <form action={createJournalAction} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
                 <Input
@@ -348,7 +385,7 @@ function WritePage() {
                   id="journal"
                   name="journal"
                   value={journal}
-                  onChange={(e) => setEntry(e.target.value)}
+                  onChange={(e) => setJournal(e.target.value)}
                   required
                 />
               </div>
@@ -483,7 +520,23 @@ function WritePage() {
                 >
                   {isSaving ? "Saving..." : "Create Journal"}
                 </Button>
-                {showEntrySuccessIcon && (
+                <Button
+                  type="button"
+                  onClick={summarizeJournal}
+                  className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+                  disabled={isSummarizing}
+                >
+                  {isSummarizing ? "Summarizing..." : "Summarize Journal"}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => clipboard.copy(summary)}
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                  disabled={!summary}
+                >
+                  Copy Summary
+                </Button>
+                {showJournalSuccessIcon && (
                   <div className="flex items-center">
                     <CheckCircle className="text-green-500 mr-2" />
                     <p className="text-green-500">
@@ -517,6 +570,12 @@ function WritePage() {
                 <strong>Average Words Across All Journals:</strong>{" "}
                 {averageWords}
               </p>
+              {summary && (
+                <div className="mt-4">
+                  <strong>Generated Summary:</strong>
+                  <p className="text-sm mt-2 p-2 bg-white rounded">{summary}</p>
+                </div>
+              )}
             </div>
           )}
         </div>

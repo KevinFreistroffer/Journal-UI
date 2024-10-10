@@ -10,14 +10,16 @@ export interface ICreateCategoryState {
   success: boolean;
 }
 
-export interface ICreateEntryState {
+export interface ICreateJournalState {
   message: string;
+  user: IUser | null;
+  success: boolean;
   errors: {
     title?: string[];
     journal?: string[];
     category?: string[];
     catchAll?: string[];
-  };
+
 }
 
 export type CreateCategoryFunction = (
@@ -26,8 +28,8 @@ export type CreateCategoryFunction = (
   formData: FormData
 ) => Promise<ICreateCategoryState>;
 
-export type CreateEntryFunction = (
+export type CreateJournalFunction = (
   userId: string,
-  prevState: ICreateEntryState,
+  prevState: ICreateJournalState,
   formData: FormData
-) => Promise<ICreateEntryState>;
+) => Promise<ICreateJournalState>;

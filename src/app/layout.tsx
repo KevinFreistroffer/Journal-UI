@@ -7,7 +7,7 @@ import { Theme } from "@radix-ui/themes";
 import Header from "@/components/ui/Header/Header";
 import { AuthProvider } from "@/hooks/useAuth";
 import Footer from "@/components/ui/Footer";
-import { EntryProvider } from "@/hooks/useEntry";
+import { JournalProvider } from "@/hooks/useJournal";
 import { ModalProvider } from "@/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
 import { SearchProvider } from "@/SearchContext";
@@ -47,7 +47,7 @@ export default async function RootLayout({
         <div className="flex flex-col min-h-screen">
           <SearchProvider>
             <AuthProvider>
-              <EntryProvider>
+              <JournalProvider>
                 <Theme>
                   <ModalProvider>
                     <Header />
@@ -59,7 +59,7 @@ export default async function RootLayout({
                     <Footer />
                   </ModalProvider>
                 </Theme>
-              </EntryProvider>
+              </JournalProvider>
             </AuthProvider>
           </SearchProvider>
         </div>

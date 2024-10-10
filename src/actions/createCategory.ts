@@ -101,10 +101,10 @@ export const createCategory: CreateCategoryFunction = async (
   }
 };
 
-// const handleCreateEntry = async (e: React.FormEvent) => {
+// const handleCreateJournal = async (e: React.FormEvent) => {
 //   e.preventDefault();
 //   setIsSaving(true);
-//   const newEntry = {
+//   const newJournal = {
 //     title,
 //     journal,
 //     category:
@@ -118,7 +118,7 @@ export const createCategory: CreateCategoryFunction = async (
 //   try {
 //     const response = await fetch(`/api/user/journal/create`, {
 //       method: "POST",
-//       body: JSON.stringify(newEntry),
+//       body: JSON.stringify(newJournal),
 //     });
 
 //     if (!response.ok) {
@@ -131,16 +131,16 @@ export const createCategory: CreateCategoryFunction = async (
 //       const userData = body.data;
 
 //       setUser(userData);
-//       setEntries(userData.journals);
-//       // setFilteredEntrys(userData.journals);
+//       setJournals(userData.journals);
+//       // setFilteredJournals(userData.journals);
 //       if (userData.journalCategories && userData.journalCategories.length > 0) {
 //         setCategories(userData.journalCategories);
 //       }
 //       setTitle("");
-//       setEntry("");
+//       setJournal("");
 //       setFavorite(false); // Reset favorite checkbox
-//       setShowEntrySuccessIcon(true);
-//       setTimeout(() => setShowEntrySuccessIcon(false), 3000);
+//       setShowJournalSuccessIcon(true);
+//       setTimeout(() => setShowJournalSuccessIcon(false), 3000);
 //     }
 //   } catch (error) {
 //     console.error("Error creating journal:", error);
