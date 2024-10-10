@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { IUser } from "@/lib/interfaces";
 
 export interface ICreateCategoryState {
@@ -21,9 +19,9 @@ export interface ICreateJournalState {
     journal?: string[];
     category?: string[];
     catchAll?: string[];
-
+  };
 }
-// @ts-expect-error fix later
+
 export type CreateCategoryFunction = (
   userId: string,
   prevState: ICreateCategoryState,
