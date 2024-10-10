@@ -4,7 +4,6 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { ICreateCategoryState } from "@/app/journal/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
-import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 import { CreateCategoryFunction } from "@/app/journal/write/types";
 

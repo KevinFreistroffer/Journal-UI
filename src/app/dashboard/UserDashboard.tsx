@@ -6,22 +6,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { IJournal } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
-import { ConstructionIcon, StarIcon } from "lucide-react";
+import { StarIcon } from "lucide-react";
 import styles from "@/app/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
-import { ChevronDown, ChevronUp } from "lucide-react";
+// import { ChevronDown, ChevronUp } from "lucide-react";
 import Legend from "@/app/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectTrigger,
+//   SelectContent,
+//   SelectItem,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Bar } from "react-chartjs-2";
 import {

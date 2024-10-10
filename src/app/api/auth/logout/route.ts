@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { logout } from "@/actions/auth";
 
 export async function GET(request: Request) {
+  console.log(request.headers.get("Cookie"));
   try {
     await logout();
     // return NextResponse.redirect(new URL("/", request.url));

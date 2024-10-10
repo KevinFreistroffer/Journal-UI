@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiResponse } from "next";
 import { IUser } from "@/lib/interfaces";
 
 export async function POST(
   request: Request,
   response: NextApiResponse<{ message: string; success: boolean; data?: IUser }>
 ) {
+  console.log(request.headers.get("Cookie"));
   try {
     // Parse the request body
     const { userId, category } = await request.json();

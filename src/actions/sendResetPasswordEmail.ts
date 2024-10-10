@@ -40,7 +40,7 @@ export async function sendResetPasswordEmailFunction(
       }
     );
 
-    const body = await response.json();
+    // const body = await response.json();
 
     if (!response.ok) {
       return {
