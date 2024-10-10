@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Header.module.css";
-import { UserIcon } from "lucide-react";
 import { useSearch } from "@/SearchContext";
 import { useRef } from "react"; // Import useRef
 import SearchInput from "../SearchInput/SearchInput";
@@ -23,8 +22,7 @@ export default function Header() {
   const router = useRouter();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { query, filteredEntries, handleSearch, setFilteredEntries } =
-    useSearch();
+  const { query, handleSearch, setFilteredEntries } = useSearch();
   const dropdownRef = useRef<HTMLUListElement | null>(null);
 
   const handleScroll = () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import PushNotificationManager from "@/components/ui/PWA/PushNotificationManager";
+// import PushNotificationManager from "@/components/ui/PWA/PushNotificationManager";
 
 function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);

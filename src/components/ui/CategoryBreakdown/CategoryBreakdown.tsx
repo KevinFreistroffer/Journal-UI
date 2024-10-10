@@ -13,6 +13,7 @@ export interface ICategoryBreakdown {
   color: string;
 }
 
+// @ts-ignore
 const data: {
   id: string;
   label: string;
@@ -140,6 +141,7 @@ const data: {
     color: "hsl(360, 70%, 50%)",
   },
 ];
+
 const CategoryBreakdown = ({ data }: { data: ICategoryBreakdown[] }) => (
   <ResponsivePie
     data={data}

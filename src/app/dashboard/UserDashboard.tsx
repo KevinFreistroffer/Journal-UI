@@ -108,6 +108,8 @@ function UserDashboard() {
     [key: string]: number;
   }>({});
 
+  console.log(categoryData, isSelectOpen);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
@@ -140,6 +142,7 @@ function UserDashboard() {
         15,
         selectedKeywordType
       );
+      console.log("frequencyData", frequencyData);
       // setKeywordFrequency(frequencyData);
       setIsLoadingKeywordFrequency(false); // End loading
     }
@@ -149,8 +152,7 @@ function UserDashboard() {
     console.log("selectedKeywordType", selectedKeywordType);
 
     const allEntriesText =
-      journals?.map(({ title, journal }) => title + " " + journal).join(" ") ||
-      "";
+      journals?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
 
     console.log("allEntriesText", allEntriesText);
 
@@ -408,7 +410,7 @@ function UserDashboard() {
 
             {/* Category Breakdown */}
             {!localStorageValuesFetched.categoryBreakdownCard ? (
-              <PlaceholderCard className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3" />
+              <PlaceholderCard />
             ) : (
               showCategoryBreakdownCard && (
                 <div

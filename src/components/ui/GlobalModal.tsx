@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, ReactNode } from "react";
+import React, { useContext } from "react";
 import { ModalContext } from "@/GlobalModalContext";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";

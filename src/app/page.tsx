@@ -1,14 +1,14 @@
-import CookieStatus from "@/components/ui/CookieStatus";
+// import CookieStatus from "@/components/ui/CookieStatus";
 import Image from "next/image";
-import PushNotificationManager from "@/components/ui/PWA/PushNotificationManager";
-import InstallPrompt from "@/components/ui/PWA/InstallPrompt";
-import {
-  subscribeUser,
-  unsubscribeUser,
-  sendNotification,
-} from "@/actions/pwa";
-import PWA from "@/components/ui/PWA/PWA";
-import GlobalModal from "@/components/ui/GlobalModal";
+// import PushNotificationManager from "@/components/ui/PWA/PushNotificationManager";
+// import InstallPrompt from "@/components/ui/PWA/InstallPrompt";
+// import {
+//   subscribeUser,
+//   unsubscribeUser,
+//   sendNotification,
+// } from "@/actions/pwa";
+// import PWA from "@/components/ui/PWA/PWA";
+// import GlobalModal from "@/components/ui/GlobalModal";
 
 export function urlBase64ToUint8Array(base64String: string) {
   try {

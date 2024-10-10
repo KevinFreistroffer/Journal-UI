@@ -23,6 +23,7 @@ export const verifySession = cache(
 
       return { isAuth: true, userId: session.userId as string };
     } catch (error: unknown) {
+      console.error("DAL verifySession error", error);
       return {
         isAuth: false,
         userId: null,

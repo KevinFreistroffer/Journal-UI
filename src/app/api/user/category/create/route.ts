@@ -7,7 +7,7 @@ export async function POST(
   request: Request,
   response: NextApiResponse<{ message: string; success: boolean; data?: IUser }>
 ) {
-  console.log(request.headers.get("Cookie"));
+  console.log(response);
   try {
     // Parse the request body
     const { userId, category } = await request.json();

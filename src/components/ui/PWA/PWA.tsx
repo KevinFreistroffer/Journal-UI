@@ -6,8 +6,7 @@ import InstallPrompt from "./InstallPrompt";
 import PushNotificationManager from "./PushNotificationManager";
 
 const PWA: React.FC = () => {
-  const { isOpen, openModal, closeModal, setContent } =
-    useContext(ModalContext);
+  const { openModal, setContent } = useContext(ModalContext);
 
   useEffect(() => {
     openModal(

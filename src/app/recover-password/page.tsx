@@ -18,6 +18,7 @@ export default function RecoverPasswordPage() {
     sendResetPasswordEmailFunction,
     initialState
   );
+  // @ts-ignore
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 

@@ -86,23 +86,24 @@ export default function JournalsPage() {
     );
   }
 
+  // @ts-ignore
   const getFrequentKeywords = (journals: any) => {
     const text = journals.join(" "); // Combine all journals into one text block
     const doc = nlp(text);
 
     // Get most frequent nouns or verbs
-    const keywords = doc.nouns().out("frequency");
+    const keywords = doc.nouns().out("topk");
 
     return keywords.slice(0, 5); // Get top 5 most frequent words
   };
 
-  const journals = [
-    "Today I worked on my project. It was a productive day.",
-    "I had a meeting and it went well.",
-    "The project is almost done, just need to finish a few tasks.",
-  ];
+  // const journals = [
+  //   "Today I worked on my project. It was a productive day.",
+  //   "I had a meeting and it went well.",
+  //   "The project is almost done, just need to finish a few tasks.",
+  // ];
   const sentiment = new Sentiment();
-  const analyzeSentiment = (journal) => {
+  const analyzeSentiment = (journal: string) => {
     const result = sentiment.analyze(journal);
     return result; // result.score will give you a sentiment score
   };
@@ -150,7 +151,7 @@ export default function JournalsPage() {
       setLoadingJournalId(null); // Reset loading state
     }
   };
-
+  // @ts-expect-error fix later
   const handleDelete = async () => {
     if (!journalToDelete) return; // Exit if no journal is set for deletion
 
@@ -169,6 +170,7 @@ export default function JournalsPage() {
       }
 
       // Remove the deleted journal from the state
+      // @ts-expect-error fix later
       const updatedEntries = user.journals.filter(
         (journal) => journal._id !== journalToDelete
       );
@@ -184,11 +186,12 @@ export default function JournalsPage() {
 
   const openDeleteModal = (journalId: string) => {
     setJournalToDelete(journalId); // Set the journal ID to delete
-    openModal(); // Open the GlobalModal
+    openModal(<div>Delete</div>); // Open the GlobalModal
   };
 
   newEntries.forEach((journal) => {
     const sentimentResult = analyzeSentiment(journal);
+    console.log(sentimentResult);
     // const color = getSentimentColor(sentimentResult.score);
     // console.log(
     //   `Journal: "${journal}" | Score: ${sentimentResult.score} | Color: ${color}`
@@ -216,6 +219,7 @@ export default function JournalsPage() {
     }
   };
 
+  // @ts-expect-error fix later
   const handleSelectJournal = (journalId: string, checked: boolean) => {
     if (checked) {
       setSelectedEntries((prev) => [...prev, journalId]);

@@ -3,14 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "../sheet";
+import { Sheet, SheetContent, SheetTrigger } from "../sheet";
 import { Button } from "../button";
 import { Menu } from "lucide-react";
 import { IMenuItem } from "../Header/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { useSearch } from "@/SearchContext";
-import SearchInput from "../SearchInput/SearchInput"; // Import the SearchInput component
+// import { useSearch } from "@/SearchContext";
+// import SearchInput from "../SearchInput/SearchInput"; // Import the SearchInput component
 
 interface MobileMenuProps {
   menuItems: IMenuItem[];

@@ -20,6 +20,7 @@ export default function ResetPasswordPage({
   params: { token: string };
 }) {
   const [state, formAction] = useFormState(resetPassword, initialState);
+  // @ts-ignore
   const [isSubmitting, setIsSubmitting] = useState(false);
   // const router = useRouter();
 

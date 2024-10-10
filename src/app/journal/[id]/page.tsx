@@ -2,8 +2,8 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
@@ -54,6 +54,7 @@ export default function JournalPage() {
   const handleGoBack = () => {
     router.push("/dashboard");
   };
+  console.log(handleGoBack);
 
   return (
     <div

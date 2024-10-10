@@ -12,11 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
 import { IJournal, ICategory } from "@/lib/interfaces";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   List,
@@ -30,13 +30,13 @@ import {
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
-import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
+// import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
 import { useFormState } from "react-dom";
-import { ICreateCategoryState, ICreateJournalState } from "./types";
-import { createCategory } from "@/actions/createCategory";
+import { ICreateJournalState } from "./types";
+// import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";
-import { SummarizerManager } from "node-summarizer";
+// import { SummarizerManager } from "node-summarizer";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -66,7 +66,6 @@ function WritePage() {
   const [categoryCreatedErrorMessage, setCategoryCreatedErrorMessage] =
     useState(""); // State for error message
   const [isCategoryCreated, setIsCategoryCreated] = useState(false); // State to track if category is created
-  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
   const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
@@ -82,6 +81,14 @@ function WritePage() {
   const [createJournalState, createJournalAction] = useFormState(
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
+  );
+
+  console.log(
+    createJournalState,
+    setIsSaving,
+    setShowJournalSuccessIcon,
+    isVerifiedModalOpen,
+    isCreateCategoryDialogOpen
   );
 
   // const { openModal } = useContext(ModalContext);
@@ -101,7 +108,7 @@ function WritePage() {
       clearTimeout(timeoutRef.current); // Clear the timeout if the dialog is closed
     }
   };
-
+  console.log(handleCloseCategoryModal);
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -396,7 +403,7 @@ function WritePage() {
                     <Select
                       onValueChange={setSelectedCategory}
                       value={selectedCategory}
-                      className="w-2/3"
+                      // className="w-2/3"
                       name="category"
                     >
                       <SelectTrigger>
