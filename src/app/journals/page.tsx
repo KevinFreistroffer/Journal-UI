@@ -151,7 +151,7 @@ export default function JournalsPage() {
       setLoadingJournalId(null); // Reset loading state
     }
   };
-  // @ts-expect-error fix later
+
   const handleDelete = async () => {
     if (!journalToDelete) return; // Exit if no journal is set for deletion
 
@@ -170,7 +170,7 @@ export default function JournalsPage() {
       }
 
       // Remove the deleted journal from the state
-      // @ts-expect-error fix later
+
       const updatedEntries = user.journals.filter(
         (journal) => journal._id !== journalToDelete
       );
@@ -219,7 +219,6 @@ export default function JournalsPage() {
     }
   };
 
-  // @ts-expect-error fix later
   const handleSelectJournal = (journalId: string, checked: boolean) => {
     if (checked) {
       setSelectedEntries((prev) => [...prev, journalId]);

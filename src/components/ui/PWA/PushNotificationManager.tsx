@@ -6,7 +6,26 @@ import {
   unsubscribeUser,
   sendNotification,
 } from "@/actions/pwa";
-import { urlBase64ToUint8Array } from "@/app/page";
+
+export function urlBase64ToUint8Array(base64String: string) {
+  try {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  } catch (error) {
+    console.error("Error decoding base64 string:", error);
+    return new Uint8Array(0); // Return an empty array in case of error
+  }
+}
 
 function PushNotificationManager() {
   const [isSupported, setIsSupported] = useState(false);

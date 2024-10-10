@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);

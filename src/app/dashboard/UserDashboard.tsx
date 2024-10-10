@@ -124,7 +124,7 @@ function UserDashboard() {
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
-    setSelectedKeywordType(value);
+    setSelectedKeywordType(value as "nouns" | "verbs" | "adjectives" | "terms");
     setIsSelectOpen(false); // Close the select when an option is selected
   };
 
@@ -133,9 +133,8 @@ function UserDashboard() {
     if (user) {
       setIsLoadingKeywordFrequency(true); // Start loading
       const allEntriesText =
-        journals
-          ?.map(({ title, journal }) => title + " " + journal)
-          .join(" ") || "";
+        journals?.map(({ title, entry }) => title + " " + entry).join(" ") ||
+        "";
 
       const frequencyData = getFrequentKeywords(
         allEntriesText,

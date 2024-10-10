@@ -63,7 +63,7 @@ export default function Header() {
   };
 
   const handleClickOutside = useCallback(
-    (event) => {
+    (event: MouseEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)

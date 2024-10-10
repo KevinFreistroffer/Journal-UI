@@ -76,8 +76,8 @@ const CategoriesPage: React.FC = () => {
     <div className="p-4 min-h-screen">
       <h1>Categories</h1>
       <ul>
-        {categories.map(({ name }, index) => (
-          <li key={index}>{name}</li>
+        {categories.map(({ category }, index) => (
+          <li key={index}>{category}</li>
         ))}
       </ul>
     </div>

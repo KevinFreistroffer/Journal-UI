@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext } from "react";
-import { IJournal } from "@/types/IJournal";
+import { IJournal } from "@/lib/interfaces";
 
 export interface ISearchContext {
   query: string;
