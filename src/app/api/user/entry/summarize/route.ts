@@ -10,14 +10,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const Summarizer = new SummarizerManager(text, 5); // 5 sentences summary
-    console.log(Summarizer);
     const summary = await Summarizer.getSummaryByFrequency().summary;
-    console.log("summary", summary);
-    // Trim the summary to 280 characters if it's longer
-    const trimmedSummary =
-      summary.length > 280 ? summary.substring(0, 277) + "..." : summary;
-    console.log("trimmedSummary", trimmedSummary);
-    return NextResponse.json({ summary: trimmedSummary });
+
+    // Split the summary into chunks of 280 characters or less
+    const summaryChunks = splitIntoChunks(summary, 280);
+    console.log("summaryChunks", summaryChunks, summaryChunks.length);
+    return NextResponse.json({ summary: summaryChunks });
   } catch (error) {
     console.error("Error generating summary:", error);
     return NextResponse.json(
@@ -25,4 +23,26 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function splitIntoChunks(text: string, chunkSize: number): string[] {
+  const chunks: string[] = [];
+  let index = 0;
+
+  while (index < text.length) {
+    let chunk = text.substr(index, chunkSize);
+
+    // If we're not at the end of the text, try to break at a space
+    if (index + chunkSize < text.length) {
+      const lastSpaceIndex = chunk.lastIndexOf(" ");
+      if (lastSpaceIndex !== -1) {
+        chunk = chunk.substr(0, lastSpaceIndex);
+      }
+    }
+
+    chunks.push(chunk.trim());
+    index += chunk.length;
+  }
+
+  return chunks;
 }

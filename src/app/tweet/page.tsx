@@ -7,7 +7,7 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div>
+      <div className="flex flex-col items-center justify-center minh-screen">
         <h1>Please sign in to post tweets</h1>
         <SignInButton />
       </div>
@@ -15,7 +15,7 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <h1>Post a Tweet</h1>
       <TweetForm />
     </div>

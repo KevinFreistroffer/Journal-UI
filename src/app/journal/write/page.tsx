@@ -26,6 +26,7 @@ import {
   ChevronRight,
   X,
   Check,
+  Twitter,
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
@@ -75,8 +76,9 @@ function WritePage() {
   const [averageWords, setAverageWords] = useState(0); // State for average words across all journals
   const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
   const [categoryExists, setCategoryExists] = useState(false); // State to track if the category already exists
-  const [summary, setSummary] = useState<string>("");
+  const [summary, setSummary] = useState<string>(""); // Changed to string
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [showTweetThread, setShowTweetThread] = useState(false);
   const clipboard = useClipboard();
   const [createJournalState, createJournalAction] = useFormState(
     createJournal.bind(null, user?._id || ""),
@@ -293,6 +295,37 @@ function WritePage() {
     } finally {
       setIsSummarizing(false);
     }
+  };
+
+  const handleTweet = () => {
+    const tweetText = encodeURIComponent(summary);
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+    window.open(tweetUrl, "_blank");
+  };
+
+  const generateTweetThread = () => {
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    summary.forEach((sentence) => {
+      if (currentChunk.length + sentence.length + 1 <= 280) {
+        // Add sentence to current chunk if it fits
+        currentChunk += (currentChunk ? " " : "") + sentence;
+      } else {
+        // If current chunk is not empty, push it and start a new one
+        if (currentChunk) {
+          chunks.push(currentChunk);
+        }
+        currentChunk = sentence;
+      }
+    });
+
+    // Push the last chunk if it's not empty
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+
+    return chunks;
   };
 
   // Check if the user is verified
@@ -568,8 +601,8 @@ function WritePage() {
               {showMetrics ? "Hide" : "Show"}
             </Button>
           </div>
-          {showMetrics && ( // Conditionally render metrics section
-            <div className="bg-gray-100 p-4 rounded-md shadow-md flex-grow">
+          {showMetrics && (
+            <div className="bg-gray-100 p-4 rounded-md shadow-md flex-grow flex flex-col">
               <p className="text-sm">
                 <strong>Total Words in Current Journal:</strong> {totalWords}
               </p>
@@ -578,9 +611,46 @@ function WritePage() {
                 {averageWords}
               </p>
               {summary && (
-                <div className="mt-4">
+                <div className="mt-4 flex-grow flex flex-col">
                   <strong>Generated Summary:</strong>
-                  <p className="text-sm mt-2 p-2 bg-white rounded">{summary}</p>
+                  <div className="mt-2 p-2 bg-white rounded">
+                    <p className="text-sm">{summary}</p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      summary.length > 1
+                        ? setShowTweetThread(true)
+                        : handleTweet()
+                    }
+                    className="mt-2 bg-blue-400 hover:bg-blue-500 text-white"
+                  >
+                    <Twitter size={16} className="mr-2" />
+                    {summary.length > 1 ? "Tweet Thread" : "Tweet"}
+                  </Button>
+                  {showTweetThread && (
+                    <div className="mt-4">
+                      <strong>Tweet Thread Preview:</strong>
+                      {generateTweetThread().map((chunk, index) => (
+                        <div
+                          key={index}
+                          className="mt-2 p-2 bg-gray-200 rounded"
+                        >
+                          <p className="text-sm">
+                            {index + 1}/{generateTweetThread().length}: {chunk}
+                          </p>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        onClick={handleTweet}
+                        className="mt-2 bg-blue-400 hover:bg-blue-500 text-white"
+                      >
+                        <Twitter size={16} className="mr-2" />
+                        Tweet
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -606,3 +676,21 @@ function WritePage() {
 }
 
 export default WritePage;
+
+/*
+The world we live in today is increasingly driven by technology, transforming the way we interact with one another and with the world around us.
+From smartphones to artificial intelligence, advancements in technology have reshaped industries, improved healthcare, and revolutionized communication.
+However, while the convenience and innovation brought by technology are undeniable, it also raises questions about privacy, security, and the ethical use of data.
+Balancing progress with responsible use remains one of the key challenges of our era.
+
+Education, too, has seen profound changes as digital tools become more integrated into learning environments.
+Students now have access to a wealth of information online, and virtual classrooms have made education more accessible than ever before.
+While traditional teaching methods still hold value, the shift toward e-learning platforms has enabled personalized and flexible learning.
+Yet, as education becomes more reliant on technology, it's important to address the digital divide, ensuring that all students, regardless of socioeconomic background, have the tools they need to succeed.
+
+On a personal level, technology continues to shape daily life in both subtle and significant ways.
+Social media has changed how we connect with friends and family, providing instant access to global news and trends.
+Streaming services have revolutionized how we consume entertainment, and smart devices have simplified household tasks.
+However, with this convenience also comes a growing need to find balance—ensuring that technology enhances life without overwhelming it.
+Finding time for offline experiences, genuine human connections, and personal well-being remains as important as ever in this digital age.
+*/
