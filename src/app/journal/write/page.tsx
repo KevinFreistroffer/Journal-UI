@@ -370,7 +370,9 @@ function WritePage() {
             <Checkbox
               id="showWordStats"
               checked={showWordStats}
-              onCheckedChange={(checked) => setShowWordStats(checked as boolean)}
+              onCheckedChange={(checked) =>
+                setShowWordStats(checked as boolean)
+              }
             />
             <label
               htmlFor="showWordStats"
@@ -425,6 +427,7 @@ function WritePage() {
                     value={journal}
                     onChange={(e) => setJournal(e.target.value)}
                     required
+                    cols={50}
                   />
                 </div>
                 <div>
@@ -567,16 +570,18 @@ function WritePage() {
                     >
                       {isSummarizing ? "Summarizing..." : "Summarize Journal"}
                     </Button>
-                    <TooltipProvider>
+                    <TooltipProvider delayDuration={100}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <HelpCircle className="w-5 h-5 text-gray-500 cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>
+                          <p className="text-sm leading-relaxed">
                             Summarize your journal entry into fewer sentences.
                           </p>
-                          <p>You can also tweet the summary directly!</p>
+                          <p className="text-xs leading-relaxed">
+                            You can also tweet the summary directly!
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
