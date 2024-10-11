@@ -76,21 +76,13 @@ function WritePage() {
   const [averageWords, setAverageWords] = useState(0); // State for average words across all journals
   const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
   const [categoryExists, setCategoryExists] = useState(false); // State to track if the category already exists
-  const [summary, setSummary] = useState<string>(""); // Changed to string
+  const [summary, setSummary] = useState<string[]>([]); // Changed to string[]
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [showTweetThread, setShowTweetThread] = useState(false);
   const clipboard = useClipboard();
   const [createJournalState, createJournalAction] = useFormState(
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
-  );
-
-  console.log(
-    createJournalState,
-    setIsSaving,
-    setShowJournalSuccessIcon,
-    isVerifiedModalOpen,
-    isCreateCategoryDialogOpen
   );
 
   // const { openModal } = useContext(ModalContext);
@@ -110,7 +102,7 @@ function WritePage() {
       clearTimeout(timeoutRef.current); // Clear the timeout if the dialog is closed
     }
   };
-  console.log(handleCloseCategoryModal);
+
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -133,11 +125,6 @@ function WritePage() {
         return;
       }
 
-      console.log(user, {
-        userId: user?._id,
-        category: newCategoryName,
-      });
-
       try {
         const response = await fetch(
           "/api/user/category/create?returnUser=true",
@@ -153,18 +140,11 @@ function WritePage() {
           }
         );
 
-        console.log("response", response.status, response.ok);
-
         const body = await response.json();
-        console.log("body", body);
 
         if (!response.ok) {
           setCategoryCreatedErrorMessage(body.message); // Set error message if creation failed
         } else {
-          console.log("response.ok", response.ok);
-          console.log("response.status", response.status);
-
-          console.log("created category data", body);
           setUser(body.data);
           setJournals(body.data.journals);
           setCategories(body.data.journalCategories);
@@ -287,18 +267,19 @@ function WritePage() {
         throw new Error("Failed to generate summary");
       }
 
-      const data = await response.json();
+      const data: { summary: string[] } = await response.json();
+      console.log("setting summary", data.summary, data.summary.length);
       setSummary(data.summary);
     } catch (error) {
       console.error("Error generating summary:", error);
-      setSummary("An error occurred while generating the summary.");
+      setSummary(["An error occurred while generating the summary."]);
     } finally {
       setIsSummarizing(false);
     }
   };
 
   const handleTweet = () => {
-    const tweetText = encodeURIComponent(summary);
+    const tweetText = encodeURIComponent(summary.join(" "));
     const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
     window.open(tweetUrl, "_blank");
   };
@@ -401,254 +382,288 @@ function WritePage() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="w-full p-6 overflow-y-auto max-w-4xl mx-auto flex">
-        <div className="w-2/3 flex flex-col">
-          {" "}
-          {/* Main form section */}
-          {/* <h1 className="text-3xl font-bold mb-6">Entrie Dashboard</h1> */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Create New Journal</h2>
-            <form action={createJournalAction} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="journal">Journal</Label>
-                <Textarea
-                  id="journal"
-                  name="journal"
-                  value={journal}
-                  onChange={(e) => setJournal(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Select
-                      onValueChange={setSelectedCategory}
-                      value={selectedCategory}
-                      // className="w-2/3"
-                      name="category"
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {categories.length > 0 ? (
-                          categories.map((cat, index) => (
-                            <SelectItem key={index} value={cat.category}>
-                              {cat.category}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="disabled" disabled>
-                            No categories available
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setIsAddingCategory(!isAddingCategory)}
-                      className="w-1/3"
-                    >
-                      {isAddingCategory ? (
-                        <>
-                          <X size={20} className="mr-2" />
-                          Cancel
-                        </>
-                      ) : (
-                        <>
-                          <PlusIcon className="mr-2" />
-                          Add
-                        </>
-                      )}
-                    </Button>
-                  </div>
+      <div className="flex-1 p-6 overflow-y-auto flex flex-col justify-center">
+        {/* Metrics row at the top */}
+        <div className="mb-4 text-sm text-gray-600 flex justify-end">
+          <p className="mr-4">
+            <strong>Total Words:</strong> {totalWords}
+          </p>
+          <p>
+            <strong>Average Words:</strong> {averageWords}
+          </p>
+        </div>
 
-                  {isAddingCategory && (
+        <div
+          className={`flex flex-1 justify-center ${
+            !summary ? "justify-center" : ""
+          }`}
+        >
+          <div className={`${summary ? "w-1/2 pr-6" : "w-2/3"}`}>
+            {/* Main form section */}
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">
+                Create New Journal
+              </h2>
+              <form action={createJournalAction} className="space-y-4">
+                <div>
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="journal">Journal</Label>
+                  <Textarea
+                    id="journal"
+                    name="journal"
+                    value={journal}
+                    onChange={(e) => setJournal(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <div className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Input
-                        value={newCategoryName}
-                        onChange={(e) => {
-                          const newName = e.target.value;
-                          setNewCategoryName(newName);
-                          setShowCreatedCategorySuccessIcon(false); // Hide success icon on input change
-
-                          // Check if the category already exists
-                          const exists = categories.some(
-                            ({ category }) =>
-                              category.toLowerCase() === newName.toLowerCase()
-                          );
-                          setCategoryExists(exists); // Update categoryExists state
-
-                          // Set error message if the category exists
-                          if (exists) {
-                            setCategoryCreatedErrorMessage(
-                              "Category already exists."
-                            ); // Show error message
-                          } else {
-                            setCategoryCreatedErrorMessage(""); // Clear error message if it doesn't exist
-                          }
-                        }}
-                        placeholder="New category"
-                        className="w-2/3"
-                      />
-                      <Button
-                        type="button" // Change to submit type
-                        className="w-1/3"
-                        disabled={
-                          isCreatingCategoryLoading ||
-                          categoryExists ||
-                          newCategoryName.trim() === ""
-                        } // Disable button if loading, category exists, or input is empty
-                        onClick={handleCreateCategory}
+                      <Select
+                        onValueChange={setSelectedCategory}
+                        value={selectedCategory}
+                        // className="w-2/3"
+                        name="category"
                       >
-                        {isCreatingCategoryLoading ? ( // Show spinner if loading
-                          <Spinner />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {categories.length > 0 ? (
+                            categories.map((cat, index) => (
+                              <SelectItem key={index} value={cat.category}>
+                                {cat.category}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="disabled" disabled>
+                              No categories available
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setIsAddingCategory(!isAddingCategory)}
+                        className="w-1/3"
+                      >
+                        {isAddingCategory ? (
+                          <>
+                            <X size={20} className="mr-2" />
+                            Cancel
+                          </>
                         ) : (
-                          "Add"
+                          <>
+                            <PlusIcon className="mr-2" />
+                            Add
+                          </>
                         )}
                       </Button>
                     </div>
+
+                    {isAddingCategory && (
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          value={newCategoryName}
+                          onChange={(e) => {
+                            const newName = e.target.value;
+                            setNewCategoryName(newName);
+                            setShowCreatedCategorySuccessIcon(false); // Hide success icon on input change
+
+                            // Check if the category already exists
+                            const exists = categories.some(
+                              ({ category }) =>
+                                category.toLowerCase() === newName.toLowerCase()
+                            );
+                            setCategoryExists(exists); // Update categoryExists state
+
+                            // Set error message if the category exists
+                            if (exists) {
+                              setCategoryCreatedErrorMessage(
+                                "Category already exists."
+                              ); // Show error message
+                            } else {
+                              setCategoryCreatedErrorMessage(""); // Clear error message if it doesn't exist
+                            }
+                          }}
+                          placeholder="New category"
+                          className="w-2/3"
+                        />
+                        <Button
+                          type="button" // Change to submit type
+                          className="w-1/3"
+                          disabled={
+                            isCreatingCategoryLoading ||
+                            categoryExists ||
+                            newCategoryName.trim() === ""
+                          } // Disable button if loading, category exists, or input is empty
+                          onClick={handleCreateCategory}
+                        >
+                          {isCreatingCategoryLoading ? ( // Show spinner if loading
+                            <Spinner />
+                          ) : (
+                            "Add"
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    {showCreatedCategorySuccessIcon && (
+                      <div className="flex items-center">
+                        <Check size={20} className="text-green-500 mr-2" />
+                        <span className="text-green-500">
+                          Category added successfully!
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {categoryCreatedErrorMessage && ( // Show error message if it exists
+                    <p className="text-red-500 mt-1">
+                      {categoryCreatedErrorMessage}
+                    </p>
                   )}
-                  {showCreatedCategorySuccessIcon && (
+                </div>
+                <div className="flex items-center">
+                  <Label htmlFor="favorite" className="mr-2">
+                    Favorite this journal?
+                  </Label>
+                  <input
+                    type="checkbox"
+                    id="favorite"
+                    name="favorite"
+                    checked={favorite}
+                    onChange={(e) => {
+                      console.log(e.target.checked, typeof e.target.checked);
+                      setFavorite(e.target.checked);
+                    }}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <Button
+                    type="submit"
+                    disabled={isSaving || !title || !journal}
+                    className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+                  >
+                    {isSaving ? "Saving..." : "Create Journal"}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={summarizeJournal}
+                    className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+                    disabled={isSummarizing || !journal}
+                  >
+                    {isSummarizing ? "Summarizing..." : "Summarize Journal"}
+                  </Button>
+                  {/* <Button
+                    type="button"
+                    onClick={() => clipboard.copy(summary)}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                    disabled={!summary}
+                  >
+                    Copy Summary
+                  </Button> */}
+                  {showJournalSuccessIcon && (
                     <div className="flex items-center">
-                      <Check size={20} className="text-green-500 mr-2" />
-                      <span className="text-green-500">
-                        Category added successfully!
-                      </span>
+                      <CheckCircle className="text-green-500 mr-2" />
+                      <p className="text-green-500">
+                        Entrie created successfully!
+                      </p>
                     </div>
                   )}
                 </div>
-                {categoryCreatedErrorMessage && ( // Show error message if it exists
-                  <p className="text-red-500 mt-1">
-                    {categoryCreatedErrorMessage}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center">
-                <Label htmlFor="favorite" className="mr-2">
-                  Favorite this journal?
-                </Label>
-                <input
-                  type="checkbox"
-                  id="favorite"
-                  name="favorite"
-                  checked={favorite}
-                  onChange={(e) => {
-                    console.log(e.target.checked, typeof e.target.checked);
-                    setFavorite(e.target.checked);
-                  }}
-                />
-              </div>
-              <div className="flex items-center">
-                <Button
-                  type="submit"
-                  disabled={isSaving || !title || !journal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                >
-                  {isSaving ? "Saving..." : "Create Journal"}
-                </Button>
+              </form>
+            </div>
+          </div>
+          {summary && (
+            <div className="w-1/3 pl-6 flex flex-col">
+              {/* Summary and Tweet Thread section */}
+              <div className="flex justify-between items-center mb-0">
                 <Button
                   type="button"
-                  onClick={summarizeJournal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                  disabled={isSummarizing}
+                  onClick={() => setShowMetrics(!showMetrics)}
+                  variant="ghost"
+                  className="text-xs pb-0 mb-0"
                 >
-                  {isSummarizing ? "Summarizing..." : "Summarize Journal"}
+                  {showMetrics ? "Hide" : "Show"}
                 </Button>
-                <Button
-                  type="button"
-                  onClick={() => clipboard.copy(summary)}
-                  className="bg-green-500 hover:bg-green-600 text-white"
-                  disabled={!summary}
-                >
-                  Copy Summary
-                </Button>
-                {showJournalSuccessIcon && (
-                  <div className="flex items-center">
-                    <CheckCircle className="text-green-500 mr-2" />
-                    <p className="text-green-500">
-                      Entrie created successfully!
-                    </p>
-                  </div>
-                )}
               </div>
-            </form>
-          </div>
-        </div>
-        <div className="w-1/3 pl-6 flex flex-col">
-          {" "}
-          {/* Metrics section */}
-          <div className="flex justify-end items-center mb-0 ">
-            <Button
-              type="button"
-              onClick={() => setShowMetrics(!showMetrics)}
-              variant="ghost"
-              className="text-xs pb-0 mb-0"
-            >
-              {showMetrics ? "Hide" : "Show"}
-            </Button>
-          </div>
-          {showMetrics && (
-            <div className="bg-gray-100 p-4 rounded-md shadow-md flex-grow flex flex-col">
-              <p className="text-sm">
-                <strong>Total Words in Current Journal:</strong> {totalWords}
-              </p>
-              <p className="text-sm">
-                <strong>Average Words Across All Journals:</strong>{" "}
-                {averageWords}
-              </p>
-              {summary && (
-                <div className="mt-4 flex-grow flex flex-col">
-                  <strong>Generated Summary:</strong>
-                  <div className="mt-2 p-2 bg-white rounded">
-                    <p className="text-sm">{summary}</p>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      summary.length > 1
-                        ? setShowTweetThread(true)
-                        : handleTweet()
-                    }
-                    className="mt-2 bg-blue-400 hover:bg-blue-500 text-white"
-                  >
-                    <Twitter size={16} className="mr-2" />
-                    {summary.length > 1 ? "Tweet Thread" : "Tweet"}
-                  </Button>
-                  {showTweetThread && (
-                    <div className="mt-4">
-                      <strong>Tweet Thread Preview:</strong>
-                      {generateTweetThread().map((chunk, index) => (
-                        <div
-                          key={index}
-                          className="mt-2 p-2 bg-gray-200 rounded"
-                        >
-                          <p className="text-sm">
-                            {index + 1}/{generateTweetThread().length}: {chunk}
+              {showMetrics && (
+                <div className="flex-grow flex space-x-4 w-full">
+                  {/* Generated Summary column */}
+                  <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col">
+                    <div className="mt-4 flex-grow">
+                      <strong>Generated Summary:</strong>
+                      <div className="mt-2 p-2 bg-white rounded">
+                        <p className="text-sm mb-2">{summary.join(" ")}</p>
+                        <div className="flex justify-end">
+                          <p className="text-xs text-gray-600">
+                            Total characters: {summary.join(" ").length}
                           </p>
                         </div>
-                      ))}
-                      <Button
-                        type="button"
-                        onClick={handleTweet}
-                        className="mt-2 bg-blue-400 hover:bg-blue-500 text-white"
-                      >
-                        <Twitter size={16} className="mr-2" />
-                        Tweet
-                      </Button>
+                      </div>
+                      <div className="mt-2 flex space-x-2 max-h-screen">
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (summary.join(" ").length <= 280) {
+                              handleTweet();
+                            } else {
+                              setShowTweetThread(!showTweetThread);
+                            }
+                          }}
+                          className="bg-blue-400 hover:bg-blue-500 text-white"
+                        >
+                          <Twitter size={16} className="mr-2" />
+                          {summary.join(" ").length <= 280
+                            ? "Tweet"
+                            : showTweetThread
+                            ? "Hide Tweet Thread"
+                            : "Show Tweet Thread"}
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => clipboard.copy(summary.join(" "))}
+                          className="bg-green-500 hover:bg-green-600 text-white"
+                        >
+                          Copy Summary
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Tweet Thread column (if shown) */}
+                  {showTweetThread && (
+                    <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col">
+                      <div className="flex-grow">
+                        <strong>Tweet Thread Preview:</strong>
+                        <div className="mt-2 space-y-2">
+                          {generateTweetThread().map((chunk, index) => (
+                            <div key={index} className="p-2 bg-white rounded">
+                              <p className="text-sm">
+                                {index + 1}/{generateTweetThread().length}:{" "}
+                                {chunk}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={handleTweet}
+                          className="mt-4 bg-blue-400 hover:bg-blue-500 text-white"
+                        >
+                          <Twitter size={16} className="mr-2" />
+                          Tweet
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>

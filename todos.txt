@@ -1,5 +1,7 @@
 if cookieConsent is false, use LS
 
+try next-auth?
+
 save new categories in the DB.
 
 redo the form action error messages

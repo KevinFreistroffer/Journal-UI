@@ -11,10 +11,15 @@ export async function POST(req: NextRequest) {
   try {
     const Summarizer = new SummarizerManager(text, 5); // 5 sentences summary
     const summary = await Summarizer.getSummaryByFrequency().summary;
+    if (
+      summary ===
+      "Not Enough similarities to be summarized, or the sentence is invalid"
+    ) {
+      return NextResponse.json({ summary: [] });
+    }
 
     // Split the summary into chunks of 280 characters or less
     const summaryChunks = splitIntoChunks(summary, 280);
-    console.log("summaryChunks", summaryChunks, summaryChunks.length);
     return NextResponse.json({ summary: summaryChunks });
   } catch (error) {
     console.error("Error generating summary:", error);
