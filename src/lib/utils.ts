@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import nlp from "compromise";
-
+import crypto from "crypto";
 export interface IKeywordFrequency {
   normal: string;
   count: number;
@@ -47,3 +47,25 @@ export const getFrequentKeywords = (
     })
     .slice(0, returnTopMost);
 };
+
+export function generateCodeVerifier() {
+  return crypto.randomBytes(32).toString("base64url");
+}
+
+export function generateCodeChallenge(verifier: string) {
+  return crypto.createHash("sha256").update(verifier).digest("base64url");
+}
+
+export function getAuthorizationUrl(codeChallenge: string) {
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: process.env.X_CLIENT_ID!,
+    redirect_uri: process.env.X_REDIRECT_URI!,
+    scope: "tweet.read tweet.write users.read offline.access",
+    state: crypto.randomBytes(16).toString("hex"),
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256",
+  });
+
+  return `https://twitter.com/i/oauth2/authorize?${params.toString()}`;
+}
