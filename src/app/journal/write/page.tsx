@@ -45,6 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
+import { Checkbox } from "@/components/ui/checkbox";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -91,6 +92,7 @@ function WritePage() {
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
   );
+  const [showWordStats, setShowWordStats] = useState(true);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -363,42 +365,35 @@ function WritePage() {
         >
           {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
         </Button>
-        <div className="flex flex-col items-center">
-          <Link
-            href="/journals"
-            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
-              isSidebarOpen ? "justify-start" : "justify-center"
-            }`}
-          >
-            <List />
-            {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Journals ({journals.length})</span>
-            )}
-          </Link>
-          <Link
-            href="/categories"
-            className={`w-full flex items-center h-6 mt-4 mb-4 mr-0 ${
-              isSidebarOpen ? "justify-start" : "justify-center"
-            }`}
-          >
-            <Grid />
-            {isSidebarOpen && isTextVisible && (
-              <span className="ml-2">Categories ({categories.length})</span>
-            )}
-          </Link>
-        </div>
+        {isSidebarOpen && (
+          <div className="flex items-center mt-4">
+            <Checkbox
+              id="showWordStats"
+              checked={showWordStats}
+              onCheckedChange={(checked) => setShowWordStats(checked as boolean)}
+            />
+            <label
+              htmlFor="showWordStats"
+              className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Show Word Stats
+            </label>
+          </div>
+        )}
       </div>
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto flex flex-col justify-center">
         {/* Metrics row at the top */}
-        <div className="mb-4 text-sm text-gray-600 flex justify-end">
-          <p className="mr-4">
-            <strong>Total Words:</strong> {totalWords}
-          </p>
-          <p>
-            <strong>Average Words:</strong> {averageWords}
-          </p>
-        </div>
+        {showWordStats && (
+          <div className="mb-4 text-sm text-gray-600 flex flex-col justify-end">
+            <p className="mr-4">
+              <strong>Total Words:</strong> {totalWords}
+            </p>
+            <p>
+              <strong>Average Words:</strong> {averageWords}
+            </p>
+          </div>
+        )}
 
         <div
           className={`flex flex-1 justify-center ${
