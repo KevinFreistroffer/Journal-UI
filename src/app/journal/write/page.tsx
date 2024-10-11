@@ -27,6 +27,7 @@ import {
   X,
   Check,
   Twitter,
+  HelpCircle,
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
@@ -38,6 +39,12 @@ import { ICreateJournalState } from "./types";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";
 // import { SummarizerManager } from "node-summarizer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip/tooltip"; // Add these imports
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -556,14 +563,29 @@ function WritePage() {
                   >
                     {isSaving ? "Saving..." : "Create Journal"}
                   </Button>
-                  <Button
-                    type="button"
-                    onClick={summarizeJournal}
-                    className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                    disabled={isSummarizing || !journal}
-                  >
-                    {isSummarizing ? "Summarizing..." : "Summarize Journal"}
-                  </Button>
+                  <div className="flex items-center">
+                    <Button
+                      type="button"
+                      onClick={summarizeJournal}
+                      className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
+                      disabled={isSummarizing || !journal}
+                    >
+                      {isSummarizing ? "Summarizing..." : "Summarize Journal"}
+                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-5 h-5 text-gray-500 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            Summarize your journal entry into fewer sentences.
+                          </p>
+                          <p>You can also tweet the summary directly!</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   {/* <Button
                     type="button"
                     onClick={() => clipboard.copy(summary)}
@@ -584,8 +606,8 @@ function WritePage() {
               </form>
             </div>
           </div>
-          {summary && (
-            <div className="w-1/3 pl-6 flex flex-col">
+          {summary && summary.length > 0 && (
+            <div className="w-1/2 pl-6 flex flex-col">
               {/* Summary and Tweet Thread section */}
               <div className="flex justify-between items-center mb-0">
                 <Button
