@@ -27,7 +27,9 @@ import {
   X,
   Check,
   Twitter,
+  ChartNoAxesColumnIncreasing,
   HelpCircle,
+  Clipboard,
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
@@ -45,7 +47,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
-import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils"; // Make sure you have this utility function
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -92,7 +94,6 @@ function WritePage() {
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
   );
-  const [showWordStats, setShowWordStats] = useState(true);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -177,17 +178,17 @@ function WritePage() {
     }
   };
 
-  useEffect(() => {
-    if (isSidebarOpen) {
-      const timer = setTimeout(() => {
-        setIsTextVisible(true); // Show text after animation
-      }, 200); // Match this duration with your CSS transition duration
+  // useEffect(() => {
+  //   if (isSidebarOpen) {
+  //     const timer = setTimeout(() => {
+  //       setIsTextVisible(true); // Show text after animation
+  //     }, 200); // Match this duration with your CSS transition duration
 
-      return () => clearTimeout(timer);
-    } else {
-      setIsTextVisible(false); // Hide text when sidebar is closed
-    }
-  }, [isSidebarOpen]);
+  //     return () => clearTimeout(timer);
+  //   } else {
+  //     setIsTextVisible(false); // Hide text when sidebar is closed
+  //   }
+  // }, [isSidebarOpen]);
 
   useEffect(() => {
     const savedJournal =
@@ -348,99 +349,95 @@ function WritePage() {
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar - hidden on small screens, visible from medium screens and up */}
+    <div className="flex h-full min-h-screen mt-16">
+      {/* Sidebar - fixed position, full height */}
       <div
-        className={`hidden md:flex flex-col bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out relative ${
-          isSidebarOpen ? "md:w-64" : "md:w-16"
+        className={`fixed mt-16 top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 ${
+          isSidebarOpen ? "w-56" : "w-16"
         }`}
       >
         <Button
-          className={`relative w-full p-0 mb-6 ${
+          className={`relative w-full p-0 cursor-pointer ${
             isSidebarOpen ? "justify-end" : "justify-center"
           }`}
           variant="ghost"
           size="sm"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
+          {isSidebarOpen ? (
+            <ChevronLeft size={20} />
+          ) : (
+            <ChartNoAxesColumnIncreasing size={20} />
+          )}
         </Button>
         {isSidebarOpen && (
-          <div className="flex items-center mt-4">
-            <Checkbox
-              id="showWordStats"
-              checked={showWordStats}
-              onCheckedChange={(checked) =>
-                setShowWordStats(checked as boolean)
-              }
-            />
-            <label
-              htmlFor="showWordStats"
-              className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Show Word Stats
-            </label>
+          <div className="flex flex-col mt-4">
+            <span className="text-md font-medium">Word Stats</span>
+            <div className="mt-2 text-sm font-thin text-gray-600">
+              <p>
+                <strong>Total Words:</strong> {totalWords}
+              </p>
+              <p>
+                <strong>Average Words:</strong> {averageWords}
+              </p>
+            </div>
           </div>
         )}
       </div>
-      {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto flex flex-col justify-center">
-        {/* Metrics row at the top */}
-        {showWordStats && (
-          <div className="mb-4 text-sm text-gray-600 flex flex-col justify-end">
-            <p className="mr-4">
-              <strong>Total Words:</strong> {totalWords}
-            </p>
-            <p>
-              <strong>Average Words:</strong> {averageWords}
-            </p>
-          </div>
-        )}
 
-        <div
-          className={`flex flex-1 justify-center ${
-            !summary ? "justify-center" : ""
-          }`}
-        >
-          <div className={`${summary ? "w-1/2 pr-6" : "w-2/3"}`}>
-            {/* Main form section */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">
-                Create New Journal
-              </h2>
-              <form action={createJournalAction} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="journal">Journal</Label>
-                  <Textarea
-                    id="journal"
-                    name="journal"
-                    value={journal}
-                    onChange={(e) => setJournal(e.target.value)}
-                    required
-                    cols={50}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <div className="flex flex-col space-y-2">
+      {/* Main Content - adjusted to be a flex container */}
+      <div
+        className={`flex-1 p-6 overflow-y-auto flex ${
+          isSidebarOpen ? "ml-56" : "ml-24"
+        }`}
+      >
+        {/* Journal writing section */}
+        <div className="flex-1 flex justify-center">
+          <div className="w-3/4">
+            <h2 className="text-2xl font-semibold mb-4">Your Thoughts</h2>
+            <form action={createJournalAction} className="space-y-4">
+              <div>
+                {/* <Label htmlFor="journal">Journal</Label> */}
+                <Textarea
+                  id="journal"
+                  name="journal"
+                  value={journal}
+                  onChange={(e) => setJournal(e.target.value)}
+                  required
+                  cols={50}
+                />
+              </div>
+              <div className="flex flex-col">
+                <Label htmlFor="title" className="mb-1">
+                  Title{" "}
+                  <span className="text-gray-400 text-sm font-normal">
+                    (optional)
+                  </span>
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter a title"
+                />
+              </div>
+              <div className="space-y-4 flex flex-col">
+                <div className="flex flex-col">
+                  <Label htmlFor="category" className="mb-1">
+                    Categorize{" "}
+                    <span className="text-gray-400 text-sm font-normal">
+                      (optional)
+                    </span>
+                  </Label>
+                  <div className="flex flex-col">
                     <div className="flex items-center space-x-2">
                       <Select
                         onValueChange={setSelectedCategory}
                         value={selectedCategory}
-                        // className="w-2/3"
                         name="category"
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-[200px] h-[20px] border-solid border-gray-300">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent className="bg-white">
@@ -461,7 +458,7 @@ function WritePage() {
                         type="button"
                         variant="ghost"
                         onClick={() => setIsAddingCategory(!isAddingCategory)}
-                        className="w-1/3"
+                        className="text-xs"
                       >
                         {isAddingCategory ? (
                           <>
@@ -470,61 +467,47 @@ function WritePage() {
                           </>
                         ) : (
                           <>
-                            <PlusIcon className="mr-2" />
-                            Add
+                            New <PlusIcon className="mr-2" size={16} />
                           </>
                         )}
                       </Button>
                     </div>
 
                     {isAddingCategory && (
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 mt-2">
                         <Input
                           value={newCategoryName}
                           onChange={(e) => {
                             const newName = e.target.value;
                             setNewCategoryName(newName);
-                            setShowCreatedCategorySuccessIcon(false); // Hide success icon on input change
-
-                            // Check if the category already exists
+                            setShowCreatedCategorySuccessIcon(false);
                             const exists = categories.some(
                               ({ category }) =>
                                 category.toLowerCase() === newName.toLowerCase()
                             );
-                            setCategoryExists(exists); // Update categoryExists state
-
-                            // Set error message if the category exists
-                            if (exists) {
-                              setCategoryCreatedErrorMessage(
-                                "Category already exists."
-                              ); // Show error message
-                            } else {
-                              setCategoryCreatedErrorMessage(""); // Clear error message if it doesn't exist
-                            }
+                            setCategoryExists(exists);
+                            setCategoryCreatedErrorMessage(
+                              exists ? "Category already exists." : ""
+                            );
                           }}
                           placeholder="New category"
-                          className="w-2/3"
+                          className="flex-grow"
                         />
                         <Button
-                          type="button" // Change to submit type
-                          className="w-1/3"
+                          type="button"
                           disabled={
                             isCreatingCategoryLoading ||
                             categoryExists ||
                             newCategoryName.trim() === ""
-                          } // Disable button if loading, category exists, or input is empty
+                          }
                           onClick={handleCreateCategory}
                         >
-                          {isCreatingCategoryLoading ? ( // Show spinner if loading
-                            <Spinner />
-                          ) : (
-                            "Add"
-                          )}
+                          {isCreatingCategoryLoading ? <Spinner /> : "Add"}
                         </Button>
                       </div>
                     )}
                     {showCreatedCategorySuccessIcon && (
-                      <div className="flex items-center">
+                      <div className="flex items-center mt-2">
                         <Check size={20} className="text-green-500 mr-2" />
                         <span className="text-green-500">
                           Category added successfully!
@@ -532,7 +515,7 @@ function WritePage() {
                       </div>
                     )}
                   </div>
-                  {categoryCreatedErrorMessage && ( // Show error message if it exists
+                  {categoryCreatedErrorMessage && (
                     <p className="text-red-500 mt-1">
                       {categoryCreatedErrorMessage}
                     </p>
@@ -542,192 +525,187 @@ function WritePage() {
                   <Label htmlFor="favorite" className="mr-2">
                     Favorite this journal?
                   </Label>
-                  <input
-                    type="checkbox"
-                    id="favorite"
-                    name="favorite"
-                    checked={favorite}
-                    onChange={(e) => {
-                      console.log(e.target.checked, typeof e.target.checked);
-                      setFavorite(e.target.checked);
-                    }}
-                  />
-                </div>
-                <div className="flex items-center">
-                  <Button
-                    type="submit"
-                    disabled={isSaving || !title || !journal}
-                    className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                  >
-                    {isSaving ? "Saving..." : "Create Journal"}
-                  </Button>
-                  <div className="flex items-center">
-                    <Button
-                      type="button"
-                      onClick={summarizeJournal}
-                      className="bg-blue-500 hover:bg-blue-600 text-white mr-2"
-                      disabled={isSummarizing || !journal}
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      id="favorite"
+                      name="favorite"
+                      checked={favorite}
+                      onChange={(e) => setFavorite(e.target.checked)}
+                      className="sr-only" // Hide the actual checkbox
+                    />
+                    <div
+                      className={cn(
+                        "w-5 h-5 border-2 rounded-sm cursor-pointer transition-colors duration-200",
+                        favorite
+                          ? "bg-[#3b82f6] border-[#3b82f6]"
+                          : "bg-white border-gray-300"
+                      )}
+                      onClick={() => setFavorite(!favorite)}
                     >
-                      {isSummarizing ? "Summarizing..." : "Summarize Journal"}
-                    </Button>
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="w-5 h-5 text-gray-500 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-sm leading-relaxed">
-                            Summarize your journal entry into fewer sentences.
-                          </p>
-                          <p className="text-xs leading-relaxed">
-                            You can also tweet the summary directly!
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  {/* <Button
-                    type="button"
-                    onClick={() => clipboard.copy(summary)}
-                    className="bg-green-500 hover:bg-green-600 text-white"
-                    disabled={!summary}
-                  >
-                    Copy Summary
-                  </Button> */}
-                  {showJournalSuccessIcon && (
-                    <div className="flex items-center">
-                      <CheckCircle className="text-green-500 mr-2" />
-                      <p className="text-green-500">
-                        Entrie created successfully!
-                      </p>
+                      {favorite && (
+                        <svg
+                          className="w-4 h-4 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
-              </form>
-            </div>
-          </div>
-          {summary && summary.length > 0 && (
-            <div className="w-1/2 pl-6 flex flex-col">
-              {/* Summary and Tweet Thread section */}
-              <div className="flex justify-between items-center mb-0">
+              </div>
+              <div className="flex items-center justify-start">
                 <Button
-                  type="button"
-                  onClick={() => setShowMetrics(!showMetrics)}
-                  variant="ghost"
-                  className="text-xs pb-0 mb-0"
+                  type="submit"
+                  disabled={isSaving || !title || !journal}
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/3"
                 >
-                  {showMetrics ? "Hide" : "Show"}
+                  {isSaving ? "Saving..." : "Save Journal"}
                 </Button>
               </div>
-              {showMetrics && (
-                <div className="flex-grow flex space-x-4 w-full">
-                  {/* Generated Summary column */}
-                  <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col">
-                    <div className="mt-4 flex-grow">
-                      <strong>Generated Summary:</strong>
-                      <div className="mt-2 p-2 bg-white rounded">
-                        <p className="text-sm mb-2">{summary.join(" ")}</p>
-                        <div className="flex justify-end">
-                          <p className="text-xs text-gray-600">
-                            Total characters: {summary.join(" ").length}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-2 flex space-x-2 max-h-screen">
-                        <Button
-                          type="button"
-                          onClick={() => {
-                            if (summary.join(" ").length <= 280) {
-                              handleTweet();
-                            } else {
-                              setShowTweetThread(!showTweetThread);
-                            }
-                          }}
-                          className="bg-blue-400 hover:bg-blue-500 text-white"
-                        >
-                          <Twitter size={16} className="mr-2" />
-                          {summary.join(" ").length <= 280
-                            ? "Tweet"
-                            : showTweetThread
-                            ? "Hide Tweet Thread"
-                            : "Show Tweet Thread"}
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => clipboard.copy(summary.join(" "))}
-                          className="bg-green-500 hover:bg-green-600 text-white"
-                        >
-                          Copy Summary
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Tweet Thread column (if shown) */}
-                  {showTweetThread && (
-                    <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col">
-                      <div className="flex-grow">
-                        <strong>Tweet Thread Preview:</strong>
-                        <div className="mt-2 space-y-2">
-                          {generateTweetThread().map((chunk, index) => (
-                            <div key={index} className="p-2 bg-white rounded">
-                              <p className="text-sm">
-                                {index + 1}/{generateTweetThread().length}:{" "}
-                                {chunk}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                        <Button
-                          type="button"
-                          onClick={handleTweet}
-                          className="mt-4 bg-blue-400 hover:bg-blue-500 text-white"
-                        >
-                          <Twitter size={16} className="mr-2" />
-                          Tweet
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+              <div className="flex items-center mt-2">
+                <Button
+                  type="button"
+                  onClick={summarizeJournal}
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/3 mr-2"
+                  disabled={isSummarizing || !journal}
+                >
+                  {isSummarizing ? "Summarizing..." : "Summarize Journal"}
+                </Button>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="w-5 h-5 text-gray-500 cursor-help border-solid border-black" />
+                    </TooltipTrigger>
+                    <TooltipContent className="border-solid border-black">
+                      <p className="text-sm leading-relaxed">
+                        Summarize your journal entry into fewer sentences.
+                      </p>
+                      <p className="text-xs leading-relaxed">
+                        You can also tweet the summary directly!
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              {showJournalSuccessIcon && (
+                <div className="flex items-center mt-2">
+                  <CheckCircle className="text-green-500 mr-2" />
+                  <p className="text-green-500">Entry created successfully!</p>
                 </div>
               )}
-            </div>
-          )}
+            </form>
+          </div>
         </div>
-      </div>
-      <div
-        style={{
-          position: "fixed",
-          bottom: "0",
-          left: "0",
-          width: "100%",
-          backgroundColor: "white",
-          padding: "1rem",
-          textAlign: "center",
-          zIndex: 1000,
-        }}
-      >
-        <h1>{isCategoryCreated.toString()}</h1>
+
+        {/* Summary section */}
+        {summary && summary.length > 0 && (
+          <div className="w-1/2 pl-6 flex flex-col">
+            <div className="flex justify-between items-center mb-0">
+              <Button
+                type="button"
+                onClick={() => setShowMetrics(!showMetrics)}
+                variant="ghost"
+                className="text-xs pb-0 mb-0"
+              >
+                {showMetrics ? "Hide" : "Show"}
+              </Button>
+            </div>
+            {showMetrics && (
+              <div className="flex-grow flex space-x-4 w-full">
+                {/* Generated Summary column */}
+                <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col relative">
+                  <Button
+                    type="button"
+                    onClick={() => setShowMetrics(false)}
+                    className="absolute top-2 right-2 p-0 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
+                  >
+                    <X size={16} />
+                  </Button>
+                  <div className="mt-4 flex-grow">
+                    <strong>Generated Summary:</strong>
+                    <div className="mt-2 p-2 bg-white rounded relative">
+                      <Button
+                        type="button"
+                        onClick={() => clipboard.copy(summary.join(" "))}
+                        className="absolute top-2 right-2 p-0 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
+                        title="Copy Summary"
+                      >
+                        <Clipboard size={20} className="text-black" />
+                      </Button>
+                      <p className="text-sm mb-2 pr-8">{summary.join(" ")}</p>
+                      <div className="flex justify-end">
+                        <p className="text-xs text-gray-600">
+                          Total characters: {summary.join(" ").length}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex space-x-2 max-h-screen">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (summary.join(" ").length <= 280) {
+                            handleTweet();
+                          } else {
+                            setShowTweetThread(!showTweetThread);
+                          }
+                        }}
+                        className="bg-blue-400 hover:bg-blue-500 text-white"
+                      >
+                        <Twitter size={16} className="mr-2" />
+                        {summary.join(" ").length <= 280 ? "Tweet" : "Start a Tweet Thread"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                {/* Tweet Thread column (if shown) */}
+                {showTweetThread && (
+                  <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col relative">
+                    <Button
+                      type="button"
+                      onClick={() => setShowTweetThread(false)}
+                      className="absolute top-2 right-2 p-0 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
+                    >
+                      <X size={16} />
+                    </Button>
+                    <div className="flex-grow">
+                      <strong>Tweet Thread Preview:</strong>
+                      <div className="mt-2 space-y-2">
+                        {generateTweetThread().map((chunk, index) => (
+                          <div key={index} className="p-2 bg-white rounded">
+                            <p className="text-sm">
+                              {index + 1}/{generateTweetThread().length}: {chunk}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleTweet}
+                        className="mt-4 bg-blue-400 hover:bg-blue-500 text-white"
+                      >
+                        <Twitter size={16} className="mr-2" />
+                        Tweet
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 export default WritePage;
-
-/*
-The world we live in today is increasingly driven by technology, transforming the way we interact with one another and with the world around us.
-From smartphones to artificial intelligence, advancements in technology have reshaped industries, improved healthcare, and revolutionized communication.
-However, while the convenience and innovation brought by technology are undeniable, it also raises questions about privacy, security, and the ethical use of data.
-Balancing progress with responsible use remains one of the key challenges of our era.
-
-Education, too, has seen profound changes as digital tools become more integrated into learning environments.
-Students now have access to a wealth of information online, and virtual classrooms have made education more accessible than ever before.
-While traditional teaching methods still hold value, the shift toward e-learning platforms has enabled personalized and flexible learning.
-Yet, as education becomes more reliant on technology, it's important to address the digital divide, ensuring that all students, regardless of socioeconomic background, have the tools they need to succeed.
-
-On a personal level, technology continues to shape daily life in both subtle and significant ways.
-Social media has changed how we connect with friends and family, providing instant access to global news and trends.
-Streaming services have revolutionized how we consume entertainment, and smart devices have simplified household tasks.
-However, with this convenience also comes a growing need to find balance—ensuring that technology enhances life without overwhelming it.
-Finding time for offline experiences, genuine human connections, and personal well-being remains as important as ever in this digital age.
-*/

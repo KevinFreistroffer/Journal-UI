@@ -85,14 +85,14 @@ export default function Header() {
   return (
     <header
       id={styles["header"]}
-      className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
+      className={`sticky h-16 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
         isScrolled ? "bg-[rgba(0,0,0,0.11)]" : "bg-transparent"
       }`}
     >
       <div className="p-8 flex h-14 items-center justify-between w-full">
         <div className="flex-1 hidden md:block ">
           <Link href="/" passHref>
-            <h1 className="text-lg font-semibold md:text-xl">Journals</h1>
+            <h1 className="text-lg font-semibold md:text-xl">SumTweet</h1>
           </Link>
         </div>
         {/* Search Input Section moved to the right */}

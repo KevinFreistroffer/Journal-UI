@@ -20,20 +20,18 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
   return (
     <div className="relative">
-      {" "}
-      {/* Added relative positioning for the input wrapper */}
       <input
         type="text"
         value={query}
         onChange={(e) => handleSearch(e.target.value, userEntries)}
         placeholder="Search journals..."
-        className={`border rounded p-2 pr-10 ${className}`} // Added padding to the right for the icon
+        className={`border rounded p-1 pr-8 text-sm ${className}`}
       />
       <span
         onClick={handleClear}
-        className="absolute right-10 text-2xl text-grey-400 top-1/2 transform -translate-y-1/2 cursor-pointer" // Positioned the icon within the input
+        className="absolute right-6 text-lg text-gray-400 top-1/2 transform -translate-y-1/2 cursor-pointer"
       >
-        &times; {/* This represents the "X" icon */}
+        &times;
       </span>
     </div>
   );

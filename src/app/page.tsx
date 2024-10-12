@@ -1,5 +1,6 @@
 // import CookieStatus from "@/components/ui/CookieStatus";
 import Image from "next/image";
+import "./styles.css";
 // import PushNotificationManager from "@/components/ui/PWA/PushNotificationManager";
 // import InstallPrompt from "@/components/ui/PWA/InstallPrompt";
 // import {
@@ -10,10 +11,12 @@ import Image from "next/image";
 // import PWA from "@/components/ui/PWA/PWA";
 // import GlobalModal from "@/components/ui/GlobalModal";
 
-
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div
+      id="home"
+      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]"
+    >
       {/* <PWA /> */}
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
