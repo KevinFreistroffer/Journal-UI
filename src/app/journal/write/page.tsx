@@ -570,7 +570,7 @@ function WritePage() {
                 <Button
                   type="submit"
                   disabled={isSaving || !title || !journal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/3"
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
                 >
                   {isSaving ? "Saving..." : "Save Journal"}
                 </Button>
@@ -579,7 +579,7 @@ function WritePage() {
                 <Button
                   type="button"
                   onClick={summarizeJournal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/3 mr-2"
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm mr-2"
                   disabled={isSummarizing || !journal}
                 >
                   {isSummarizing ? "Summarizing..." : "Summarize Journal"}
@@ -636,7 +636,7 @@ function WritePage() {
                   </Button>
                   <div className="mt-4 flex-grow">
                     <strong>Generated Summary:</strong>
-                    <div className="mt-2 p-2 bg-white rounded relative">
+                    <div className="mt-2 p-2 bg-white rounded relative min-h-[100px] flex flex-col justify-between">
                       <Button
                         type="button"
                         onClick={() => clipboard.copy(summary.join(" "))}
@@ -646,13 +646,13 @@ function WritePage() {
                         <Clipboard size={20} className="text-black" />
                       </Button>
                       <p className="text-sm mb-2 pr-8">{summary.join(" ")}</p>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end mt-auto">
                         <p className="text-xs text-gray-600">
                           Total characters: {summary.join(" ").length}
                         </p>
                       </div>
                     </div>
-                    <div className="mt-2 flex space-x-2 max-h-screen">
+                    <div className="mt-2 w-full">
                       <Button
                         type="button"
                         onClick={() => {
@@ -662,12 +662,10 @@ function WritePage() {
                             setShowTweetThread(!showTweetThread);
                           }
                         }}
-                        className="bg-blue-400 hover:bg-blue-500 text-white"
+                        className="bg-blue-400 hover:bg-blue-500 text-white w-full py-2 px-0 cursor-pointer"
                       >
                         <Twitter size={16} className="mr-2" />
-                        {summary.join(" ").length <= 280
-                          ? "Tweet"
-                          : "Start a Tweet Thread"}
+                        Tweet
                       </Button>
                     </div>
                   </div>
