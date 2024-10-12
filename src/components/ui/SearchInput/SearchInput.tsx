@@ -25,7 +25,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         value={query}
         onChange={(e) => handleSearch(e.target.value, userEntries)}
         placeholder="Search journals..."
-        className={`border rounded p-1 pr-8 text-sm ${className}`}
+        className={`border rounded p-2  pr-8 text-sm ${className}`}
       />
       <span
         onClick={handleClear}

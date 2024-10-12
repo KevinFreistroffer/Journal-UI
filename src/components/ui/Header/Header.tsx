@@ -103,7 +103,7 @@ export default function Header() {
             query={query}
             handleSearch={handleSearch}
             userEntries={user?.journals || []}
-            className="hidden md:block mr-4"
+            className="hidden md:block mr-4 "
           />
         )}
 

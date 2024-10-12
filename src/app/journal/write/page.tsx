@@ -375,10 +375,13 @@ function WritePage() {
             <span className="text-md font-medium">Word Stats</span>
             <div className="mt-2 text-sm font-thin text-gray-600">
               <p>
-                <strong>Total Words:</strong> {totalWords}
+                <span className="font-medium">Total Words:</span> {totalWords}
               </p>
               <p>
-                <strong>Average Words:</strong> {averageWords}
+                <span className="font-medium">
+                  Average Words Across All Journals:
+                </span>{" "}
+                {averageWords}
               </p>
             </div>
           </div>
@@ -662,7 +665,9 @@ function WritePage() {
                         className="bg-blue-400 hover:bg-blue-500 text-white"
                       >
                         <Twitter size={16} className="mr-2" />
-                        {summary.join(" ").length <= 280 ? "Tweet" : "Start a Tweet Thread"}
+                        {summary.join(" ").length <= 280
+                          ? "Tweet"
+                          : "Start a Tweet Thread"}
                       </Button>
                     </div>
                   </div>
@@ -683,7 +688,8 @@ function WritePage() {
                         {generateTweetThread().map((chunk, index) => (
                           <div key={index} className="p-2 bg-white rounded">
                             <p className="text-sm">
-                              {index + 1}/{generateTweetThread().length}: {chunk}
+                              {index + 1}/{generateTweetThread().length}:{" "}
+                              {chunk}
                             </p>
                           </div>
                         ))}
