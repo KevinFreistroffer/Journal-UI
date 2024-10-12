@@ -13,7 +13,15 @@ import { Spinner } from "@/components/ui/spinner"; // Import a spinner component
 // import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import { List, Grid, BookOpenText, XIcon, Trash2 } from "lucide-react"; // Import icons for list, grid, and eye views
+import {
+  List,
+  Grid,
+  BookOpenText,
+  XIcon,
+  Trash2,
+  ChevronLeft,
+  ChartNoAxesColumnIncreasing,
+} from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
 import StarIcon from "@/components/ui/StarIcon/StarIcon";
@@ -24,6 +32,7 @@ import { Checkbox } from "@/components/ui/Checkbox"; // Import the Checkbox comp
 import { PartialWidthPageContainer } from "@/components/ui/PartialWidthPageContainer"; // Import the PageWrapper component
 import { ModalContext } from "@/GlobalModalContext"; // Import ModalContext
 import GlobalModal from "@/components/ui/GlobalModal"; // Import GlobalModal
+import { Button } from "@/components/ui/button";
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -38,6 +47,7 @@ export default function JournalsPage() {
   const { openModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
 
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
@@ -228,178 +238,259 @@ export default function JournalsPage() {
   };
 
   return (
-    <PartialWidthPageContainer className="flex flex-col">
-      {" "}
-      {/* Wrap the entire content in PageWrapper */}
-      <h1 className="text-3xl font-bold mb-6">Your Journals</h1>
-      <div className="flex space-x-2 mb-4 items-center">
-        <Checkbox
-          id="select-all"
-          checked={selectedEntries.length === filteredEntries.length}
-          onCheckedChange={handleSelectAll}
-        />
-        <label
-          htmlFor="select-all"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Select All
-        </label>
-        <div className="hidden md:flex space-x-2">
-          <button
-            className={`flex items-center p-2 rounded ${
-              viewMode === "list" ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setViewMode("list")}
-          >
-            <List className="w-4 h-4 mr-1" />
-            List View
-          </button>
-          <button
-            className={`flex items-center p-2 rounded ${
-              viewMode === "icons" ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setViewMode("icons")}
-          >
-            <Grid className="w-4 h-4 mr-1" />
-            Icon View
-          </button>
-        </div>
-        <button
-          className={`flex items-center p-2 rounded ${
-            showSentiment ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setShowSentiment(!showSentiment)}
-        >
-          {showSentiment ? "Hide Sentiment" : "Show Sentiment"}
-        </button>
-        <button
-          className={`flex items-center p-2 rounded ${
-            showFavoritesOnly ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-        >
-          {showFavoritesOnly ? "Show All" : "Show Favorites"}
-        </button>
-        {/* Date filter input */}
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)} // Update selected date
-          className="border rounded p-2"
-        />
-      </div>
+    <div className="flex h-full min-h-screen mt-16">
+      {/* Sidebar - fixed position, full height */}
       <div
-        className={`grid ${
-          viewMode === "list"
-            ? "grid-cols-1"
-            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        } gap-6`}
+        className={`fixed mt-16 top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 ${
+          isSidebarOpen ? "w-56" : "w-16"
+        }`}
       >
-        {dateFilteredEntries.length === 0 ? ( // Use dateFilteredEntries for rendering
-          <div>
-            <p>No journals found.</p>
-            <Link
-              href="/journal/write"
-              className="text-blue-500 hover:underline"
-            >
-              Create an journal
-            </Link>
+        <Button
+          className={`relative w-full p-0 cursor-pointer ${
+            isSidebarOpen ? "justify-end" : "justify-center"
+          }`}
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? (
+            <ChevronLeft size={20} />
+          ) : (
+            <ChartNoAxesColumnIncreasing size={20} />
+          )}
+        </Button>
+        {isSidebarOpen && (
+          <div className="flex flex-col space-y-4">
+            <h2 className="text-lg font-semibold mb-2">Options</h2>
+
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Select All
+                </label>
+                <Checkbox
+                  id="select-all"
+                  checked={selectedEntries.length === filteredEntries.length}
+                  onCheckedChange={handleSelectAll}
+                  className="bg-white border-gray-300"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="show-sentiment"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Show Sentiment
+                </label>
+                <Checkbox
+                  id="show-sentiment"
+                  checked={showSentiment}
+                  onCheckedChange={(checked) =>
+                    setShowSentiment(checked as boolean)
+                  }
+                  className="bg-white border-gray-300"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="show-favorites"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Show Favorites Only
+                </label>
+                <Checkbox
+                  id="show-favorites"
+                  checked={showFavoritesOnly}
+                  onCheckedChange={(checked) =>
+                    setShowFavoritesOnly(checked as boolean)
+                  }
+                  className="bg-white border-gray-300"
+                />
+              </div>
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="date-filter" className="text-sm font-medium">
+                  Filter by Date
+                </label>
+                <input
+                  id="date-filter"
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="border rounded p-1 text-sm"
+                />
+              </div>
+            </div>
           </div>
-        ) : (
-          dateFilteredEntries.map((journal, index) => (
-            <Card
-              key={index}
-              className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
-                selectedEntries.includes(journal._id) ? "bg-green-200" : ""
-              }`} // Reset background color for selected journals
+        )}
+      </div>
+
+      {/* Wrap the entire content in PageWrapper */}
+      <div
+        className={`flex-1 p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? "ml-56 pl-8" : "ml-24 pl-4"
+        }`}
+      >
+        <h1 className="text-3xl font-bold mb-6">Your Journals</h1>
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="flex  space-x-2 ">
+            <input
+              type="radio"
+              id="list-view"
+              name="view-mode"
+              value="list"
+              checked={viewMode === "list"}
+              onChange={() => setViewMode("list")}
+              className="form-radio h-4 w-4 text-blue-600"
+            />
+            <label
+              htmlFor="list-view"
+              className="flex items-center cursor-pointer text-sm"
             >
-              <div className="flex flex-col flex-grow">
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="wrap text-wrap overflow-wrap">
-                      {journal.title.length > 30
-                        ? `${journal.title.substring(0, 30)}...`
-                        : journal.title}
-                    </CardTitle>
-                    <div className="relative p-0 m-0">
-                      {index === 0 && showHelperText && (
-                        <div
-                          style={{ top: -98, width: 307 }}
-                          className="helper-text bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 pr-12 py-3 rounded absolute"
-                          role="alert"
-                        >
-                          <strong className="font-bold">Tip! </strong>
-                          <span className="block sm:inline">
-                            Click the book icon to read your journal!
-                          </span>
-                          <button
-                            onClick={handleCloseHelper}
-                            className="absolute top-0 right-0 p-4"
+              {/* <List className="w-4 h-4 mr-2" /> */}
+              List View
+            </label>
+          </div>
+          <div className="hidden md:flex flex-col space-y-2">
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="icon-view"
+                name="view-mode"
+                value="icons"
+                checked={viewMode === "icons"}
+                onChange={() => setViewMode("icons")}
+                className="form-radio h-4 w-4 text-blue-600"
+              />
+              <label
+                htmlFor="icon-view"
+                className="flex items-center cursor-pointer text-sm"
+              >
+                {/* <Grid className="w-4 h-4 mr-2" /> */}
+                Icon View
+              </label>
+            </div>
+          </div>
+        </div>
+        <div
+          className={`grid ${
+            viewMode === "list"
+              ? "grid-cols-1"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          } gap-6`}
+        >
+          {dateFilteredEntries.length === 0 ? ( // Use dateFilteredEntries for rendering
+            <div>
+              <p>No journals found.</p>
+              <Link
+                href="/journal/write"
+                className="text-blue-500 hover:underline"
+              >
+                Create an journal
+              </Link>
+            </div>
+          ) : (
+            dateFilteredEntries.map((journal, index) => (
+              <Card
+                key={index}
+                className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
+                  selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
+                }`} // Reset background color for selected journals
+              >
+                <div className="flex flex-col flex-grow">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="wrap text-wrap overflow-wrap">
+                        {journal.title.length > 30
+                          ? `${journal.title.substring(0, 30)}...`
+                          : journal.title}
+                      </CardTitle>
+                      <div className="relative p-0 m-0">
+                        {index === 0 && showHelperText && (
+                          <div
+                            style={{ top: -98, width: 307 }}
+                            className="helper-text bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 pr-12 py-3 rounded absolute"
+                            role="alert"
                           >
-                            <XIcon className="h-6 w-6 text-yellow-500" />
-                          </button>
-                          <Carrot className="absolute bottom-0 left-0" />
+                            <strong className="font-bold">Tip! </strong>
+                            <span className="block sm:inline">
+                              Click the book icon to read your journal!
+                            </span>
+                            <button
+                              onClick={handleCloseHelper}
+                              className="absolute top-0 right-0 p-4"
+                            >
+                              <XIcon className="h-6 w-6 text-yellow-500" />
+                            </button>
+                            <Carrot className="absolute bottom-0 left-0" />{" "}
+                          </div>
+                        )}
+                        <BookOpenText
+                          className="w-8 h-8 cursor-pointer"
+                          onClick={() => {
+                            localStorageService.setItem(
+                              "selectedJournal",
+                              journal._id
+                            );
+                            router.push(`/journal/${journal._id}`);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {/* ... existing CardContent ... */}
+                  </CardContent>
+                  <CardFooter className="mt-auto flex justify-between items-end">
+                    <div className="flex flex-col">
+                      <p>{journal.category}</p>
+                      <p className="text-sm text-gray-500">{journal.date}</p>
+                      {showSentiment && (
+                        <div className="flex items-center text-sm mt-1">
+                          <span className="mr-2">Sentiment:</span>
+                          <div
+                            className="rounded-full"
+                            style={{
+                              width: "10px",
+                              height: "10px",
+                              backgroundColor: getSentimentColor(
+                                analyzeSentiment(journal.entry).score
+                              ),
+                            }}
+                          ></div>
                         </div>
                       )}
-                      <BookOpenText
-                        className="w-8 h-8 cursor-pointer"
-                        onClick={() => {
-                          localStorageService.setItem(
-                            "selectedJournal",
-                            journal._id
-                          );
-                          router.push(`/journal/${journal._id}`);
-                        }}
+                    </div>
+                    <div className="flex items-center">
+                      {loadingJournalId === journal._id ? (
+                        <Spinner size="sm" className="mr-2" />
+                      ) : (
+                        <>
+                          <StarIcon
+                            filled={journal.favorite}
+                            onClick={() => handleFavorite(journal._id)}
+                            className="mr-2"
+                          />
+                        </>
+                      )}{" "}
+                      <Trash2
+                        className="w-5 h-5 text-red-500 cursor-pointer"
+                        onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
                       />
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>{/* ... existing CardContent ... */}</CardContent>
-                <CardFooter className="mt-auto flex justify-between items-end">
-                  <div className="flex flex-col">
-                    <p>{journal.category}</p>
-                    <p className="text-sm text-gray-500">{journal.date}</p>
-                    {showSentiment && (
-                      <div className="flex items-center text-sm mt-1">
-                        <span className="mr-2">Sentiment:</span>
-                        <div
-                          className="rounded-full"
-                          style={{
-                            width: "10px",
-                            height: "10px",
-                            backgroundColor: getSentimentColor(
-                              analyzeSentiment(journal.entry).score
-                            ),
-                          }}
-                        ></div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center">
-                    {loadingJournalId === journal._id ? (
-                      <Spinner size="sm" className="mr-2" />
-                    ) : (
-                      <>
-                        <StarIcon
-                          filled={journal.favorite}
-                          onClick={() => handleFavorite(journal._id)}
-                          className="mr-2"
-                        />
-                      </>
-                    )}{" "}
-                    <Trash2
-                      className="w-5 h-5 text-red-500 cursor-pointer"
-                      onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
-                    />
-                  </div>
-                </CardFooter>
-              </div>
-            </Card>
-          ))
-        )}
+                  </CardFooter>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
       {/* Global Modal */}
       <GlobalModal />
-    </PartialWidthPageContainer>
+    </div>
   );
 }
