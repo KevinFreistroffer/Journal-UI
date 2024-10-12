@@ -390,7 +390,7 @@ function WritePage() {
 
       {/* Main Content - adjusted to be a flex container */}
       <div
-        className={`flex-1 p-6 overflow-y-auto flex ${
+        className={`flex-1 p-6 overflow-y-auto flex transition-all duration-300 ease-in-out ${
           isSidebarOpen ? "ml-56" : "ml-24"
         }`}
       >
