@@ -388,26 +388,27 @@ function WritePage() {
         )}
       </div>
 
-      {/* Main Content - adjusted to be a flex container */}
+      {/* Main Content */}
       <div
-        className={`flex-1 p-6 overflow-y-auto flex ${
+        className={`flex-1 p-6 overflow-y-auto flex flex-col ${
           isSidebarOpen ? "ml-56" : "ml-24"
         }`}
       >
-        {/* Journal writing section */}
-        <div className="flex-1 flex justify-center">
-          <div className="w-3/4">
-            <h2 className="text-2xl font-semibold mb-4">Your Thoughts</h2>
+        <h1 className="text-3xl font-bold mb-6 text-center">Thought Flow</h1>
+        <div className="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-6">
+          {/* Step 1: Write your thoughts */}
+          <div className="flex-1 max-w-2xl">
+            <h2 className="text-2xl font-semibold mb-4">1. Write Your Thoughts</h2>
             <form action={createJournalAction} className="space-y-4">
               <div>
-                {/* <Label htmlFor="journal">Journal</Label> */}
                 <Textarea
                   id="journal"
                   name="journal"
                   value={journal}
                   onChange={(e) => setJournal(e.target.value)}
                   required
-                  cols={50}
+                  placeholder="Start writing your thoughts here..."
+                  className="h-64"
                 />
               </div>
               <div className="flex flex-col">
@@ -575,138 +576,47 @@ function WritePage() {
                   {isSaving ? "Saving..." : "Save Journal"}
                 </Button>
               </div>
-              <div className="flex items-center mt-2">
-                <Button
-                  type="button"
-                  onClick={summarizeJournal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm mr-2"
-                  disabled={isSummarizing || !journal}
-                >
-                  {isSummarizing ? "Summarizing..." : "Summarize Journal"}
-                </Button>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="w-5 h-5 text-gray-500 cursor-help border-solid border-black" />
-                    </TooltipTrigger>
-                    <TooltipContent className="border-solid border-black">
-                      <p className="text-sm leading-relaxed">
-                        Summarize your journal entry into fewer sentences.
-                      </p>
-                      <p className="text-xs leading-relaxed">
-                        You can also tweet the summary directly!
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              {showJournalSuccessIcon && (
-                <div className="flex items-center mt-2">
-                  <CheckCircle className="text-green-500 mr-2" />
-                  <p className="text-green-500">Entry created successfully!</p>
-                </div>
-              )}
             </form>
           </div>
-        </div>
 
-        {/* Summary section */}
-        {summary && summary.length > 0 && (
-          <div className="w-1/2 pl-6 flex flex-col">
-            <div className="flex justify-between items-center mb-0">
+          {/* Step 2 and 3: Summarize and Tweet */}
+          <div className="flex-1 max-w-md">
+            <h2 className="text-2xl font-semibold mb-4">2. Summarize & 3. Tweet</h2>
+            <div className="space-y-4">
               <Button
-                type="button"
-                onClick={() => setShowMetrics(!showMetrics)}
-                variant="ghost"
-                className="text-xs pb-0 mb-0"
+                onClick={summarizeJournal}
+                className="w-full bg-green-500 hover:bg-green-600 text-white"
+                disabled={isSummarizing || !journal}
               >
-                {showMetrics ? "Hide" : "Show"}
+                {isSummarizing ? "Summarizing..." : "Summarize Your Thoughts"}
               </Button>
-            </div>
-            {showMetrics && (
-              <div className="flex-grow flex space-x-4 w-full">
-                {/* Generated Summary column */}
-                <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col relative">
-                  <Button
-                    type="button"
-                    onClick={() => setShowMetrics(false)}
-                    className="absolute top-2 right-2 p-0 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
-                  >
-                    <X size={16} />
-                  </Button>
-                  <div className="mt-4 flex-grow">
-                    <strong>Generated Summary:</strong>
-                    <div className="mt-2 p-2 bg-white rounded relative min-h-[100px] flex flex-col justify-between">
-                      <Button
-                        type="button"
-                        onClick={() => clipboard.copy(summary.join(" "))}
-                        className="absolute top-2 right-2 p-0 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
-                        title="Copy Summary"
-                      >
-                        <Clipboard size={20} className="text-black" />
-                      </Button>
-                      <p className="text-sm mb-2 pr-8">{summary.join(" ")}</p>
-                      <div className="flex justify-end mt-auto">
-                        <p className="text-xs text-gray-600">
-                          Total characters: {summary.join(" ").length}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2 w-full">
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          if (summary.join(" ").length <= 280) {
-                            handleTweet();
-                          } else {
-                            setShowTweetThread(!showTweetThread);
-                          }
-                        }}
-                        className="bg-blue-400 hover:bg-blue-500 text-white w-full py-2 px-0 cursor-pointer"
-                      >
-                        <Twitter size={16} className="mr-2" />
-                        Tweet
-                      </Button>
-                    </div>
+
+              {summary && summary.length > 0 && (
+                <div className="bg-gray-100 p-4 rounded-md shadow-md">
+                  <h3 className="font-semibold mb-2">Summary:</h3>
+                  <p className="text-sm mb-4">{summary.join(" ")}</p>
+                  <div className="flex justify-between items-center">
+                    <Button
+                      onClick={() => clipboard.copy(summary.join(" "))}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Clipboard size={16} className="mr-2" />
+                      Copy
+                    </Button>
+                    <Button
+                      onClick={handleTweet}
+                      className="bg-blue-400 hover:bg-blue-500 text-white"
+                    >
+                      <Twitter size={16} className="mr-2" />
+                      Tweet Summary
+                    </Button>
                   </div>
                 </div>
-                {/* Tweet Thread column (if shown) */}
-                {showTweetThread && (
-                  <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col relative">
-                    <Button
-                      type="button"
-                      onClick={() => setShowTweetThread(false)}
-                      className="absolute top-2 right-2 p-0 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
-                    >
-                      <X size={16} />
-                    </Button>
-                    <div className="flex-grow">
-                      <strong>Tweet Thread Preview:</strong>
-                      <div className="mt-2 space-y-2">
-                        {generateTweetThread().map((chunk, index) => (
-                          <div key={index} className="p-2 bg-white rounded">
-                            <p className="text-sm">
-                              {index + 1}/{generateTweetThread().length}:{" "}
-                              {chunk}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                      <Button
-                        type="button"
-                        onClick={handleTweet}
-                        className="mt-4 bg-blue-400 hover:bg-blue-500 text-white"
-                      >
-                        <Twitter size={16} className="mr-2" />
-                        Tweet
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

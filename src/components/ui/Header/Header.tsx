@@ -92,7 +92,7 @@ export default function Header() {
       <div className="p-8 flex h-14 items-center justify-between w-full">
         <div className="flex-1 hidden md:block ">
           <Link href="/" passHref>
-            <h1 className="text-lg font-semibold md:text-xl">SumTweet</h1>
+            <h1 className="text-lg font-semibold md:text-xl">SumX</h1>
           </Link>
         </div>
         {/* Search Input Section moved to the right */}
