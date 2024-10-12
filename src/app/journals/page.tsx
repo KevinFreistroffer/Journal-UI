@@ -20,7 +20,7 @@ import {
   XIcon,
   Trash2,
   ChevronLeft,
-  ChartNoAxesColumnIncreasing,
+  Settings,
 } from "lucide-react"; // Import icons for list, grid, and eye views
 import nlp from "compromise";
 import Sentiment from "sentiment";
@@ -256,7 +256,7 @@ export default function JournalsPage() {
           {isSidebarOpen ? (
             <ChevronLeft size={20} />
           ) : (
-            <ChartNoAxesColumnIncreasing size={20} />
+            <Settings size={20} />
           )}
         </Button>
         {isSidebarOpen && (
@@ -312,6 +312,10 @@ export default function JournalsPage() {
                   className="bg-white border-gray-300"
                 />
               </div>
+
+              {/* New "Filters" title */}
+              <h3 className="text-md font-semibold mt-4 mb-2">Filters</h3>
+
               <div className="flex flex-col space-y-2">
                 <label htmlFor="date-filter" className="text-sm font-medium">
                   Filter by Date
