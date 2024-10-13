@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 
-interface SearchInputProps {
+interface IProps {
   query: string;
   handleSearch: (value: string, journals: any[]) => void; // Adjust the type as necessary
   userEntries: any[]; // Adjust the type as necessary
-  className?: string;
+  containerClassName?: string;
+  inputClassName?: string;
 }
 
-const SearchInput: React.FC<SearchInputProps> = ({
+const SearchInput: React.FC<IProps> = ({
   query,
   handleSearch,
   userEntries,
-  className,
+  containerClassName = "",
+  inputClassName = "",
 }) => {
   // New function to handle clear action
   const handleClear = () => {
@@ -19,13 +21,13 @@ const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   return (
-    <div className="relative">
+    <div className={` relative ${containerClassName} `}>
       <input
         type="text"
         value={query}
         onChange={(e) => handleSearch(e.target.value, userEntries)}
         placeholder="Search journals..."
-        className={`border rounded p-2  pr-8 text-sm ${className}`}
+        className={`border rounded p-2 pr-8 text-sm ${inputClassName}`}
       />
       <span
         onClick={handleClear}

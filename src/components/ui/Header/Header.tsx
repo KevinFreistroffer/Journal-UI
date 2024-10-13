@@ -94,14 +94,14 @@ export default function Header() {
           </Link>
         </div>
         {/* Search Input Section moved to the right */}
-        {isLoading ? ( // Add loading condition for SearchInput
-          <div className="w-40 h-6 bg-gray-200 animate-pulse rounded mr-4"></div> // Placeholder for SearchInput
+        {isLoading ? (
+          <div className="w-40 h-6 bg-gray-200 animate-pulse rounded mr-4 hidden md:block"></div>
         ) : !user ? null : (
           <SearchInput
             query={query}
             handleSearch={handleSearch}
             userEntries={user?.journals || []}
-            className="hidden md:block mr-4 "
+            containerClassName="hidden md:block"
           />
         )}
 
@@ -164,7 +164,7 @@ export default function Header() {
             query={query}
             handleSearch={handleSearch}
             userEntries={user?.journals || []}
-            className="md:hidden"
+            containerClassName="hidden md:block"
           />
         </div>
         {/* {!isLoading &&

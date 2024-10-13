@@ -47,7 +47,7 @@ export function MobileMenu({ menuItems }: MobileMenuProps) {
             className="flex items-center menu-title border-b border-black pb-2 mb-6 text-2xl font-bold"
             onClick={() => setIsOpen(false)}
           >
-            <span className="font-bold">Journals</span>
+            <span className="font-bold">SumX</span>
           </Link>
         </div>
 
