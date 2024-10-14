@@ -30,6 +30,8 @@ import {
   ChartNoAxesColumnIncreasing,
   HelpCircle,
   Clipboard,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
@@ -94,6 +96,7 @@ function WritePage() {
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
   );
+  const [showWordStats, setShowWordStats] = useState(false);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -350,9 +353,9 @@ function WritePage() {
 
   return (
     <div className="flex h-full min-h-screen mt-16">
-      {/* Sidebar - fixed position, full height */}
+      {/* Sidebar - only visible on md screens and above */}
       <div
-        className={`fixed mt-16 top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 ${
+        className={`fixed mt-16 top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 hidden md:block ${
           isSidebarOpen ? "w-56" : "w-16"
         }`}
       >
@@ -389,15 +392,15 @@ function WritePage() {
         )}
       </div>
 
-      {/* Main Content - adjusted to be a flex container */}
+      {/* Main Content */}
       <div
-        className={`flex-1 p-6 overflow-y-auto flex transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "ml-56" : "ml-24"
+        className={`flex-1 p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? "md:ml-56" : "md:ml-24"
         }`}
       >
         {/* Journal writing section */}
         <div className="flex-1 flex justify-center">
-          <div className="w-3/4">
+          <div className="w-full md:w-3/4">
             <h2 className="text-2xl font-semibold mb-4">Your Thoughts</h2>
             <form action={createJournalAction} className="space-y-4">
               <div>
@@ -607,6 +610,35 @@ function WritePage() {
                   <p className="text-green-500">Entry created successfully!</p>
                 </div>
               )}
+              {/* Word Stats section for small screens */}
+              <div className="md:hidden mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowWordStats(!showWordStats)}
+                  className="flex items-center justify-between w-full p-2 bg-gray-200 rounded-md"
+                >
+                  <span className="font-medium">Word Stats</span>
+                  {showWordStats ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </button>
+                {showWordStats && (
+                  <div className="mt-2 p-4 bg-gray-100 rounded-md">
+                    <p>
+                      <span className="font-medium">Total Words:</span>{" "}
+                      {totalWords}
+                    </p>
+                    <p>
+                      <span className="font-medium">
+                        Average Words Across All Journals:
+                      </span>{" "}
+                      {averageWords}
+                    </p>
+                  </div>
+                )}
+              </div>
             </form>
           </div>
         </div>

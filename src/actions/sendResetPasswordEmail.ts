@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { State } from "@/app/recover-password/types";
+import { State } from "@/app/(public)/recover-password/types";
 
 const schema = z.object({
   email: z.string().email("Invalid email address"),

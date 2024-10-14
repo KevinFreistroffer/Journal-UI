@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { State, SignUpFunction } from "../app/signup/types";
+import { State, SignUpFunction } from "../app/(public)/signup/types";
 import { createSession } from "../lib/session";
 import { has } from "lodash";
 // Import the crypto module

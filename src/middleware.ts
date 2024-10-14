@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 import { CLIENT_SESSION } from "@/lib/constants";
-const protectedRoutes = ["/dashboard", "/journals", "/categories"];
+const protectedRoutes = ["/dashboard", "/categories", "/journal", "/journals"];
 const publicRoutes = ["/login", "/signup", "/"];
 
 export async function middleware(request: NextRequest) {
@@ -17,18 +17,30 @@ export async function middleware(request: NextRequest) {
   console.log("cookie", cookie);
   let session;
 
+  console.log("isProtectedRoute", isProtectedRoute);
+  console.log("isPublicRoute", isPublicRoute);
   // const session = await decrypt(cookie);
   if (cookie) {
     session = await decrypt(cookie);
     console.log("decrypted session", session);
   }
 
+  console.log("session", session);
+
   if (isProtectedRoute) {
+    if (!session) {
+      console.log("no session, should redirect to login");
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    console.log("isProtectedRoute");
     if (!session?.userId) {
+      console.log("no user id, should redirect to login");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     if (!session.isVerified) {
+      console.log("not verified, should redirect to login");
       return NextResponse.redirect(
         new URL("/login?isVerified=false", request.url)
       );
@@ -70,9 +82,9 @@ export const config = {
     "/dashboard",
     "/login",
     "/signup",
-    "/journals",
-    "/categories",
-    "/journal/write",
+    "/journal/:path*",
+    "/journals/:path",
+    "/categories/:path*",
   ],
   // matcher: "/dashboard/:path*",
 };

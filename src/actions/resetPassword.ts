@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { State } from "@/app/reset-password/types";
+import { State } from "@/app/(public)/reset-password/types";
 
 const schema = z
   .object({
