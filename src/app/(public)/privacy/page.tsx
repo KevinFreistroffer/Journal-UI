@@ -9,7 +9,7 @@ const PrivacyPage: React.FC = () => {
 
         <h2>1. Introduction</h2>
         <p>
-          Welcome to [Your Company/App Name]'s Privacy Policy. This policy
+          Welcome to [Your Company/App Name]&apos;s Privacy Policy. This policy
           describes how we collect, use, and protect your personal information.
         </p>
 
