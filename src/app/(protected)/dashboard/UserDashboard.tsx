@@ -7,11 +7,11 @@ import { IJournal } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { StarIcon } from "lucide-react";
-import styles from "@/app/dashboard/UserDashboard.module.css";
+import styles from "@/app/(protected)/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
 // import { ChevronDown, ChevronUp } from "lucide-react";
-import Legend from "@/app/dashboard/Legend";
+import Legend from "@/app/(protected)/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";

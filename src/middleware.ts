@@ -3,16 +3,40 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 import { CLIENT_SESSION } from "@/lib/constants";
-const protectedRoutes = ["/dashboard", "/categories", "/journal", "/journals"];
-const publicRoutes = ["/login", "/signup", "/"];
+
+const protectedRoutes = [
+  "/dashboard",
+  "/categories",
+  "/journal",
+  "/journals",
+  "/reminders",
+  "/schedule",
+  "/tweet",
+];
+const publicRoutes = [
+  "/",
+  "/login",
+  "/signup",
+  "/about",
+  "/contact",
+  "/recover-password",
+  "/reset-password",
+  "/terms",
+  "/verify-account",
+];
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
+
+  const isProtectedRoute = protectedRoutes.some(route =>
+    path === route || path.startsWith(`${route}/`)
+  );
+
   const isPublicRoute =
-    publicRoutes.includes(path) ||
-    (path === "/login" &&
+    publicRoutes.some(route => path === route) ||
+    (path.startsWith("/login") &&
       request.nextUrl.searchParams.get("isVerified") !== null);
+
   const cookie = cookies().get(CLIENT_SESSION)?.value;
   console.log("cookie", cookie);
   let session;

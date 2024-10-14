@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 // import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { localStorageService } from "@/lib/services/localStorageService";
-import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
+import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { IJournal } from "@/lib/interfaces";

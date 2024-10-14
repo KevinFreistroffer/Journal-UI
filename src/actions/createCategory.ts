@@ -2,10 +2,10 @@
 
 import { z } from "zod";
 import { cookies } from "next/headers";
-import { ICreateCategoryState } from "@/app/journal/write/types";
+import { ICreateCategoryState } from "@/app/(protected)/journal/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
 import { IUser } from "@/lib/interfaces";
-import { CreateCategoryFunction } from "@/app/journal/write/types";
+import { CreateCategoryFunction } from "@/app/(protected)/journal/write/types";
 
 const CategorySchema = z.object({
   category: z.string(),

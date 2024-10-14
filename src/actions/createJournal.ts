@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import {
   CreateJournalFunction,
   ICreateJournalState,
-} from "@/app/journal/write/types";
+} from "@/app/(protected)/journal/write/types";
 import { UserSchema } from "@/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";

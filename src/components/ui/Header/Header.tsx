@@ -11,7 +11,7 @@ import { useSearch } from "@/SearchContext";
 import { useRef } from "react"; // Import useRef
 import SearchInput from "../SearchInput/SearchInput";
 import { useCallback } from "react"; // Ensure useCallback is imported
-import { usePathname } from 'next/navigation'; // Add this import
+import { usePathname } from "next/navigation"; // Add this import
 
 export interface IMenuItem {
   href: string;
@@ -26,7 +26,7 @@ export default function Header() {
   const { query, handleSearch, setFilteredEntries } = useSearch();
   const dropdownRef = useRef<HTMLUListElement | null>(null);
   const pathname = usePathname(); // Add this line
-  const isHomePage = pathname === '/'; // Add this line
+  const isHomePage = pathname === "/"; // Add this line
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -104,7 +104,7 @@ export default function Header() {
             query={query}
             handleSearch={handleSearch}
             userEntries={user?.journals || []}
-            containerClassName="hidden md:block"
+            containerClassName="hidden md:block mr-2"
           />
         ) : null}
 

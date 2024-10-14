@@ -36,7 +36,7 @@ import {
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
-// import { IFrontEndJournal } from "@/app/dashboard/UserDashboard";
+// import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { useFormState } from "react-dom";
 import { ICreateJournalState } from "./types";
 // import { createCategory } from "@/actions/createCategory";
