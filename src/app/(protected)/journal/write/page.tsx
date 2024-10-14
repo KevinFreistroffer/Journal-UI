@@ -50,6 +50,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
+import Sidebar from "@/components/ui/Sidebar/SideBar";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -325,8 +326,8 @@ function WritePage() {
   // Check if the user is verified
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner /> {/* Show a loading spinner while loading */}
+      <div className="flex justify-center items-center min-h-screen h-screen">
+        <Spinner />
       </div>
     );
   }
@@ -354,43 +355,45 @@ function WritePage() {
   return (
     <div className="flex h-full min-h-screen mt-16">
       {/* Sidebar - only visible on md screens and above */}
-      <div
-        className={`fixed mt-16 top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 hidden md:block ${
-          isSidebarOpen ? "w-56" : "w-16"
-        }`}
-      >
-        <Button
-          className={`relative w-full p-0 cursor-pointer ${
-            isSidebarOpen ? "justify-end" : "justify-center"
-          }`}
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-        >
-          {isSidebarOpen ? (
-            <ChevronLeft size={20} />
-          ) : (
-            <ChartNoAxesColumnIncreasing size={20} />
-          )}
-        </Button>
-        {isSidebarOpen && (
-          <div className="flex flex-col mt-4">
-            <span className="text-md font-medium">Word Stats</span>
-            <div className="mt-2 text-sm font-thin text-gray-600">
-              <p>
-                <span className="font-medium">Total Words:</span> {totalWords}
-              </p>
-              <p>
-                <span className="font-medium">
-                  Average Words Across All Journals:
-                </span>{" "}
-                {averageWords}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        icon={
+          <Button
+            className={`relative w-full p-0 cursor-pointer ${
+              isSidebarOpen ? "justify-end" : "justify-center"
+            }`}
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+          >
+            {isSidebarOpen ? (
+              <ChevronLeft size={20} />
+            ) : (
+              <ChartNoAxesColumnIncreasing size={20} />
+            )}
+          </Button>
+        }
+        sections={[
+          {
+            title: "Word Stats",
+            content: (
+              <div className="mt-2 text-sm font-thin text-gray-600">
+                <p>
+                  <span className="font-medium">Total Words:</span> {totalWords}
+                </p>
+                <p>
+                  <span className="font-medium">
+                    Average Words Across All Journals:
+                  </span>{" "}
+                  {averageWords}
+                </p>
+              </div>
+            ),
+          },
+        ]}
+      />
 
       {/* Main Content */}
       <div

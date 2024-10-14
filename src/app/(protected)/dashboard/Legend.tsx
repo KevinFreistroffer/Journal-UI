@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
-
+import styles from "./styles.module.css";
 // New LegendItem component
 function LegendItem({
   id,
@@ -84,7 +84,12 @@ const Legend: React.FC<LegendProps> = ({
       {isMobileLegendOpen && (
         <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
           <div className="p-4">
-            <h2 className="text-xl font-semibold mb-2">Toggle Metrics</h2>
+            {/* <h2
+              id={`${styles["h2"]}`}
+              className="text-xl font-semibold mb-2 overflow"
+            >
+              Toggle Metrics
+            </h2> */}
             <div className="flex flex-col space-y-2">
               <LegendItem
                 id="totalJournalsCard"
@@ -181,7 +186,7 @@ const Legend: React.FC<LegendProps> = ({
     </div>
   ) : (
     <>
-      <h2 className="text-xl font-semibold mb-2">Toggle Cards</h2>
+      {/* <h2 className="text-xl font-semibold mb-2">Toggle Cards</h2> */}
       <div className="flex flex-wrap">
         <div className="mr-4 mb-2 w-full">
           <label
