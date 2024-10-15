@@ -3,26 +3,29 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 import styles from "./styles.module.css";
+import { Checkbox } from "@/components/ui/Checkbox";
 // New LegendItem component
 function LegendItem({
   id,
   label,
   checked,
   onChange,
+  checkboxSize,
 }: {
   id: string;
   label: string;
   checked: boolean;
   onChange: () => void;
+  checkboxSize: number;
 }) {
   return (
     <label htmlFor={id} className="flex items-center space-x-2">
-      <input
-        type="checkbox"
+      <Checkbox
         id={id}
         checked={checked}
-        onChange={onChange}
+        onCheckedChange={onChange}
         className="form-checkbox h-4 w-4 text-blue-600"
+        size={checkboxSize}
       />
       <span className="text-sm">{label}</span>
     </label>
@@ -47,6 +50,7 @@ interface LegendProps {
   setShowKeywordFrequencyCard: (show: boolean) => void;
   showJournalTimeCard: boolean;
   setShowJournalTimeCard: (show: boolean) => void;
+  checkboxSize: number;
 }
 
 const Legend: React.FC<LegendProps> = ({
@@ -67,6 +71,7 @@ const Legend: React.FC<LegendProps> = ({
   setShowKeywordFrequencyCard,
   showJournalTimeCard,
   setShowJournalTimeCard,
+  checkboxSize,
 }) => {
   return isMobile ? (
     <div className="relative mb-4 md:mb-0">
@@ -103,6 +108,7 @@ const Legend: React.FC<LegendProps> = ({
                     newValue
                   );
                 }}
+                checkboxSize={checkboxSize}
               />
               <LegendItem
                 id="categoryBreakdownCard"
@@ -116,6 +122,7 @@ const Legend: React.FC<LegendProps> = ({
                     newValue
                   );
                 }}
+                checkboxSize={checkboxSize}
               />
               <LegendItem
                 id="recentEntriesCard"
@@ -129,6 +136,7 @@ const Legend: React.FC<LegendProps> = ({
                     newValue
                   );
                 }}
+                checkboxSize={checkboxSize}
               />
               <LegendItem
                 id="upcomingEntriesCard"
@@ -142,6 +150,7 @@ const Legend: React.FC<LegendProps> = ({
                     newValue
                   );
                 }}
+                checkboxSize={checkboxSize}
               />
               <LegendItem
                 id="favoriteJournalsCard"
@@ -155,6 +164,7 @@ const Legend: React.FC<LegendProps> = ({
                     newValue
                   );
                 }}
+                checkboxSize={checkboxSize}
               />
               <LegendItem
                 id="keywordFrequencyCard"
@@ -168,6 +178,7 @@ const Legend: React.FC<LegendProps> = ({
                     newValue
                   );
                 }}
+                checkboxSize={checkboxSize}
               />
               <LegendItem
                 id="journalTimeCard"
@@ -178,6 +189,7 @@ const Legend: React.FC<LegendProps> = ({
                   setShowJournalTimeCard(newValue);
                   localStorageService.setItem("showJournalTimeCard", newValue);
                 }}
+                checkboxSize={checkboxSize}
               />
             </div>
           </div>
@@ -193,16 +205,16 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="totalJournalsCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="totalJournalsCard"
               checked={showTotalJournalsCard}
-              onChange={() => {
+              onCheckedChange={() => {
                 const newValue = !showTotalJournalsCard;
                 setShowTotalJournalsCard(newValue);
                 localStorageService.setItem("showTotalJournalsCard", newValue);
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              className="mr-2 form-checkbox text-blue-600"
+              size={checkboxSize}
             />
             Total Journals
           </label>
@@ -212,11 +224,10 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="categoryBreakdownCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="categoryBreakdownCard"
               checked={showCategoryBreakdownCard}
-              onChange={() => {
+              onCheckedChange={() => {
                 const newValue = !showCategoryBreakdownCard;
                 setShowCategoryBreakdownCard(newValue);
                 localStorageService.setItem(
@@ -224,7 +235,8 @@ const Legend: React.FC<LegendProps> = ({
                   newValue
                 );
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              className="mr-2 form-checkbox text-blue-600"
+              size={checkboxSize}
             />
             Category Breakdown
           </label>
@@ -234,16 +246,16 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="recentEntriesCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="recentEntriesCard"
               checked={showRecentEntriesCard}
-              onChange={() => {
+              onCheckedChange={() => {
                 const newValue = !showRecentEntriesCard;
                 setShowRecentEntriesCard(newValue);
                 localStorageService.setItem("showRecentEntriesCard", newValue);
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              size={checkboxSize}
+              className="mr-2 form-checkbox text-blue-600"
             />
             Recent Journals
           </label>
@@ -253,11 +265,10 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="upcomingEntriesCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="upcomingEntriesCard"
               checked={showUpcomingEntriesCard}
-              onChange={() => {
+              onCheckedChange={() => {
                 const newValue = !showUpcomingEntriesCard;
                 setShowUpcomingEntriesCard(newValue);
                 localStorageService.setItem(
@@ -265,7 +276,8 @@ const Legend: React.FC<LegendProps> = ({
                   newValue
                 );
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              className="mr-2 form-checkbox text-blue-600"
+              size={checkboxSize}
             />
             Upcoming Journals
           </label>
@@ -275,11 +287,10 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="favoriteJournalsCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="favoriteJournalsCard"
               checked={showFavoriteJournalsCard}
-              onChange={() => {
+              onCheckedChange={() => {
                 const newValue = !showFavoriteJournalsCard;
                 setShowFavoriteJournalsCard(newValue);
                 localStorageService.setItem(
@@ -287,7 +298,8 @@ const Legend: React.FC<LegendProps> = ({
                   newValue
                 );
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              className="mr-2 form-checkbox text-blue-600"
+              size={checkboxSize}
             />
             Favorite Journals
           </label>
@@ -297,11 +309,10 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="keywordFrequencyCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="keywordFrequencyCard"
               checked={showKeywordFrequencyCard}
-              onChange={() => {
+              onCheckedChange={() => {
                 const newValue = !showKeywordFrequencyCard;
                 setShowKeywordFrequencyCard(newValue);
                 localStorageService.setItem(
@@ -309,7 +320,8 @@ const Legend: React.FC<LegendProps> = ({
                   newValue
                 );
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              className="mr-2 form-checkbox text-blue-600"
+              size={checkboxSize}
             />
             Keyword Frequency
           </label>
@@ -319,16 +331,16 @@ const Legend: React.FC<LegendProps> = ({
             htmlFor="journalTimeCard"
             className="flex items-center text-sm"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               id="journalTimeCard"
               checked={showJournalTimeCard}
-              onChange={() => {
+              onCheckedChange={(checked) => {
                 const newValue = !showJournalTimeCard;
-                setShowJournalTimeCard(newValue);
+                setShowJournalTimeCard(newValue as boolean);
                 localStorageService.setItem("showJournalTimeCard", newValue);
               }}
-              className="mr-2 form-checkbox h-3 w-3 text-blue-600"
+              className="mr-2 form-checkbox text-blue-600"
+              size={checkboxSize}
             />
             Journal Time
           </label>

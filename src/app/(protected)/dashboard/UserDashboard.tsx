@@ -397,6 +397,7 @@ function UserDashboard() {
                   setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
                   showJournalTimeCard={showJournalTimeCard}
                   setShowJournalTimeCard={setShowJournalTimeCard}
+                  checkboxSize={5}
                 />
               </div>
             ),

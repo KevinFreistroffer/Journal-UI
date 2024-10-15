@@ -34,6 +34,7 @@ import Carrot from "@/components/ui/Carrot/Carrot";
 import Sentiment from "sentiment";
 import nlp from "compromise";
 import { Input } from "@/components/ui/input"; // Import the Input component
+import SideBar from "@/components/ui/Sidebar/SideBar";
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -241,79 +242,70 @@ export default function JournalsPage() {
 
   return (
     <div className="flex h-full min-h-screen mt-16">
-      {/* Sidebar - fixed position, full height */}
-      <div
-        className={`fixed mt-16 top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 ${
-          isSidebarOpen ? "w-56" : "w-16"
-        }`}
-      >
-        <Button
-          className={`relative w-full p-0 cursor-pointer ${
-            isSidebarOpen ? "justify-end" : "justify-center"
-          }`}
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          {isSidebarOpen ? <ChevronLeft size={20} /> : <Settings size={20} />}
-        </Button>
-        {isSidebarOpen && (
-          <div className="flex flex-col space-y-4">
-            <h2 className="text-lg font-semibold mb-2">Options</h2>
+      <SideBar
+        isOpen={isSidebarOpen}
+        sections={[
+          {
+            title: "",
+            content: (
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="select-all"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Select All
+                  </label>
+                  <Checkbox
+                    id="select-all"
+                    checked={selectedEntries.length === filteredEntries.length}
+                    onCheckedChange={handleSelectAll}
+                    className="bg-white border-gray-300"
+                    size={4}
+                  />
+                </div>
 
-            <div className="flex flex-col space-y-4">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="select-all"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Select All
-                </label>
-                <Checkbox
-                  id="select-all"
-                  checked={selectedEntries.length === filteredEntries.length}
-                  onCheckedChange={handleSelectAll}
-                  className="bg-white border-gray-300"
-                />
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="show-sentiment"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Show Sentiment
+                  </label>
+                  <Checkbox
+                    id="show-sentiment"
+                    checked={showSentiment}
+                    onCheckedChange={(checked) =>
+                      setShowSentiment(checked as boolean)
+                    }
+                    className="bg-white border-gray-300"
+                    size={5}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="show-favorites"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Show Favorites Only
+                  </label>{" "}
+                  <Checkbox
+                    id="show-favorites"
+                    checked={showFavoritesOnly}
+                    onCheckedChange={(checked) =>
+                      setShowFavoritesOnly(checked as boolean)
+                    }
+                    className="bg-white border-gray-300"
+                    size={5}
+                  />
+                </div>
               </div>
-
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="show-sentiment"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Show Sentiment
-                </label>
-                <Checkbox
-                  id="show-sentiment"
-                  checked={showSentiment}
-                  onCheckedChange={(checked) =>
-                    setShowSentiment(checked as boolean)
-                  }
-                  className="bg-white border-gray-300"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="show-favorites"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Show Favorites Only
-                </label>
-                <Checkbox
-                  id="show-favorites"
-                  checked={showFavoritesOnly}
-                  onCheckedChange={(checked) =>
-                    setShowFavoritesOnly(checked as boolean)
-                  }
-                  className="bg-white border-gray-300"
-                />
-              </div>
-
-              {/* New "Filters" title */}
-              <h3 className="text-md font-semibold mt-4 mb-2">Filters</h3>
-
+            ),
+          },
+          {
+            title: "Filters",
+            content: (
               <div className="flex flex-col space-y-2">
                 <label htmlFor="date-filter" className="text-sm font-medium">
                   Filter by Date
@@ -326,10 +318,12 @@ export default function JournalsPage() {
                   className="border rounded p-1 text-sm"
                 />
               </div>
-            </div>
-          </div>
-        )}
-      </div>
+            ),
+          },
+        ]}
+        setIsSidebarOpen={setIsSidebarOpen}
+        icon={<Settings size={20} />}
+      />
 
       {/* Wrap the entire content in PageWrapper */}
       <div
@@ -487,7 +481,7 @@ export default function JournalsPage() {
                             className="mr-2"
                           />
                         </>
-                      )}{" "}
+                      )}
                       <Trash2
                         className="w-5 h-5 text-red-500 cursor-pointer"
                         onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
