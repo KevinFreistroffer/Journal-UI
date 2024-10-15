@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   Settings,
 } from "lucide-react";
+import { useSearch } from "@/SearchContext";
 import StarIcon from "@/components/ui/StarIcon/StarIcon";
 // import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -35,6 +36,7 @@ import Sentiment from "sentiment";
 import nlp from "compromise";
 import { Input } from "@/components/ui/input"; // Import the Input component
 import SideBar from "@/components/ui/Sidebar/SideBar";
+import SearchInput from "@/components/ui/SearchInput/SearchInput";
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -51,6 +53,7 @@ export default function JournalsPage() {
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
+  const { query, handleSearch, setFilteredEntries } = useSearch();
 
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
@@ -211,18 +214,24 @@ export default function JournalsPage() {
     // );
   });
 
-  const filteredEntries = showFavoritesOnly
-    ? user.journals.filter((journal) => journal.favorite)
-    : user.journals;
-
-  // Filter journals by selected date
-  const dateFilteredEntries = selectedDate
-    ? filteredEntries.filter(
-        (journal) =>
-          new Date(journal.date).toDateString() ===
-          new Date(selectedDate).toDateString()
-      )
-    : filteredEntries;
+  const filteredEntries = user.journals
+    .filter((journal) => {
+      if (showFavoritesOnly && !journal.favorite) {
+        return false;
+      }
+      if (selectedDate && new Date(journal.date).toDateString() !== new Date(selectedDate).toDateString()) {
+        return false;
+      }
+      if (query) {
+        const lowercaseQuery = query.toLowerCase();
+        return (
+          journal.title.toLowerCase().includes(lowercaseQuery) ||
+          journal.entry.toLowerCase().includes(lowercaseQuery) ||
+          journal.category.toLowerCase().includes(lowercaseQuery)
+        );
+      }
+      return true;
+    });
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -249,56 +258,56 @@ export default function JournalsPage() {
             title: "",
             content: (
               <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Checkbox
+                    id="select-all"
+                    checked={selectedEntries.length === filteredEntries.length}
+                    onCheckedChange={handleSelectAll}
+                    className="bg-white border-gray-300 mr-2"
+                    size={5}
+                  />
                   <label
                     htmlFor="select-all"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Select All
                   </label>
-                  <Checkbox
-                    id="select-all"
-                    checked={selectedEntries.length === filteredEntries.length}
-                    onCheckedChange={handleSelectAll}
-                    className="bg-white border-gray-300"
-                    size={4}
-                  />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="show-sentiment"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Show Sentiment
-                  </label>
+                <div className="flex items-center">
                   <Checkbox
                     id="show-sentiment"
                     checked={showSentiment}
                     onCheckedChange={(checked) =>
                       setShowSentiment(checked as boolean)
                     }
-                    className="bg-white border-gray-300"
+                    className="bg-white border-gray-300 mr-2"
                     size={5}
                   />
-                </div>
-
-                <div className="flex items-center justify-between">
                   <label
-                    htmlFor="show-favorites"
+                    htmlFor="show-sentiment"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    Show Favorites Only
-                  </label>{" "}
+                    Show Sentiment
+                  </label>
+                </div>
+
+                <div className="flex items-center">
                   <Checkbox
                     id="show-favorites"
                     checked={showFavoritesOnly}
                     onCheckedChange={(checked) =>
                       setShowFavoritesOnly(checked as boolean)
                     }
-                    className="bg-white border-gray-300"
+                    className="bg-white border-gray-300 mr-2"
                     size={5}
                   />
+                  <label
+                    htmlFor="show-favorites"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Show Favorites Only
+                  </label>
                 </div>
               </div>
             ),
@@ -333,12 +342,12 @@ export default function JournalsPage() {
       >
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Your Journals</h1>
-          <Input
-            type="search"
-            placeholder="Search journals..."
-            className="max-w-xs"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+          <SearchInput
+            query={query}
+            handleSearch={handleSearch}
+            userEntries={user.journals}
+            containerClassName="max-w-xs"
+            inputClassName="border rounded p-1 text-sm"
           />
         </div>
         <div className="flex items-center space-x-2 mb-4">
@@ -388,18 +397,18 @@ export default function JournalsPage() {
               : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
           } gap-6`}
         >
-          {dateFilteredEntries.length === 0 ? ( // Use dateFilteredEntries for rendering
+          {filteredEntries.length === 0 ? (
             <div>
               <p>No journals found.</p>
               <Link
                 href="/journal/write"
                 className="text-blue-500 hover:underline"
               >
-                Create an journal
+                Create a journal
               </Link>
             </div>
           ) : (
-            dateFilteredEntries.map((journal, index) => (
+            filteredEntries.map((journal, index) => (
               <Card
                 key={index}
                 className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${

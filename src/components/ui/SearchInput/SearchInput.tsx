@@ -31,7 +31,7 @@ const SearchInput: React.FC<IProps> = ({
       />
       <span
         onClick={handleClear}
-        className="absolute right-6 text-lg text-gray-400 top-1/2 transform -translate-y-1/2 cursor-pointer"
+        className="absolute right-2 text-lg text-gray-400 top-1/2 transform -translate-y-1/2 cursor-pointer"
       >
         &times;
       </span>
