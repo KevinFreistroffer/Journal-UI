@@ -1,14 +1,6 @@
 "use client";
 
 import { useState, useEffect, Fragment, useContext } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"; // Adjust the import based on your project structure
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 // import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,18 +13,27 @@ import {
   Trash2,
   ChevronLeft,
   Settings,
-} from "lucide-react"; // Import icons for list, grid, and eye views
-import nlp from "compromise";
-import Sentiment from "sentiment";
+} from "lucide-react";
 import StarIcon from "@/components/ui/StarIcon/StarIcon";
 // import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
-import Carrot from "@/components/ui/Carrot/Carrot";
 import { Checkbox } from "@/components/ui/Checkbox"; // Import the Checkbox component
 import { PartialWidthPageContainer } from "@/components/ui/PartialWidthPageContainer"; // Import the PageWrapper component
 import { ModalContext } from "@/GlobalModalContext"; // Import ModalContext
 import GlobalModal from "@/components/ui/GlobalModal"; // Import GlobalModal
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Carrot from "@/components/ui/Carrot/Carrot";
+import Sentiment from "sentiment";
+import nlp from "compromise";
+import { Input } from "@/components/ui/input"; // Import the Input component
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -48,6 +49,7 @@ export default function JournalsPage() {
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
+  const [searchTerm, setSearchTerm] = useState(""); // New state for search term
 
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
@@ -253,11 +255,7 @@ export default function JournalsPage() {
           size="sm"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          {isSidebarOpen ? (
-            <ChevronLeft size={20} />
-          ) : (
-            <Settings size={20} />
-          )}
+          {isSidebarOpen ? <ChevronLeft size={20} /> : <Settings size={20} />}
         </Button>
         {isSidebarOpen && (
           <div className="flex flex-col space-y-4">
@@ -339,7 +337,16 @@ export default function JournalsPage() {
           isSidebarOpen ? "ml-56 pl-8" : "ml-24 pl-4"
         }`}
       >
-        <h1 className="text-3xl font-bold mb-6">Your Journals</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Your Journals</h1>
+          <Input
+            type="search"
+            placeholder="Search journals..."
+            className="max-w-xs"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <div className="flex items-center space-x-2 mb-4">
           <div className="flex  space-x-2 ">
             <input

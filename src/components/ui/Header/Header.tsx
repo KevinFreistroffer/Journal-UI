@@ -97,7 +97,7 @@ export default function Header() {
           </Link>
         </div>
         {/* Search Input Section moved to the right */}
-        {isLoading ? (
+        {/* {isLoading ? (
           <div className="w-40 h-6 bg-gray-200 animate-pulse rounded mr-4 hidden md:block"></div>
         ) : !user ? null : !isHomePage ? ( // Add this condition
           <SearchInput
@@ -106,7 +106,7 @@ export default function Header() {
             userEntries={user?.journals || []}
             containerClassName="hidden md:block mr-2"
           />
-        ) : null}
+        ) : null} */}
 
         {isLoading ? (
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
@@ -163,12 +163,12 @@ export default function Header() {
               </Link>
             )}
           </div>
-          <SearchInput
+          {/* <SearchInput
             query={query}
             handleSearch={handleSearch}
             userEntries={user?.journals || []}
             containerClassName="hidden md:block mr-2"
-          />
+          /> */}
         </div>
         {/* {!isLoading &&
           user && ( // Check if user is loaded and exists
