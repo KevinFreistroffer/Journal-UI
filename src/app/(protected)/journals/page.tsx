@@ -14,13 +14,13 @@ import {
   ChevronLeft,
   Settings,
 } from "lucide-react";
-import { useSearch } from "@/SearchContext";
+import { useSearch } from "@/context/SearchContext";
 import StarIcon from "@/components/ui/StarIcon/StarIcon";
 // import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Checkbox } from "@/components/ui/Checkbox"; // Import the Checkbox component
 import { PartialWidthPageContainer } from "@/components/ui/PartialWidthPageContainer"; // Import the PageWrapper component
-import { ModalContext } from "@/GlobalModalContext"; // Import ModalContext
+import { ModalContext } from "@/context/GlobalModalContext"; // Import ModalContext
 import GlobalModal from "@/components/ui/GlobalModal"; // Import GlobalModal
 import { useRouter } from "next/navigation";
 import {
@@ -37,6 +37,14 @@ import nlp from "compromise";
 import { Input } from "@/components/ui/input"; // Import the Input component
 import SideBar from "@/components/ui/Sidebar/SideBar";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import {
+  ViewGridIcon,
+  ViewHorizontalIcon,
+  ReaderIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
@@ -214,24 +222,27 @@ export default function JournalsPage() {
     // );
   });
 
-  const filteredEntries = user.journals
-    .filter((journal) => {
-      if (showFavoritesOnly && !journal.favorite) {
-        return false;
-      }
-      if (selectedDate && new Date(journal.date).toDateString() !== new Date(selectedDate).toDateString()) {
-        return false;
-      }
-      if (query) {
-        const lowercaseQuery = query.toLowerCase();
-        return (
-          journal.title.toLowerCase().includes(lowercaseQuery) ||
-          journal.entry.toLowerCase().includes(lowercaseQuery) ||
-          journal.category.toLowerCase().includes(lowercaseQuery)
-        );
-      }
-      return true;
-    });
+  const filteredEntries = user.journals.filter((journal) => {
+    if (showFavoritesOnly && !journal.favorite) {
+      return false;
+    }
+    if (
+      selectedDate &&
+      new Date(journal.date).toDateString() !==
+        new Date(selectedDate).toDateString()
+    ) {
+      return false;
+    }
+    if (query) {
+      const lowercaseQuery = query.toLowerCase();
+      return (
+        journal.title.toLowerCase().includes(lowercaseQuery) ||
+        journal.entry.toLowerCase().includes(lowercaseQuery) ||
+        journal.category.toLowerCase().includes(lowercaseQuery)
+      );
+    }
+    return true;
+  });
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -350,46 +361,36 @@ export default function JournalsPage() {
             inputClassName="border rounded p-1 text-sm"
           />
         </div>
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="flex  space-x-2 ">
-            <input
-              type="radio"
-              id="list-view"
-              name="view-mode"
-              value="list"
-              checked={viewMode === "list"}
-              onChange={() => setViewMode("list")}
-              className="form-radio h-4 w-4 text-blue-600"
-            />
-            <label
-              htmlFor="list-view"
-              className="flex items-center cursor-pointer text-sm"
-            >
-              {/* <List className="w-4 h-4 mr-2" /> */}
-              List View
-            </label>
-          </div>
-          <div className="hidden md:flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="icon-view"
-                name="view-mode"
-                value="icons"
-                checked={viewMode === "icons"}
-                onChange={() => setViewMode("icons")}
-                className="form-radio h-4 w-4 text-blue-600"
-              />
-              <label
-                htmlFor="icon-view"
-                className="flex items-center cursor-pointer text-sm"
-              >
-                {/* <Grid className="w-4 h-4 mr-2" /> */}
-                Icon View
-              </label>
-            </div>
-          </div>
-        </div>
+        <ToggleGroup.Root
+          type="single"
+          value={viewMode}
+          onValueChange={(value) =>
+            value && setViewMode(value as "list" | "icons")
+          }
+          className="flex items-center  mb-4"
+        >
+          {" "}
+          <ToggleGroup.Item
+            value="icons"
+            aria-label="Icon View"
+            className={`hidden md:flex items-center space-x-2 px-3 py-2  rounded rounded-r-none ${
+              viewMode === "icons" ? "bg-blue-100" : "bg-gray-100"
+            }`}
+          >
+            <ViewGridIcon />
+            {/* <span className="text-sm">Icon View</span> */}
+          </ToggleGroup.Item>
+          <ToggleGroup.Item
+            value="list"
+            aria-label="List View"
+            className={`flex items-center space-x-2 px-3 py-2 rounded rounded-l-none ${
+              viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
+            }`}
+          >
+            <ViewHorizontalIcon />
+            {/* <span className="text-sm">List View</span> */}
+          </ToggleGroup.Item>
+        </ToggleGroup.Root>
         <div
           className={`grid ${
             viewMode === "list"
@@ -443,16 +444,31 @@ export default function JournalsPage() {
                             <Carrot className="absolute bottom-0 left-0" />{" "}
                           </div>
                         )}
-                        <BookOpenText
-                          className="w-8 h-8 cursor-pointer"
-                          onClick={() => {
-                            localStorageService.setItem(
-                              "selectedJournal",
-                              journal._id
-                            );
-                            router.push(`/journal/${journal._id}`);
-                          }}
-                        />
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <ReaderIcon
+                                className="w-8 h-8 cursor-pointer"
+                                onClick={() => {
+                                  localStorageService.setItem(
+                                    "selectedJournal",
+                                    journal._id
+                                  );
+                                  router.push(`/journal/${journal._id}`);
+                                }}
+                              />
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                              <Tooltip.Content
+                                className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
+                                sideOffset={5}
+                              >
+                                Read journal
+                                <Tooltip.Arrow className="fill-gray-800" />
+                              </Tooltip.Content>
+                            </Tooltip.Portal>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
                       </div>
                     </div>
                   </CardHeader>
@@ -491,7 +507,7 @@ export default function JournalsPage() {
                           />
                         </>
                       )}
-                      <Trash2
+                      <TrashIcon
                         className="w-5 h-5 text-red-500 cursor-pointer"
                         onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
                       />

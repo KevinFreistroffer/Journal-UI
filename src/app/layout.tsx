@@ -9,10 +9,10 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Header from "@/components/ui/Header/Header";
 import Footer from "@/components/ui/Footer";
 import { JournalProvider } from "@/hooks/useJournal";
-import { ModalProvider } from "@/GlobalModalContext";
+import { ModalProvider } from "@/context/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
 import GlobalModal from "@/components/ui/GlobalModal";
-import { SearchProvider } from "@/SearchContext";
+import { SearchProvider } from "@/context/SearchContext";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -27,7 +27,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "SumX",
-  description: "Entrie your life",
+  description: "Think > Summarize > Tweet",
 };
 
 export default async function RootLayout({

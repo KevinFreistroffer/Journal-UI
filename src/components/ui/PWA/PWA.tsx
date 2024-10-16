@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, useEffect } from "react";
-import { ModalContext } from "@/GlobalModalContext";
+import { ModalContext } from "@/context/GlobalModalContext";
 import InstallPrompt from "./InstallPrompt";
 import PushNotificationManager from "./PushNotificationManager";
 

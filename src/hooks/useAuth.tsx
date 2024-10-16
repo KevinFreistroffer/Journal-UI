@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/lib/interfaces";
-import { getUser } from "@/lib/dal";
-import { useSearch } from "@/SearchContext";
+import { getUser } from "@/lib/data_access_layer";
+import { useSearch } from "@/context/SearchContext";
 
 interface AuthStateType {
   user: IUser | null;
@@ -26,15 +26,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function checkSession() {
+      console.log("useAuth() Checking session");
       try {
         console.log("useAuth() Checking session");
-
         setIsLoading(true);
-        const user = await getUser();
-
-        if (user) {
-          setUser(user);
-          // setFilteredEntries(user.journals);
+        const sessionUser = await getUser();
+        console.log("useAuth() sessionUser", sessionUser);
+        if (sessionUser) {
+          setUser(sessionUser);
+          setFilteredEntries(sessionUser.journals);
         }
       } catch (error) {
         console.error("Error verifying session:", error);
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkSession();
-  }, []);
+  }, [setFilteredEntries]);
 
   return (
     <AuthState.Provider value={{ user, setUser, isLoading, setIsLoading }}>

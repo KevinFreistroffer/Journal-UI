@@ -1,5 +1,5 @@
 import "server-only";
-import { getUserById } from "@/lib/dal";
+import { getUserById } from "@/lib/data_access_layer";
 import { IUser } from "./interfaces";
 
 // @ts-ignore

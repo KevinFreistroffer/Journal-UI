@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { ICreateCategoryState } from "@/app/(protected)/journal/write/types";
-import { UserSchema } from "@/schemas/UserSchema";
+import { UserSchema } from "@/lib/schemas/UserSchema";
 import { IUser } from "@/lib/interfaces";
 import { CreateCategoryFunction } from "@/app/(protected)/journal/write/types";
 

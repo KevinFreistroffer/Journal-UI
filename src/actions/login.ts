@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { State, LoginFunction } from "@/app/(public)/login/types";
-import { UserSchema } from "@/schemas/UserSchema";
+import { UserSchema } from "@/lib/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 

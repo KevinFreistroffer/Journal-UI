@@ -1,5 +1,5 @@
 import UserDashboard from "./UserDashboard";
-import { verifySession } from "@/lib/dal";
+import { verifySession } from "@/lib/data_access_layer";
 import { redirect } from "next/navigation";
 
 async function DashboardPage() {

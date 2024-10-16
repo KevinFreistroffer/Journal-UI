@@ -6,7 +6,7 @@ import {
   CreateJournalFunction,
   ICreateJournalState,
 } from "@/app/(protected)/journal/write/types";
-import { UserSchema } from "@/schemas/UserSchema";
+import { UserSchema } from "@/lib/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 
