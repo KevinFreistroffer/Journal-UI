@@ -6,8 +6,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    console.log("API /user/helperText POST");
     // Parse the request body
     const { userId, hasAcknowledgedHelperText } = await request.json();
+    console.log("userId", userId);
+    console.log("hasAcknowledgedHelperText", hasAcknowledgedHelperText);
 
     // Validate the input
     if (

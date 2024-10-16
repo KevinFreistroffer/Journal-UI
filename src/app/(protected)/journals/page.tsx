@@ -45,11 +45,61 @@ import {
   TrashIcon,
 } from "@radix-ui/react-icons";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import Joyride, {
+  CallBackProps,
+  STATUS,
+  TooltipRenderProps,
+} from "react-joyride";
+import HelperText from "@/components/ui/HelperText/HelperText";
+import { HAS_ACKNOWLEDGED_HELPER_TEXT } from "@/lib/constants";
 
+function CustomTooltip(props: TooltipRenderProps) {
+  const {
+    backProps,
+    closeProps,
+    continuous,
+    index,
+    primaryProps,
+    skipProps,
+    step,
+    tooltipProps,
+  } = props;
+
+  return (
+    <div className="tooltip__body" {...tooltipProps}>
+      <button className="tooltip__close" {...closeProps}>
+        &times;
+      </button>
+      {step.title && <h4 className="tooltip__title">{step.title}</h4>}
+      <div className="tooltip__content">{step.content}</div>
+      <div className="tooltip__footer">
+        <button className="tooltip__button" {...skipProps}>
+          {skipProps.title}
+        </button>
+        <div className="tooltip__spacer">
+          {index > 0 && (
+            <button className="tooltip__button" {...backProps}>
+              {backProps.title}
+            </button>
+          )}
+          {continuous && (
+            <button
+              className="tooltip__button tooltip__button--primary"
+              {...primaryProps}
+            >
+              {primaryProps.title}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
-  const [showHelperText, setShowHelperText] = useState<boolean>(false);
+  const [hasAcknowledgedHelperText, setHasAcknowledgedHelperText] =
+    useState<boolean>(false);
   // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -62,17 +112,20 @@ export default function JournalsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
   const { query, handleSearch, setFilteredEntries } = useSearch();
-
+  const [helperTextState, setHelperTextState] = useState({
+    run: true,
+    steps: [
+      {
+        target: ".helper-text-step",
+        content: "Click to view, summarize and tweet your thoughts!",
+        disableBeacon: true,
+      },
+    ],
+  });
   const handleCloseHelper = () => {
-    console.log("handleCloseHelper()");
-    // Close the helper text using localStorageService
-    const hasAcknolwedgedHelperText = localStorageService.getItem(
-      "hasAcknolwedgedHelperText"
-    );
-    console.log("hasAcknolwedgedHelperText", hasAcknolwedgedHelperText);
-    // If not, show the helper text
-    setShowHelperText((state) => !state);
-    localStorageService.setItem("hasAcknolwedgedHelperText", true);
+    setHelperTextState((state) => ({ ...state, run: false }));
+    setHasAcknowledgedHelperText(true);
+    localStorageService.setItem(HAS_ACKNOWLEDGED_HELPER_TEXT, true);
   };
 
   useEffect(() => {
@@ -94,28 +147,18 @@ export default function JournalsPage() {
 
   useEffect(() => {
     // Check if the user has seen the helper text
-    const hasAcknolwedgedHelperText = localStorageService.getItem(
-      "hasAcknolwedgedHelperText"
+    const hasAcknowledged = localStorageService.getItem(
+      HAS_ACKNOWLEDGED_HELPER_TEXT
     );
 
-    if (hasAcknolwedgedHelperText === undefined) {
-      if (!user?.hasAcknolwedgedHelperText) {
-        setShowHelperText(true);
+    if (hasAcknowledged === undefined) {
+      if (!user?.hasAcknowledgedHelperText) {
+        setHelperTextState((state) => ({ ...state, run: true }));
       }
-    } else if (!hasAcknolwedgedHelperText) {
-      setShowHelperText(true);
+    } else if (!hasAcknowledged) {
+      setHelperTextState((state) => ({ ...state, run: true }));
     }
   }, [user]);
-
-  useEffect(() => {}, [user]);
-
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner /> {/* Show a loading spinner while loading */}
-      </div>
-    );
-  }
 
   // @ts-ignore
   const getFrequentKeywords = (journals: any) => {
@@ -220,16 +263,16 @@ export default function JournalsPage() {
     openModal(<div>Delete</div>); // Open the GlobalModal
   };
 
-  newEntries.forEach((journal) => {
-    const sentimentResult = analyzeSentiment(journal);
-    console.log(sentimentResult);
-    // const color = getSentimentColor(sentimentResult.score);
-    // console.log(
-    //   `Journal: "${journal}" | Score: ${sentimentResult.score} | Color: ${color}`
-    // );
-  });
+  // newEntries.forEach((journal) => {
+  //   const sentimentResult = analyzeSentiment(journal);
+  //   console.log(sentimentResult);
+  //   // const color = getSentimentColor(sentimentResult.score);
+  //   // console.log(
+  //   //   `Journal: "${journal}" | Score: ${sentimentResult.score} | Color: ${color}`
+  //   // );
+  // });
 
-  const filteredEntries = user.journals.filter((journal) => {
+  const filteredEntries = user?.journals.filter((journal) => {
     if (showFavoritesOnly && !journal.favorite) {
       return false;
     }
@@ -253,7 +296,7 @@ export default function JournalsPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedEntries(filteredEntries.map((journal) => journal._id));
+      setSelectedEntries(filteredEntries?.map((journal) => journal._id) || []);
     } else {
       setSelectedEntries([]);
     }
@@ -266,6 +309,39 @@ export default function JournalsPage() {
       setSelectedEntries((prev) => prev.filter((id) => id !== journalId));
     }
   };
+
+  const handleJoyrideCallback = async (data: CallBackProps) => {
+    try {
+      console.log("handleJoyrideCallback", data);
+      const { status, type } = data;
+      const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+
+      const response = await fetch("/api/user/helperText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user?._id,
+          hasAcknowledgedHelperText: true,
+        }),
+      });
+      console.log("response", response);
+    } catch (error) {
+      console.error("Error acknowledging helper text:", error);
+    } finally {
+      localStorageService.setItem("hasAcknowledgedHelperText", true);
+      setHasAcknowledgedHelperText(true);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner /> {/* Show a loading spinner while loading */}
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full min-h-screen mt-16 max-w-screen-2xl mx-auto">
@@ -427,30 +503,36 @@ export default function JournalsPage() {
                           : journal.title}
                       </CardTitle>
                       <div className="relative p-0 m-0">
-                        {index === 0 && showHelperText && (
-                          <div
-                            style={{ top: -98, width: 307 }}
-                            className="helper-text bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 pr-12 py-3 rounded absolute"
-                            role="alert"
-                          >
-                            <strong className="font-bold">Tip! </strong>
-                            <span className="block sm:inline">
-                              Click the book icon to read your journal!
-                            </span>
-                            <button
-                              onClick={handleCloseHelper}
-                              className="absolute top-0 right-0 p-4"
-                            >
-                              <XIcon className="h-6 w-6 text-yellow-500" />
-                            </button>
-                            <Carrot className="absolute bottom-0 left-0" />{" "}
-                          </div>
+                        {index === 0 && (
+                          <Joyride
+                            callback={handleJoyrideCallback}
+                            // continuous
+                            run={helperTextState.run}
+                            // scrollToFirstStep
+                            // showProgress
+                            // showSkipButton
+                            disableOverlayClose={true}
+                            steps={helperTextState.steps}
+                            // styles={{
+                            //   options: {
+                            //     zIndex: 10000,
+                            //   },
+                            // }}
+                            tooltipComponent={HelperText}
+                            styles={{
+                              options: {
+                                arrowColor: "#fff",
+                                primaryColor: "#000",
+                                zIndex: 1000,
+                              },
+                            }}
+                          />
                         )}
                         <Tooltip.Provider delayDuration={100}>
                           <Tooltip.Root>
                             <Tooltip.Trigger asChild>
                               <ReaderIcon
-                                className="w-8 h-8 cursor-pointer"
+                                className="w-8 h-8 cursor-pointer helper-text-step"
                                 onClick={() => {
                                   localStorageService.setItem(
                                     "selectedJournal",

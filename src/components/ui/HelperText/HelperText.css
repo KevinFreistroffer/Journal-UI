@@ -1,10 +1,7 @@
 .Tooltip {
   width: max-content;
-  background-color: #444;
-  color: white;
-  font-size: 90%;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background-color: #fff;
+  /* color: #000; */
 }
 
 /* .tooltip-trigger {

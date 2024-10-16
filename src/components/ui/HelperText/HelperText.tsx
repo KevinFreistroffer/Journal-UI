@@ -1,70 +1,30 @@
 import { useState, useEffect } from "react";
 import { usePopper } from "react-popper";
 import "./HelperText.css";
+import Joyride, { TooltipRenderProps } from "react-joyride";
 
-const HelperText = ({
-  text,
-  children,
-  isVisible,
-  onClick,
-}: {
-  text: string;
-  children: React.ReactNode;
-  isVisible: boolean;
-  onClick: () => void;
-}) => {
-  const [referenceElement, setReferenceElement] =
-    useState<HTMLDivElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-    null
-  );
-
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: "auto", // Automatically chooses the best placement
-    modifiers: [
-      {
-        name: "offset",
-        options: {
-          offset: [0, 8], // Add some spacing between the icon and tooltip
-        },
-      },
-    ],
-  });
-
-  useEffect(() => {
-    console.log("isVisible", isVisible);
-  }, [isVisible]);
-
+const HelperText = (props: TooltipRenderProps) => {
+  const {
+    backProps,
+    closeProps,
+    continuous,
+    index,
+    primaryProps,
+    skipProps,
+    step,
+    tooltipProps,
+  } = props;
   return (
-    <div
-      className="tooltip-trigger"
-      //   onMouseEnter={() => setVisible(true)}
-      //   onMouseLeave={() => setVisible(false)}
-      onClick={() => {
-        console.log("HelperText onClick()");
-        onClick();
-      }}
-      ref={setReferenceElement}
-    >
-      {children}
-      {isVisible && (
-        <div
-          ref={setPopperElement}
-          style={styles.popper}
-          {...attributes.popper}
-          className="tooltip-text"
+    <div className="Tooltip tooltip__body p-6 rounded" {...tooltipProps}>
+      <div className="Tooltip-content flex flex-col">
+        <div className="tooltip__content mb-6">{step.content}</div>
+        <button
+          className="tooltip__close text-sm bg-blue-500 text-white px-4 py-2 rounded self-end"
+          {...closeProps}
         >
-          <div className="flex flex-col">
-            <p className="mb-12">{text}</p>
-            <button
-              className="self-end flex px-4 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
-              onClick={() => onClick()}
-            >
-              Ok
-            </button>
-          </div>
-        </div>
-      )}
+          Ok
+        </button>
+      </div>
     </div>
   );
 };
