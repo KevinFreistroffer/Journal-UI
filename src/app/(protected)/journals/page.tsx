@@ -43,6 +43,7 @@ import {
   ViewHorizontalIcon,
   ReaderIcon,
   TrashIcon,
+  ViewVerticalIcon,
 } from "@radix-ui/react-icons";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import Joyride, {
@@ -54,7 +55,9 @@ import HelperText from "@/components/ui/HelperText/HelperText";
 import { HAS_ACKNOWLEDGED_HELPER_TEXT } from "@/lib/constants";
 
 export default function JournalsPage() {
-  const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
+  const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
+    "columns"
+  ); // Updated state for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
 
   // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
@@ -102,19 +105,22 @@ export default function JournalsPage() {
   });
 
   useEffect(() => {
-    // Set viewMode to "list" for xs or sm viewports
+    // Set viewMode based on viewport width
     const handleResize = () => {
       if (window.innerWidth <= 640) {
-        // 640px is the breakpoint for sm
         setViewMode("list");
+      } else if (window.innerWidth <= 1024) {
+        setViewMode("2-column");
+      } else {
+        setViewMode("columns");
       }
     };
 
     handleResize(); // Check on initial load
-    window.addEventListener("resize", handleResize); // Add resize event listener
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize); // Cleanup listener on unmount
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -395,37 +401,46 @@ export default function JournalsPage() {
           type="single"
           value={viewMode}
           onValueChange={(value) =>
-            value && setViewMode(value as "list" | "icons")
+            value && setViewMode(value as "list" | "2-column" | "columns")
           }
-          className="flex items-center  mb-4"
+          className="flex items-center mb-4"
         >
           {" "}
           <ToggleGroup.Item
-            value="icons"
-            aria-label="Icon View"
-            className={`hidden md:flex items-center space-x-2 px-3 py-2  rounded rounded-r-none ${
-              viewMode === "icons" ? "bg-blue-100" : "bg-gray-100"
-            }`}
-          >
-            <ViewGridIcon />
-            {/* <span className="text-sm">Icon View</span> */}
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
             value="list"
             aria-label="List View"
-            className={`flex items-center space-x-2 px-3 py-2 rounded rounded-l-none ${
+            className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
               viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
             }`}
           >
             <ViewHorizontalIcon />
-            {/* <span className="text-sm">List View</span> */}
+          </ToggleGroup.Item>
+          <ToggleGroup.Item
+            value="2-column"
+            aria-label="2-Column View"
+            className={`hidden md:flex items-center space-x-2 px-3 py-2 ${
+              viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
+            }`}
+          >
+            <ViewVerticalIcon />
+          </ToggleGroup.Item>{" "}
+          <ToggleGroup.Item
+            value="columns"
+            aria-label="Columns View"
+            className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-l ${
+              viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
+            }`}
+          >
+            <ViewGridIcon />
           </ToggleGroup.Item>
         </ToggleGroup.Root>
         <div
           className={`grid ${
             viewMode === "list"
               ? "grid-cols-1"
-              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : viewMode === "2-column"
+              ? "grid-cols-1 md:grid-cols-2"
+              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
           } gap-6`}
         >
           {filteredEntries?.length === 0 ? (
@@ -449,7 +464,7 @@ export default function JournalsPage() {
                 <div className="flex flex-col flex-grow">
                   <CardHeader>
                     <div className="flex justify-between items-center">
-                      <CardTitle className="wrap text-wrap overflow-wrap">
+                      <CardTitle className="wrap text-wrap overflow-wrap text-md">
                         {journal.title.length > 30
                           ? `${journal.title.substring(0, 30)}...`
                           : journal.title}
@@ -508,9 +523,7 @@ export default function JournalsPage() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    {/* ... existing CardContent ... */}
-                  </CardContent>
+                  {/* <CardContent></CardContent> */}
                   <CardFooter className="mt-auto flex justify-between items-end">
                     <div className="flex flex-col">
                       <p>{journal.category}</p>
@@ -544,8 +557,7 @@ export default function JournalsPage() {
                         </>
                       )}
                       <TrashIcon
-                        fontSize={20}
-                        className="w-5 h-5 text-red-500 cursor-pointer"
+                        className="w-6 h-6 text-red-500 cursor-pointer"
                         onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
                       />
                     </div>
