@@ -53,53 +53,10 @@ import Joyride, {
 import HelperText from "@/components/ui/HelperText/HelperText";
 import { HAS_ACKNOWLEDGED_HELPER_TEXT } from "@/lib/constants";
 
-function CustomTooltip(props: TooltipRenderProps) {
-  const {
-    backProps,
-    closeProps,
-    continuous,
-    index,
-    primaryProps,
-    skipProps,
-    step,
-    tooltipProps,
-  } = props;
-
-  return (
-    <div className="tooltip__body" {...tooltipProps}>
-      <button className="tooltip__close" {...closeProps}>
-        &times;
-      </button>
-      {step.title && <h4 className="tooltip__title">{step.title}</h4>}
-      <div className="tooltip__content">{step.content}</div>
-      <div className="tooltip__footer">
-        <button className="tooltip__button" {...skipProps}>
-          {skipProps.title}
-        </button>
-        <div className="tooltip__spacer">
-          {index > 0 && (
-            <button className="tooltip__button" {...backProps}>
-              {backProps.title}
-            </button>
-          )}
-          {continuous && (
-            <button
-              className="tooltip__button tooltip__button--primary"
-              {...primaryProps}
-            >
-              {primaryProps.title}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "icons">("icons"); // State for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
-  const [hasAcknowledgedHelperText, setHasAcknowledgedHelperText] =
-    useState<boolean>(false);
+
   // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -113,7 +70,7 @@ export default function JournalsPage() {
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
   const { query, handleSearch, setFilteredEntries } = useSearch();
   const [helperTextState, setHelperTextState] = useState({
-    run: true,
+    run: false,
     steps: [
       {
         target: ".helper-text-step",
@@ -122,11 +79,27 @@ export default function JournalsPage() {
       },
     ],
   });
-  const handleCloseHelper = () => {
-    setHelperTextState((state) => ({ ...state, run: false }));
-    setHasAcknowledgedHelperText(true);
-    localStorageService.setItem(HAS_ACKNOWLEDGED_HELPER_TEXT, true);
-  };
+  const filteredEntries = user?.journals.filter((journal) => {
+    if (showFavoritesOnly && !journal.favorite) {
+      return false;
+    }
+    if (
+      selectedDate &&
+      new Date(journal.date).toDateString() !==
+        new Date(selectedDate).toDateString()
+    ) {
+      return false;
+    }
+    if (query) {
+      const lowercaseQuery = query.toLowerCase();
+      return (
+        journal.title.toLowerCase().includes(lowercaseQuery) ||
+        journal.entry.toLowerCase().includes(lowercaseQuery) ||
+        journal.category.toLowerCase().includes(lowercaseQuery)
+      );
+    }
+    return true;
+  });
 
   useEffect(() => {
     // Set viewMode to "list" for xs or sm viewports
@@ -147,17 +120,21 @@ export default function JournalsPage() {
 
   useEffect(() => {
     // Check if the user has seen the helper text
-    const hasAcknowledged = localStorageService.getItem(
-      HAS_ACKNOWLEDGED_HELPER_TEXT
-    );
 
-    if (hasAcknowledged === undefined) {
-      if (!user?.hasAcknowledgedHelperText) {
-        setHelperTextState((state) => ({ ...state, run: true }));
-      }
-    } else if (!hasAcknowledged) {
+    if (user?.hasAcknowledgedHelperText === false) {
       setHelperTextState((state) => ({ ...state, run: true }));
     }
+    // const hasAcknowledged = localStorageService.getItem(
+    //   HAS_ACKNOWLEDGED_HELPER_TEXT
+    // );
+
+    // if (hasAcknowledged === undefined) {
+    //   if (!user?.hasAcknowledgedHelperText) {
+    //     setHelperTextState((state) => ({ ...state, run: true }));
+    //   }
+    // } else if (!hasAcknowledged) {
+    //   setHelperTextState((state) => ({ ...state, run: true }));
+    // }
   }, [user]);
 
   // @ts-ignore
@@ -181,11 +158,6 @@ export default function JournalsPage() {
     const result = sentiment.analyze(journal);
     return result; // result.score will give you a sentiment score
   };
-
-  const newEntries = [
-    "I'm really happy today, everything is going great.",
-    "Today was a tough day. Feeling a bit down.",
-  ];
 
   const getSentimentColor = (score: number) => {
     if (score < -5) {
@@ -245,7 +217,7 @@ export default function JournalsPage() {
 
       // Remove the deleted journal from the state
 
-      const updatedEntries = user.journals.filter(
+      const updatedEntries = user?.journals.filter(
         (journal) => journal._id !== journalToDelete
       );
       // Update the user state with the new journals array
@@ -272,28 +244,6 @@ export default function JournalsPage() {
   //   // );
   // });
 
-  const filteredEntries = user?.journals.filter((journal) => {
-    if (showFavoritesOnly && !journal.favorite) {
-      return false;
-    }
-    if (
-      selectedDate &&
-      new Date(journal.date).toDateString() !==
-        new Date(selectedDate).toDateString()
-    ) {
-      return false;
-    }
-    if (query) {
-      const lowercaseQuery = query.toLowerCase();
-      return (
-        journal.title.toLowerCase().includes(lowercaseQuery) ||
-        journal.entry.toLowerCase().includes(lowercaseQuery) ||
-        journal.category.toLowerCase().includes(lowercaseQuery)
-      );
-    }
-    return true;
-  });
-
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedEntries(filteredEntries?.map((journal) => journal._id) || []);
@@ -316,22 +266,24 @@ export default function JournalsPage() {
       const { status, type } = data;
       const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
-      const response = await fetch("/api/user/helperText", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user?._id,
-          hasAcknowledgedHelperText: true,
-        }),
-      });
-      console.log("response", response);
+      if (finishedStatuses.includes(status)) {
+        const response = await fetch("/api/user/helperText", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user?._id,
+            hasAcknowledgedHelperText: true,
+          }),
+        });
+        console.log("response", response);
+        // localStorageService.setItem("hasAcknowledgedHelperText", true);
+        // setHasAcknowledgedHelperText(true);
+      }
     } catch (error) {
       console.error("Error acknowledging helper text:", error);
     } finally {
-      localStorageService.setItem("hasAcknowledgedHelperText", true);
-      setHasAcknowledgedHelperText(true);
     }
   };
 
@@ -355,7 +307,7 @@ export default function JournalsPage() {
                 <div className="flex items-center">
                   <Checkbox
                     id="select-all"
-                    checked={selectedEntries.length === filteredEntries.length}
+                    checked={selectedEntries.length === filteredEntries?.length}
                     onCheckedChange={handleSelectAll}
                     className="bg-white border-gray-300 mr-2"
                     size={4}
@@ -476,7 +428,7 @@ export default function JournalsPage() {
               : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
           } gap-6`}
         >
-          {filteredEntries.length === 0 ? (
+          {filteredEntries?.length === 0 ? (
             <div>
               <p>No journals found.</p>
               <Link
@@ -487,7 +439,7 @@ export default function JournalsPage() {
               </Link>
             </div>
           ) : (
-            filteredEntries.map((journal, index) => (
+            filteredEntries?.map((journal, index) => (
               <Card
                 key={index}
                 className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
