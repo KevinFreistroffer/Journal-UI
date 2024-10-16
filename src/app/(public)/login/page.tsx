@@ -25,7 +25,7 @@ export default function LoginPage() {
   const isVerified = searchParams.get("isVerified");
   const [isResendingEmail, setIsResendingEmail] = useState(false);
   const [state, formAction] = useFormState(login, initialState);
-  const { setUser } = useAuth();
+  const { setUser, setIsLoading, isLoading } = useAuth();
   const router = useRouter();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [emailResendSuccess, setEmailResendSuccess] = useState(false);
@@ -68,23 +68,21 @@ export default function LoginPage() {
   }, [isVerified]);
 
   useEffect(() => {
-    if (state.user) {
-      setUser(state.user);
-      // Redirect if user is set, but only if there's no error or verification message
-      // if (!state.errors && state.message !== "Login successful, but the account is not verified. Please check your email for verification.") {
-      //   return router.push(state.redirect as string);
-      // }
+    if (state.success && state.user) {
+      if (state.isVerified === false) {
+        setShowVerificationModal(true);
+      } else {
+        setIsLoading(true);
+        setUser(state.user);
+        return router.push(state.redirect as string);
+      }
     }
 
     if (state.redirect) {
       console.log("redirect", state.redirect);
       return router.push(state.redirect as string);
     }
-
-    if (state.success && state.isVerified === false) {
-      setShowVerificationModal(true);
-    }
-  }, [state, router, setUser]);
+  }, [state, router, setUser, setIsLoading, isLoading, showVerificationModal]);
 
   return (
     <>

@@ -66,11 +66,13 @@ export default function JournalsPage() {
   const handleCloseHelper = () => {
     console.log("handleCloseHelper()");
     // Close the helper text using localStorageService
-    const hasSeenHelperText = localStorageService.getItem("hasSeenHelperText");
-    console.log("hasSeenHelperText", hasSeenHelperText);
+    const hasAcknolwedgedHelperText = localStorageService.getItem(
+      "hasAcknolwedgedHelperText"
+    );
+    console.log("hasAcknolwedgedHelperText", hasAcknolwedgedHelperText);
     // If not, show the helper text
     setShowHelperText((state) => !state);
-    localStorageService.setItem("hasSeenHelperText", true);
+    localStorageService.setItem("hasAcknolwedgedHelperText", true);
   };
 
   useEffect(() => {
@@ -92,13 +94,18 @@ export default function JournalsPage() {
 
   useEffect(() => {
     // Check if the user has seen the helper text
-    const hasSeenHelperText = localStorageService.getItem("hasSeenHelperText");
+    const hasAcknolwedgedHelperText = localStorageService.getItem(
+      "hasAcknolwedgedHelperText"
+    );
 
-    // If not, show the helper text
-    if (!hasSeenHelperText) {
+    if (hasAcknolwedgedHelperText === undefined) {
+      if (!user?.hasAcknolwedgedHelperText) {
+        setShowHelperText(true);
+      }
+    } else if (!hasAcknolwedgedHelperText) {
       setShowHelperText(true);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {}, [user]);
 
@@ -261,12 +268,12 @@ export default function JournalsPage() {
   };
 
   return (
-    <div className="flex h-full min-h-screen mt-16">
+    <div className="flex h-full min-h-screen mt-16 max-w-screen-2xl mx-auto">
       <SideBar
         isOpen={isSidebarOpen}
         sections={[
           {
-            title: "",
+            title: "Filters",
             content: (
               <div className="flex flex-col space-y-4">
                 <div className="flex items-center">
@@ -275,7 +282,7 @@ export default function JournalsPage() {
                     checked={selectedEntries.length === filteredEntries.length}
                     onCheckedChange={handleSelectAll}
                     className="bg-white border-gray-300 mr-2"
-                    size={5}
+                    size={4}
                   />
                   <label
                     htmlFor="select-all"
@@ -293,7 +300,7 @@ export default function JournalsPage() {
                       setShowSentiment(checked as boolean)
                     }
                     className="bg-white border-gray-300 mr-2"
-                    size={5}
+                    size={4}
                   />
                   <label
                     htmlFor="show-sentiment"
@@ -311,7 +318,7 @@ export default function JournalsPage() {
                       setShowFavoritesOnly(checked as boolean)
                     }
                     className="bg-white border-gray-300 mr-2"
-                    size={5}
+                    size={4}
                   />
                   <label
                     htmlFor="show-favorites"
@@ -320,23 +327,18 @@ export default function JournalsPage() {
                     Show Favorites Only
                   </label>
                 </div>
-              </div>
-            ),
-          },
-          {
-            title: "Filters",
-            content: (
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="date-filter" className="text-sm font-medium">
-                  Filter by Date
-                </label>
-                <input
-                  id="date-filter"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="border rounded p-1 text-sm"
-                />
+                <div className="flex flex-col space-y-2">
+                  <label htmlFor="date-filter" className="text-sm font-medium">
+                    Filter by Date
+                  </label>
+                  <input
+                    id="date-filter"
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="border rounded p-1 text-sm"
+                  />
+                </div>
               </div>
             ),
           },
@@ -444,7 +446,7 @@ export default function JournalsPage() {
                             <Carrot className="absolute bottom-0 left-0" />{" "}
                           </div>
                         )}
-                        <Tooltip.Provider>
+                        <Tooltip.Provider delayDuration={100}>
                           <Tooltip.Root>
                             <Tooltip.Trigger asChild>
                               <ReaderIcon
@@ -461,9 +463,9 @@ export default function JournalsPage() {
                             <Tooltip.Portal>
                               <Tooltip.Content
                                 className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                                sideOffset={5}
+                                sideOffset={4}
                               >
-                                Read journal
+                                Read
                                 <Tooltip.Arrow className="fill-gray-800" />
                               </Tooltip.Content>
                             </Tooltip.Portal>
@@ -508,6 +510,7 @@ export default function JournalsPage() {
                         </>
                       )}
                       <TrashIcon
+                        fontSize={20}
                         className="w-5 h-5 text-red-500 cursor-pointer"
                         onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
                       />

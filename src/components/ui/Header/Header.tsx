@@ -60,8 +60,8 @@ export default function Header() {
         user
           ? [
               { href: "/dashboard", label: "Dashboard" },
-              { href: "/journals", label: "Journals" },
-              { href: "/journal/write", label: "New Journal" },
+              { href: "/journals", label: "SumX's" },
+              { href: "/journal/write", label: "New SumX" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -104,12 +104,6 @@ export default function Header() {
       return () => clearTimeout(timer);
     }
   }, [isSideMenuOpen]);
-
-  const handleSignOut = async () => {
-    await signOut();
-    setIsOpen(false);
-    router.push("/");
-  };
 
   return (
     <>
@@ -301,7 +295,25 @@ export default function Header() {
             ))}
             {user && (
               <button
-                onClick={handleSignOut}
+                onClick={async () => {
+                  try {
+                    const response = await fetch("/api/auth/logout", {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    });
+                    if (response.ok) {
+                      // Redirect or update UI as needed after successful logout
+                      setUser(null);
+                      router.push("/");
+                    } else {
+                      console.error("Logout failed");
+                    }
+                  } catch (error) {
+                    console.error("Error during logout:", error);
+                  }
+                }}
                 className="block w-full text-left py-2 hover:bg-gray-100"
               >
                 Sign Out
