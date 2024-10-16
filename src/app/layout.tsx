@@ -26,7 +26,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Journals",
+  title: "SumX",
   description: "Entrie your life",
 };
 

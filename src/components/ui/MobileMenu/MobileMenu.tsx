@@ -32,19 +32,21 @@ export function MobileMenu({ menuItems }: MobileMenuProps) {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className=" mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+          className="top-8 mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
         >
           <Menu className="h-5 w-5 menu-button" />
           <span className="sr-only menu-button">Toggle Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="menu-content pr-0">
-        <div className="px-7 flex justify-between items-center">
-          {" "}
+      <SheetContent
+        side="left"
+        className="menu-content flex flex-col justify-start"
+      >
+        <div className=" flex justify-start items-center">
           {/* Added flex for alignment */}
           <Link
             href="/"
-            className="flex items-center menu-title border-b border-black pb-2 mb-6 text-2xl font-bold"
+            className="flex items-start menu-title border-b border-black pb-2 mb-6 text-2xl font-bold"
             onClick={() => setIsOpen(false)}
           >
             <span className="font-bold">SumX</span>
@@ -57,7 +59,7 @@ export function MobileMenu({ menuItems }: MobileMenuProps) {
             <div className="w-20 h-4 bg-gray-200 animate-pulse rounded"></div>
           </nav>
         ) : (
-          <nav className="mt-4 flex flex-col items-end space-y-4 menu-list">
+          <nav className="mt-4 flex flex-col items-start space-y-4 menu-list">
             {menuItems.map((item, index) => (
               <Link
                 key={index}

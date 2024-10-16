@@ -158,7 +158,7 @@ export default function Header() {
             ) : (
               <Link href="/" passHref>
                 <h1 className="text-lg font-semibold md:text-xl cursor-pointer">
-                  Journals
+                  SumX
                 </h1>
               </Link>
             )}
