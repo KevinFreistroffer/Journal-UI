@@ -121,7 +121,9 @@ export default function Header() {
     }
   };
 
-  const isTabRoute = ['/dashboard', '/journals', '/journal/write'].includes(pathname);
+  const isTabRoute = ["/dashboard", "/journals", "/journal/write"].includes(
+    pathname
+  );
 
   return (
     <>
@@ -217,7 +219,7 @@ export default function Header() {
                     key={item.href}
                     value={item.href}
                     onClick={() => router.push(item.href)}
-                    className="flex-1 bg-transparent px-1 py-3 rounded-none border-b-[3px] border-transparent data-[state=active]:border-b-[3px] data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent"
+                    className="flex-1 bg-transparent px-1 py-3 rounded-none border-b-[3px] border-transparent data-[state=active]:border-b-[3px] data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm"
                     style={{
                       borderBottom:
                         pathname === item.href
@@ -226,7 +228,7 @@ export default function Header() {
                       backgroundColor: "transparent",
                     }}
                   >
-                    <span className="flex items-center justify-center">
+                    <span className="flex items-center justify-center w-full h-full space-x-1">
                       {getIcon(item.href)}
                       <span className="truncate">{item.label}</span>
                     </span>

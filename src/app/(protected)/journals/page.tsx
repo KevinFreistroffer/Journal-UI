@@ -66,7 +66,7 @@ export default function JournalsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
-  const { openModal } = useContext(ModalContext); // Get openModal and closeModal from context
+  const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
@@ -238,7 +238,38 @@ export default function JournalsPage() {
 
   const openDeleteModal = (journalId: string) => {
     setJournalToDelete(journalId); // Set the journal ID to delete
-    openModal(<div>Delete</div>); // Open the GlobalModal
+    const journalCount = selectedEntries.length; // Get the count of selected journals
+    const message =
+      journalCount === 1
+        ? "Are you sure you want to delete the selected journal?"
+        : `Are you sure you want to delete ${journalCount} selected journals?`;
+
+    openModal(
+      <div className="bg-white">
+        {/* Removed padding, shadow, and border-radius */}
+        <p className="mb-4 text-lg font-light">{message}</p>
+        {/* Display the confirmation message */}
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Confirm
+          </button>
+          {/* Confirmation button */}
+          <button
+            onClick={() => {
+              setJournalToDelete(null); // Hide the modal
+              closeModal();
+            }}
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+          >
+            Decline
+          </button>
+          {/* Decline button */}
+        </div>
+      </div>
+    ); // Open the GlobalModal
   };
 
   // newEntries.forEach((journal) => {
@@ -302,7 +333,7 @@ export default function JournalsPage() {
   }
 
   return (
-    <div className="flex h-full min-h-screen mt-16 max-w-screen-xl mx-auto">
+    <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-xl mx-auto">
       <SideBar
         isOpen={isSidebarOpen}
         sections={[
@@ -383,29 +414,63 @@ export default function JournalsPage() {
 
       {/* Wrap the entire content in PageWrapper */}
       <div
-        className={`flex-1 p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "ml-56 pl-8" : "ml-24 pl-4"
-        }`}
+        className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out
+          ${isSidebarOpen ? "md:ml-56 md:pl-8" : "md:ml-24 md:pl-4"}`}
       >
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Your Journals</h1>
-          <SearchInput
-            query={query}
-            handleSearch={handleSearch}
-            userEntries={user.journals}
-            containerClassName="max-w-xs"
-            inputClassName="border rounded p-1 text-sm"
-          />
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
+          <h1 className="text-3xl font-bold hidden md:block">Your Journals</h1>
+          <div className="w-full md:w-auto">
+            <label
+              htmlFor="search-journals"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Search Journals
+            </label>
+            <SearchInput
+              id="search-journals"
+              query={query}
+              handleSearch={handleSearch}
+              userEntries={user.journals}
+              containerClassName="w-full md:max-w-xs"
+              inputClassName="w-full border rounded p-2 text-sm"
+              placeholder="Search your journals..."
+            />
+          </div>
         </div>
+
+        {/* Dropdown for filters on mobile viewports */}
+        <div className="md:hidden mb-4">
+          <label
+            htmlFor="filter-dropdown"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Filter by
+          </label>
+          <select
+            id="filter-dropdown"
+            className="block w-full border rounded p-2 text-sm"
+            onChange={(e) => {
+              // Handle filter change logic here
+              const selectedFilter = e.target.value;
+              // Implement your filter logic based on selectedFilter
+            }}
+          >
+            <option value="">Select a filter</option>
+            <option value="favorites">Favorites</option>
+            <option value="date">Date</option>
+            <option value="sentiment">Sentiment</option>
+            {/* Add more filter options as needed */}
+          </select>
+        </div>
+
         <ToggleGroup.Root
           type="single"
           value={viewMode}
           onValueChange={(value) =>
             value && setViewMode(value as "list" | "2-column" | "columns")
           }
-          className="flex items-center mb-4"
+          className="hidden md:flex items-center mb-4"
         >
-          {" "}
           <ToggleGroup.Item
             value="list"
             aria-label="List View"
@@ -423,7 +488,7 @@ export default function JournalsPage() {
             }`}
           >
             <ViewVerticalIcon />
-          </ToggleGroup.Item>{" "}
+          </ToggleGroup.Item>
           <ToggleGroup.Item
             value="columns"
             aria-label="Columns View"
@@ -459,7 +524,7 @@ export default function JournalsPage() {
                 key={index}
                 className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
                   selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
-                }`} // Reset background color for selected journals
+                }`}
               >
                 <div className="flex flex-col flex-grow">
                   <CardHeader>
@@ -473,19 +538,9 @@ export default function JournalsPage() {
                         {index === 0 && (
                           <Joyride
                             callback={handleJoyrideCallback}
-                            // continuous
                             run={helperTextState.run}
-                            // scrollToFirstStep
-                            // showProgress
-                            // showSkipButton
                             disableOverlayClose={true}
                             steps={helperTextState.steps}
-                            // styles={{
-                            //   options: {
-                            //     zIndex: 10000,
-                            //   },
-                            // }}
-                            tooltipComponent={HelperText}
                             styles={{
                               options: {
                                 arrowColor: "#fff",
@@ -499,7 +554,7 @@ export default function JournalsPage() {
                           <Tooltip.Root>
                             <Tooltip.Trigger asChild>
                               <ReaderIcon
-                                className="w-8 h-8 cursor-pointer helper-text-step"
+                                className={`cursor-pointer helper-text-step ${"w-5 h-5 md:w-8 md:h-8"}`}
                                 onClick={() => {
                                   localStorageService.setItem(
                                     "selectedJournal",
