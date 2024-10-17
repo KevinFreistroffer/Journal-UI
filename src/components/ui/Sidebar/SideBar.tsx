@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {isOpen && (
         <div className="flex flex-col mt-4">
           {sections.map((section, index) => (
-            <div key={index} className="mb-4">
+            <div key={index} className="mb-8">
               <p>
                 <span className="font-medium">{section.title}</span>
               </p>

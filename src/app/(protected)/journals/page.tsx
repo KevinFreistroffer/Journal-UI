@@ -15,7 +15,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
-import StarIcon from "@/components/ui/StarIcon/StarIcon";
+// import StarIcon from "@/components/ui/StarIcon/StarIcon";
 // import { Tooltip } from "@radix-ui/themes";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Checkbox } from "@/components/ui/Checkbox"; // Import the Checkbox component
@@ -53,12 +53,15 @@ import Joyride, {
 } from "react-joyride";
 import HelperText from "@/components/ui/HelperText/HelperText";
 import { HAS_ACKNOWLEDGED_HELPER_TEXT } from "@/lib/constants";
+import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons"; // Import Radix UI Star icons
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
     "columns"
   ); // Updated state for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
+  const [showCategory, setShowCategory] = useState(false); // State for showing category
+  const [showUpdatedDate, setShowUpdatedDate] = useState(false); // State for showing updated date
 
   // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
@@ -69,7 +72,7 @@ export default function JournalsPage() {
   const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // New state for sidebar
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
   const { query, handleSearch, setFilteredEntries } = useSearch();
   const [helperTextState, setHelperTextState] = useState({
@@ -340,7 +343,7 @@ export default function JournalsPage() {
           {
             title: "Filters",
             content: (
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-2">
                 <div className="flex items-center">
                   <Checkbox
                     id="select-all"
@@ -407,6 +410,84 @@ export default function JournalsPage() {
               </div>
             ),
           },
+
+          {
+            title: "Settings",
+            content: (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <Checkbox
+                    id="show-sentiment"
+                    checked={showSentiment}
+                    onCheckedChange={(checked) =>
+                      setShowSentiment(checked as boolean)
+                    }
+                    className="bg-white border-gray-300 mr-2"
+                    size={4}
+                  />
+                  <label
+                    htmlFor="show-sentiment"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Show Sentiment
+                  </label>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center">
+                    <Checkbox
+                      id="show-category"
+                      checked={showCategory} // New state for showing category
+                      onCheckedChange={
+                        (checked) => setShowCategory(checked as boolean) // Update state on change
+                      }
+                      className="bg-white border-gray-300 mr-2"
+                      size={4}
+                    />
+                    <label
+                      htmlFor="show-category"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Show Category
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <Checkbox
+                      id="show-updated-date"
+                      checked={showUpdatedDate} // New state for showing updated date
+                      onCheckedChange={
+                        (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
+                      }
+                      className="bg-white border-gray-300 mr-2"
+                      size={4}
+                    />
+                    <label
+                      htmlFor="show-updated-date"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Show Updated Date
+                    </label>
+                  </div>
+                </div>
+              </div>
+            ),
+          },
+          {
+            title: "Data", // New Data section
+            content: (
+              <div className="flex flex-col space-y-2">
+                <p className="text-sm font-medium">
+                  Total Journal Entries: {user?.journals.length || 0}
+                </p>{" "}
+                {/* Display total journal entries */}
+                <p className="text-sm font-medium">
+                  Total Favorited Journals:{" "}
+                  {user?.journals.filter((journal) => journal.favorite)
+                    .length || 0}
+                </p>{" "}
+                {/* Display total favorited journals */}
+              </div>
+            ),
+          },
         ]}
         setIsSidebarOpen={setIsSidebarOpen}
         icon={<Settings size={20} />}
@@ -422,12 +503,25 @@ export default function JournalsPage() {
           <div className="w-full md:w-auto">
             <label
               htmlFor="search-journals"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 mb-1 md:hidden" // Hide this label on larger viewports
             >
               Search Journals
             </label>
             <SearchInput
               id="search-journals"
+              query={query}
+              handleSearch={handleSearch}
+              userEntries={user.journals}
+              containerClassName="w-full md:max-w-xs"
+              inputClassName="w-full border rounded p-2 text-sm"
+              placeholder="Search your journals..."
+            />
+          </div>
+          <div className="md:hidden">
+            {" "}
+            {/* Hide this div on larger viewports */}
+            <SearchInput
+              id="search-journals-mobile"
               query={query}
               handleSearch={handleSearch}
               userEntries={user.journals}
@@ -474,7 +568,7 @@ export default function JournalsPage() {
           <ToggleGroup.Item
             value="list"
             aria-label="List View"
-            className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
+            className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
               viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
             }`}
           >
@@ -492,7 +586,7 @@ export default function JournalsPage() {
           <ToggleGroup.Item
             value="columns"
             aria-label="Columns View"
-            className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-l ${
+            className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-r ${
               viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
             }`}
           >
@@ -581,8 +675,14 @@ export default function JournalsPage() {
                   {/* <CardContent></CardContent> */}
                   <CardFooter className="mt-auto flex justify-between items-end">
                     <div className="flex flex-col">
-                      <p>{journal.category}</p>
-                      <p className="text-sm text-gray-500">{journal.date}</p>
+                      {showCategory && <p>{journal.category}</p>}
+                      {showUpdatedDate ? (
+                        <p className="text-sm text-gray-500">
+                          Updated: {journal.updatedAt}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-gray-500">{journal.date}</p>
+                      )}
                       {showSentiment && (
                         <div className="flex items-center text-sm mt-1">
                           <span className="mr-2">Sentiment:</span>
@@ -604,17 +704,39 @@ export default function JournalsPage() {
                         <Spinner size="sm" className="mr-2" />
                       ) : (
                         <>
-                          <StarIcon
-                            filled={journal.favorite}
-                            onClick={() => handleFavorite(journal._id)}
-                            className="mr-2"
-                          />
+                          {/* TODO: determine if this is something people would use / not tend to overuse clicking all of them, or if require them to go to the read page. */}
+                          {/* {journal.favorite ? (
+                            <StarFilledIcon
+                              onClick={() => handleFavorite(journal._id)}
+                              className="w-6 h-6 mr-2"
+                            /> // Use StarFilledIcon if favorite
+                          ) : (
+                            <StarIcon
+                              onClick={() => handleFavorite(journal._id)}
+                              className="w-6 h-6 mr-2"
+                            /> // Use StarIcon if not favorite
+                          )} */}
                         </>
                       )}
-                      <TrashIcon
-                        className="w-6 h-6 text-red-500 cursor-pointer"
-                        onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
-                      />
+                      <Tooltip.Provider delayDuration={100}>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <TrashIcon
+                              className="w-7 h-7 text-red-500 cursor-pointer bg-gray-200 rounded-full p-1 hidden md:block" // Increased size for non-mobile viewports
+                              onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <Tooltip.Content
+                              className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
+                              sideOffset={4}
+                            >
+                              Delete
+                              <Tooltip.Arrow className="fill-gray-800" />
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
                     </div>
                   </CardFooter>
                 </div>
