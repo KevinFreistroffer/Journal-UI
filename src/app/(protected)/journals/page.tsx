@@ -302,7 +302,7 @@ export default function JournalsPage() {
   }
 
   return (
-    <div className="flex h-full min-h-screen mt-16 max-w-screen-2xl mx-auto">
+    <div className="flex h-full min-h-screen mt-16 max-w-screen-xl mx-auto">
       <SideBar
         isOpen={isSidebarOpen}
         sections={[

@@ -20,6 +20,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DashboardIcon, ReaderIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export interface IMenuItem {
   href: string;
@@ -33,11 +36,12 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { query, handleSearch, setFilteredEntries } = useSearch();
   const dropdownRef = useRef<HTMLUListElement | null>(null);
-  const pathname = usePathname(); // Add this line
-  const isHomePage = pathname === "/"; // Add this line
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -69,11 +73,11 @@ export default function Header() {
             ]
       );
     }
-  }, [user, isLoading]); // Add isLoading to the dependency array
+  }, [user, isLoading]);
 
   const handleResultSelect = (id: string) => {
     console.log("id", id);
-    router.push(`/journal/${id}`); // Navigate to the journal page with the selected journal id
+    router.push(`/journal/${id}`);
   };
 
   const handleClickOutside = useCallback(
@@ -82,17 +86,16 @@ export default function Header() {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        // Hide dropdown logic here (e.g., set a state to control visibility)
-        setFilteredEntries([]); // Assuming you have a state to control the dropdown visibility
+        setFilteredEntries([]);
       }
     },
     [dropdownRef, setFilteredEntries]
-  ); // Add dependencies if needed
+  );
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside); // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside); // Clean up
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [handleClickOutside]);
 
@@ -100,49 +103,50 @@ export default function Header() {
     if (isSideMenuOpen) {
       setIsMenuMounted(true);
     } else {
-      const timer = setTimeout(() => setIsMenuMounted(false), 300); // Match this with transition duration
+      const timer = setTimeout(() => setIsMenuMounted(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isSideMenuOpen]);
+
+  const getIcon = (href: string) => {
+    switch (href) {
+      case "/dashboard":
+        return <DashboardIcon className="mr-1" />;
+      case "/journals":
+        return <ReaderIcon className="mr-1" />;
+      case "/journal/write":
+        return <Pencil2Icon className="mr-1" />;
+      default:
+        return null;
+    }
+  };
+
+  const isTabRoute = ['/dashboard', '/journals', '/journal/write'].includes(pathname);
 
   return (
     <>
       <header
         id={styles["header"]}
-        className={`sticky h-16 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100`}
+        className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col md:h-16`}
       >
         <div className="p-8 flex h-14 items-center justify-between w-full">
-          <div className="flex-1 hidden md:block ">
+          <div className="flex-1 hidden md:block">
             <Link href="/" passHref>
-              <h1 className="text-lg font-semibold md:text-xl">SumX</h1>
+              <h1 className="text-lg font-semibold md:text-xl">SumXFirst</h1>
             </Link>
           </div>
-          {/* Search Input Section moved to the right */}
-          {/* {isLoading ? (
-            <div className="w-40 h-6 bg-gray-200 animate-pulse rounded mr-4 hidden md:block"></div>
-          ) : !user ? null : !isHomePage ? ( // Add this condition
-            <SearchInput
-              query={query}
-              handleSearch={handleSearch}
-              userEntries={user?.journals || []}
-              containerClassName="hidden md:block mr-2"
-            />
-          ) : null} */}
 
-          {isLoading ? (
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              <div className="w-20 h-4 bg-gray-200 animate-pulse rounded"></div>
-              <div className="w-20 h-4 bg-gray-200 animate-pulse rounded"></div>
-            </nav>
-          ) : (
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              {/* {user && (
-                <div className="flex items-center space-x-2">
-                  <UserIcon className="w-6 h-6 rounded-full" />
-                  <span>{user.username}</span>
-                </div>
-              )} */}
-              <MenuItems menuItems={menuItems} />
+          {!isMobile && (
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                >
+                  {item.label}
+                </Link>
+              ))}
               {user && (
                 <button
                   onClick={async () => {
@@ -154,7 +158,6 @@ export default function Header() {
                         },
                       });
                       if (response.ok) {
-                        // Redirect or update UI as needed after successful logout
                         setUser(null);
                         router.push("/");
                       } else {
@@ -171,38 +174,68 @@ export default function Header() {
               )}
             </nav>
           )}
-          <MobileMenu menuItems={menuItems} />
-          <div className="flex flex-1 items-center justify-between space-x-2 md:hidden md:justify-end">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              {isLoading ? (
-                <div className="w-40 h-6 bg-gray-200 animate-pulse rounded"></div>
-              ) : (
-                <Link href="/" passHref>
-                  <h1 className="text-lg font-semibold md:text-xl cursor-pointer">
-                    SumX
-                  </h1>
-                </Link>
-              )}
-            </div>
-            {/* <SearchInput
-              query={query}
-              handleSearch={handleSearch}
-              userEntries={user?.journals || []}
-              containerClassName="hidden md:block mr-2"
-            /> */}
-          </div>
-          {!isLoading &&
-            user && ( // Check if user is loaded and exists
-              <div className="flex items-center space-x-2 ml-auto">
-                <button
-                  onClick={() => setIsSideMenuOpen(true)}
-                  className="focus:outline-none"
-                >
-                  <UserIcon className="w-6 h-6 rounded-full" />
-                </button>
+
+          {isMobile && (
+            <>
+              {" "}
+              <MobileMenu menuItems={menuItems} />
+              <div className="flex flex-1 items-center justify-between space-x-2">
+                <div className="w-full flex-1">
+                  {isLoading ? (
+                    <div className="w-40 h-6 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    <Link href="/" passHref>
+                      <h1 className="text-lg font-semibold cursor-pointer">
+                        SumXLast
+                      </h1>
+                    </Link>
+                  )}
+                </div>
               </div>
-            )}
+            </>
+          )}
+
+          {!isLoading && user && (
+            <div className="flex items-center space-x-2 ml-auto">
+              <button
+                onClick={() => setIsSideMenuOpen(true)}
+                className="focus:outline-none"
+              >
+                <UserIcon className="w-6 h-6 rounded-full" />
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Mobile Tabs */}
+        {isMobile && isTabRoute && (
+          <div className="w-full px-2">
+            <Tabs defaultValue={pathname} className="w-full">
+              <TabsList className="w-full justify-between bg-transparent p-0 items-end">
+                {menuItems.map((item) => (
+                  <TabsTrigger
+                    key={item.href}
+                    value={item.href}
+                    onClick={() => router.push(item.href)}
+                    className="flex-1 bg-transparent px-1 py-3 rounded-none border-b-[3px] border-transparent data-[state=active]:border-b-[3px] data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent"
+                    style={{
+                      borderBottom:
+                        pathname === item.href
+                          ? "3px solid rgb(249, 115, 22)"
+                          : "3px solid transparent",
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    <span className="flex items-center justify-center">
+                      {getIcon(item.href)}
+                      <span className="truncate">{item.label}</span>
+                    </span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
       </header>
     </>
   );

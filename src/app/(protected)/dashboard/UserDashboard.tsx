@@ -10,13 +10,14 @@ import { StarIcon } from "lucide-react";
 import styles from "@/app/(protected)/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
-import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Download } from "lucide-react";
 import Legend from "@/app/(protected)/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
 import { Button } from "@/components/ui/button";
 import Sidebar from "@/components/ui/Sidebar/SideBar";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // import {
 //   Select,
@@ -111,6 +112,7 @@ function UserDashboard() {
     [key: string]: number;
   }>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const isMobileView = useMediaQuery("(max-width: 639px)");
 
   console.log(categoryData, isSelectOpen);
 
@@ -347,12 +349,48 @@ function UserDashboard() {
     }
   }, [user, journals]);
 
+  // Add this function inside the UserDashboard component
+  const exportToCSV = () => {
+    const csvContent = [
+      ["Keyword", "Count"],
+      ...keywordFrequency.map(({ normal, count }) => [
+        normal,
+        count.toString(),
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `keyword_frequency_${selectedKeywordType}.csv`
+      );
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   if (isLoading) {
-    return <div className="p-6 min-h-screen">Loading...</div>; // Add your spinner or loading state here
+    return (
+      <div className="p-6 min-h-screen flex justify-center items-centers">
+        Loading...
+      </div> // Add your spinner or loading state here
+    );
   }
 
   if (!user) {
-    return <div className="p-6 min-h-screen">No user found.</div>;
+    return (
+      <div className="p-6 min-h-screen flex justify-center items-center">
+        No user found.
+      </div>
+    );
   }
 
   return (
@@ -411,12 +449,11 @@ function UserDashboard() {
           isSidebarOpen ? "md:ml-56" : "md:ml-24"
         }`}
       >
-        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        {/* Dashboard title - only visible on non-mobile viewports */}
+        {!isMobileView && <h1 className="text-3xl font-bold mb-6">Dashboard</h1>}
         <div className="flex flex-col md:flex-row mb-6">
           {/* Main Content Area */}
           <div className="flex flex-col md:flex-row md:flex-wrap w-full">
-            {" "}
-            {/* Adjust width as needed */}
             {/* Dashboard Content */}
             <div className="flex w-full flex-col md:flex-row md:flex-wrap">
               {/* Total Number of Entries */}
@@ -426,7 +463,7 @@ function UserDashboard() {
                 showTotalJournalsCard && (
                   <div className="w-full mb-2 p-2">
                     <Card className="h-full p-4 flex w-full items-center justify-between">
-                      <h2 className="text-xl font-semibold">
+                      <h2 className="text-sm sm:text-xl md:text-2xl font-semibold">
                         Total Number of journals: {totalJournals}
                       </h2>
                       <Link
@@ -450,10 +487,8 @@ function UserDashboard() {
                     className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3"
                   >
                     <Card className="h-full p-4 relative">
-                      {" "}
-                      {/* Added relative positioning */}
-                      <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
                           Category Breakdown
                         </h2>
                         <Link
@@ -463,8 +498,37 @@ function UserDashboard() {
                           Manage
                         </Link>
                       </div>
-                      <div className="flex justify-center items-center w-full h-full">
-                        <CategoryBreakdown data={data} />
+                      <div className="w-full h-[calc(100%-4rem)] overflow-hidden">
+                        {isMobileView ? (
+                          <div className="overflow-x-auto overflow-y-scroll h-full">
+                            <table className="w-full border-collapse">
+                              <thead>
+                                <tr>
+                                  <th className="text-left sticky top-0 bg-white border-b p-2 text-sm font-medium">
+                                    Category
+                                  </th>
+                                  <th className="text-right sticky top-0 bg-white border-b p-2 pr-4 text-sm font-medium">
+                                    Count
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {data.map((item) => (
+                                  <tr key={item.id} className="border-b">
+                                    <td className="text-left p-2">
+                                      {item.label}
+                                    </td>
+                                    <td className="text-right p-2 pr-4">
+                                      {item.value}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <CategoryBreakdown data={data} />
+                        )}
                       </div>
                     </Card>
                   </div>
@@ -478,7 +542,9 @@ function UserDashboard() {
                 showRecentEntriesCard && (
                   <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
                     <Card className="h-full p-4">
-                      <h2 className="text-xl font-semibold">Recent Activity</h2>
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
+                        Recent Activity
+                      </h2>
                       <ul>
                         {recentEntries.map((journal, index) => (
                           <li key={index} className="border-b py-2">
@@ -497,10 +563,10 @@ function UserDashboard() {
                 <PlaceholderCard />
               ) : (
                 showUpcomingEntriesCard && (
-                  <div className="w-full mb-2 md:w-1/2 lg:w-1/3 p-2">
+                  <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
                     <Card className="h-full p-4">
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold w-1/2">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold w-1/2">
                           Upcoming Journals/Reminders
                         </h2>
                         <Link
@@ -535,7 +601,7 @@ function UserDashboard() {
                   <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
                     <Card className="h-full p-4">
                       <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold mb-4">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">
                           Favorite Journals
                         </h2>
                         <Link
@@ -590,11 +656,20 @@ function UserDashboard() {
                 showKeywordFrequencyCard && (
                   <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3 p-2">
                     <Card className="h-full p-4 min-h-96">
-                      <h2 className="text-xl font-semibold mb-4">
-                        Keyword Frequency
-                      </h2>
-                      {/* Replace Select with Radio Buttons in a single row */}
-
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
+                          Keyword Frequency
+                        </h2>
+                        <Button
+                          onClick={exportToCSV}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Export CSV
+                        </Button>
+                      </div>
                       <div className="flex flex-col mb-4">
                         <Label.Root className="LabelRoot mb-2">
                           Keyword type
@@ -613,7 +688,7 @@ function UserDashboard() {
                                 name="keywordType"
                                 value={value}
                                 checked={selectedKeywordType === value}
-                                onChange={() => handleValueChange(value)} // Use the existing handler
+                                onChange={() => handleValueChange(value)}
                                 className="mr-2"
                               />
                               <Label.Root
@@ -626,8 +701,8 @@ function UserDashboard() {
                           ))}
                         </div>
                       </div>
-                      {isLoadingKeywordFrequency ? ( // Conditional rendering for loading spinner
-                        <div className="flex justify-center h-full items-center max-h-60  p-6 mt-3 ">
+                      {isLoadingKeywordFrequency ? (
+                        <div className="flex justify-center h-full items-center max-h-60 p-6 mt-3">
                           <Spinner />
                         </div>
                       ) : (
@@ -655,7 +730,7 @@ function UserDashboard() {
                 showJournalTimeCard && (
                   <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
                     <Card className="h-full p-4">
-                      <h2 className="text-xl font-semibold mb-4">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">
                         Journal Time Distribution
                       </h2>
                       <Bar
