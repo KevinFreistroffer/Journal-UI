@@ -33,3 +33,12 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ISentimentResult {
+  score: number;
+  comparative: number;
+  tokens: string[];
+  words: string[];
+  positive: string[];
+  negative: string[];
+}

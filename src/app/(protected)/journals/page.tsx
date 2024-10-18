@@ -34,8 +34,9 @@ import { Button } from "@/components/ui/button";
 import Carrot from "@/components/ui/Carrot/Carrot";
 import Sentiment from "sentiment";
 import nlp from "compromise";
-import { Input } from "@/components/ui/input"; // Import the Input component
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
+// import { Input } from "@/components/ui/input"; // Import the Input component
+
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import {
@@ -54,7 +55,14 @@ import Joyride, {
 import HelperText from "@/components/ui/HelperText/HelperText";
 import { HAS_ACKNOWLEDGED_HELPER_TEXT } from "@/lib/constants";
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons"; // Import Radix UI Star icons
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getSentimentWord } from "@/lib/utils"; // Add this import at the top of the file
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
@@ -86,7 +94,7 @@ export default function JournalsPage() {
       },
     ],
   });
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("Last updated date");
 
   const filteredAndSortedEntries = user?.journals
@@ -94,7 +102,11 @@ export default function JournalsPage() {
       if (showFavoritesOnly && !journal.favorite) {
         return false;
       }
-      if (selectedDate && new Date(journal.date).toDateString() !== new Date(selectedDate).toDateString()) {
+      if (
+        selectedDate &&
+        new Date(journal.date).toDateString() !==
+          new Date(selectedDate).toDateString()
+      ) {
         return false;
       }
       if (query) {
@@ -105,7 +117,11 @@ export default function JournalsPage() {
           journal.category.toLowerCase().includes(lowercaseQuery)
         );
       }
-      if (selectedCategory !== "All" && journal.category !== selectedCategory) {
+      if (
+        selectedCategory &&
+        selectedCategory !== "" &&
+        journal.category !== selectedCategory
+      ) {
         return false;
       }
       return true;
@@ -113,7 +129,10 @@ export default function JournalsPage() {
     .sort((a, b) => {
       switch (sortBy) {
         case "Last updated date":
-          return new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime();
+          return (
+            new Date(b.updatedAt || b.date).getTime() -
+            new Date(a.updatedAt || a.date).getTime()
+          );
         case "Name":
           return a.title.localeCompare(b.title);
         case "Favorites":
@@ -124,7 +143,10 @@ export default function JournalsPage() {
     });
 
   // Get unique categories
-  const categories = ["All", ...new Set(user?.journals.map(journal => journal.category))];
+  const categories = [
+    "All",
+    ...Array.from(new Set(user?.journals.map((journal) => journal.category))),
+  ];
 
   useEffect(() => {
     // Set viewMode based on viewport width
@@ -184,6 +206,7 @@ export default function JournalsPage() {
   const sentiment = new Sentiment();
   const analyzeSentiment = (journal: string) => {
     const result = sentiment.analyze(journal);
+    console.log(result);
     return result; // result.score will give you a sentiment score
   };
 
@@ -305,7 +328,9 @@ export default function JournalsPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedEntries(filteredAndSortedEntries?.map((journal) => journal._id) || []);
+      setSelectedEntries(
+        filteredAndSortedEntries?.map((journal) => journal._id) || []
+      );
     } else {
       setSelectedEntries([]);
     }
@@ -366,7 +391,10 @@ export default function JournalsPage() {
                 <div className="flex items-center">
                   <Checkbox
                     id="select-all"
-                    checked={selectedEntries.length === filteredAndSortedEntries?.length}
+                    checked={
+                      selectedEntries.length ===
+                      filteredAndSortedEntries?.length
+                    }
                     onCheckedChange={handleSelectAll}
                     className="bg-white border-gray-300 mr-2"
                     size={4}
@@ -376,24 +404,6 @@ export default function JournalsPage() {
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Select All
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <Checkbox
-                    id="show-sentiment"
-                    checked={showSentiment}
-                    onCheckedChange={(checked) =>
-                      setShowSentiment(checked as boolean)
-                    }
-                    className="bg-white border-gray-300 mr-2"
-                    size={4}
-                  />
-                  <label
-                    htmlFor="show-sentiment"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Show Sentiment
                   </label>
                 </div>
 
@@ -519,49 +529,55 @@ export default function JournalsPage() {
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
           <h1 className="text-3xl font-bold hidden md:block">Your Journals</h1>
-          <div className="w-full md:w-auto">
-            <label
-              htmlFor="search-journals"
-              className="block text-sm font-medium text-gray-700 mb-1 md:hidden" // Hide this label on larger viewports
-            >
-              Find a journal
-            </label>
-            <SearchInput
-              id="search-journals"
-              query={query}
-              handleSearch={handleSearch}
-              userEntries={user.journals}
-              containerClassName="w-full md:max-w-xs"
-              inputClassName="w-full border rounded p-2 text-sm"
-              placeholder="Find a journal..."
-            />
-          </div>
         </div>
 
-        <div className="flex space-x-4 mb-4">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col mb-4 space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:space-x-4 space-y-4 lg:space-y-0">
+            {/* Search bar - moved to the top for xs and sm viewports */}
+            <div className="w-full lg:w-1/3 order-first lg:order-last">
+              <SearchInput
+                id="search-journals"
+                query={query}
+                handleSearch={handleSearch}
+                userEntries={user.journals}
+                containerClassName="w-full"
+                inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+                placeholder="Find a journal..."
+              />
+            </div>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Sort" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="Last updated date">Last updated date</SelectItem>
-              <SelectItem value="Name">Name</SelectItem>
-              <SelectItem value="Favorites">Favorites</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Category and Sort selects */}
+            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal">
+                  <SelectValue placeholder="Sort by category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Last updated date">
+                    Last updated date
+                  </SelectItem>
+                  <SelectItem value="Name">Name</SelectItem>
+                  <SelectItem value="Favorites">Favorites</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         <ToggleGroup.Root
@@ -630,7 +646,7 @@ export default function JournalsPage() {
                 <div className="flex flex-col flex-grow">
                   <CardHeader>
                     <div className="flex justify-between items-center">
-                      <CardTitle className="wrap text-wrap overflow-wrap text-md">
+                      <CardTitle className="wrap text-wrap overflow-wrap text-md text-blue-500">
                         {journal.title.length > 30
                           ? `${journal.title.substring(0, 30)}...`
                           : journal.title}
@@ -685,16 +701,15 @@ export default function JournalsPage() {
                       {showCategory && <p>{journal.category}</p>}
                       {showUpdatedDate && journal.updatedAt ? (
                         <p className="text-sm text-gray-500">
-                          Updated: {journal.updatedAt.toLocaleDateString()}
+                          Updated: {journal.updatedAt.toString()}
                         </p>
                       ) : (
                         <p className="text-sm text-gray-500">{journal.date}</p>
                       )}
                       {showSentiment && (
                         <div className="flex items-center text-sm mt-1">
-                          <span className="mr-2">Sentiment:</span>
                           <div
-                            className="rounded-full"
+                            className="rounded-full mr-1"
                             style={{
                               width: "10px",
                               height: "10px",
@@ -703,6 +718,11 @@ export default function JournalsPage() {
                               ),
                             }}
                           ></div>
+                          <span>
+                            {getSentimentWord(
+                              analyzeSentiment(journal.entry).score
+                            )}
+                          </span>
                         </div>
                       )}
                     </div>

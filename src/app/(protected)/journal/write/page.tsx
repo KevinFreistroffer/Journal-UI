@@ -39,9 +39,11 @@ import Link from "next/link";
 // import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { useFormState } from "react-dom";
 import { ICreateJournalState } from "./types";
+import Sidebar from "@/components/ui/Sidebar/SideBar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";
+
 // import { SummarizerManager } from "node-summarizer";
 import {
   Tooltip,
@@ -50,7 +52,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
-import Sidebar from "@/components/ui/Sidebar/Sidebar";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",

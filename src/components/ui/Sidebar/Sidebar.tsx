@@ -14,7 +14,7 @@ interface IProps {
   setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
-const Sidebar: React.FC<IProps> = ({
+export const Sidebar: React.FC<IProps> = ({
   icon,
   isOpen,
   sections,

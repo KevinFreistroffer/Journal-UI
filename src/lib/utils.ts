@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import nlp from "compromise";
 import crypto from "crypto";
+import { SentimentAnalyzer, WordTokenizer, PorterStemmer } from "natural";
+import { ISentimentResult } from "./interfaces";
+
 export interface IKeywordFrequency {
   normal: string;
   count: number;
@@ -68,4 +71,34 @@ export function getAuthorizationUrl(codeChallenge: string) {
   });
 
   return `https://twitter.com/i/oauth2/authorize?${params.toString()}`;
+}
+
+export function analyzeSentiment(text: string): ISentimentResult {
+  const tokenizer = new WordTokenizer();
+  const analyzer = new SentimentAnalyzer("English", PorterStemmer, "afinn");
+
+  const tokens = tokenizer.tokenize(text);
+  const result = analyzer.getSentiment(tokens);
+
+  return {
+    score: result,
+    comparative: result / tokens.length,
+    tokens: tokens,
+    words: tokens.filter((token) => /[a-z]/i.test(token)),
+    positive: tokens.filter((token) => analyzer.getSentiment([token]) > 0),
+    negative: tokens.filter((token) => analyzer.getSentiment([token]) < 0),
+  };
+}
+
+// @ts-ignore
+export function getSentimentWord(text) {
+  const { score } = analyzeSentiment(text);
+
+  if (score >= 0.6) return "Ecstatic";
+  if (score >= 0.3) return "Happy";
+  if (score >= 0.1) return "Positive";
+  if (score > -0.1) return "Neutral";
+  if (score > -0.3) return "Negative";
+  if (score > -0.6) return "Sad";
+  return "Angry";
 }
