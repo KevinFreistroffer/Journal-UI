@@ -35,7 +35,7 @@ import Carrot from "@/components/ui/Carrot/Carrot";
 import Sentiment from "sentiment";
 import nlp from "compromise";
 import { Input } from "@/components/ui/input"; // Import the Input component
-import SideBar from "@/components/ui/Sidebar/Sidebar";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import {
@@ -54,6 +54,7 @@ import Joyride, {
 import HelperText from "@/components/ui/HelperText/HelperText";
 import { HAS_ACKNOWLEDGED_HELPER_TEXT } from "@/lib/constants";
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons"; // Import Radix UI Star icons
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
@@ -85,27 +86,45 @@ export default function JournalsPage() {
       },
     ],
   });
-  const filteredEntries = user?.journals.filter((journal) => {
-    if (showFavoritesOnly && !journal.favorite) {
-      return false;
-    }
-    if (
-      selectedDate &&
-      new Date(journal.date).toDateString() !==
-        new Date(selectedDate).toDateString()
-    ) {
-      return false;
-    }
-    if (query) {
-      const lowercaseQuery = query.toLowerCase();
-      return (
-        journal.title.toLowerCase().includes(lowercaseQuery) ||
-        journal.entry.toLowerCase().includes(lowercaseQuery) ||
-        journal.category.toLowerCase().includes(lowercaseQuery)
-      );
-    }
-    return true;
-  });
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [sortBy, setSortBy] = useState<string>("Last updated date");
+
+  const filteredAndSortedEntries = user?.journals
+    .filter((journal) => {
+      if (showFavoritesOnly && !journal.favorite) {
+        return false;
+      }
+      if (selectedDate && new Date(journal.date).toDateString() !== new Date(selectedDate).toDateString()) {
+        return false;
+      }
+      if (query) {
+        const lowercaseQuery = query.toLowerCase();
+        return (
+          journal.title.toLowerCase().includes(lowercaseQuery) ||
+          journal.entry.toLowerCase().includes(lowercaseQuery) ||
+          journal.category.toLowerCase().includes(lowercaseQuery)
+        );
+      }
+      if (selectedCategory !== "All" && journal.category !== selectedCategory) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "Last updated date":
+          return new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime();
+        case "Name":
+          return a.title.localeCompare(b.title);
+        case "Favorites":
+          return (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0);
+        default:
+          return 0;
+      }
+    });
+
+  // Get unique categories
+  const categories = ["All", ...new Set(user?.journals.map(journal => journal.category))];
 
   useEffect(() => {
     // Set viewMode based on viewport width
@@ -286,7 +305,7 @@ export default function JournalsPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedEntries(filteredEntries?.map((journal) => journal._id) || []);
+      setSelectedEntries(filteredAndSortedEntries?.map((journal) => journal._id) || []);
     } else {
       setSelectedEntries([]);
     }
@@ -337,7 +356,7 @@ export default function JournalsPage() {
 
   return (
     <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-xl mx-auto">
-      <SideBar
+      <Sidebar
         isOpen={isSidebarOpen}
         sections={[
           {
@@ -347,7 +366,7 @@ export default function JournalsPage() {
                 <div className="flex items-center">
                   <Checkbox
                     id="select-all"
-                    checked={selectedEntries.length === filteredEntries?.length}
+                    checked={selectedEntries.length === filteredAndSortedEntries?.length}
                     onCheckedChange={handleSelectAll}
                     className="bg-white border-gray-300 mr-2"
                     size={4}
@@ -505,7 +524,7 @@ export default function JournalsPage() {
               htmlFor="search-journals"
               className="block text-sm font-medium text-gray-700 mb-1 md:hidden" // Hide this label on larger viewports
             >
-              Search Journals
+              Find a journal
             </label>
             <SearchInput
               id="search-journals"
@@ -514,47 +533,35 @@ export default function JournalsPage() {
               userEntries={user.journals}
               containerClassName="w-full md:max-w-xs"
               inputClassName="w-full border rounded p-2 text-sm"
-              placeholder="Search your journals..."
-            />
-          </div>
-          <div className="md:hidden">
-            {" "}
-            {/* Hide this div on larger viewports */}
-            <SearchInput
-              id="search-journals-mobile"
-              query={query}
-              handleSearch={handleSearch}
-              userEntries={user.journals}
-              containerClassName="w-full md:max-w-xs"
-              inputClassName="w-full border rounded p-2 text-sm"
-              placeholder="Search your journals..."
+              placeholder="Find a journal..."
             />
           </div>
         </div>
 
-        {/* Dropdown for filters on mobile viewports */}
-        <div className="md:hidden mb-4">
-          <label
-            htmlFor="filter-dropdown"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Filter by
-          </label>
-          <select
-            id="filter-dropdown"
-            className="block w-full border rounded p-2 text-sm"
-            onChange={(e) => {
-              // Handle filter change logic here
-              const selectedFilter = e.target.value;
-              // Implement your filter logic based on selectedFilter
-            }}
-          >
-            <option value="">Select a filter</option>
-            <option value="favorites">Favorites</option>
-            <option value="date">Date</option>
-            <option value="sentiment">Sentiment</option>
-            {/* Add more filter options as needed */}
-          </select>
+        <div className="flex space-x-4 mb-4">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="Last updated date">Last updated date</SelectItem>
+              <SelectItem value="Name">Name</SelectItem>
+              <SelectItem value="Favorites">Favorites</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <ToggleGroup.Root
@@ -602,7 +609,7 @@ export default function JournalsPage() {
               : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
           } gap-6`}
         >
-          {filteredEntries?.length === 0 ? (
+          {filteredAndSortedEntries?.length === 0 ? (
             <div>
               <p>No journals found.</p>
               <Link
@@ -613,7 +620,7 @@ export default function JournalsPage() {
               </Link>
             </div>
           ) : (
-            filteredEntries?.map((journal, index) => (
+            filteredAndSortedEntries?.map((journal, index) => (
               <Card
                 key={index}
                 className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${

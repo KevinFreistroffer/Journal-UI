@@ -19,12 +19,10 @@ export default function JournalPage() {
   const [selectedJournal, setSelectedJournal] =
     useState<IFrontEndJournal | null>(null); // Added state for selectedJournal
   const { user } = useAuth();
-  console.log("id", params.id as string);
-
   const [isLoading, setIsLoading] = useState(true); // Add this line
   const [showCategory, setShowCategory] = useState(true);
   const [showLastUpdated, setShowLastUpdated] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -123,8 +121,7 @@ export default function JournalPage() {
           {
             title: "Settings",
             content: (
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold mb-4">Settings</h2>
+              <div className="flex flex-col">
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="show-category"
@@ -163,7 +160,7 @@ export default function JournalPage() {
           isSidebarOpen ? "md:ml-56" : "md:ml-24"
         }`}
       >
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto ">
           {isLoading ? (
             <div className="min-h-screen flex justify-center items-center">
               <Spinner />
@@ -176,25 +173,27 @@ export default function JournalPage() {
               </Link>
             </div>
           ) : (
-            <Card>
-              <CardHeader>
+            <Card className="min-h-[500px] flex flex-col bg-gray-900 text-white p-8 ">
+              <CardHeader className="text-center mb-6">
                 <CardTitle>{selectedJournal.title}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p>{selectedJournal.entry}</p>
-                {showCategory && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    Category: {selectedJournal.category}
-                  </p>
-                )}
-                {showLastUpdated && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Last updated:{" "}
-                    {selectedJournal.updatedAt
-                      ? new Date(selectedJournal.updatedAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-                )}
+              <CardContent className="flex-grow flex flex-col">
+                <p className="mb-4 flex-grow">{selectedJournal.entry}</p>
+                <div className="mt-auto">
+                  {showCategory && (
+                    <p className="text-sm text-gray-300">
+                      Category: {selectedJournal.category}
+                    </p>
+                  )}
+                  {showLastUpdated && (
+                    <p className="text-sm text-gray-300">
+                      Last updated:{" "}
+                      {selectedJournal.updatedAt
+                        ? new Date(selectedJournal.updatedAt).toLocaleString()
+                        : "N/A"}
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}

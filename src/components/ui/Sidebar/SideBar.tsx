@@ -7,14 +7,14 @@ interface SidebarSection {
   content: React.ReactNode;
 }
 
-interface SidebarProps {
+interface IProps {
   isOpen: boolean;
   icon: React.ReactNode;
   sections: SidebarSection[];
   setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+const Sidebar: React.FC<IProps> = ({
   icon,
   isOpen,
   sections,

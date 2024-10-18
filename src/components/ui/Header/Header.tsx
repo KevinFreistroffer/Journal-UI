@@ -64,8 +64,8 @@ export default function Header() {
         user
           ? [
               { href: "/dashboard", label: "Dashboard" },
-              { href: "/journals", label: "SumX's" },
-              { href: "/journal/write", label: "New SumX" },
+              { href: "/journals", label: "Journals" },
+              { href: "/journal/write", label: "New Journal" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -134,7 +134,7 @@ export default function Header() {
         <div className="p-8 flex h-14 items-center justify-between w-full">
           <div className="flex-1 hidden md:block">
             <Link href="/" passHref>
-              <h1 className="text-lg font-semibold md:text-xl">SumXFirst</h1>
+              <h1 className="text-lg font-semibold md:text-xl">Journals</h1>
             </Link>
           </div>
 
@@ -188,7 +188,7 @@ export default function Header() {
                   ) : (
                     <Link href="/" passHref>
                       <h1 className="text-lg font-semibold cursor-pointer">
-                        SumXLast
+                        Journals
                       </h1>
                     </Link>
                   )}
