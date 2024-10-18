@@ -16,7 +16,7 @@ import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
 import { Button } from "@/components/ui/button";
-import Sidebar from "@/components/ui/Sidebar/SideBar";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // import {

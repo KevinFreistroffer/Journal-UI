@@ -2,8 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import nlp from "compromise";
 import crypto from "crypto";
-import { SentimentAnalyzer, WordTokenizer, PorterStemmer } from "natural";
+// import { SentimentAnalyzer, WordTokenizer, PorterStemmer } from "natural";
 import { ISentimentResult } from "./interfaces";
+import Sentiment from "sentiment";
 
 export interface IKeywordFrequency {
   normal: string;
@@ -74,31 +75,50 @@ export function getAuthorizationUrl(codeChallenge: string) {
 }
 
 export function analyzeSentiment(text: string): ISentimentResult {
-  const tokenizer = new WordTokenizer();
-  const analyzer = new SentimentAnalyzer("English", PorterStemmer, "afinn");
+  try {
+    const doc = nlp(text);
+    const words = doc.terms().out("array");
+    const positive = doc.match("#Positive").terms().out("array");
+    const negative = doc.match("#Negative").terms().out("array");
 
-  const tokens = tokenizer.tokenize(text);
-  const result = analyzer.getSentiment(tokens);
+    const score = (positive.length - negative.length) / words.length;
 
-  return {
-    score: result,
-    comparative: result / tokens.length,
-    tokens: tokens,
-    words: tokens.filter((token) => /[a-z]/i.test(token)),
-    positive: tokens.filter((token) => analyzer.getSentiment([token]) > 0),
-    negative: tokens.filter((token) => analyzer.getSentiment([token]) < 0),
-  };
+    return {
+      score: score,
+      comparative: score,
+      tokens: words,
+      words: words,
+      positive: positive,
+      negative: negative,
+    };
+  } catch (error) {
+    console.error("Error analyzing sentiment:", error);
+    return {
+      score: 0,
+      comparative: 0,
+      tokens: [],
+      words: [],
+      positive: [],
+      negative: [],
+    };
+  }
 }
 
-// @ts-ignore
-export function getSentimentWord(text) {
-  const { score } = analyzeSentiment(text);
+export function getSentimentWord(text: string): string {
+  try {
+    const sentiment = new Sentiment();
+    const result = sentiment.analyze(text);
+    const score = result.comparative;
 
-  if (score >= 0.6) return "Ecstatic";
-  if (score >= 0.3) return "Happy";
-  if (score >= 0.1) return "Positive";
-  if (score > -0.1) return "Neutral";
-  if (score > -0.3) return "Negative";
-  if (score > -0.6) return "Sad";
-  return "Angry";
+    if (score >= 0.6) return "Ecstatic";
+    if (score >= 0.3) return "Happy";
+    if (score >= 0.1) return "Positive";
+    if (score > -0.1) return "Neutral";
+    if (score > -0.3) return "Negative";
+    if (score > -0.6) return "Sad";
+    return "Angry";
+  } catch (error) {
+    console.error("Error analyzing sentiment:", error);
+    return "Unknown";
+  }
 }

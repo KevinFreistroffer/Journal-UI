@@ -39,7 +39,7 @@ import Link from "next/link";
 // import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { useFormState } from "react-dom";
 import { ICreateJournalState } from "./types";
-import Sidebar from "@/components/ui/Sidebar/SideBar"; // Corrected casing
+import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";

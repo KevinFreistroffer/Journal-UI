@@ -210,17 +210,17 @@ export default function JournalsPage() {
     return result; // result.score will give you a sentiment score
   };
 
-  const getSentimentColor = (score: number) => {
+  const getSentimentColor = (score: number): string => {
     if (score < -5) {
-      return "hsla(0, 100%, 50%, 0.75)"; // Very Negative (Red) with 50% opacity
+      return "bg-red-600"; // Very Negative
     } else if (score < 0) {
-      return `hsla(0, ${100 + score * 20}%, 50%, 0.75)`; // Gradual shift to Neutral (lighter Red) with 50% opacity
+      return "bg-red-400"; // Negative
     } else if (score === 0) {
-      return "hsla(0, 0%, 70%, 0.75)"; // Neutral (Gray) with 50% opacity
+      return "bg-gray-400"; // Neutral
     } else if (score <= 5) {
-      return `hsla(120, ${score * 20}%, 50%, 0.75)`; // Gradual shift to Positive (lighter Green) with 50% opacity
+      return "bg-green-400"; // Positive
     } else {
-      return "hsla(120, 100%, 50%, 0.75)"; // Very Positive (Green) with 50% opacity
+      return "bg-green-600"; // Very Positive
     }
   };
 
@@ -636,103 +636,100 @@ export default function JournalsPage() {
               </Link>
             </div>
           ) : (
-            filteredAndSortedEntries?.map((journal, index) => (
-              <Card
-                key={index}
-                className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
-                  selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
-                }`}
-              >
-                <div className="flex flex-col flex-grow">
-                  <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="wrap text-wrap overflow-wrap text-md text-blue-500">
-                        {journal.title.length > 30
-                          ? `${journal.title.substring(0, 30)}...`
-                          : journal.title}
-                      </CardTitle>
-                      <div className="relative p-0 m-0">
-                        {index === 0 && (
-                          <Joyride
-                            callback={handleJoyrideCallback}
-                            run={helperTextState.run}
-                            disableOverlayClose={true}
-                            steps={helperTextState.steps}
-                            styles={{
-                              options: {
-                                arrowColor: "#fff",
-                                primaryColor: "#000",
-                                zIndex: 1000,
-                              },
-                            }}
-                          />
-                        )}
-                        <Tooltip.Provider delayDuration={100}>
-                          <Tooltip.Root>
-                            <Tooltip.Trigger asChild>
-                              <ReaderIcon
-                                className={`cursor-pointer helper-text-step ${"w-5 h-5 md:w-8 md:h-8"}`}
-                                onClick={() => {
-                                  localStorageService.setItem(
-                                    "selectedJournal",
-                                    journal._id
-                                  );
-                                  router.push(`/journal/${journal._id}`);
-                                }}
-                              />
-                            </Tooltip.Trigger>
-                            <Tooltip.Portal>
-                              <Tooltip.Content
-                                className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                                sideOffset={4}
-                              >
-                                Read
-                                <Tooltip.Arrow className="fill-gray-800" />
-                              </Tooltip.Content>
-                            </Tooltip.Portal>
-                          </Tooltip.Root>
-                        </Tooltip.Provider>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  {/* <CardContent></CardContent> */}
-                  <CardFooter className="mt-auto flex justify-between items-end">
-                    <div className="flex flex-col">
-                      {showCategory && <p>{journal.category}</p>}
-                      {showUpdatedDate && journal.updatedAt ? (
-                        <p className="text-sm text-gray-500">
-                          Updated: {journal.updatedAt.toString()}
-                        </p>
-                      ) : (
-                        <p className="text-sm text-gray-500">{journal.date}</p>
-                      )}
-                      {showSentiment && (
-                        <div className="flex items-center text-sm mt-1">
-                          <div
-                            className="rounded-full mr-1"
-                            style={{
-                              width: "10px",
-                              height: "10px",
-                              backgroundColor: getSentimentColor(
-                                analyzeSentiment(journal.entry).score
-                              ),
-                            }}
-                          ></div>
-                          <span>
-                            {getSentimentWord(
-                              analyzeSentiment(journal.entry).score
-                            )}
-                          </span>
+            filteredAndSortedEntries?.map((journal, index) => {
+              console.log(getSentimentWord(journal.entry));
+              return (
+                <Card
+                  key={index}
+                  className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
+                    selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
+                  }`}
+                >
+                  <div className="flex flex-col flex-grow">
+                    <CardHeader>
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="wrap text-wrap overflow-wrap text-md text-blue-500">
+                          {journal.title.length > 30
+                            ? `${journal.title.substring(0, 30)}...`
+                            : journal.title}
+                        </CardTitle>
+                        <div className="relative p-0 m-0">
+                          {index === 0 && (
+                            <Joyride
+                              callback={handleJoyrideCallback}
+                              run={helperTextState.run}
+                              disableOverlayClose={true}
+                              steps={helperTextState.steps}
+                              styles={{
+                                options: {
+                                  arrowColor: "#fff",
+                                  primaryColor: "#000",
+                                  zIndex: 1000,
+                                },
+                              }}
+                            />
+                          )}
+                          <Tooltip.Provider delayDuration={100}>
+                            <Tooltip.Root>
+                              <Tooltip.Trigger asChild>
+                                <ReaderIcon
+                                  className={`cursor-pointer helper-text-step ${"w-5 h-5 md:w-8 md:h-8"}`}
+                                  onClick={() => {
+                                    localStorageService.setItem(
+                                      "selectedJournal",
+                                      journal._id
+                                    );
+                                    router.push(`/journal/${journal._id}`);
+                                  }}
+                                />
+                              </Tooltip.Trigger>
+                              <Tooltip.Portal>
+                                <Tooltip.Content
+                                  className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
+                                  sideOffset={4}
+                                >
+                                  Read
+                                  <Tooltip.Arrow className="fill-gray-800" />
+                                </Tooltip.Content>
+                              </Tooltip.Portal>
+                            </Tooltip.Root>
+                          </Tooltip.Provider>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex items-center">
-                      {loadingJournalId === journal._id ? (
-                        <Spinner size="sm" className="mr-2" />
-                      ) : (
-                        <>
-                          {/* TODO: determine if this is something people would use / not tend to overuse clicking all of them, or if require them to go to the read page. */}
-                          {/* {journal.favorite ? (
+                      </div>
+                    </CardHeader>
+                    {/* <CardContent></CardContent> */}
+                    <CardFooter className="mt-auto flex justify-between items-end">
+                      <div className="flex flex-col">
+                        {showCategory && <p>{journal.category}</p>}
+                        {showUpdatedDate && journal.updatedAt ? (
+                          <p className="text-sm text-gray-500">
+                            Updated: {journal.updatedAt.toString()}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            {journal.date}
+                          </p>
+                        )}
+                        {showSentiment && (
+                          <div className="flex items-center text-sm mt-1">
+                            <div
+                              className={`rounded-full mr-1 w-2 h-2 ${getSentimentColor(
+                                analyzeSentiment(journal.entry).score
+                              )}`}
+                            ></div>
+                            <span className="text-sm text-gray-500">
+                              {getSentimentWord(journal.entry)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center">
+                        {loadingJournalId === journal._id ? (
+                          <Spinner size="sm" className="mr-2" />
+                        ) : (
+                          <>
+                            {/* TODO: determine if this is something people would use / not tend to overuse clicking all of them, or if require them to go to the read page. */}
+                            {/* {journal.favorite ? (
                             <StarFilledIcon
                               onClick={() => handleFavorite(journal._id)}
                               className="w-6 h-6 mr-2"
@@ -743,32 +740,33 @@ export default function JournalsPage() {
                               className="w-6 h-6 mr-2"
                             /> // Use StarIcon if not favorite
                           )} */}
-                        </>
-                      )}
-                      <Tooltip.Provider delayDuration={100}>
-                        <Tooltip.Root>
-                          <Tooltip.Trigger asChild>
-                            <TrashIcon
-                              className="w-7 h-7 text-red-500 cursor-pointer bg-gray-200 rounded-full p-1 hidden md:block" // Increased size for non-mobile viewports
-                              onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
-                            />
-                          </Tooltip.Trigger>
-                          <Tooltip.Portal>
-                            <Tooltip.Content
-                              className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                              sideOffset={4}
-                            >
-                              Delete
-                              <Tooltip.Arrow className="fill-gray-800" />
-                            </Tooltip.Content>
-                          </Tooltip.Portal>
-                        </Tooltip.Root>
-                      </Tooltip.Provider>
-                    </div>
-                  </CardFooter>
-                </div>
-              </Card>
-            ))
+                          </>
+                        )}
+                        <Tooltip.Provider delayDuration={100}>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <TrashIcon
+                                className="w-7 h-7 text-red-500 cursor-pointer bg-gray-200 rounded-full p-1 hidden md:block" // Increased size for non-mobile viewports
+                                onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
+                              />
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                              <Tooltip.Content
+                                className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
+                                sideOffset={4}
+                              >
+                                Delete
+                                <Tooltip.Arrow className="fill-gray-800" />
+                              </Tooltip.Content>
+                            </Tooltip.Portal>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                      </div>
+                    </CardFooter>
+                  </div>
+                </Card>
+              );
+            })
           )}
         </div>
       </div>
