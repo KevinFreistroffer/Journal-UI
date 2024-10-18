@@ -21,12 +21,9 @@ export async function encrypt(payload: {
 export async function decrypt(session: string | undefined = "") {
   try {
     if (session) {
-      console.log("isSession", session);
-      console.log("encodedKey", encodedKey);
       const { payload } = await jwtVerify(session, encodedKey, {
         algorithms: ["HS256"],
       });
-      console.log("payload", payload);
       return payload;
     }
   } catch (error: unknown) {

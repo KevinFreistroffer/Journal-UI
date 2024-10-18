@@ -50,7 +50,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
-import Sidebar from "@/components/ui/Sidebar/SideBar";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",

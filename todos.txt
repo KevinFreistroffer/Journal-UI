@@ -22,6 +22,8 @@ dynamic rendering? dashboard cards, if storage not fetched yet, don't render?
 when creating an journal, determine if the create category form is needed, or instead show an input, and when the journal is saved
 it'll try to create the category. seems like a better idea.
 
+consider adding a thing to every feature, that says "This website is in beta. If this feature does not work, Contact Me".
+
 
 1. Overview Section
 Total Number of Journals: A quick summary showing how many journal journals exist.

@@ -38,33 +38,22 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.searchParams.get("isVerified") !== null);
 
   const cookie = cookies().get(CLIENT_SESSION)?.value;
-  console.log("cookie", cookie);
   let session;
 
-  console.log("isProtectedRoute", isProtectedRoute);
-  console.log("isPublicRoute", isPublicRoute);
   // const session = await decrypt(cookie);
   if (cookie) {
     session = await decrypt(cookie);
-    console.log("decrypted session", session);
   }
-
-  console.log("session", session);
-
   if (isProtectedRoute) {
     if (!session) {
-      console.log("no session, should redirect to login");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    console.log("isProtectedRoute");
     if (!session?.userId) {
-      console.log("no user id, should redirect to login");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     if (!session.isVerified) {
-      console.log("not verified, should redirect to login");
       return NextResponse.redirect(
         new URL("/login?isVerified=false", request.url)
       );

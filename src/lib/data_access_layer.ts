@@ -12,10 +12,8 @@ export const verifySession = cache(
     userId: string | null;
   }> => {
     try {
-      console.log("DAL verifySession cookies", cookies());
       const cookie = cookies().get(CLIENT_SESSION)?.value;
       const session = await decrypt(cookie);
-      console.log("DAL verifySession decrypted session", session);
 
       if (!session || !session.userId) {
         // return  redirect("/login");
@@ -24,7 +22,6 @@ export const verifySession = cache(
 
       return { isAuth: true, userId: session.userId as string };
     } catch (error: unknown) {
-      console.error("DAL verifySession error", error);
       return {
         isAuth: false,
         userId: null,
@@ -35,14 +32,11 @@ export const verifySession = cache(
 
 export const getUser = cache(async () => {
   try {
-    console.log("DAL getUser cookies", cookies());
     if (!process.env.API_URL) {
-      console.error("API_URL is not set");
       return null;
     }
 
     const session = await verifySession();
-    console.log("DAL getUser session", session);
 
     if (!session) {
       return null;
@@ -53,10 +47,6 @@ export const getUser = cache(async () => {
       return null;
     }
 
-    console.log(
-      "DAL getUser fetching user",
-      `${process.env.API_URL}/user/${session.userId}`
-    );
     const response = await fetch(
       `${process.env.API_URL}/user/${session.userId}`,
       {
@@ -69,7 +59,6 @@ export const getUser = cache(async () => {
       return null;
     } else {
       const body = await response.json();
-      console.log("DAL getUser response", body);
       return body.data;
     }
   } catch (error: unknown) {

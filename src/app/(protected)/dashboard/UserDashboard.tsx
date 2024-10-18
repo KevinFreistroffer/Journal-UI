@@ -16,7 +16,7 @@ import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
 import { Button } from "@/components/ui/button";
-import Sidebar from "@/components/ui/Sidebar/SideBar";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // import {
@@ -450,7 +450,9 @@ function UserDashboard() {
         }`}
       >
         {/* Dashboard title - only visible on non-mobile viewports */}
-        {!isMobileView && <h1 className="text-3xl font-bold mb-6">Dashboard</h1>}
+        {!isMobileView && (
+          <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        )}
         <div className="flex flex-col md:flex-row mb-6">
           {/* Main Content Area */}
           <div className="flex flex-col md:flex-row md:flex-wrap w-full">

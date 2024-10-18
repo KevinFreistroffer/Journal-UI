@@ -35,7 +35,7 @@ import Carrot from "@/components/ui/Carrot/Carrot";
 import Sentiment from "sentiment";
 import nlp from "compromise";
 import { Input } from "@/components/ui/input"; // Import the Input component
-import SideBar from "@/components/ui/Sidebar/SideBar";
+import SideBar from "@/components/ui/Sidebar/Sidebar";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import {
@@ -676,9 +676,9 @@ export default function JournalsPage() {
                   <CardFooter className="mt-auto flex justify-between items-end">
                     <div className="flex flex-col">
                       {showCategory && <p>{journal.category}</p>}
-                      {showUpdatedDate ? (
+                      {showUpdatedDate && journal.updatedAt ? (
                         <p className="text-sm text-gray-500">
-                          Updated: {journal.updatedAt}
+                          Updated: {journal.updatedAt.toLocaleDateString()}
                         </p>
                       ) : (
                         <p className="text-sm text-gray-500">{journal.date}</p>
