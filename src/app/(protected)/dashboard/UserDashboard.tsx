@@ -450,9 +450,9 @@ function UserDashboard() {
         }`}
       >
         {/* Dashboard title - only visible on non-mobile viewports */}
-        {!isMobileView && (
+        {/* {!isMobileView && (
           <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-        )}
+        )} */}
         <div className="flex flex-col md:flex-row mb-6">
           {/* Main Content Area */}
           <div className="flex flex-col md:flex-row md:flex-wrap w-full">

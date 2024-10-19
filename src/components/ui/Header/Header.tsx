@@ -42,6 +42,7 @@ export default function Header() {
   const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 767px)");
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -129,7 +130,7 @@ export default function Header() {
     <>
       <header
         id={styles["header"]}
-        className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col md:h-16`}
+        className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
       >
         <div className="p-8 flex h-14 items-center justify-between w-full">
           <div className="flex-1 hidden md:block">
@@ -138,49 +139,8 @@ export default function Header() {
             </Link>
           </div>
 
-          {!isMobile && (
-            <nav className="flex items-center space-x-6 text-sm font-medium">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              {user && (
-                <button
-                  onClick={async () => {
-                    try {
-                      const response = await fetch("/api/auth/logout", {
-                        method: "GET",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                      });
-                      if (response.ok) {
-                        setUser(null);
-                        router.push("/");
-                      } else {
-                        console.error("Logout failed");
-                      }
-                    } catch (error) {
-                      console.error("Error during logout:", error);
-                    }
-                  }}
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Sign Out
-                </button>
-              )}
-            </nav>
-          )}
-
           {isMobile && (
             <>
-              {" "}
-              <MobileMenu menuItems={menuItems} />
               <div className="flex flex-1 items-center justify-between space-x-2">
                 <div className="w-full flex-1">
                   {isLoading ? (
@@ -209,35 +169,42 @@ export default function Header() {
           )}
         </div>
 
-        {/* Mobile Tabs */}
-        {isMobile && isTabRoute && (
-          <div className="w-full px-2">
-            <Tabs defaultValue={pathname} className="w-full">
-              <TabsList className="w-full justify-between bg-transparent p-0 items-end">
-                {menuItems.map((item) => (
-                  <TabsTrigger
-                    key={item.href}
-                    value={item.href}
-                    onClick={() => router.push(item.href)}
-                    className="flex-1 bg-transparent px-1 py-3 rounded-none border-b-[3px] border-transparent data-[state=active]:border-b-[3px] data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm"
-                    style={{
-                      borderBottom:
-                        pathname === item.href
-                          ? "3px solid rgb(249, 115, 22)"
-                          : "3px solid transparent",
-                      backgroundColor: "transparent",
-                    }}
-                  >
-                    <span className="flex items-center justify-center w-full h-full space-x-1">
-                      {getIcon(item.href)}
-                      <span className="truncate">{item.label}</span>
-                    </span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        )}
+        {/* Tabs - Always visible, left-aligned, and width adjusted to content */}
+        <div className="w-full px-2">
+          <Tabs defaultValue={pathname} className="w-full">
+            <TabsList className="bg-transparent p-0 items-end flex md:inline-flex w-full md:w-auto">
+              {menuItems.map((item) => (
+                <TabsTrigger
+                  key={item.href}
+                  value={item.href}
+                  onClick={() => router.push(item.href)}
+                  className={`flex-1 md:flex-initial bg-transparent px-4 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
+                    pathname === item.href ? 'font-bold' : ''
+                  }`}
+                  style={{
+                    borderBottom:
+                      pathname === item.href
+                        ? "2px solid rgb(249, 115, 22)"
+                        : "2px solid transparent",
+                    backgroundColor: "transparent",
+                  }}
+                >
+                  <span className={`flex items-center justify-center space-x-1 ${
+                    pathname === item.href ? 'font-bold' : ''
+                  }`}>
+                    {getIcon(item.href)}
+                    <span>{item.label}</span>
+                    {item.label === "Journals" && user && user.journals && (
+                      <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">
+                        {user.journals.length}
+                      </span>
+                    )}
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
       </header>
     </>
   );
