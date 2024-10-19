@@ -58,3 +58,56 @@ export const Sidebar: React.FC<IProps> = ({
 };
 
 export default Sidebar;
+
+/**
+ * <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <Checkbox
+                    id="select-all"
+                    checked={
+                      selectedEntries.length ===
+                      filteredAndSortedEntries?.length
+                    }
+                    onCheckedChange={handleSelectAll}
+                    className="bg-white border-gray-300 mr-2"
+                    size={4}
+                  />
+                  <label
+                    htmlFor="select-all"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Select All
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <Checkbox
+                    id="show-favorites"
+                    checked={showFavoritesOnly}
+                    onCheckedChange={(checked) =>
+                      setShowFavoritesOnly(checked as boolean)
+                    }
+                    className="bg-white border-gray-300 mr-2"
+                    size={4}
+                  />
+                  <label
+                    htmlFor="show-favorites"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Show Favorites Only
+                  </label>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <label htmlFor="date-filter" className="text-sm font-medium">
+                    Filter by Date
+                  </label>
+                  <input
+                    id="date-filter"
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="border rounded p-1 text-sm"
+                  />
+                </div>
+              </div>
+ */

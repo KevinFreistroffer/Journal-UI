@@ -12,7 +12,7 @@ import { useRef } from "react"; // Import useRef
 import SearchInput from "../SearchInput/SearchInput";
 import { useCallback } from "react"; // Ensure useCallback is imported
 import { usePathname } from "next/navigation"; // Add this import
-import { UserIcon, X, LogOut, Settings } from "lucide-react"; // Add X icon for closing the menu
+import { UserIcon, X, LogOut, Settings, User } from "lucide-react"; // Add User icon
 import {
   Sheet,
   SheetContent,
@@ -21,14 +21,21 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardIcon, ReaderIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import {
+  DashboardIcon,
+  ReaderIcon,
+  Pencil2Icon,
+  PersonIcon,
+} from "@radix-ui/react-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import DebugLayout from "@/components/debug/Layout";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import Image from "next/image"; // Add this import at the top of the file
 
 export interface IMenuItem {
   href: string;
   label: string;
+  showOnlyMd?: boolean;
 }
 
 export default function Header() {
@@ -45,6 +52,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 767px)");
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+  const isMediumScreen = useMediaQuery("(min-width: 768px)");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -69,6 +77,7 @@ export default function Header() {
               { href: "/dashboard", label: "Dashboard" },
               { href: "/journals", label: "Journals" },
               { href: "/journal/write", label: "New Journal" },
+              { href: "/profile", label: "Profile", showOnlyMd: true },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -114,11 +123,13 @@ export default function Header() {
   const getIcon = (href: string) => {
     switch (href) {
       case "/dashboard":
-        return <DashboardIcon className="mr-1" />;
+        return <DashboardIcon className="mr-1 w-4 h-4" />;
       case "/journals":
-        return <ReaderIcon className="mr-1" />;
+        return <ReaderIcon className="mr-1 w-4 h-4" />;
       case "/journal/write":
-        return <Pencil2Icon className="mr-1" />;
+        return <Pencil2Icon className="mr-1 w-4 h-4" />;
+      case "/profile":
+        return <PersonIcon className="mr-1 w-4 h-4" />; // Changed to PersonIcon and adjusted size
       default:
         return null;
     }
@@ -147,6 +158,10 @@ export default function Header() {
     }
   };
 
+  const getUserInitial = (username: string) => {
+    return username.charAt(0).toUpperCase();
+  };
+
   return (
     <>
       <header
@@ -165,8 +180,23 @@ export default function Header() {
               {user ? (
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
-                    <button className="focus:outline-none" aria-label="User menu">
-                      <UserIcon className="w-6 h-6 rounded-full" />
+                    <button
+                      className="focus:outline-none"
+                      aria-label="User menu"
+                    >
+                      {user.avatar ? (
+                        <Image
+                          src={user.avatar}
+                          alt={`${user.username}'s avatar`}
+                          width={24}
+                          height={24}
+                          className="w-6 h-6 rounded-full"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
+                          {getUserInitial(user.username)}
+                        </div>
+                      )}
                     </button>
                   </DropdownMenu.Trigger>
 
@@ -175,11 +205,11 @@ export default function Header() {
                       className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50"
                       sideOffset={5}
                     >
-                      <DropdownMenu.Item className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
+                      {/* <DropdownMenu.Item className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
+                        <span>Profile</span>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
+                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" /> */}
                       <DropdownMenu.Item
                         className="flex items-center px-2 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
                         onSelect={handleLogout}
@@ -197,7 +227,7 @@ export default function Header() {
                       key={item.href}
                       href={item.href}
                       className={`text-sm text-gray-700 hover:text-gray-900 ${
-                        pathname === item.href ? 'font-bold' : 'font-medium'
+                        pathname === item.href ? "font-bold" : "font-medium"
                       }`}
                     >
                       {item.label}
@@ -214,37 +244,43 @@ export default function Header() {
           <div className="w-full px-2">
             <Tabs defaultValue={pathname} className="w-full">
               <TabsList className="bg-transparent p-0 items-end flex md:inline-flex w-full md:w-auto">
-                {menuItems.map((item) => (
-                  <TabsTrigger
-                    key={item.href}
-                    value={item.href}
-                    onClick={() => router.push(item.href)}
-                    className={`flex-1 md:flex-initial bg-transparent px-4 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
-                      pathname === item.href ? "font-bold" : ""
-                    }`}
-                    style={{
-                      borderBottom:
-                        pathname === item.href
-                          ? "2px solid rgb(249, 115, 22)"
-                          : "2px solid transparent",
-                      backgroundColor: "transparent",
-                    }}
-                  >
-                    <span
-                      className={`flex items-center justify-center space-x-1 ${
-                        pathname === item.href ? "font-bold" : ""
-                      }`}
-                    >
-                      {getIcon(item.href)}
-                      <span>{item.label}</span>
-                      {item.label === "Journals" && user && user.journals && (
-                        <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">
-                          {user.journals.length}
+                {menuItems.map(
+                  (item) =>
+                    (!item.showOnlyMd ||
+                      (item.showOnlyMd && isMediumScreen)) && (
+                      <TabsTrigger
+                        key={item.href}
+                        value={item.href}
+                        onClick={() => router.push(item.href)}
+                        className={`flex-1 md:flex-initial bg-transparent px-4 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
+                          pathname === item.href ? "font-bold" : ""
+                        }`}
+                        style={{
+                          borderBottom:
+                            pathname === item.href
+                              ? "2px solid rgb(249, 115, 22)"
+                              : "2px solid transparent",
+                          backgroundColor: "transparent",
+                        }}
+                      >
+                        <span
+                          className={`flex items-center justify-center space-x-1 ${
+                            pathname === item.href ? "font-bold" : ""
+                          }`}
+                        >
+                          {getIcon(item.href)}
+                          <span>{item.label}</span>
+                          {item.label === "Journals" &&
+                            user &&
+                            user.journals && (
+                              <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">
+                                {user.journals.length}
+                              </span>
+                            )}
                         </span>
-                      )}
-                    </span>
-                  </TabsTrigger>
-                ))}
+                      </TabsTrigger>
+                    )
+                )}
               </TabsList>
             </Tabs>
           </div>

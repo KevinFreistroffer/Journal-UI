@@ -32,6 +32,7 @@ export interface IUser {
   journalCategories: ICategory[];
   createdAt: Date;
   updatedAt: Date;
+  avatar?: string;
 }
 
 export interface ISentimentResult {

@@ -24,6 +24,7 @@ it'll try to create the category. seems like a better idea.
 
 consider adding a thing to every feature, that says "This website is in beta. If this feature does not work, Contact Me".
 
+Make Sidebar.Title and Sidebar.Content components.
 
 1. Overview Section
 Total Number of Journals: A quick summary showing how many journal journals exist.
