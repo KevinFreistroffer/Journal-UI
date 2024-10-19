@@ -23,7 +23,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardIcon, ReaderIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-
+import DebugLayout from "@/components/debug/Layout";
 export interface IMenuItem {
   href: string;
   label: string;
@@ -41,7 +41,7 @@ export default function Header() {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {

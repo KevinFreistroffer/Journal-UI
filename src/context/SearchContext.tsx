@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext } from "react";
 import { IJournal } from "@/lib/interfaces";
-
+import DebugLayout from "@/components/debug/Layout";
 export interface ISearchContext {
   query: string;
   filteredEntries: IJournal[];
@@ -49,6 +49,7 @@ export function SearchProvider({
     <SearchContext.Provider
       value={{ query, filteredEntries, handleSearch, setFilteredEntries }}
     >
+      <DebugLayout position="bottom-left" />
       {children}
     </SearchContext.Provider>
   );
