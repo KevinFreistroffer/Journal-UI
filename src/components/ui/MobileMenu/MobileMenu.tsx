@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "../sheet";
-import { Button } from "../button";
+import { Button } from "../Button";
 import { Menu } from "lucide-react";
 import { IMenuItem } from "../Header/Header";
 import { useAuth } from "@/hooks/useAuth";

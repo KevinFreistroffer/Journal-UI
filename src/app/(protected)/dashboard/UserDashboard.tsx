@@ -15,7 +15,7 @@ import Legend from "@/app/(protected)/dashboard/Legend";
 import { getFrequentKeywords } from "@/lib/utils";
 import { IKeywordFrequency } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 

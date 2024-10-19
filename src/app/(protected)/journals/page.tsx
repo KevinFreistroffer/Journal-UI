@@ -30,7 +30,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Carrot from "@/components/ui/Carrot/Carrot";
 import Sentiment from "sentiment";
 import nlp from "compromise";
@@ -135,7 +135,7 @@ export default function JournalsPage() {
           );
         case "Name":
           return a.title.localeCompare(b.title);
-        case "Favorites":
+        case "Favorited":
           return (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0);
         default:
           return 0;
@@ -532,7 +532,7 @@ export default function JournalsPage() {
         </div>
 
         <div className="flex flex-col mb-4 space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:space-x-4 space-y-4 lg:space-y-0">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             {/* Search bar - moved to the top for xs and sm viewports */}
             <div className="w-full lg:w-1/3 order-first lg:order-last">
               <SearchInput
@@ -553,9 +553,9 @@ export default function JournalsPage() {
                 onValueChange={setSelectedCategory}
               >
                 <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal">
-                  <SelectValue placeholder="Sort by category" />
+                  <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -565,15 +565,15 @@ export default function JournalsPage() {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal">
+                <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal md:ml-4 lg:ml-0">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   <SelectItem value="Last updated date">
                     Last updated date
                   </SelectItem>
                   <SelectItem value="Name">Name</SelectItem>
-                  <SelectItem value="Favorites">Favorites</SelectItem>
+                  <SelectItem value="Favorited">Favorited</SelectItem>
                 </SelectContent>
               </Select>
             </div>

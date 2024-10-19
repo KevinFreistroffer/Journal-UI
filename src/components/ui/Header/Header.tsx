@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MenuItems } from "../menuItems";
+import { MenuItems } from "../MenuItems";
 import { MobileMenu } from "../MobileMenu/MobileMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";

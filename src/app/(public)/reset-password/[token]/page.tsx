@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
-import { FormButton } from "@/components/ui/formButton";
+import { FormButton } from "@/components/ui/FormButton";
 import { resetPassword } from "@/actions/resetPassword";
 import Link from "next/link";
 import { State } from "../types";

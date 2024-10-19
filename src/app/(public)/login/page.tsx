@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { State } from "./types";
 import Link from "next/link";
-import { FormButton } from "@/components/ui/formButton";
+import { FormButton } from "@/components/ui/FormButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
 import styles from "./styles.module.css";

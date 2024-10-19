@@ -2,7 +2,7 @@
 
 import React, { useContext } from "react";
 import { ModalContext } from "@/context/GlobalModalContext";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { X } from "lucide-react";
 
 // interface GlobalModalProps {
