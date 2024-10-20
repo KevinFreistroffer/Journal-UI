@@ -97,6 +97,9 @@ export default function JournalsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("Last updated date");
 
+  // Add this state at the component level
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+
   const filteredAndSortedEntries = user?.journals
     .filter((journal) => {
       if (showFavoritesOnly && !journal.favorite) {
@@ -327,6 +330,7 @@ export default function JournalsPage() {
   // });
 
   const handleSelectAll = (checked: boolean) => {
+    setShowCheckboxes(checked);
     if (checked) {
       setSelectedEntries(
         filteredAndSortedEntries?.map((journal) => journal._id) || []
@@ -351,7 +355,7 @@ export default function JournalsPage() {
       const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
       if (finishedStatuses.includes(status)) {
-        const response = await fetch("/api/user/helperText", {
+        const response = await fetch("/api/user/update", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -380,7 +384,7 @@ export default function JournalsPage() {
   }
 
   return (
-    <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-xl mx-auto">
+    <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto">
       <Sidebar
         isOpen={isSidebarOpen}
         sections={[
@@ -391,10 +395,7 @@ export default function JournalsPage() {
                 <div className="flex items-center">
                   <Checkbox
                     id="select-all"
-                    checked={
-                      selectedEntries.length ===
-                      filteredAndSortedEntries?.length
-                    }
+                    checked={showCheckboxes}
                     onCheckedChange={handleSelectAll}
                     className="bg-white border-gray-300 mr-2"
                     size={4}
@@ -580,42 +581,59 @@ export default function JournalsPage() {
           </div>
         </div>
 
-        <ToggleGroup.Root
-          type="single"
-          value={viewMode}
-          onValueChange={(value) =>
-            value && setViewMode(value as "list" | "2-column" | "columns")
-          }
-          className="hidden md:flex items-center mb-4"
-        >
-          <ToggleGroup.Item
-            value="list"
-            aria-label="List View"
-            className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
-              viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
-            }`}
+        <div className="flex justify-between items-center mb-4">
+          <ToggleGroup.Root
+            type="single"
+            value={viewMode}
+            onValueChange={(value) =>
+              value && setViewMode(value as "list" | "2-column" | "columns")
+            }
+            className="hidden md:flex items-center"
           >
-            <ViewHorizontalIcon />
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="2-column"
-            aria-label="2-Column View"
-            className={`hidden md:flex items-center space-x-2 px-3 py-2 ${
-              viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
-            }`}
-          >
-            <ViewVerticalIcon />
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="columns"
-            aria-label="Columns View"
-            className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-r ${
-              viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
-            }`}
-          >
-            <ViewGridIcon />
-          </ToggleGroup.Item>
-        </ToggleGroup.Root>
+            <ToggleGroup.Item
+              value="list"
+              aria-label="List View"
+              className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
+                viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
+              }`}
+            >
+              <ViewHorizontalIcon />
+            </ToggleGroup.Item>
+            <ToggleGroup.Item
+              value="2-column"
+              aria-label="2-Column View"
+              className={`hidden md:flex items-center space-x-2 px-3 py-2 ${
+                viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
+              }`}
+            >
+              <ViewVerticalIcon />
+            </ToggleGroup.Item>
+            <ToggleGroup.Item
+              value="columns"
+              aria-label="Columns View"
+              className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-r ${
+                viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
+              }`}
+            >
+              <ViewGridIcon />
+            </ToggleGroup.Item>
+          </ToggleGroup.Root>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="select-all"
+              checked={showCheckboxes}
+              onCheckedChange={handleSelectAll}
+              className="bg-white border-gray-300"
+            />
+            <label
+              htmlFor="select-all"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Select All
+            </label>
+          </div>
+        </div>
         <div
           className={`grid ${
             viewMode === "list"
@@ -643,15 +661,33 @@ export default function JournalsPage() {
                   key={index}
                   className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
                     selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
-                  }`}
+                  } py-4 px-2 relative`} // Changed p-4 to py-4 px-2
                 >
+                  <div
+                    className={`absolute top-2 left-2 transition-opacity duration-200 ${
+                      showCheckboxes ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedEntries.includes(journal._id)}
+                      onCheckedChange={(checked) =>
+                        handleSelectJournal(journal._id, checked as boolean)
+                      }
+                      className="bg-white border-gray-300"
+                    />
+                  </div>
                   <div className="flex flex-col flex-grow">
-                    <CardHeader>
+                    <CardHeader className="pb-3">
                       <div className="flex justify-between items-center">
                         <CardTitle className="wrap text-wrap overflow-wrap text-md text-blue-500">
-                          {journal.title.length > 30
-                            ? `${journal.title.substring(0, 30)}...`
-                            : journal.title}
+                          <Link
+                            href={`/journal/${journal._id}`}
+                            className="hover:underline"
+                          >
+                            {journal.title.length > 30
+                              ? `${journal.title.substring(0, 30)}...`
+                              : journal.title}
+                          </Link>
                         </CardTitle>
                         <div className="relative p-0 m-0">
                           {index === 0 && (
@@ -672,7 +708,18 @@ export default function JournalsPage() {
                           <Tooltip.Provider delayDuration={100}>
                             <Tooltip.Root>
                               <Tooltip.Trigger asChild>
-                                <ReaderIcon
+                                {journal.favorite ? (
+                                  <StarFilledIcon
+                                    onClick={() => handleFavorite(journal._id)}
+                                    className="w-6 h-6 "
+                                  /> // Use StarFilledIcon if favorite
+                                ) : (
+                                  <StarIcon
+                                    onClick={() => handleFavorite(journal._id)}
+                                    className="w-6 h-6 "
+                                  /> // Use StarIcon if not favorite
+                                )}
+                                {/* <ReaderIcon
                                   className={`cursor-pointer helper-text-step ${"w-5 h-5 md:w-8 md:h-8"}`}
                                   onClick={() => {
                                     localStorageService.setItem(
@@ -681,14 +728,14 @@ export default function JournalsPage() {
                                     );
                                     router.push(`/journal/${journal._id}`);
                                   }}
-                                />
+                                /> */}
                               </Tooltip.Trigger>
                               <Tooltip.Portal>
                                 <Tooltip.Content
                                   className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
                                   sideOffset={4}
                                 >
-                                  Read
+                                  Favorite
                                   <Tooltip.Arrow className="fill-gray-800" />
                                 </Tooltip.Content>
                               </Tooltip.Portal>
@@ -697,8 +744,7 @@ export default function JournalsPage() {
                         </div>
                       </div>
                     </CardHeader>
-                    {/* <CardContent></CardContent> */}
-                    <CardFooter className="mt-auto flex justify-between items-end">
+                    <CardFooter className="mt-auto flex justify-between items-end pt-3">
                       <div className="flex flex-col">
                         {showCategory && <p>{journal.category}</p>}
                         {showUpdatedDate && journal.updatedAt ? (

@@ -33,6 +33,7 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
   avatar?: string;
+  avatarId?: string;
 }
 
 export interface ISentimentResult {

@@ -6,30 +6,56 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    console.log("API /user/helperText POST");
+    if (!process.env.API_URL) {
+      return NextResponse.json(
+        { error: "Server Error. Please try again later." },
+        { status: 500 }
+      );
+    }
+    console.log("API /user/update POST");
     // Parse the request body
-    const { userId, hasAcknowledgedHelperText } = await request.json();
+    const { userId, hasAcknowledgedHelperText, avatar } = await request.json();
     console.log("userId", userId);
-    console.log("hasAcknowledgedHelperText", hasAcknowledgedHelperText);
 
     // Validate the input
     if (
       typeof userId !== "string" ||
-      typeof hasAcknowledgedHelperText !== "boolean"
+      (hasAcknowledgedHelperText !== undefined &&
+        typeof hasAcknowledgedHelperText !== "boolean") ||
+      (avatar !== undefined && typeof avatar !== "string")
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
+    // Prepare the update object
+    const updateData: {
+      userId: string;
+      hasAcknowledgedHelperText?: boolean;
+      avatar?: string;
+    } = { userId };
+
+    if (hasAcknowledgedHelperText !== undefined) {
+      updateData.hasAcknowledgedHelperText = hasAcknowledgedHelperText;
+    }
+
+    if (avatar !== undefined) {
+      updateData.avatar = avatar;
+    }
+
     // Send the API request to /user/update
+    console.log(
+      "Sending update request to",
+      `${process.env.API_URL}/user/update`
+    );
     const response = await fetch(`${process.env.API_URL}/user/update`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Cookie: cookies().toString(),
       },
-      body: JSON.stringify({ userId, hasAcknowledgedHelperText }),
+      body: JSON.stringify(updateData),
     });
-
+    console.log("Response:", response);
     if (!response.ok) {
       throw new Error("Failed to update user");
     }

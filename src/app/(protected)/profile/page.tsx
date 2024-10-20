@@ -1,12 +1,45 @@
 "use client";
 
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import AvatarUpload from "@/components/ui/AvatarUpload/AvatarUpload";
 import ChangePassword from "@/components/ui/ChangePassword";
 
 const ProfilePage = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const { user } = useAuth();
+
   const handleSave = async (avatar: string) => {
-    // TODO: Implement API call to save the avatar
-    console.log("Saving avatar:", avatar);
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/user/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ avatar, userId: user?._id }),
+      });
+
+      if (response.ok) {
+        setMessage({ type: "success", text: "Avatar updated successfully" });
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({
+          type: "error",
+          text: `Failed to update avatar: ${response.statusText}`,
+        });
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: `Error updating avatar: ${error}` });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -15,6 +48,18 @@ const ProfilePage = () => {
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Avatar</h2>
           <AvatarUpload clickableAvatar handleSave={handleSave} />
+          {isLoading && (
+            <p className="mt-2 text-blue-500">Uploading avatar...</p>
+          )}
+          {message && (
+            <p
+              className={`mt-2 ${
+                message.type === "success" ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              {message.text}
+            </p>
+          )}
         </div>
       </main>
     </div>

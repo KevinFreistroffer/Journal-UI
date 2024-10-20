@@ -184,16 +184,16 @@ export default function Header() {
                       className="focus:outline-none"
                       aria-label="User menu"
                     >
-                      {user.avatar ? (
+                      {user.avatar  ? (
                         <Image
                           src={user.avatar}
                           alt={`${user.username}'s avatar`}
-                          width={24}
-                          height={24}
-                          className="w-6 h-6 rounded-full"
+                          width={28}
+                          height={28}
+                          className="w-7 h-7 rounded-full"
                         />
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
+                        <div className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
                           {getUserInitial(user.username)}
                         </div>
                       )}

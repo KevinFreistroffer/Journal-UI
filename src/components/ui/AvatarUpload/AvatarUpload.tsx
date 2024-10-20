@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 const AvatarUpload = ({
@@ -33,6 +33,10 @@ const AvatarUpload = ({
       handleUploadClick();
     }
   };
+
+  useEffect(() => {
+    console.log("Avatar:", avatar);
+  }, [avatar]);
 
   return (
     <div className="flex flex-col items-center">
