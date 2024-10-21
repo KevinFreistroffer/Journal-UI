@@ -134,13 +134,13 @@ export default function Header() {
   const getIcon = (href: string) => {
     switch (href) {
       case "/dashboard":
-        return <DashboardIcon className="mr-1 w-4 h-4" />;
+        return <DashboardIcon className="mr-2 w-4 h-4" />; // Increased margin-right
       case "/journals":
-        return <ReaderIcon className="mr-1 w-4 h-4" />;
+        return <ReaderIcon className="mr-2 w-4 h-4" />; // Increased margin-right
       case "/journal/write":
-        return <Pencil2Icon className="mr-1 w-4 h-4" />;
+        return <Pencil2Icon className="mr-2 w-4 h-4" />; // Increased margin-right
       case "/profile":
-        return <PersonIcon className="mr-1 w-4 h-4" />;
+        return <PersonIcon className="mr-2 w-4 h-4" />; // Increased margin-right
       default:
         return null;
     }
@@ -189,9 +189,9 @@ export default function Header() {
     <>
       <header
         id={styles["header"]}
-        className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
+        className={`sticky px-3 sm:px-4 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
       >
-        <div className="p-8 flex h-14 items-center justify-between w-full">
+        <div className="flex h-14 items-center justify-between w-full">
           <div className="flex-1">
             <Link href="/" passHref>
               <h1 className="text-lg font-semibold md:text-xl">Journals</h1>
@@ -204,19 +204,19 @@ export default function Header() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none bg-gray-200 rounded-full p-1 hover:bg-gray-300 transition-colors duration-200"
+                      className="focus:outline-none bg-gray-200 rounded-full  hover:bg-gray-300 transition-colors duration-200"
                       aria-label="User menu"
                     >
                       {user.avatar ? (
                         <Image
                           src={user.avatar}
                           alt={`${user.username}'s avatar`}
-                          width={28}
-                          height={28}
-                          className="w-7 h-7 rounded-full"
+                          width={36}
+                          height={36}
+                          className="w-9 h-9 rounded-full"
                         />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
+                        <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
                           {getUserInitial(user.username)}
                         </div>
                       )}
@@ -266,7 +266,7 @@ export default function Header() {
 
         {/* Tabs - Only visible when user is signed in */}
         {!isLoading && user && (
-          <div className="w-full px-4">
+          <div className="w-full">
             <Tabs defaultValue={pathname} className="w-full">
               <TabsList className="bg-transparent p-0 flex flex-wrap justify-start w-full">
                 {filteredMenuItems.map((item) => (
@@ -274,8 +274,8 @@ export default function Header() {
                     key={item.href}
                     value={item.href}
                     onClick={() => router.push(item.href)}
-                    className={`bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
-                      pathname === item.href ? "font-bold" : ""
+                    className={`fdasfdas bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
+                      pathname === item.href ? "font-bold" : "font-light"
                     } flex items-center`}
                     style={{
                       borderBottom:
@@ -283,6 +283,7 @@ export default function Header() {
                           ? "2px solid rgb(249, 115, 22)"
                           : "2px solid transparent",
                       backgroundColor: "transparent",
+                      alignSelf: "flex-end",
                     }}
                   >
                     {getIcon(item.href)}

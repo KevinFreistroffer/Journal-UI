@@ -25,6 +25,12 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const monaSans = localFont({
+  src: "../fonts/Mona-Sans.woff2",
+  variable: "--font-mona-sans",
+  weight: "100 200 300 400 500 600 700 800 900",
+});
+
 export const metadata: Metadata = {
   title: "SumX",
   description: "Think > Summarize > Tweet",
@@ -42,9 +48,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${monaSans.variable} antialiased`}>
         <div className="flex flex-col min-h-screen">
           <SearchProvider>
             <AuthProvider>

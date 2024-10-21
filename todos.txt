@@ -16,6 +16,8 @@ use colors in globals.css
 water ripple background animated
 
 
+public private journals
+
 need to test API requests when there's no user_id. (user shouldnt ever be not available to able to send requests, however...)
 
 dynamic rendering? dashboard cards, if storage not fetched yet, don't render?

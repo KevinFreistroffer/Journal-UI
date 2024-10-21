@@ -63,6 +63,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getSentimentWord } from "@/lib/utils"; // Add this import at the top of the file
+import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
+import * as Popover from "@radix-ui/react-popover";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import * as Dialog from "@radix-ui/react-dialog";
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
@@ -95,10 +99,44 @@ export default function JournalsPage() {
     ],
   });
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("Last updated date");
+  const [sortBy, setSortBy] = useState<string>("");
 
   // Add this state at the component level
   const [showCheckboxes, setShowCheckboxes] = useState(false);
+
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [displayedCategoryFilter, setDisplayedCategoryFilter] =
+    useState("Category");
+  const [sortFilter, setSortFilter] = useState("Last updated date");
+  const [displayedSortFilter, setDisplayedSortFilter] = useState("Filter");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<"category" | "sort" | null>(
+    null
+  );
+
+  const isMobile = useMediaQuery("(max-width: 639px)");
+
+  const handleFilterClick = (filterType: "category" | "sort") => {
+    if (isMobile) {
+      setActiveFilter(filterType);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleOptionSelect = (option: string) => {
+    if (activeFilter === "category") {
+      setCategoryFilter(option);
+      setDisplayedCategoryFilter(option === "All" ? "Category" : option);
+    } else if (activeFilter === "sort") {
+      setSortFilter(option);
+      setDisplayedSortFilter(option);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const filteredAndSortedEntries = user?.journals
     .filter((journal) => {
@@ -409,35 +447,137 @@ export default function JournalsPage() {
             </div>
 
             {/* Category and Sort selects */}
-            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal">
-                  <SelectValue placeholder="Filter by category" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-row items-center space-x-4">
+              {isMobile ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className="h-9 px-3"
+                    onClick={() => handleFilterClick("category")}
+                  >
+                    <span>{displayedCategoryFilter}</span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-9 px-3"
+                    onClick={() => handleFilterClick("sort")}
+                  >
+                    <span>{displayedSortFilter}</span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+                    <Dialog.Portal>
+                      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
+                      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-xl">
+                        <div className="flex justify-between items-center border-b border-gray-200">
+                          <Dialog.Title className="text-sm font-semibold py-5 px-6">
+                            {activeFilter === "category"
+                              ? "Select category"
+                              : "Select filter"}
+                          </Dialog.Title>
+                          <button onClick={handleCloseModal} className="p-3">
+                            <Cross1Icon className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <div className="flex flex-col overflow-y-auto max-h-[60vh]">
+                          {activeFilter === "category"
+                            ? categories.map((category) => (
+                                <Button
+                                  key={category}
+                                  variant="ghost"
+                                  className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
+                                  onClick={() => {
+                                    handleOptionSelect(category);
+                                    handleCloseModal();
+                                  }}
+                                >
+                                  <div className="flex items-center w-full">
+                                    <span className="w-6">
+                                      {categoryFilter === category && (
+                                        <CheckIcon className="h-4 w-4" />
+                                      )}
+                                    </span>
+                                    <span className="ml-2">{category}</span>
+                                  </div>
+                                </Button>
+                              ))
+                            : ["Last updated date", "Name", "Favorited"].map(
+                                (option) => (
+                                  <Button
+                                    key={option}
+                                    variant="ghost"
+                                    className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
+                                    onClick={() => {
+                                      handleOptionSelect(option);
+                                      handleCloseModal();
+                                    }}
+                                  >
+                                    <div className="flex items-center w-full">
+                                      <span className="w-6">
+                                        {sortFilter === option && (
+                                          <CheckIcon className="h-4 w-4" />
+                                        )}
+                                      </span>
+                                      <span className="ml-2">{option}</span>
+                                    </div>
+                                  </Button>
+                                )
+                              )}
+                        </div>
+                      </Dialog.Content>
+                    </Dialog.Portal>
+                  </Dialog.Root>
+                </>
+              ) : (
+                <>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
+                    <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
+                      <SelectValue
+                        placeholder="Category"
+                        className="font-bold placeholder:font-bold"
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {categories.map((category) => (
+                        <SelectItem
+                          key={category}
+                          value={category}
+                          className="font-normal"
+                        >
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-[180px] h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm [&>span]:font-normal md:ml-4 lg:ml-0">
-                  <SelectValue placeholder="Sort" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="Last updated date">
-                    Last updated date
-                  </SelectItem>
-                  <SelectItem value="Name">Name</SelectItem>
-                  <SelectItem value="Favorited">Favorited</SelectItem>
-                </SelectContent>
-              </Select>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
+                      <SelectValue
+                        placeholder="Filter"
+                        className="font-bold placeholder:font-bold"
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      <SelectItem
+                        value="Last updated date"
+                        className="font-normal"
+                      >
+                        Last updated date
+                      </SelectItem>
+                      <SelectItem value="Name" className="font-normal">
+                        Name
+                      </SelectItem>
+                      <SelectItem value="Favorited" className="font-normal">
+                        Favorited
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
           </div>
         </div>
