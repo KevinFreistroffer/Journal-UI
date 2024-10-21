@@ -2,6 +2,8 @@ if cookieConsent is false, use LS
 
 try next-auth?
 
+use the data transfer layer. use canShowUsername or isAuthenticated or something with roles, hasUserRoleAccess
+
 save new categories in the DB.
 
 redo the form action error messages

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MenuItems } from "../MenuItems";
+// import { MenuItems } from "../MenuItems";
 import { MobileMenu } from "../MobileMenu/MobileMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
@@ -12,7 +12,14 @@ import { useRef } from "react"; // Import useRef
 import SearchInput from "../SearchInput/SearchInput";
 import { useCallback } from "react"; // Ensure useCallback is imported
 import { usePathname } from "next/navigation"; // Add this import
-import { UserIcon, X, LogOut, Settings, User } from "lucide-react"; // Add User icon
+import {
+  UserIcon,
+  X,
+  LogOut,
+  Settings,
+  User,
+  MoreHorizontal,
+} from "lucide-react"; // Add User icon
 import {
   Sheet,
   SheetContent,
@@ -31,6 +38,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import DebugLayout from "@/components/debug/Layout";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Image from "next/image"; // Add this import at the top of the file
+import { Button } from "@/components/ui/Button"; // Add this import if not already present
 
 export interface IMenuItem {
   href: string;
@@ -53,6 +61,9 @@ export default function Header() {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const isMediumScreen = useMediaQuery("(min-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width: 503px)");
+  const isVerySmallScreen = useMediaQuery("(max-width: 443px)");
+  const isExtraSmallScreen = useMediaQuery("(max-width: 380px)");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -77,7 +88,7 @@ export default function Header() {
               { href: "/dashboard", label: "Dashboard" },
               { href: "/journals", label: "Journals" },
               { href: "/journal/write", label: "New Journal" },
-              { href: "/profile", label: "Profile", showOnlyMd: true },
+              { href: "/profile", label: "Profile" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -129,7 +140,7 @@ export default function Header() {
       case "/journal/write":
         return <Pencil2Icon className="mr-1 w-4 h-4" />;
       case "/profile":
-        return <PersonIcon className="mr-1 w-4 h-4" />; // Changed to PersonIcon and adjusted size
+        return <PersonIcon className="mr-1 w-4 h-4" />;
       default:
         return null;
     }
@@ -162,6 +173,18 @@ export default function Header() {
     return username.charAt(0).toUpperCase();
   };
 
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (isExtraSmallScreen) return item.href === "/dashboard";
+    if (isVerySmallScreen)
+      return ["dashboard", "journals"].includes(item.href.split("/")[1]);
+    if (isSmallScreen) return item.href !== "/profile";
+    return true;
+  });
+
+  const dropdownItems = menuItems.filter(
+    (item) => !filteredMenuItems.includes(item)
+  );
+
   return (
     <>
       <header
@@ -181,10 +204,10 @@ export default function Header() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none"
+                      className="focus:outline-none bg-gray-200 rounded-full p-1 hover:bg-gray-300 transition-colors duration-200"
                       aria-label="User menu"
                     >
-                      {user.avatar  ? (
+                      {user.avatar ? (
                         <Image
                           src={user.avatar}
                           alt={`${user.username}'s avatar`}
@@ -202,8 +225,10 @@ export default function Header() {
 
                   <DropdownMenu.Portal>
                     <DropdownMenu.Content
-                      className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50"
+                      className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50 "
                       sideOffset={5}
+                      align="end"
+                      alignOffset={-17}
                     >
                       {/* <DropdownMenu.Item className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
@@ -241,45 +266,61 @@ export default function Header() {
 
         {/* Tabs - Only visible when user is signed in */}
         {!isLoading && user && (
-          <div className="w-full px-2">
+          <div className="w-full px-4">
             <Tabs defaultValue={pathname} className="w-full">
-              <TabsList className="bg-transparent p-0 items-end flex md:inline-flex w-full md:w-auto">
-                {menuItems.map(
-                  (item) =>
-                    (!item.showOnlyMd ||
-                      (item.showOnlyMd && isMediumScreen)) && (
-                      <TabsTrigger
-                        key={item.href}
-                        value={item.href}
-                        onClick={() => router.push(item.href)}
-                        className={`flex-1 md:flex-initial bg-transparent px-4 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
-                          pathname === item.href ? "font-bold" : ""
-                        }`}
-                        style={{
-                          borderBottom:
-                            pathname === item.href
-                              ? "2px solid rgb(249, 115, 22)"
-                              : "2px solid transparent",
-                          backgroundColor: "transparent",
-                        }}
+              <TabsList className="bg-transparent p-0 flex flex-wrap justify-start w-full">
+                {filteredMenuItems.map((item) => (
+                  <TabsTrigger
+                    key={item.href}
+                    value={item.href}
+                    onClick={() => router.push(item.href)}
+                    className={`bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
+                      pathname === item.href ? "font-bold" : ""
+                    } flex items-center`}
+                    style={{
+                      borderBottom:
+                        pathname === item.href
+                          ? "2px solid rgb(249, 115, 22)"
+                          : "2px solid transparent",
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    {getIcon(item.href)}
+                    <span>{item.label}</span>
+                    {item.label === "Journals" && user && user.journals && (
+                      <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                        {user.journals.length}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                ))}
+                {dropdownItems.length > 0 && (
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <button className="p-[6px] bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none mr-0 ml-auto">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Portal>
+                      <DropdownMenu.Content
+                        className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50 mr-[17px] mt-[-3px] border border-gray-200"
+                        sideOffset={5}
+                        align="end"
+                        alignOffset={-17}
                       >
-                        <span
-                          className={`flex items-center justify-center space-x-1 ${
-                            pathname === item.href ? "font-bold" : ""
-                          }`}
-                        >
-                          {getIcon(item.href)}
-                          <span>{item.label}</span>
-                          {item.label === "Journals" &&
-                            user &&
-                            user.journals && (
-                              <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">
-                                {user.journals.length}
-                              </span>
-                            )}
-                        </span>
-                      </TabsTrigger>
-                    )
+                        {dropdownItems.map((item) => (
+                          <DropdownMenu.Item
+                            key={item.href}
+                            className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                            onSelect={() => router.push(item.href)}
+                          >
+                            {getIcon(item.href)}
+                            <span>{item.label}</span>
+                          </DropdownMenu.Item>
+                        ))}
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  </DropdownMenu.Root>
                 )}
               </TabsList>
             </Tabs>

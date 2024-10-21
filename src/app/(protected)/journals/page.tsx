@@ -385,148 +385,9 @@ export default function JournalsPage() {
 
   return (
     <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        sections={[
-          {
-            title: "Filters",
-            content: (
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center">
-                  <Checkbox
-                    id="select-all"
-                    checked={showCheckboxes}
-                    onCheckedChange={handleSelectAll}
-                    className="bg-white border-gray-300 mr-2"
-                    size={4}
-                  />
-                  <label
-                    htmlFor="select-all"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Select All
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <Checkbox
-                    id="show-favorites"
-                    checked={showFavoritesOnly}
-                    onCheckedChange={(checked) =>
-                      setShowFavoritesOnly(checked as boolean)
-                    }
-                    className="bg-white border-gray-300 mr-2"
-                    size={4}
-                  />
-                  <label
-                    htmlFor="show-favorites"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Show Favorites Only
-                  </label>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label htmlFor="date-filter" className="text-sm font-medium">
-                    Filter by Date
-                  </label>
-                  <input
-                    id="date-filter"
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="border rounded p-1 text-sm"
-                  />
-                </div>
-              </div>
-            ),
-          },
-
-          {
-            title: "Settings",
-            content: (
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center">
-                  <Checkbox
-                    id="show-sentiment"
-                    checked={showSentiment}
-                    onCheckedChange={(checked) =>
-                      setShowSentiment(checked as boolean)
-                    }
-                    className="bg-white border-gray-300 mr-2"
-                    size={4}
-                  />
-                  <label
-                    htmlFor="show-sentiment"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Show Sentiment
-                  </label>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center">
-                    <Checkbox
-                      id="show-category"
-                      checked={showCategory} // New state for showing category
-                      onCheckedChange={
-                        (checked) => setShowCategory(checked as boolean) // Update state on change
-                      }
-                      className="bg-white border-gray-300 mr-2"
-                      size={4}
-                    />
-                    <label
-                      htmlFor="show-category"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Show Category
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <Checkbox
-                      id="show-updated-date"
-                      checked={showUpdatedDate} // New state for showing updated date
-                      onCheckedChange={
-                        (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
-                      }
-                      className="bg-white border-gray-300 mr-2"
-                      size={4}
-                    />
-                    <label
-                      htmlFor="show-updated-date"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Show Updated Date
-                    </label>
-                  </div>
-                </div>
-              </div>
-            ),
-          },
-          {
-            title: "Data", // New Data section
-            content: (
-              <div className="flex flex-col space-y-2">
-                <p className="text-sm font-medium">
-                  Total Journal Entries: {user?.journals.length || 0}
-                </p>{" "}
-                {/* Display total journal entries */}
-                <p className="text-sm font-medium">
-                  Total Favorited Journals:{" "}
-                  {user?.journals.filter((journal) => journal.favorite)
-                    .length || 0}
-                </p>{" "}
-                {/* Display total favorited journals */}
-              </div>
-            ),
-          },
-        ]}
-        setIsSidebarOpen={setIsSidebarOpen}
-        icon={<Settings size={20} />}
-      />
-
       {/* Wrap the entire content in PageWrapper */}
       <div
-        className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out
-          ${isSidebarOpen ? "md:ml-56 md:pl-8" : "md:ml-24 md:pl-4"}`}
+        className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out`}
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
           <h1 className="text-3xl font-bold hidden md:block">Your Journals</h1>
@@ -821,3 +682,139 @@ export default function JournalsPage() {
     </div>
   );
 }
+//  <Sidebar
+//    isOpen={isSidebarOpen}
+//    sections={[
+//      {
+//        title: "Filters",
+//        content: (
+//          <div className="flex flex-col space-y-2">
+//            <div className="flex items-center">
+//              <Checkbox
+//                id="select-all"
+//                checked={showCheckboxes}
+//                onCheckedChange={handleSelectAll}
+//                className="bg-white border-gray-300 mr-2"
+//                size={4}
+//              />
+//              <label
+//                htmlFor="select-all"
+//                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+//              >
+//                Select All
+//              </label>
+//            </div>
+
+//            <div className="flex items-center">
+//              <Checkbox
+//                id="show-favorites"
+//                checked={showFavoritesOnly}
+//                onCheckedChange={(checked) =>
+//                  setShowFavoritesOnly(checked as boolean)
+//                }
+//                className="bg-white border-gray-300 mr-2"
+//                size={4}
+//              />
+//              <label
+//                htmlFor="show-favorites"
+//                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+//              >
+//                Show Favorites Only
+//              </label>
+//            </div>
+//            <div className="flex flex-col space-y-2">
+//              <label htmlFor="date-filter" className="text-sm font-medium">
+//                Filter by Date
+//              </label>
+//              <input
+//                id="date-filter"
+//                type="date"
+//                value={selectedDate}
+//                onChange={(e) => setSelectedDate(e.target.value)}
+//                className="border rounded p-1 text-sm"
+//              />
+//            </div>
+//          </div>
+//        ),
+//      },
+
+//      {
+//        title: "Settings",
+//        content: (
+//          <div className="flex flex-col space-y-2">
+//            <div className="flex items-center">
+//              <Checkbox
+//                id="show-sentiment"
+//                checked={showSentiment}
+//                onCheckedChange={(checked) =>
+//                  setShowSentiment(checked as boolean)
+//                }
+//                className="bg-white border-gray-300 mr-2"
+//                size={4}
+//              />
+//              <label
+//                htmlFor="show-sentiment"
+//                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+//              >
+//                Show Sentiment
+//              </label>
+//            </div>
+//            <div className="flex flex-col space-y-2">
+//              <div className="flex items-center">
+//                <Checkbox
+//                  id="show-category"
+//                  checked={showCategory} // New state for showing category
+//                  onCheckedChange={
+//                    (checked) => setShowCategory(checked as boolean) // Update state on change
+//                  }
+//                  className="bg-white border-gray-300 mr-2"
+//                  size={4}
+//                />
+//                <label
+//                  htmlFor="show-category"
+//                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+//                >
+//                  Show Category
+//                </label>
+//              </div>
+//              <div className="flex items-center">
+//                <Checkbox
+//                  id="show-updated-date"
+//                  checked={showUpdatedDate} // New state for showing updated date
+//                  onCheckedChange={
+//                    (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
+//                  }
+//                  className="bg-white border-gray-300 mr-2"
+//                  size={4}
+//                />
+//                <label
+//                  htmlFor="show-updated-date"
+//                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+//                >
+//                  Show Updated Date
+//                </label>
+//              </div>
+//            </div>
+//          </div>
+//        ),
+//      },
+//      {
+//        title: "Data", // New Data section
+//        content: (
+//          <div className="flex flex-col space-y-2">
+//            <p className="text-sm font-medium">
+//              Total Journal Entries: {user?.journals.length || 0}
+//            </p>{" "}
+//            {/* Display total journal entries */}
+//            <p className="text-sm font-medium">
+//              Total Favorited Journals:{" "}
+//              {user?.journals.filter((journal) => journal.favorite).length || 0}
+//            </p>{" "}
+//            {/* Display total favorited journals */}
+//          </div>
+//        ),
+//      },
+//    ]}
+//    setIsSidebarOpen={setIsSidebarOpen}
+//    icon={<Settings size={20} />}
+//  />;
