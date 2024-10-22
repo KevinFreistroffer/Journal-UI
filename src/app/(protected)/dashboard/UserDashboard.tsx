@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { LegendItem } from "@/app/(protected)/dashboard/Legend";
 // import {
 //   Select,
 //   SelectTrigger,
@@ -67,6 +67,9 @@ const formatTime = (hour: string) => {
   if (hourNum === 12) return "12 PM";
   return hourNum > 12 ? `${hourNum - 12} PM` : `${hourNum} AM`;
 };
+
+// Define the type for card layout
+type CardLayout = "auto-layout" | "single-column" | "two-column";
 
 function UserDashboard() {
   const { user, isLoading } = useAuth();
@@ -120,6 +123,8 @@ function UserDashboard() {
   }>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobileView = useMediaQuery("(max-width: 639px)");
+  const [cardLayout, setCardLayout] = useState<CardLayout>("auto-layout");
+  const isLgOrLarger = useMediaQuery("(min-width: 1024px)");
 
   console.log(categoryData, isSelectOpen);
 
@@ -385,8 +390,8 @@ function UserDashboard() {
 
   if (isLoading) {
     return (
-      <div className="p-6 min-h-screen flex justify-center items-centers">
-        Loading...
+      <div className="p-6 w-full h-full min-h-screen flex justify-center items-center">
+        <Spinner />
       </div> // Add your spinner or loading state here
     );
   }
@@ -423,24 +428,61 @@ function UserDashboard() {
             title: "Toggle Cards",
             content: (
               <div className="flex flex-col">
-                <div className="relative mb-4 md:mb-0"></div>
-              </div>
-            ),
-          },
-          {
-            title: "Display Settings",
-            content: (
-              <div className="flex flex-col">
-                <LegendItem
-                  id="auto-layout"
-                  label="Auto Layout"
-                  checked={true}
-                  onChange={() => {}}
+                <Legend
+                  isMobile={isMobile}
+                  isMobileLegendOpen={isMobileLegendOpen}
+                  setIsMobileLegendOpen={setIsMobileLegendOpen}
+                  showTotalJournalsCard={showTotalJournalsCard}
+                  setShowTotalJournalsCard={setShowTotalJournalsCard}
+                  showCategoryBreakdownCard={showCategoryBreakdownCard}
+                  setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
+                  showRecentEntriesCard={showRecentEntriesCard}
+                  setShowRecentEntriesCard={setShowRecentEntriesCard}
+                  showUpcomingEntriesCard={showUpcomingEntriesCard}
+                  setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
+                  showFavoriteJournalsCard={showFavoriteJournalsCard}
+                  setShowFavoriteJournalsCard={setShowFavoriteJournalsCard}
+                  showKeywordFrequencyCard={showKeywordFrequencyCard}
+                  setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
+                  showJournalTimeCard={showJournalTimeCard}
+                  setShowJournalTimeCard={setShowJournalTimeCard}
                   checkboxSize={4}
                 />
               </div>
             ),
           },
+          ...(isLgOrLarger
+            ? [
+                {
+                  title: "Display Settings",
+                  content: (
+                    <div className="flex flex-col">
+                      <LegendItem
+                        id="auto-layout"
+                        label="Auto Layout"
+                        checked={cardLayout === "auto-layout"}
+                        onChange={() => setCardLayout("auto-layout")}
+                        checkboxSize={4}
+                      />
+                      <LegendItem
+                        id="single-column"
+                        label="Single Column"
+                        checked={cardLayout === "single-column"}
+                        onChange={() => setCardLayout("single-column")}
+                        checkboxSize={4}
+                      />
+                      <LegendItem
+                        id="two-column"
+                        label="Two-Column"
+                        checked={cardLayout === "two-column"}
+                        onChange={() => setCardLayout("two-column")}
+                        checkboxSize={4}
+                      />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
 
@@ -458,13 +500,21 @@ function UserDashboard() {
           {/* Main Content Area */}
           <div className="flex flex-col md:flex-row md:flex-wrap w-full">
             {/* Dashboard Content */}
-            <div className="flex w-full flex-col md:flex-row md:flex-wrap">
+            <div
+              className={`flex w-full flex-col md:flex-row md:flex-wrap ${
+                cardLayout === "single-column"
+                  ? "md:flex-col"
+                  : cardLayout === "two-column"
+                  ? "md:flex-row"
+                  : "md:flex-row md:flex-wrap"
+              }`}
+            >
               {/* Total Number of Entries */}
-              {!localStorageValuesFetched.totalJournalsCard ? (
-                <PlaceholderCard />
+              {/* {!localStorageValuesFetched.totalJournalsCard ? (
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showTotalJournalsCard && (
-                  <div className="w-full mb-2 p-2">
+                  <div className={`w-full mb-2 p-2 w-full `}>
                     <Card className="h-full p-4 flex w-full items-center justify-between">
                       <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
                         Total Number of journals: {totalJournals}
@@ -478,16 +528,22 @@ function UserDashboard() {
                     </Card>
                   </div>
                 )
-              )}
+              )} */}
 
               {/* Category Breakdown */}
               {!localStorageValuesFetched.categoryBreakdownCard ? (
-                <PlaceholderCard />
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showCategoryBreakdownCard && (
                   <div
                     id={`${styles["categoryBreakdown"]}`}
-                    className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3"
+                    className={`w-full mb-2 p-2 ${
+                      cardLayout === "single-column"
+                        ? "md:w-full"
+                        : cardLayout === "two-column"
+                        ? "md:w-1/2"
+                        : "md:w-full lg:w-1/2 xl:w-1/3"
+                    }`}
                   >
                     <Card className="h-full p-4 relative">
                       <div className="flex justify-between items-center mb-6">
@@ -540,27 +596,44 @@ function UserDashboard() {
 
               {/* Recent Activity */}
               {!localStorageValuesFetched.recentEntriesCard ? (
-                <PlaceholderCard />
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showRecentEntriesCard && (
-                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
+                  <div
+                    className={`w-full mb-2 p-2 ${
+                      cardLayout === "single-column"
+                        ? "md:w-full"
+                        : cardLayout === "two-column"
+                        ? "md:w-1/2"
+                        : "md:w-full lg:w-1/2 xl:w-1/3"
+                    }`}
+                  >
                     <Card className="h-full p-4">
                       <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
                         Recent Activity
                       </h2>
-                      <ul>
-                        {recentEntries.map((journal, index) => (
-                          <li key={index} className="border-b py-2">
-                            <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
-                              {journal.title}
-                            </span>{" "}
-                            -{" "}
-                            <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
-                              {formatDate(journal.date)}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
+                        <ul className="max-h-72 overflow-y-auto p-4">
+                          {recentEntries.map((journal, index) => (
+                            <li
+                              key={index}
+                              className="border-b py-2 last:border-b-0"
+                            >
+                              <Link
+                                href={`/journal/${journal._id}`}
+                                className="hover:underline flex flex-col"
+                              >
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500">
+                                  {journal.title}
+                                </span>
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
+                                  {formatDate(journal.date)}
+                                </span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </Card>
                   </div>
                 )
@@ -568,12 +641,20 @@ function UserDashboard() {
 
               {/* Upcoming Journals/Reminders */}
               {!localStorageValuesFetched.upcomingEntriesCard ? (
-                <PlaceholderCard />
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showUpcomingEntriesCard && (
-                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
+                  <div
+                    className={`w-full mb-2 p-2 ${
+                      cardLayout === "single-column"
+                        ? "md:w-full"
+                        : cardLayout === "two-column"
+                        ? "md:w-1/2"
+                        : "md:w-full lg:w-1/2 xl:w-1/3"
+                    }`}
+                  >
                     <Card className="h-full p-4">
-                      <div className="flex justify-between items-center mb-4">
+                      <div className="flex justify-between items-start mb-4">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold w-1/2">
                           Upcoming Journals & Reminders
                         </h2>
@@ -610,13 +691,21 @@ function UserDashboard() {
 
               {/* Favorite Journals */}
               {!localStorageValuesFetched.favoriteJournalsCard ? (
-                <PlaceholderCard />
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showFavoriteJournalsCard && (
-                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
+                  <div
+                    className={`w-full mb-2 p-2 ${
+                      cardLayout === "single-column"
+                        ? "md:w-full"
+                        : cardLayout === "two-column"
+                        ? "md:w-1/2"
+                        : "md:w-full lg:w-1/2 xl:w-1/3"
+                    }`}
+                  >
                     <Card className="h-full p-4">
-                      <div className="flex justify-between items-center">
-                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold ">
                           Favorite Journals
                         </h2>
                         <Link
@@ -638,7 +727,7 @@ function UserDashboard() {
                                   : ""
                               }`}
                             >
-                              <StarIcon className="w-4 h-4 text-yellow-400" />
+                              {/* <StarIcon className="w-4 h-4 text-yellow-400" /> */}
                               <Link
                                 href={`/journal/${journal._id}`}
                                 onClick={() => {
@@ -647,13 +736,13 @@ function UserDashboard() {
                                     journal
                                   );
                                 }}
-                                className="flex-grow hover:underline"
+                                className="flex-grow flex flex-col hover:underline"
                               >
-                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-medium text-blue-500">
                                   {journal.title}
                                 </span>
                                 <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 ml-2">
-                                  - {formatDate(journal.date)}
+                                  {formatDate(journal.date)}
                                 </span>
                               </Link>
                             </li>
@@ -671,10 +760,18 @@ function UserDashboard() {
 
               {/* Keyword Frequency Card */}
               {!localStorageValuesFetched.keywordFrequencyCard ? (
-                <PlaceholderCard />
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showKeywordFrequencyCard && (
-                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
+                  <div
+                    className={`w-full mb-2 p-2 ${
+                      cardLayout === "single-column"
+                        ? "md:w-full"
+                        : cardLayout === "two-column"
+                        ? "md:w-1/2"
+                        : "md:w-full lg:w-1/2 xl:w-1/3"
+                    }`}
+                  >
                     <Card className="h-full p-4 min-h-96">
                       <div className="flex justify-between items-center mb-4">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
@@ -694,55 +791,22 @@ function UserDashboard() {
                         <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm">
                           Keyword type
                         </Label.Root>
-                        {/* Dropdown for md and smaller viewports */}
-                        <div className="lg:hidden">
-                          <Select
-                            onValueChange={handleValueChange}
-                            value={selectedKeywordType}
-                          >
-                            <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
-                              <SelectValue placeholder="Select keyword type" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white">
-                              <SelectItem value="nouns">Nouns</SelectItem>
-                              <SelectItem value="verbs">Verbs</SelectItem>
-                              <SelectItem value="adjectives">
-                                Adjectives
-                              </SelectItem>
-                              <SelectItem value="terms">Terms</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        {/* Radio buttons for lg and larger viewports */}
-                        <div className="hidden lg:flex">
-                          {[
-                            { value: "nouns", label: "Nouns" },
-                            { value: "verbs", label: "Verbs" },
-                            { value: "adjectives", label: "Adjectives" },
-                            { value: "terms", label: "Terms" },
-                          ].map(({ value, label }) => (
-                            <div
-                              key={value}
-                              className="flex items-center mr-4 text-xs sm:text-sm md:text-xs lg:text-sm"
-                            >
-                              <input
-                                type="radio"
-                                id={value}
-                                name="keywordType"
-                                value={value}
-                                checked={selectedKeywordType === value}
-                                onChange={() => handleValueChange(value)}
-                                className="mr-2"
-                              />
-                              <Label.Root
-                                htmlFor={value}
-                                className="cursor-pointer"
-                              >
-                                {label}
-                              </Label.Root>
-                            </div>
-                          ))}
-                        </div>
+                        <Select
+                          onValueChange={handleValueChange}
+                          value={selectedKeywordType}
+                        >
+                          <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
+                            <SelectValue placeholder="Select keyword type" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white">
+                            <SelectItem value="nouns">Nouns</SelectItem>
+                            <SelectItem value="verbs">Verbs</SelectItem>
+                            <SelectItem value="adjectives">
+                              Adjectives
+                            </SelectItem>
+                            <SelectItem value="terms">Terms</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       {isLoadingKeywordFrequency ? (
                         <div className="flex justify-center h-full items-center max-h-60 p-6 mt-3">
@@ -772,10 +836,18 @@ function UserDashboard() {
 
               {/* Journal Time Card */}
               {!localStorageValuesFetched.journalTimeCard ? (
-                <PlaceholderCard />
+                <PlaceholderCard cardLayout={cardLayout} />
               ) : (
                 showJournalTimeCard && (
-                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
+                  <div
+                    className={`w-full mb-2 p-2 ${
+                      cardLayout === "single-column"
+                        ? "md:w-full"
+                        : cardLayout === "two-column"
+                        ? "md:w-1/2"
+                        : "md:w-full lg:w-1/2 xl:w-1/3"
+                    }`}
+                  >
                     <Card className="h-full p-4">
                       <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
                         Journal Time Distribution
@@ -828,9 +900,17 @@ function UserDashboard() {
   );
 }
 // Placeholder component
-function PlaceholderCard() {
+function PlaceholderCard({ cardLayout }: { cardLayout: CardLayout }) {
   return (
-    <div className="w-full mb-2 p-2 md:w-full lg:w-1/2 xl:w-1/3">
+    <div
+      className={`w-full mb-2 p-2 ${
+        cardLayout === "single-column"
+          ? "md:w-full"
+          : cardLayout === "two-column"
+          ? "md:w-1/2"
+          : "md:w-full lg:w-1/2 xl:w-1/3"
+      }`}
+    >
       <Card className="h-full p-4">
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">

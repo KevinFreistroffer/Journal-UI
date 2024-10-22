@@ -96,7 +96,7 @@ const Legend: React.FC<LegendProps> = ({
               Toggle Metrics
             </h2> */}
             <div className="flex flex-col space-y-2">
-              <LegendItem
+              {/* <LegendItem
                 id="totalJournalsCard"
                 label="Total Journals"
                 checked={showTotalJournalsCard}
@@ -109,7 +109,7 @@ const Legend: React.FC<LegendProps> = ({
                   );
                 }}
                 checkboxSize={checkboxSize}
-              />
+              /> */}
               <LegendItem
                 id="categoryBreakdownCard"
                 label="Category Breakdown"
