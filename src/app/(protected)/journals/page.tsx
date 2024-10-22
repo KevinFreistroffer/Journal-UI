@@ -67,6 +67,7 @@ import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
 import * as Popover from "@radix-ui/react-popover";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import * as Dialog from "@radix-ui/react-dialog";
+import State from "@/components/ui/debug/State"; // Add this import at the top of the file
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
@@ -114,16 +115,22 @@ export default function JournalsPage() {
     null
   );
 
+  const [categoryFilterDisplayed, setCategoryFilterDisplayed] = useState(false);
+
   const isMobile = useMediaQuery("(max-width: 639px)");
 
   const handleFilterClick = (filterType: "category" | "sort") => {
     if (isMobile) {
       setActiveFilter(filterType);
       setIsModalOpen(true);
+      setCategoryFilterDisplayed(true);
+    } else {
+      setCategoryFilterDisplayed(true);
     }
   };
 
   const handleOptionSelect = (option: string) => {
+    console.log("handleOptionSelect", option);
     if (activeFilter === "category") {
       setCategoryFilter(option);
       setDisplayedCategoryFilter(option === "All" ? "Category" : option);
@@ -131,11 +138,13 @@ export default function JournalsPage() {
       setSortFilter(option);
       setDisplayedSortFilter(option);
     }
-    setIsModalOpen(false);
+    setCategoryFilterDisplayed(false);
   };
 
   const handleCloseModal = () => {
+    console.log("handleCloseModal");
     setIsModalOpen(false);
+    setCategoryFilterDisplayed(false);
   };
 
   const filteredAndSortedEntries = user?.journals
@@ -190,24 +199,30 @@ export default function JournalsPage() {
   ];
 
   useEffect(() => {
-    // Set viewMode based on viewport width
-    const handleResize = () => {
-      if (window.innerWidth <= 640) {
-        setViewMode("list");
-      } else if (window.innerWidth <= 1024) {
-        setViewMode("2-column");
-      } else {
-        setViewMode("columns");
-      }
-    };
-
-    handleResize(); // Check on initial load
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    // // Set viewMode based on viewport width
+    // const handleResize = () => {
+    //   if (window.innerWidth <= 640) {
+    //     setViewMode("list");
+    //   } else if (window.innerWidth <= 1024) {
+    //     setViewMode("2-column");
+    //   } else {
+    //     setViewMode("columns");
+    //   }
+    //   // Check if viewport is "md" or larger
+    //   if (window.innerWidth >= 768) {
+    //     if (categoryFilterDisplayed) {
+    //       // setCategoryFilterDisplayed(false);
+    //     } else {
+    //       setIsModalOpen(true);
+    //     }
+    //   }
+    // };
+    // handleResize(); // Check on initial load
+    // window.addEventListener("resize", handleResize);
+    // return () => {
+    //   window.removeEventListener("resize", handleResize);
+    // };
+  }, [categoryFilterDisplayed]);
 
   useEffect(() => {
     // Check if the user has seen the helper text
@@ -247,7 +262,7 @@ export default function JournalsPage() {
   const sentiment = new Sentiment();
   const analyzeSentiment = (journal: string) => {
     const result = sentiment.analyze(journal);
-    console.log(result);
+
     return result; // result.score will give you a sentiment score
   };
 
@@ -388,7 +403,6 @@ export default function JournalsPage() {
 
   const handleJoyrideCallback = async (data: CallBackProps) => {
     try {
-      console.log("handleJoyrideCallback", data);
       const { status, type } = data;
       const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
@@ -403,7 +417,6 @@ export default function JournalsPage() {
             hasAcknowledgedHelperText: true,
           }),
         });
-        console.log("response", response);
         // localStorageService.setItem("hasAcknowledgedHelperText", true);
         // setHasAcknowledgedHelperText(true);
       }
@@ -411,6 +424,11 @@ export default function JournalsPage() {
       console.error("Error acknowledging helper text:", error);
     } finally {
     }
+  };
+  const [selectIsOpen, setSelectIsOpen] = useState(false);
+  const handleSelectOpenChange = (value: string) => {
+    console.log("onValueChange value", value);
+    setSelectIsOpen(!selectIsOpen);
   };
 
   if (!user) {
@@ -420,6 +438,12 @@ export default function JournalsPage() {
       </div>
     );
   }
+
+  const handleDialogOpenChange = (value: boolean) => {
+    console.log("handleDialogOpenChange", value);
+    setIsModalOpen(value);
+    setCategoryFilterDisplayed(value);
+  };
 
   return (
     <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto">
@@ -466,7 +490,10 @@ export default function JournalsPage() {
                     <span>{displayedSortFilter}</span>
                     <ChevronDownIcon className="ml-2 h-4 w-4" />
                   </Button>
-                  <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+                  <Dialog.Root
+                    open={categoryFilterDisplayed}
+                    onOpenChange={handleDialogOpenChange}
+                  >
                     <Dialog.Portal>
                       <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
                       <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-xl">
@@ -533,7 +560,13 @@ export default function JournalsPage() {
                 <>
                   <Select
                     value={selectedCategory}
-                    onValueChange={setSelectedCategory}
+                    onValueChange={(value) => {
+                      setSelectedCategory(value);
+                      setIsModalOpen(false);
+                      setCategoryFilterDisplayed(false);
+                    }}
+                    open={categoryFilterDisplayed}
+                    onOpenChange={setCategoryFilterDisplayed}
                   >
                     <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
                       <SelectValue
@@ -554,7 +587,13 @@ export default function JournalsPage() {
                     </SelectContent>
                   </Select>
 
-                  <Select value={sortBy} onValueChange={setSortBy}>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value) => {
+                      setSortBy(value);
+                      setIsModalOpen(false);
+                    }}
+                  >
                     <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
                       <SelectValue
                         placeholder="Filter"
@@ -656,7 +695,6 @@ export default function JournalsPage() {
             </div>
           ) : (
             filteredAndSortedEntries?.map((journal, index) => {
-              console.log(getSentimentWord(journal.entry));
               return (
                 <Card
                   key={index}
@@ -690,6 +728,7 @@ export default function JournalsPage() {
                               : journal.title}
                           </Link>
                         </CardTitle>
+
                         <div className="relative p-0 m-0">
                           {index === 0 && (
                             <Joyride
@@ -819,142 +858,8 @@ export default function JournalsPage() {
       </div>
       {/* Global Modal */}
       <GlobalModal />
+      {/* Add this at the end of the component, just before the closing div */}
+      <State state={{ categoryFilterDisplayed }} position="bottom-right" />
     </div>
   );
 }
-//  <Sidebar
-//    isOpen={isSidebarOpen}
-//    sections={[
-//      {
-//        title: "Filters",
-//        content: (
-//          <div className="flex flex-col space-y-2">
-//            <div className="flex items-center">
-//              <Checkbox
-//                id="select-all"
-//                checked={showCheckboxes}
-//                onCheckedChange={handleSelectAll}
-//                className="bg-white border-gray-300 mr-2"
-//                size={4}
-//              />
-//              <label
-//                htmlFor="select-all"
-//                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-//              >
-//                Select All
-//              </label>
-//            </div>
-
-//            <div className="flex items-center">
-//              <Checkbox
-//                id="show-favorites"
-//                checked={showFavoritesOnly}
-//                onCheckedChange={(checked) =>
-//                  setShowFavoritesOnly(checked as boolean)
-//                }
-//                className="bg-white border-gray-300 mr-2"
-//                size={4}
-//              />
-//              <label
-//                htmlFor="show-favorites"
-//                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-//              >
-//                Show Favorites Only
-//              </label>
-//            </div>
-//            <div className="flex flex-col space-y-2">
-//              <label htmlFor="date-filter" className="text-sm font-medium">
-//                Filter by Date
-//              </label>
-//              <input
-//                id="date-filter"
-//                type="date"
-//                value={selectedDate}
-//                onChange={(e) => setSelectedDate(e.target.value)}
-//                className="border rounded p-1 text-sm"
-//              />
-//            </div>
-//          </div>
-//        ),
-//      },
-
-//      {
-//        title: "Settings",
-//        content: (
-//          <div className="flex flex-col space-y-2">
-//            <div className="flex items-center">
-//              <Checkbox
-//                id="show-sentiment"
-//                checked={showSentiment}
-//                onCheckedChange={(checked) =>
-//                  setShowSentiment(checked as boolean)
-//                }
-//                className="bg-white border-gray-300 mr-2"
-//                size={4}
-//              />
-//              <label
-//                htmlFor="show-sentiment"
-//                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-//              >
-//                Show Sentiment
-//              </label>
-//            </div>
-//            <div className="flex flex-col space-y-2">
-//              <div className="flex items-center">
-//                <Checkbox
-//                  id="show-category"
-//                  checked={showCategory} // New state for showing category
-//                  onCheckedChange={
-//                    (checked) => setShowCategory(checked as boolean) // Update state on change
-//                  }
-//                  className="bg-white border-gray-300 mr-2"
-//                  size={4}
-//                />
-//                <label
-//                  htmlFor="show-category"
-//                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-//                >
-//                  Show Category
-//                </label>
-//              </div>
-//              <div className="flex items-center">
-//                <Checkbox
-//                  id="show-updated-date"
-//                  checked={showUpdatedDate} // New state for showing updated date
-//                  onCheckedChange={
-//                    (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
-//                  }
-//                  className="bg-white border-gray-300 mr-2"
-//                  size={4}
-//                />
-//                <label
-//                  htmlFor="show-updated-date"
-//                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-//                >
-//                  Show Updated Date
-//                </label>
-//              </div>
-//            </div>
-//          </div>
-//        ),
-//      },
-//      {
-//        title: "Data", // New Data section
-//        content: (
-//          <div className="flex flex-col space-y-2">
-//            <p className="text-sm font-medium">
-//              Total Journal Entries: {user?.journals.length || 0}
-//            </p>{" "}
-//            {/* Display total journal entries */}
-//            <p className="text-sm font-medium">
-//              Total Favorited Journals:{" "}
-//              {user?.journals.filter((journal) => journal.favorite).length || 0}
-//            </p>{" "}
-//            {/* Display total favorited journals */}
-//          </div>
-//        ),
-//      },
-//    ]}
-//    setIsSidebarOpen={setIsSidebarOpen}
-//    icon={<Settings size={20} />}
-//  />;

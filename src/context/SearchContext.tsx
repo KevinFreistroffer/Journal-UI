@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext } from "react";
 import { IJournal } from "@/lib/interfaces";
-import DebugLayout from "@/components/debug/Layout";
+import DebugLayout from "@/components/ui/debug/Layout";
 export interface ISearchContext {
   query: string;
   filteredEntries: IJournal[];

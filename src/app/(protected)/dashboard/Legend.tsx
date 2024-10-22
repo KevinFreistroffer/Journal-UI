@@ -5,7 +5,7 @@ import { localStorageService } from "@/lib/services/localStorageService";
 import styles from "./styles.module.css";
 import { Checkbox } from "@/components/ui/Checkbox";
 // New LegendItem component
-function LegendItem({
+export function LegendItem({
   id,
   label,
   checked,

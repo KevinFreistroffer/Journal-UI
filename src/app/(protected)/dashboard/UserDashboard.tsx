@@ -18,6 +18,13 @@ import * as Label from "@radix-ui/react-label";
 import { Button } from "@/components/ui/Button";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // import {
 //   Select,
@@ -131,7 +138,6 @@ function UserDashboard() {
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
     setSelectedKeywordType(value as "nouns" | "verbs" | "adjectives" | "terms");
-    setIsSelectOpen(false); // Close the select when an option is selected
   };
 
   // I guess this would set the initial words?
@@ -417,24 +423,19 @@ function UserDashboard() {
             title: "Toggle Cards",
             content: (
               <div className="flex flex-col">
-                <Legend
-                  isMobile={isMobile}
-                  isMobileLegendOpen={isMobileLegendOpen}
-                  setIsMobileLegendOpen={setIsMobileLegendOpen}
-                  showTotalJournalsCard={showTotalJournalsCard}
-                  setShowTotalJournalsCard={setShowTotalJournalsCard}
-                  showCategoryBreakdownCard={showCategoryBreakdownCard}
-                  setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
-                  showRecentEntriesCard={showRecentEntriesCard}
-                  setShowRecentEntriesCard={setShowRecentEntriesCard}
-                  showUpcomingEntriesCard={showUpcomingEntriesCard}
-                  setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
-                  showFavoriteJournalsCard={showFavoriteJournalsCard}
-                  setShowFavoriteJournalsCard={setShowFavoriteJournalsCard}
-                  showKeywordFrequencyCard={showKeywordFrequencyCard}
-                  setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
-                  showJournalTimeCard={showJournalTimeCard}
-                  setShowJournalTimeCard={setShowJournalTimeCard}
+                <div className="relative mb-4 md:mb-0"></div>
+              </div>
+            ),
+          },
+          {
+            title: "Display Settings",
+            content: (
+              <div className="flex flex-col">
+                <LegendItem
+                  id="auto-layout"
+                  label="Auto Layout"
+                  checked={true}
+                  onChange={() => {}}
                   checkboxSize={4}
                 />
               </div>
@@ -465,12 +466,12 @@ function UserDashboard() {
                 showTotalJournalsCard && (
                   <div className="w-full mb-2 p-2">
                     <Card className="h-full p-4 flex w-full items-center justify-between">
-                      <h2 className="text-sm sm:text-xl md:text-2xl font-semibold">
+                      <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
                         Total Number of journals: {totalJournals}
                       </h2>
                       <Link
                         href="/journals"
-                        className="text-sm self-center text-blue-500 font-normal"
+                        className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal"
                       >
                         View
                       </Link>
@@ -490,26 +491,26 @@ function UserDashboard() {
                   >
                     <Card className="h-full p-4 relative">
                       <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
                           Category Breakdown
                         </h2>
                         <Link
                           href="/categories"
-                          className="text-sm self-center text-blue-500 font-normal"
+                          className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal"
                         >
                           Manage
                         </Link>
                       </div>
-                      <div className="w-full h-[calc(100%-4rem)] overflow-hidden">
+                      <div className="w-full  h-[calc(100%-4rem)] overflow-hidden">
                         {isMobileView ? (
-                          <div className="overflow-x-auto overflow-y-scroll h-full">
+                          <div className="overflow-auto ">
                             <table className="w-full border-collapse">
                               <thead>
                                 <tr>
-                                  <th className="text-left sticky top-0 bg-white border-b p-2 text-sm font-medium">
+                                  <th className="text-left sticky top-0 bg-white border-b p-2 text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
                                     Category
                                   </th>
-                                  <th className="text-right sticky top-0 bg-white border-b p-2 pr-4 text-sm font-medium">
+                                  <th className="text-right sticky top-0 bg-white border-b p-2 pr-4 text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
                                     Count
                                   </th>
                                 </tr>
@@ -517,10 +518,10 @@ function UserDashboard() {
                               <tbody>
                                 {data.map((item) => (
                                   <tr key={item.id} className="border-b">
-                                    <td className="text-left p-2">
+                                    <td className="text-left p-2 text-xs sm:text-sm md:text-xs lg:text-sm">
                                       {item.label}
                                     </td>
-                                    <td className="text-right p-2 pr-4">
+                                    <td className="text-right p-2 pr-4 text-xs sm:text-sm md:text-xs lg:text-sm">
                                       {item.value}
                                     </td>
                                   </tr>
@@ -542,16 +543,21 @@ function UserDashboard() {
                 <PlaceholderCard />
               ) : (
                 showRecentEntriesCard && (
-                  <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
+                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
                     <Card className="h-full p-4">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
+                      <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
                         Recent Activity
                       </h2>
                       <ul>
                         {recentEntries.map((journal, index) => (
                           <li key={index} className="border-b py-2">
-                            <span className="font-bold">{journal.title}</span> -{" "}
-                            {formatDate(journal.date)}
+                            <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
+                              {journal.title}
+                            </span>{" "}
+                            -{" "}
+                            <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
+                              {formatDate(journal.date)}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -565,15 +571,15 @@ function UserDashboard() {
                 <PlaceholderCard />
               ) : (
                 showUpcomingEntriesCard && (
-                  <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
+                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
                     <Card className="h-full p-4">
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold w-1/2">
-                          Upcoming Journals/Reminders
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold w-1/2">
+                          Upcoming Journals & Reminders
                         </h2>
                         <Link
                           href="/reminders"
-                          className="text-sm text-blue-500 font-normal"
+                          className="text-xs sm:text-sm md:text-xs lg:text-sm text-blue-500 font-normal"
                         >
                           Manage
                         </Link>
@@ -582,12 +588,19 @@ function UserDashboard() {
                         {upcomingEntries.length > 0 ? (
                           upcomingEntries.map((journal, index) => (
                             <li key={index} className="border-b py-2">
-                              <span className="font-bold">{journal.title}</span>{" "}
-                              - {formatDate(journal.date)}
+                              <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
+                                {journal.title}
+                              </span>{" "}
+                              -{" "}
+                              <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
+                                {formatDate(journal.date)}
+                              </span>
                             </li>
                           ))
                         ) : (
-                          <p>No upcoming journals.</p>
+                          <p className="text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No upcoming journals.
+                          </p>
                         )}
                       </ul>
                     </Card>
@@ -600,15 +613,15 @@ function UserDashboard() {
                 <PlaceholderCard />
               ) : (
                 showFavoriteJournalsCard && (
-                  <div className="w-full mb-2 md:w-1/2 xl:w-1/3 p-2">
+                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
                     <Card className="h-full p-4">
                       <div className="flex justify-between items-center">
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
                           Favorite Journals
                         </h2>
                         <Link
                           href="/journals/favorites"
-                          className="text-sm self-center text-blue-500 font-normal"
+                          className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal"
                         >
                           Manage
                         </Link>
@@ -618,7 +631,12 @@ function UserDashboard() {
                           {favoriteEntries.map((journal, index) => (
                             <li
                               key={index}
-                              className="flex items-center space-x-2 border-b py-2"
+                              className={`flex items-center space-x-2 py-2 ${
+                                favoriteEntries.length > 1 &&
+                                index !== favoriteEntries.length - 1
+                                  ? "border-b"
+                                  : ""
+                              }`}
                             >
                               <StarIcon className="w-4 h-4 text-yellow-400" />
                               <Link
@@ -631,10 +649,10 @@ function UserDashboard() {
                                 }}
                                 className="flex-grow hover:underline"
                               >
-                                <span className="font-medium">
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
                                   {journal.title}
                                 </span>
-                                <span className="text-sm text-gray-500 ml-2">
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 ml-2">
                                   - {formatDate(journal.date)}
                                 </span>
                               </Link>
@@ -642,7 +660,7 @@ function UserDashboard() {
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-center text-gray-500">
+                        <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
                           No favorite journals yet.
                         </p>
                       )}
@@ -656,34 +674,57 @@ function UserDashboard() {
                 <PlaceholderCard />
               ) : (
                 showKeywordFrequencyCard && (
-                  <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3 p-2">
+                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
                     <Card className="h-full p-4 min-h-96">
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
                           Keyword Frequency
                         </h2>
                         <Button
                           onClick={exportToCSV}
                           variant="outline"
                           size="sm"
-                          className="flex items-center"
+                          className="flex items-center text-xs sm:text-sm md:text-xs lg:text-sm"
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Export CSV
                         </Button>
                       </div>
                       <div className="flex flex-col mb-4">
-                        <Label.Root className="LabelRoot mb-2">
+                        <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm">
                           Keyword type
                         </Label.Root>
-                        <div className="flex">
+                        {/* Dropdown for md and smaller viewports */}
+                        <div className="lg:hidden">
+                          <Select
+                            onValueChange={handleValueChange}
+                            value={selectedKeywordType}
+                          >
+                            <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
+                              <SelectValue placeholder="Select keyword type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white">
+                              <SelectItem value="nouns">Nouns</SelectItem>
+                              <SelectItem value="verbs">Verbs</SelectItem>
+                              <SelectItem value="adjectives">
+                                Adjectives
+                              </SelectItem>
+                              <SelectItem value="terms">Terms</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {/* Radio buttons for lg and larger viewports */}
+                        <div className="hidden lg:flex">
                           {[
                             { value: "nouns", label: "Nouns" },
                             { value: "verbs", label: "Verbs" },
                             { value: "adjectives", label: "Adjectives" },
                             { value: "terms", label: "Terms" },
                           ].map(({ value, label }) => (
-                            <div key={value} className="flex items-center mr-4">
+                            <div
+                              key={value}
+                              className="flex items-center mr-4 text-xs sm:text-sm md:text-xs lg:text-sm"
+                            >
                               <input
                                 type="radio"
                                 id={value}
@@ -708,17 +749,21 @@ function UserDashboard() {
                           <Spinner />
                         </div>
                       ) : (
-                        <ul className="max-h-60 overflow-y-auto p-6 mt-3">
-                          {keywordFrequency.map(({ normal, count }, index) => (
-                            <li
-                              key={index}
-                              className="border-b py-2 flex justify-between"
-                            >
-                              <span className="font-bold">{normal}:</span>{" "}
-                              {count}
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
+                          <ul className="max-h-60 overflow-y-auto p-4">
+                            {keywordFrequency.map(
+                              ({ normal, count }, index) => (
+                                <li
+                                  key={index}
+                                  className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
+                                >
+                                  <span className="font-bold">{normal}:</span>{" "}
+                                  {count}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
                       )}
                     </Card>
                   </div>
@@ -730,9 +775,9 @@ function UserDashboard() {
                 <PlaceholderCard />
               ) : (
                 showJournalTimeCard && (
-                  <div className="w-full mb-2 p-2 md:w-1/2 xl:w-1/3">
+                  <div className="w-full mb-2 p-2 lg:w-1/2 xl:w-1/3">
                     <Card className="h-full p-4">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">
+                      <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
                         Journal Time Distribution
                       </h2>
                       <Bar

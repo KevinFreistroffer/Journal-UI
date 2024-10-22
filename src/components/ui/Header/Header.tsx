@@ -35,7 +35,7 @@ import {
   PersonIcon,
 } from "@radix-ui/react-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import DebugLayout from "@/components/debug/Layout";
+import DebugLayout from "@/components/ui/debug/Layout";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Image from "next/image"; // Add this import at the top of the file
 import { Button } from "@/components/ui/Button"; // Add this import if not already present

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from "./Layout.module.css";
+import styles from "./debug.module.css";
 
 interface IProps {
   position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
