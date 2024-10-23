@@ -200,8 +200,8 @@ const Legend: React.FC<LegendProps> = ({
     <>
       {/* <h2 className="text-xl font-semibold mb-2">Toggle Cards</h2> */}
       <div className="flex flex-wrap">
-        <div className="mr-4 mb-2 w-full">
-          <label
+        {/* <div className="mr-4 mb-2 w-full"> */}
+        {/* <label
             htmlFor="totalJournalsCard"
             className="flex items-center text-sm"
           >
@@ -218,7 +218,7 @@ const Legend: React.FC<LegendProps> = ({
             />
             Total Journals
           </label>
-        </div>
+        </div> */}
         <div className="mr-4 mb-2 w-full">
           <label
             htmlFor="categoryBreakdownCard"

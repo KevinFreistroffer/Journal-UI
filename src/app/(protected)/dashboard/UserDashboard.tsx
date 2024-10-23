@@ -456,7 +456,7 @@ function UserDashboard() {
                 {
                   title: "Display Settings",
                   content: (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col space-y-2">
                       <LegendItem
                         id="auto-layout"
                         label="Auto Layout"
@@ -741,7 +741,7 @@ function UserDashboard() {
                                 <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-medium text-blue-500">
                                   {journal.title}
                                 </span>
-                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 ml-2">
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500">
                                   {formatDate(journal.date)}
                                 </span>
                               </Link>

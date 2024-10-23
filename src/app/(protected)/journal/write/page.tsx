@@ -11,6 +11,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  ScrollUpButton,
+  ScrollDownButton,
 } from "@/components/ui/select";
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -43,6 +45,7 @@ import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";
+import styles from "./styles.module.css";
 
 // import { SummarizerManager } from "node-summarizer";
 import {
@@ -52,6 +55,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
+import SummaryDialog from "@/components/SummaryDialog";
+import { generateLoremIpsum } from "@/lib/utils"; // Add this import
+import ScrollAreaComponent from "@/components/ui/ScrollArea/ScrollArea"; // Add this import
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -99,6 +105,12 @@ function WritePage() {
     createJournalInitialState
   );
   const [showWordStats, setShowWordStats] = useState(false);
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null); // New error state
+  const [showTitle, setShowTitle] = useState(false);
+  const [showCategory, setShowCategory] = useState(false);
+  const [isCategoryScrollAreaVisible, setIsCategoryScrollAreaVisible] =
+    useState(false); // Updated state for scroll area visibility
 
   // const { openModal } = useContext(ModalContext);
 
@@ -263,12 +275,14 @@ function WritePage() {
 
   // Updated summarizeJournal function
   const summarizeJournal = async () => {
+    console.log("summarizing journal", journal);
     if (!journal.trim()) {
       alert("Please write a journal first.");
       return;
     }
 
     setIsSummarizing(true);
+    setSummaryError(null); // Reset error state before attempting to summarize
     try {
       const response = await fetch("/api/user/entry/summarize", {
         method: "POST",
@@ -283,20 +297,39 @@ function WritePage() {
       }
 
       const data: { summary: string[] } = await response.json();
-      console.log("setting summary", data.summary, data.summary.length);
       setSummary(data.summary);
+      setIsSummaryModalOpen(true);
     } catch (error) {
       console.error("Error generating summary:", error);
-      setSummary(["An error occurred while generating the summary."]);
+      setSummaryError("An error occurred while generating the summary.");
+      // Don't open the modal if there's an error
     } finally {
       setIsSummarizing(false);
     }
   };
 
-  const handleTweet = () => {
-    const tweetText = encodeURIComponent(summary.join(" "));
-    const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
-    window.open(tweetUrl, "_blank");
+  const handleTweet = async () => {
+    try {
+      const response = await fetch("/api/user/x/tweet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: summary.join(" ") }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send tweet");
+      }
+
+      const data = await response.json();
+
+      console.log("Tweet sent successfully:", data);
+      // You can add some UI feedback here, like a success message
+    } catch (error) {
+      console.error("Error sending tweet:", error);
+      // You can add some UI feedback here, like an error message
+    }
   };
 
   const generateTweetThread = () => {
@@ -322,6 +355,29 @@ function WritePage() {
     }
 
     return chunks;
+  };
+
+  const handleJournalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setJournal(e.target.value);
+  };
+
+  const handleJournalPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    console.log("pasting text");
+    const pastedText = e.clipboardData.getData("text");
+    console.log("pasted text", pastedText);
+    setJournal((prevJournal) => {
+      console.log("prevJournal", prevJournal);
+      return prevJournal + pastedText;
+    });
+  };
+
+  useEffect(() => {
+    console.log("journal", journal);
+  }, [journal]);
+
+  const generateSampleText = () => {
+    const sampleText = generateLoremIpsum(3); // Generate 3 paragraphs
+    setJournal(sampleText);
   };
 
   // Check if the user is verified
@@ -405,131 +461,139 @@ function WritePage() {
         {/* Journal writing section */}
         <div className="flex-1 flex justify-center">
           <div className="w-full md:w-3/4">
-            <h2 className="text-2xl font-semibold mb-4">Your Thoughts</h2>
+            <h2 className="text-2xl font-semibold mb-4">Write anything</h2>
             <form action={createJournalAction} className="space-y-4">
-              <div>
-                {/* <Label htmlFor="journal">Journal</Label> */}
-                <Textarea
-                  id="journal"
-                  name="journal"
-                  value={journal}
-                  onChange={(e) => setJournal(e.target.value)}
-                  required
-                  cols={50}
-                />
-              </div>
+              {/* Title Input Above Textarea */}
               <div className="flex flex-col">
-                <Label htmlFor="title" className="mb-1">
-                  Title{" "}
-                  <span className="text-gray-400 text-sm font-normal">
-                    (optional)
-                  </span>
-                </Label>
                 <Input
+                  type="text"
                   id="title"
                   name="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter a title"
+                  placeholder="Title (optional)"
                 />
               </div>
-              <div className="space-y-4 flex flex-col">
-                <div className="flex flex-col">
-                  <Label htmlFor="category" className="mb-1">
-                    Categorize{" "}
-                    <span className="text-gray-400 text-sm font-normal">
-                      (optional)
-                    </span>
-                  </Label>
-                  <div className="flex flex-col">
-                    <div className="flex items-center space-x-2">
-                      <Select
-                        onValueChange={setSelectedCategory}
-                        value={selectedCategory}
-                        name="category"
-                      >
-                        <SelectTrigger className="w-[200px] h-[20px] border-solid border-gray-300">
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          {categories.length > 0 ? (
-                            categories.map((cat, index) => (
-                              <SelectItem key={index} value={cat.category}>
-                                {cat.category}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="disabled" disabled>
-                              No categories available
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => setIsAddingCategory(!isAddingCategory)}
-                        className="text-xs"
-                      >
-                        {isAddingCategory ? (
-                          <>
-                            <X size={20} className="mr-2" />
-                            Cancel
-                          </>
-                        ) : (
-                          <>
-                            New <PlusIcon className="mr-2" size={16} />
-                          </>
-                        )}
-                      </Button>
-                    </div>
+              <div className="flex flex-col mb-4">
+                {/* <Label htmlFor="journal" className="mb-1">
+                  Journal Entry
+                </Label> */}
+                <Textarea
+                  id="journal"
+                  name="journal"
+                  value={journal}
+                  onChange={handleJournalChange}
+                  onPaste={handleJournalPaste}
+                  placeholder="Write your journal entry here..."
+                  className="h-64 mb-6"
+                />
 
-                    {isAddingCategory && (
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Input
-                          value={newCategoryName}
-                          onChange={(e) => {
-                            const newName = e.target.value;
-                            setNewCategoryName(newName);
-                            setShowCreatedCategorySuccessIcon(false);
-                            const exists = categories.some(
-                              ({ category }) =>
-                                category.toLowerCase() === newName.toLowerCase()
-                            );
-                            setCategoryExists(exists);
-                            setCategoryCreatedErrorMessage(
-                              exists ? "Category already exists." : ""
-                            );
-                          }}
-                          placeholder="New category"
-                          className="flex-grow"
+                <div className="mt-4 fixed top-20 right-10">
+                  <Button
+                    type="button"
+                    onClick={generateSampleText}
+                    className="bg-gray-500 "
+                  >
+                    Generate
+                  </Button>
+                </div>
+
+                <div className="space-y-4 flex flex-col">
+                  <div className="flex flex-col">
+                    <Label
+                      // htmlFor="category"
+                      className="mb-1 cursor-pointer" // Make label clickable
+                      onClick={() =>
+                        setIsCategoryScrollAreaVisible(
+                          !isCategoryScrollAreaVisible
+                        )
+                      } // Toggle visibility on click
+                    >
+                      Categorize it?{" "}
+                      <span className="text-gray-400 text-sm font-normal">
+                        (optional)
+                      </span>
+                    </Label>
+
+                    {isCategoryScrollAreaVisible && ( // Conditionally render the ScrollAreaComponent
+                      <div>
+                        {" "}
+                        {/* Attach ref to the scroll area container */}
+                        <ScrollAreaComponent
+                          rootClassName="absolute top-0 right-0"
+                          content={categories.map((category) => ({
+                            id: category._id,
+                            label: category.category,
+                            value: category.category,
+                          }))} // Pass categories as a prop
+                          onSelect={(item) => {
+                            setSelectedCategory(item.value as string);
+                            setIsCategoryScrollAreaVisible(false);
+                          }} // Pass the setSelectedCategory function as onSelect prop
                         />
-                        <Button
-                          type="button"
-                          disabled={
-                            isCreatingCategoryLoading ||
-                            categoryExists ||
-                            newCategoryName.trim() === ""
-                          }
-                          onClick={handleCreateCategory}
-                        >
-                          {isCreatingCategoryLoading ? <Spinner /> : "Add"}
-                        </Button>
-                      </div>
-                    )}
-                    {showCreatedCategorySuccessIcon && (
-                      <div className="flex items-center mt-2">
-                        <Check size={20} className="text-green-500 mr-2" />
-                        <span className="text-green-500">
-                          Category added successfully!
-                        </span>
                       </div>
                     )}
                   </div>
-                  {categoryCreatedErrorMessage && (
-                    <p className="text-red-500 mt-1">
-                      {categoryCreatedErrorMessage}
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsAddingCategory(!isAddingCategory)}
+                      className="text-xs"
+                    >
+                      {isAddingCategory ? (
+                        <>
+                          <X size={20} className="mr-2" />
+                          Cancel
+                        </>
+                      ) : (
+                        <>
+                          New <PlusIcon className="mr-2" size={16} />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {isAddingCategory && (
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        value={newCategoryName}
+                        onChange={(e) => {
+                          const newName = e.target.value;
+                          setNewCategoryName(newName);
+                          setShowCreatedCategorySuccessIcon(false);
+                          const exists = categories.some(
+                            ({ category }) =>
+                              category.toLowerCase() === newName.toLowerCase()
+                          );
+                          setCategoryExists(exists);
+                          setCategoryCreatedErrorMessage(
+                            exists ? "Category already exists." : ""
+                          );
+                        }}
+                        placeholder="New category"
+                        className="flex-grow"
+                      />
+                      <Button
+                        type="button"
+                        disabled={
+                          isCreatingCategoryLoading ||
+                          categoryExists ||
+                          newCategoryName.trim() === ""
+                        }
+                        onClick={handleCreateCategory}
+                      >
+                        {isCreatingCategoryLoading ? <Spinner /> : "Add"}
+                      </Button>
+                    </div>
+                  )}
+                  {showCreatedCategorySuccessIcon && (
+                    <div className="flex items-center mt-2">
+                      <Check size={20} className="text-green-500 mr-2" />
+                      <span className="text-green-500">
+                        Category added successfully!
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="flex items-center">
@@ -573,178 +637,91 @@ function WritePage() {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-start">
-                <Button
-                  type="submit"
-                  disabled={isSaving || !title || !journal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
-                >
-                  {isSaving ? "Saving..." : "Save Journal"}
-                </Button>
-              </div>
-              <div className="flex items-center mt-2">
-                <Button
-                  type="button"
-                  onClick={summarizeJournal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm mr-2"
-                  disabled={isSummarizing || !journal}
-                >
-                  {isSummarizing ? "Summarizing..." : "Summarize Journal"}
-                </Button>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="w-5 h-5 text-gray-500 cursor-help border-solid border-black" />
-                    </TooltipTrigger>
-                    <TooltipContent className="border-solid border-black">
-                      <p className="text-sm leading-relaxed">
-                        Summarize your journal entry into fewer sentences.
-                      </p>
-                      <p className="text-xs leading-relaxed">
-                        You can also tweet the summary directly!
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              {showJournalSuccessIcon && (
-                <div className="flex items-center mt-2">
-                  <CheckCircle className="text-green-500 mr-2" />
-                  <p className="text-green-500">Entry created successfully!</p>
+                <div className="flex items-center justify-start">
+                  <Button
+                    type="submit"
+                    disabled={isSaving || !journal}
+                    className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
+                  >
+                    {isSaving ? "Saving..." : "Save Journal"}
+                  </Button>
                 </div>
-              )}
-              {/* Word Stats section for small screens */}
-              <div className="md:hidden mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowWordStats(!showWordStats)}
-                  className="flex items-center justify-between w-full p-2 bg-gray-200 rounded-md"
-                >
-                  <span className="font-medium">Word Stats</span>
-                  {showWordStats ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </button>
-                {showWordStats && (
-                  <div className="mt-2 p-4 bg-gray-100 rounded-md">
-                    <p>
-                      <span className="font-medium">Total Words:</span>{" "}
-                      {totalWords}
-                    </p>
-                    <p>
-                      <span className="font-medium">
-                        Average Words Across All Journals:
-                      </span>{" "}
-                      {averageWords}
+                <div className="flex items-center mt-2">
+                  <Button
+                    type="button"
+                    onClick={summarizeJournal}
+                    className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm mr-2"
+                    disabled={isSummarizing || !journal}
+                  >
+                    {isSummarizing ? "Summarizing..." : "Generate Summary"}
+                  </Button>
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="w-5 h-5 text-gray-500 cursor-help border-solid border-black" />
+                      </TooltipTrigger>
+                      <TooltipContent className="border-solid border-black">
+                        <p className="text-sm leading-relaxed">
+                          Summarize your journal entry into fewer sentences.
+                        </p>
+                        <p className="text-xs leading-relaxed">
+                          You can also tweet the summary directly!
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                {showJournalSuccessIcon && (
+                  <div className="flex items-center mt-2">
+                    <CheckCircle className="text-green-500 mr-2" />
+                    <p className="text-green-500">
+                      Entry created successfully!
                     </p>
                   </div>
                 )}
+                {/* Word Stats section for small screens */}
+                <div className="md:hidden mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowWordStats(!showWordStats)}
+                    className="flex items-center justify-between w-full p-2 bg-gray-200 rounded-md"
+                  >
+                    <span className="font-medium">Word Stats</span>
+                    {showWordStats ? (
+                      <ChevronUp size={20} />
+                    ) : (
+                      <ChevronDown size={20} />
+                    )}
+                  </button>
+                  {showWordStats && (
+                    <div className="mt-2 p-4 bg-gray-100 rounded-md">
+                      <p>
+                        <span className="font-medium">Total Words:</span>{" "}
+                        {totalWords}
+                      </p>
+                      <p>
+                        <span className="font-medium">
+                          Average Words Across All Journals:
+                        </span>{" "}
+                        {averageWords}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </form>
           </div>
         </div>
-
-        {/* Summary section */}
-        {summary && summary.length > 0 && (
-          <div className="w-1/2 pl-6 flex flex-col">
-            <div className="flex justify-between items-center mb-0">
-              <Button
-                type="button"
-                onClick={() => setShowMetrics(!showMetrics)}
-                variant="ghost"
-                className="text-xs pb-0 mb-0"
-              >
-                {showMetrics ? "Hide" : "Show"}
-              </Button>
-            </div>
-            {showMetrics && (
-              <div className="flex-grow flex space-x-4 w-full">
-                {/* Generated Summary column */}
-                <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col relative">
-                  <Button
-                    type="button"
-                    onClick={() => setShowMetrics(false)}
-                    className="absolute top-2 right-2 p-0 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
-                  >
-                    <X size={16} />
-                  </Button>
-                  <div className="mt-4 flex-grow">
-                    <strong>Generated Summary:</strong>
-                    <div className="mt-2 p-2 bg-white rounded relative min-h-[100px] flex flex-col justify-between">
-                      <Button
-                        type="button"
-                        onClick={() => clipboard.copy(summary.join(" "))}
-                        className="absolute cursor-pointer top-2 right-2 p-0 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
-                        title="Copy Summary"
-                      >
-                        <Clipboard size={20} className="text-black" />
-                      </Button>
-                      <p className="text-sm mb-2 pr-8">{summary.join(" ")}</p>
-                      <div className="flex justify-end mt-auto">
-                        <p className="text-xs text-gray-600">
-                          Total characters: {summary.join(" ").length}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2 w-full">
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          if (summary.join(" ").length <= 280) {
-                            handleTweet();
-                          } else {
-                            setShowTweetThread(!showTweetThread);
-                          }
-                        }}
-                        className="bg-blue-400 hover:bg-blue-500 text-white w-full py-2 px-0 cursor-pointer"
-                      >
-                        <Twitter size={16} className="mr-2" />
-                        Tweet
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                {/* Tweet Thread column (if shown) */}
-                {showTweetThread && (
-                  <div className="bg-gray-100 p-4 rounded-md shadow-md flex-1 flex flex-col relative">
-                    <Button
-                      type="button"
-                      onClick={() => setShowTweetThread(false)}
-                      className="absolute top-2 right-2 p-0 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center"
-                    >
-                      <X size={16} />
-                    </Button>
-                    <div className="flex-grow">
-                      <strong>Tweet Thread Preview:</strong>
-                      <div className="mt-2 space-y-2">
-                        {generateTweetThread().map((chunk, index) => (
-                          <div key={index} className="p-2 bg-white rounded">
-                            <p className="text-sm">
-                              {index + 1}/{generateTweetThread().length}:{" "}
-                              {chunk}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                      <Button
-                        type="button"
-                        onClick={handleTweet}
-                        className="mt-4 bg-blue-400 hover:bg-blue-500 text-white"
-                      >
-                        <Twitter size={16} className="mr-2" />
-                        Tweet
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Summary Dialog */}
+      <SummaryDialog
+        isOpen={isSummaryModalOpen}
+        onOpenChange={setIsSummaryModalOpen}
+        summary={summary}
+        onTweet={handleTweet}
+        error={summaryError} // Pass the error to the dialog
+      />
     </div>
   );
 }

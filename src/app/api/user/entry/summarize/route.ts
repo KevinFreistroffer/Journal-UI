@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SummarizerManager } from "node-summarizer";
+import { countSentences } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   const { text } = await req.json();
@@ -9,7 +10,19 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const Summarizer = new SummarizerManager(text, 5); // 5 sentences summary
+    const sentenceCount = countSentences(text);
+    console.log("sentenceCount", sentenceCount);
+    /**
+     * For short texts (e.g., less than 10 sentences), you might summarize it in 1-2 sentences.
+For medium-length texts (e.g., 10-50 sentences), summarize it in 3-5 sentences.
+For longer texts (e.g., 50+ sentences), summarize in 5-10 sentences.
+Formula:
+     */
+
+    const Summarizer = new SummarizerManager(
+      text,
+      Math.ceil(sentenceCount / 5)
+    ); // 5 sentences summary
     const summary = await Summarizer.getSummaryByFrequency().summary;
     if (
       summary ===

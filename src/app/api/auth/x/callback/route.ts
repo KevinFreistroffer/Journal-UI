@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
 
 export async function GET(request: NextRequest) {
   console.log(
@@ -18,24 +17,37 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (
+      !process.env.X_CLIENT_ID ||
+      !process.env.X_CLIENT_SECRET ||
+      !process.env.X_REDIRECT_URI
+    ) {
+      throw new Error(
+        "X_CLIENT_ID, X_CLIENT_SECRET and X_REDIRECT_URI are not set"
+      );
+    }
     // TODO: use fetch instead
-    const tokenResponse = await axios.post(
+    const tokenResponse = await fetch(
       "https://api.twitter.com/2/oauth2/token",
-      null,
       {
-        params: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.X_CLIENT_ID}:${process.env.X_CLIENT_SECRET}`
+          ).toString("base64")}`,
+        },
+        body: new URLSearchParams({
           code,
           grant_type: "authorization_code",
           client_id: process.env.X_CLIENT_ID,
           redirect_uri: process.env.X_REDIRECT_URI,
           code_verifier: codeVerifier,
-        },
-        auth: {
-          username: process.env.X_CLIENT_ID!,
-          password: process.env.X_CLIENT_SECRET!,
-        },
+        }),
       }
     );
+
+    const data = await tokenResponse.json();
 
     if (tokenResponse.status !== 200) {
       return NextResponse.json(
@@ -44,15 +56,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const data = tokenResponse.data as {
-      token_type: string;
-      expires_in: number;
-      access_token: string;
-      scope: string;
-      refresh_token: string;
-    };
+    const { token_type, expires_in, access_token, scope, refresh_token } = data;
 
-    const { access_token, refresh_token } = data;
     console.log("access_token", access_token);
     console.log("refresh_token", refresh_token);
     // In a real app, you'd store these tokens securely (e.g., in a database)
