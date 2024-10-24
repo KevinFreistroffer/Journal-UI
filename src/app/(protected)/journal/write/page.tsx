@@ -461,7 +461,41 @@ function WritePage() {
         {/* Journal writing section */}
         <div className="flex-1 flex justify-center">
           <div className="w-full md:w-3/4">
-            <h2 className="text-2xl font-semibold mb-4">Write anything</h2>
+            <div className="flex justify-between items-center">
+              {" "}
+              {/* Flex container for alignment */}
+              <h1 className="text-xl">Write anything</h1> {/* Title */}
+              <div className="flex flex-col items-end">
+                {" "}
+                {/* Container for label and scroll component */}
+                <Label
+                  htmlFor="category"
+                  className="mb-1 cursor-pointer" // Make label clickable
+                  onClick={() =>
+                    setIsCategoryScrollAreaVisible(!isCategoryScrollAreaVisible)
+                  } // Toggle visibility on click
+                >
+                  Categorize it?{" "}
+                  <span className="text-gray-400 text-sm font-normal">
+                    (optional)
+                  </span>
+                </Label>
+                {isCategoryScrollAreaVisible && ( // Conditionally render the new scroll component
+                  <ScrollAreaComponent // Replace with your new scroll component
+                    rootClassName="absolute top-0 right-0"
+                    content={categories.map((category) => ({
+                      id: category._id,
+                      label: category.category,
+                      value: category.category,
+                    }))} // Pass categories as a prop
+                    onSelect={(item) => {
+                      setSelectedCategory(item.value as string);
+                      setIsCategoryScrollAreaVisible(false);
+                    }} // Pass the setSelectedCategory function as onSelect prop
+                  />
+                )}
+              </div>
+            </div>
             <form action={createJournalAction} className="space-y-4">
               {/* Title Input Above Textarea */}
               <div className="flex flex-col">

@@ -29,9 +29,11 @@ const ScrollAreaComponent: React.FC<{
         minHeight: "150px",
         height: "10px",
       }}
-      className={`${styles.ScrollAreaRoot} ${rootClassName}`}
+      className={`${styles.ScrollAreaRoot} ${rootClassName || ""} fasfsad`}
     >
-      <ScrollArea.Viewport className={styles.ScrollAreaViewport}>
+      <ScrollArea.Viewport
+        className={`${styles.ScrollAreaViewport} fsdafdsafsdafsdafadsfsadfsa z-25`}
+      >
         <div>
           {/* Render the passed content */}
           {content.length ? (
