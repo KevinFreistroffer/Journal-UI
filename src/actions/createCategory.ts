@@ -16,9 +16,6 @@ export const createCategory: CreateCategoryFunction = async (
   prevState: ICreateCategoryState,
   formData: FormData
 ) => {
-  console.log("createCategory() userId", userId);
-  console.log("createCategory() prevState", prevState);
-  console.log("createCategory() formData", formData);
   // Validate form data
   const validatedFields = CategorySchema.safeParse({
     category: formData.get("category"),
@@ -57,17 +54,12 @@ export const createCategory: CreateCategoryFunction = async (
       }
     );
 
-    console.log("createCategory() response", response);
-
     const data = await response.json();
     const userDataResult = UserSchema.safeParse(data);
 
-    console.log("createCategory() userDataResult", userDataResult);
-    console.log("createCategory() response.ok", response.ok);
-
     if (!response.ok || !userDataResult.success) {
       const errorData = await response.json();
-      console.log("createCategory() errorData", errorData);
+
       return {
         errors: {
           catchAll: ["Failed to create category. "],
@@ -79,7 +71,6 @@ export const createCategory: CreateCategoryFunction = async (
     }
 
     const userData = userDataResult.data as unknown as IUser;
-    console.log("createCategory() userData", userData);
 
     return {
       errors: {},

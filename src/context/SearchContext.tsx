@@ -30,7 +30,6 @@ export function SearchProvider({
   const [filteredEntries, setFilteredEntries] = useState<IJournal[]>([]);
 
   const handleSearch = (searchQuery: string, journals: IJournal[]) => {
-    console.log("searchQuery", searchQuery);
     setQuery(searchQuery);
     if (searchQuery.trim()) {
       const result = journals.filter(
@@ -38,7 +37,7 @@ export function SearchProvider({
           journal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           journal.entry.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      console.log("result", result);
+
       setFilteredEntries(result);
     } else {
       setFilteredEntries(journals); // Reset if search is cleared

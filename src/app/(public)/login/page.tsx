@@ -79,7 +79,6 @@ export default function LoginPage() {
     }
 
     if (state.redirect) {
-      console.log("redirect", state.redirect);
       return router.push(state.redirect as string);
     }
   }, [state, router, setUser, setIsLoading, isLoading, showVerificationModal]);

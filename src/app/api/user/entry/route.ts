@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  console.log("GETz /api/user/entry, req:", req.url);
+
   const id = searchParams.get("id");
-  console.log("GETz /api/user/entry, params:", id);
+
   try {
     if (!process.env.API_URL) {
       return NextResponse.json(

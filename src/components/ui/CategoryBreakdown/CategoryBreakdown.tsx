@@ -143,7 +143,6 @@ const data: {
 ];
 
 const CategoryBreakdown = ({ data }: { data: ICategoryBreakdown[] }) => {
-  console.log("Cat")
   return (
     <ResponsivePie
       data={data}

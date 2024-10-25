@@ -22,7 +22,6 @@ export const createJournal: CreateJournalFunction = async (
   prevState: ICreateJournalState,
   formData: FormData
 ) => {
-  console.log("createJournal action", formData);
   // Validate form data
   const validatedFields = CreateJournalSchema.safeParse({
     title: formData.get("title"),
@@ -32,10 +31,9 @@ export const createJournal: CreateJournalFunction = async (
       ? formData.get("favorite") === "true"
       : false,
   });
-  console.log("validatedFields", validatedFields);
+
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
-    console.log("validatedFields", validatedFields.error.flatten().fieldErrors);
     return {
       redirect: null,
       user: null,

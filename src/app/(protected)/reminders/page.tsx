@@ -56,15 +56,12 @@ const RemindersPage = () => {
     occurrences: 1,
   });
 
-  useEffect(() => {
-    console.log("newReminder", newReminder);
-  }, [newReminder]);
+  useEffect(() => {}, [newReminder]);
 
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
 
   const handleDelete = (id: number) => {
     // In a real application, you would delete the reminder here
-    console.log(`Deleting reminder with id: ${id}`);
   };
 
   const handleAddReminder = async (e: React.FormEvent) => {

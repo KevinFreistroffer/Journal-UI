@@ -58,8 +58,6 @@ export async function GET(request: NextRequest) {
 
     const { token_type, expires_in, access_token, scope, refresh_token } = data;
 
-    console.log("access_token", access_token);
-    console.log("refresh_token", refresh_token);
     // In a real app, you'd store these tokens securely (e.g., in a database)
     // For this example, we'll just set them as cookies
     const response = NextResponse.redirect(
@@ -75,8 +73,6 @@ export async function GET(request: NextRequest) {
       secure: true,
       sameSite: "lax",
     });
-
-    console.log("SUCCESSFULLY AUTHENTICATED");
 
     return response;
   } catch (error) {

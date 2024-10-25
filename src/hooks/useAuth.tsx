@@ -26,12 +26,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function checkSession() {
-      console.log("useAuth() Checking session");
       try {
-        console.log("useAuth() Checking session");
         setIsLoading(true);
         const sessionUser = await getUser();
-        console.log("useAuth() sessionUser", sessionUser);
 
         if (!sessionUser) {
           setUser(null);
@@ -43,7 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Error verifying session:", error);
         setUser(null);
       } finally {
-        console.log("FINALLY useAuth() Setting isLoading to false");
         setIsLoading(false);
       }
     }

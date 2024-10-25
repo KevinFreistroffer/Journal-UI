@@ -130,7 +130,6 @@ export default function JournalsPage() {
   };
 
   const handleOptionSelect = (option: string) => {
-    console.log("handleOptionSelect", option);
     if (activeFilter === "category") {
       setCategoryFilter(option);
       setDisplayedCategoryFilter(option === "All" ? "Category" : option);
@@ -142,7 +141,6 @@ export default function JournalsPage() {
   };
 
   const handleCloseModal = () => {
-    console.log("handleCloseModal");
     setIsModalOpen(false);
     setCategoryFilterDisplayed(false);
   };
@@ -375,7 +373,7 @@ export default function JournalsPage() {
 
   // newEntries.forEach((journal) => {
   //   const sentimentResult = analyzeSentiment(journal);
-  //   console.log(sentimentResult);
+  //
   //   // const color = getSentimentColor(sentimentResult.score);
   //   // console.log(
   //   //   `Journal: "${journal}" | Score: ${sentimentResult.score} | Color: ${color}`
@@ -427,7 +425,6 @@ export default function JournalsPage() {
   };
   const [selectIsOpen, setSelectIsOpen] = useState(false);
   const handleSelectOpenChange = (value: string) => {
-    console.log("onValueChange value", value);
     setSelectIsOpen(!selectIsOpen);
   };
 
@@ -440,7 +437,6 @@ export default function JournalsPage() {
   }
 
   const handleDialogOpenChange = (value: boolean) => {
-    console.log("handleDialogOpenChange", value);
     setIsModalOpen(value);
     setCategoryFilterDisplayed(value);
   };

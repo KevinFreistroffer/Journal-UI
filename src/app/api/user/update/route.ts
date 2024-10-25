@@ -12,10 +12,9 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-    console.log("API /user/update POST");
+
     // Parse the request body
     const { userId, hasAcknowledgedHelperText, avatar } = await request.json();
-    console.log("userId", userId);
 
     // Validate the input
     if (
@@ -55,7 +54,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify(updateData),
     });
-    console.log("Response:", response);
+
     if (!response.ok) {
       throw new Error("Failed to update user");
     }

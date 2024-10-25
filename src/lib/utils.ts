@@ -20,7 +20,6 @@ export const getFrequentKeywords = (
   returnTopMost: number = 15,
   type: "nouns" | "verbs" | "adjectives" | "terms" = "nouns"
 ): IKeywordFrequency[] => {
-  console.log("getFrequentKeywords", type);
   let res;
   if (type === "nouns") {
     res = nlp(journalsText).nouns();
@@ -32,7 +31,6 @@ export const getFrequentKeywords = (
     res = nlp(journalsText).terms();
   }
 
-  console.log("res", res);
   if (!res) {
     return [];
   }
@@ -142,5 +140,5 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 
 Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit.`;
 
-  return loremIpsum.split('\n\n').slice(0, paragraphs).join('\n\n');
+  return loremIpsum.split("\n\n").slice(0, paragraphs).join("\n\n");
 }

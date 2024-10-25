@@ -23,9 +23,7 @@ export function MobileMenu({ menuItems }: MobileMenuProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    console.log("isOpen", isOpen);
-  }, [isOpen]);
+  useEffect(() => {}, [isOpen]);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

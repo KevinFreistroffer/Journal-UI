@@ -34,9 +34,7 @@ const AvatarUpload = ({
     }
   };
 
-  useEffect(() => {
-    console.log("Avatar:", avatar);
-  }, [avatar]);
+  useEffect(() => {}, [avatar]);
 
   return (
     <div className="flex flex-col items-center">

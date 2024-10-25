@@ -16,7 +16,6 @@ const ScrollAreaComponent: React.FC<{
   onSelect: (item: DataItem) => void;
   rootClassName?: string;
 }> = ({ content, onSelect, rootClassName }) => {
-  console.log(content);
   const handleSelect = (item: DataItem) => {
     onSelect(item); // Call the onSelect function with the selected item
   };

@@ -275,7 +275,6 @@ function WritePage() {
 
   // Updated summarizeJournal function
   const summarizeJournal = async () => {
-    console.log("summarizing journal", journal);
     if (!journal.trim()) {
       alert("Please write a journal first.");
       return;
@@ -324,7 +323,6 @@ function WritePage() {
 
       const data = await response.json();
 
-      console.log("Tweet sent successfully:", data);
       // You can add some UI feedback here, like a success message
     } catch (error) {
       console.error("Error sending tweet:", error);
@@ -362,18 +360,14 @@ function WritePage() {
   };
 
   const handleJournalPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    console.log("pasting text");
     const pastedText = e.clipboardData.getData("text");
-    console.log("pasted text", pastedText);
+
     setJournal((prevJournal) => {
-      console.log("prevJournal", prevJournal);
       return prevJournal + pastedText;
     });
   };
 
-  useEffect(() => {
-    console.log("journal", journal);
-  }, [journal]);
+  useEffect(() => {}, [journal]);
 
   const generateSampleText = () => {
     const sampleText = generateLoremIpsum(3); // Generate 3 paragraphs

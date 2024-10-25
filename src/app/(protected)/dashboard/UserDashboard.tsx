@@ -126,8 +126,6 @@ function UserDashboard() {
   const [cardLayout, setCardLayout] = useState<CardLayout>("auto-layout");
   const isLgOrLarger = useMediaQuery("(min-width: 1024px)");
 
-  console.log(categoryData, isSelectOpen);
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
@@ -158,19 +156,15 @@ function UserDashboard() {
         15,
         selectedKeywordType
       );
-      console.log("frequencyData", frequencyData);
+
       // setKeywordFrequency(frequencyData);
       setIsLoadingKeywordFrequency(false); // End loading
     }
   }, [journals, user, selectedKeywordType]);
 
   useEffect(() => {
-    console.log("selectedKeywordType", selectedKeywordType);
-
     const allEntriesText =
       journals?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
-
-    console.log("allEntriesText", allEntriesText);
 
     if (selectedKeywordType === "nouns") {
       const nounsFrequency = getFrequentKeywords(allEntriesText, 15, "nouns");
@@ -351,9 +345,9 @@ function UserDashboard() {
       const timeData: { [key: string]: number } = {};
       journals.forEach((journal) => {
         const hour = new Date(journal.createdAt as Date).getHours();
-        console.log("hour", hour);
+
         const timeSlot = `${hour.toString().padStart(2, "0")}:00`;
-        console.log("timeSlot", timeSlot);
+
         timeData[timeSlot] = (timeData[timeSlot] || 0) + 1;
       });
       setJournalTimeData(timeData);

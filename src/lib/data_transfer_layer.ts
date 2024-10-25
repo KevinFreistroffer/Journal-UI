@@ -4,13 +4,13 @@ import { IUser } from "./interfaces";
 
 // @ts-ignore
 function canSeeUsername(viewer: IUser) {
-  console.log("canSeeUsername viewer", viewer);
+
   return true;
 }
 
 // @ts-ignore
 function canSeeSignOutLink(viewer: IUser) {
-  console.log("canSeeSignOutLink viewer", viewer);
+
   return true;
 }
 

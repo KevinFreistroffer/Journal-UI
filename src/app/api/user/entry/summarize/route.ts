@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const sentenceCount = countSentences(text);
-    console.log("sentenceCount", sentenceCount);
+
     /**
      * For short texts (e.g., less than 10 sentences), you might summarize it in 1-2 sentences.
 For medium-length texts (e.g., 10-50 sentences), summarize it in 3-5 sentences.

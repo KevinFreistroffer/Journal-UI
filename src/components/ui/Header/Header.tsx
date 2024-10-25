@@ -98,7 +98,6 @@ export default function Header() {
   }, [user, isLoading]);
 
   const handleResultSelect = (id: string) => {
-    console.log("id", id);
     router.push(`/journal/${id}`);
   };
 
@@ -229,7 +228,7 @@ export default function Header() {
                     >
                       <DropdownMenu.Item
                         className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        onSelect={() => router.push('/profile')}
+                        onSelect={() => router.push("/profile")}
                       >
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>

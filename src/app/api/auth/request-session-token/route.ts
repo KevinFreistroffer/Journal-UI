@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 // import { generateSessionToken } from '@/lib/auth';
 
 export async function POST(req: Request) {
-  console.log(req.headers.get("Cookie"));
   try {
     // const { userId } = await req.json();
 

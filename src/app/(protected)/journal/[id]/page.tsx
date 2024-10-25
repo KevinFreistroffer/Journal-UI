@@ -32,7 +32,6 @@ export default function JournalPage() {
         // Get from local storage
         const localStoredJournal =
           localStorageService.getItem<IJournal>("selectedJournal");
-        console.log("localStoredJournal", localStoredJournal);
 
         if (
           !localStoredJournal ||
@@ -42,7 +41,6 @@ export default function JournalPage() {
           const usersJournal = user?.journals.find(
             (journal) => journal._id === (params.id as string)
           ); // Changed variable name for clarity
-          console.log("foundJournal", usersJournal);
 
           if (!usersJournal) {
             // If not found get it from the API.
@@ -52,7 +50,7 @@ export default function JournalPage() {
               `/api/user/entry?id=${params.id as string}`
             );
             const journal = await response.json();
-            console.log("journal response", journal);
+
             setSelectedJournal(journal);
             localStorageService.setItem("selectedJournal", journal);
           }
@@ -75,7 +73,7 @@ export default function JournalPage() {
       //   const foundJournal = user?.journals.find(
       //     (journal) => journal._id === id
       //   ); // Changed variable name for clarity
-      //   console.log("foundJournal", foundJournal);
+      //
       //   if (foundJournal) {
       //     setSelectedJournal(foundJournal); // Set state with found journal
       //     localStorageService.setItem("selectedJournal", foundJournal);
@@ -92,7 +90,6 @@ export default function JournalPage() {
 
   useEffect(() => {
     const handleParamsChange = () => {
-      console.log("handleParamsChange", params.id as string);
       const savedJournal = user?.journals.find(
         (journal) => journal._id === (params.id as string)
       );
@@ -109,7 +106,6 @@ export default function JournalPage() {
   const handleGoBack = () => {
     router.push("/dashboard");
   };
-  console.log(handleGoBack);
 
   return (
     <div className="p-6 min-h-screen flex">

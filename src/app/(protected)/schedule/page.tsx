@@ -17,7 +17,6 @@ const SchedulePage: React.FC = () => {
   const reminderType = watch("reminderType");
 
   const onSubmit: SubmitHandler<ScheduleInputs> = (data) => {
-    console.log(data);
     // Here you would typically send this data to your backend or state management
     setScheduleConfirmed(true);
   };

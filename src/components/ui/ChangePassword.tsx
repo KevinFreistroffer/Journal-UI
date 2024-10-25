@@ -21,7 +21,6 @@ const ChangePassword = () => {
 
     try {
       // TODO: Implement API call to change password
-      console.log("Changing password:", { currentPassword, newPassword });
 
       // Simulating a successful password change
       setSuccess(true);

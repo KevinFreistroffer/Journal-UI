@@ -7,7 +7,6 @@ export async function POST(
   request: Request,
   response: NextApiResponse<{ message: string; success: boolean; data?: IUser }>
 ) {
-  console.log(response);
   try {
     // Parse the request body
     const { userId, category } = await request.json();
@@ -16,8 +15,6 @@ export async function POST(
     const url = new URL(request.url || "");
     const returnUser = url.searchParams.get("returnUser");
 
-    console.log(userId, category);
-    console.log("returnUser", returnUser);
     // Validate input
     if (!userId || !category) {
       return NextResponse.json(
@@ -46,8 +43,6 @@ export async function POST(
     );
 
     const body = await response.json();
-
-    console.log("body", body);
 
     if (response.status === 200) {
       return NextResponse.json(
