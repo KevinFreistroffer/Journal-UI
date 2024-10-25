@@ -13,8 +13,9 @@ export const verifySession = cache(
   }> => {
     try {
       const cookie = cookies().get(CLIENT_SESSION)?.value;
+      console.log("verifySession() GOT cookie", cookie);
       const session = await decrypt(cookie);
-
+      console.log("verifySession() DECRYPTED session", session);
       if (!session || !session.userId) {
         // return  redirect("/login");
         return { isAuth: false, userId: null };
@@ -37,8 +38,8 @@ export const getUser = cache(async () => {
     }
 
     const session = await verifySession();
-
-    if (!session) {
+    console.log("getUser() session", session);
+    if (!session || !session.userId) {
       return null;
     }
 
@@ -54,11 +55,14 @@ export const getUser = cache(async () => {
       }
     );
 
+    console.log("RESPONSESESE");
+
     if (!response.ok) {
       console.error("Failed to fetch user");
       return null;
     } else {
       const body = await response.json();
+      console.log("getUser() body", body);
       return body.data;
     }
   } catch (error: unknown) {

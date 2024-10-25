@@ -15,6 +15,7 @@ create a logging system saving errors to a file. example: signup action returns 
 use colors in globals.css
 water ripple background animated
 
+replace the keyword freq select with another component. too slow.
 
 public private journals
 

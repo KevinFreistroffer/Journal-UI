@@ -88,7 +88,6 @@ export default function Header() {
               { href: "/dashboard", label: "Dashboard" },
               { href: "/journals", label: "Journals" },
               { href: "/journal/write", label: "New Journal" },
-              { href: "/profile", label: "Profile" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -134,13 +133,11 @@ export default function Header() {
   const getIcon = (href: string) => {
     switch (href) {
       case "/dashboard":
-        return <DashboardIcon className="mr-2 w-4 h-4" />; // Increased margin-right
+        return <DashboardIcon className="mr-2 w-4 h-4" />;
       case "/journals":
-        return <ReaderIcon className="mr-2 w-4 h-4" />; // Increased margin-right
+        return <ReaderIcon className="mr-2 w-4 h-4" />;
       case "/journal/write":
-        return <Pencil2Icon className="mr-2 w-4 h-4" />; // Increased margin-right
-      case "/profile":
-        return <PersonIcon className="mr-2 w-4 h-4" />; // Increased margin-right
+        return <Pencil2Icon className="mr-2 w-4 h-4" />;
       default:
         return null;
     }
@@ -177,7 +174,7 @@ export default function Header() {
     if (isExtraSmallScreen) return item.href === "/dashboard";
     if (isVerySmallScreen)
       return ["dashboard", "journals"].includes(item.href.split("/")[1]);
-    if (isSmallScreen) return item.href !== "/profile";
+    if (isSmallScreen) return true;
     return true;
   });
 
@@ -230,11 +227,14 @@ export default function Header() {
                       align="end"
                       alignOffset={-17}
                     >
-                      {/* <DropdownMenu.Item className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
+                      <DropdownMenu.Item
+                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        onSelect={() => router.push('/profile')}
+                      >
+                        <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" /> */}
+                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
                       <DropdownMenu.Item
                         className="flex items-center px-2 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
                         onSelect={handleLogout}
@@ -260,6 +260,14 @@ export default function Header() {
                   ))}
                 </>
               )}
+            </div>
+          )}
+          {isLoading && ( // Added loading state
+            <div className="flex items-center space-x-4">
+              {/* Placeholder icons or styles */}
+              <div className="w-24 h-8 bg-gray-300 animate-pulse rounded"></div>
+              <div className="w-24 h-8 bg-gray-300 animate-pulse rounded"></div>
+              <div className="w-24 h-8 bg-gray-300 animate-pulse rounded"></div>
             </div>
           )}
         </div>

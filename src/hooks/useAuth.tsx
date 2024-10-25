@@ -32,7 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         const sessionUser = await getUser();
         console.log("useAuth() sessionUser", sessionUser);
-        if (sessionUser) {
+
+        if (!sessionUser) {
+          setUser(null);
+        } else {
           setUser(sessionUser);
           setFilteredEntries(sessionUser.journals);
         }
@@ -40,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Error verifying session:", error);
         setUser(null);
       } finally {
+        console.log("FINALLY useAuth() Setting isLoading to false");
         setIsLoading(false);
       }
     }

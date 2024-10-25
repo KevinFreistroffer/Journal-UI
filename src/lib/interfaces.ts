@@ -44,3 +44,19 @@ export interface ISentimentResult {
   positive: string[];
   negative: string[];
 }
+
+export interface IReminder {
+  _id: number;
+  customFrequency: number;
+  customUnit: string;
+  date: string;
+  description: string;
+  endDate: string;
+  ends: string;
+  occurrences: number;
+  recurrenceType: string;
+  recurring: boolean;
+  repeatOn: string[];
+  time: string;
+  title: string;
+}

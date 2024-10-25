@@ -28,12 +28,12 @@ const publicRoutes = [
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  const isProtectedRoute = protectedRoutes.some(route =>
-    path === route || path.startsWith(`${route}/`)
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => path === route || path.startsWith(`${route}/`)
   );
 
   const isPublicRoute =
-    publicRoutes.some(route => path === route) ||
+    publicRoutes.some((route) => path === route) ||
     (path.startsWith("/login") &&
       request.nextUrl.searchParams.get("isVerified") !== null);
 
@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (!session.isVerified) {
+    if (session?.userId && !session.isVerified) {
       return NextResponse.redirect(
         new URL("/login?isVerified=false", request.url)
       );

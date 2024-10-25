@@ -794,6 +794,7 @@ function UserDashboard() {
                         <Select
                           onValueChange={handleValueChange}
                           value={selectedKeywordType}
+                          className="border border-gray-300"
                         >
                           <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
                             <SelectValue placeholder="Select keyword type" />
