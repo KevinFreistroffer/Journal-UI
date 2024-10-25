@@ -1,17 +1,40 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { CLIENT_SESSION } from "@/lib/constants";
+import { decrypt } from "@/lib/session";
+
+interface Session {
+  userId: string;
+}
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-    // const { userId } = await req.json();
+    let userId = searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 }
-      );
+      // Is this valid?
+      const cookie = cookies().get(CLIENT_SESSION)?.value;
+      let session;
+
+      if (cookie) {
+        session = await decrypt(cookie);
+        if (typeof session?.userId !== "string") {
+          return NextResponse.json(
+            { error: "Invalid session format" },
+            { status: 400 }
+          );
+        }
+
+        userId = session.userId;
+      }
+
+      if (!session || !session.userId) {
+        return NextResponse.json(
+          { error: "No session or no user ID" },
+          { status: 400 }
+        );
+      }
     }
 
     const response = await fetch(

@@ -20,6 +20,17 @@ const initialState: State = {
   isVerified: false,
 };
 
+/**
+ *
+ * the flow is that there is a user session and however they're not verified, so then it would navigate to the login page to verify them.
+ *
+ * If there's a session than there should be a cookie. If no cookie than it ws deleted and the session is invalid.
+ *
+ *
+ *
+ * so i am signed in however i never verified the account. 
+ */
+
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const isVerified = searchParams.get("isVerified");
@@ -31,13 +42,27 @@ export default function LoginPage() {
   const [emailResendSuccess, setEmailResendSuccess] = useState(false);
 
   const handleResendVerification = async () => {
-    if (!state.user?._id) {
-      throw new Error("No user ID");
-    }
     setIsResendingEmail(true);
     try {
+      // First try to get user if not available in state
+      let userId = state.user?._id;
+      if (!userId) {
+        const userResponse = await fetch("/api/auth/get-user-session");
+        console.log("userResponse", userResponse);
+        if (!userResponse.ok) {
+          throw new Error("Failed to get current user");
+        }
+        const userData = await userResponse.json();
+        console.log("userData", userData);
+        userId = userData.userId;
+      }
+
+      if (!userId) {
+        throw new Error("No user ID available");
+      }
+
       const response = await fetch(
-        "/api/auth/send-verification-email?userId=" + state.user?._id
+        "/api/auth/send-verification-email?userId=" + userId
       );
 
       if (!response.ok) {

@@ -19,6 +19,8 @@ import {
   Settings,
   User,
   MoreHorizontal,
+  PlusIcon,
+  ListIcon,
 } from "lucide-react"; // Add User icon
 import {
   Sheet,
@@ -39,7 +41,7 @@ import DebugLayout from "@/components/ui/debug/Layout";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Image from "next/image"; // Add this import at the top of the file
 import { Button } from "@/components/ui/Button"; // Add this import if not already present
-
+import { MdCategory } from "react-icons/md";
 export interface IMenuItem {
   href: string;
   label: string;
@@ -87,7 +89,7 @@ export default function Header() {
           ? [
               { href: "/dashboard", label: "Dashboard" },
               { href: "/journals", label: "Journals" },
-              { href: "/journal/write", label: "New Journal" },
+              { href: "/categories", label: "Categories" },
             ]
           : [
               { href: "/signup", label: "Sign Up" },
@@ -135,6 +137,8 @@ export default function Header() {
         return <DashboardIcon className="mr-2 w-4 h-4" />;
       case "/journals":
         return <ReaderIcon className="mr-2 w-4 h-4" />;
+      case "/categories":
+        return <MdCategory className="mr-2 w-4 h-4" />;
       case "/journal/write":
         return <Pencil2Icon className="mr-2 w-4 h-4" />;
       default:
@@ -142,9 +146,7 @@ export default function Header() {
     }
   };
 
-  const isTabRoute = ["/dashboard", "/journals", "/journal/write"].includes(
-    pathname
-  );
+  const isTabRoute = ["/dashboard", "/journals", "/categories"].includes(pathname);
 
   const handleLogout = async () => {
     try {
@@ -196,6 +198,17 @@ export default function Header() {
 
           {!isLoading && (
             <div className="flex items-center space-x-4">
+              {/* Add New Journal button before the user menu, only show on dashboard and not on create page */}
+              {user && pathname !== "/journal/write" && (
+                <Button
+                  onClick={() => router.push("/journal/write")}
+                  className="bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2"
+                  size="sm"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">New Journal</span>
+                </Button>
+              )}
               {user ? (
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>

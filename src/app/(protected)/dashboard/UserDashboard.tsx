@@ -551,9 +551,13 @@ function UserDashboard() {
                           Manage
                         </Link>
                       </div>
-                      <div className="w-full  h-[calc(100%-4rem)] overflow-hidden">
-                        {isMobileView ? (
-                          <div className="overflow-auto ">
+                      <div className="w-full h-[calc(100%-4rem)] overflow-hidden">
+                        {data.length === 0 ? (
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No categories
+                          </p>
+                        ) : isMobileView ? (
+                          <div className="overflow-auto">
                             <table className="w-full border-collapse">
                               <thead>
                                 <tr>

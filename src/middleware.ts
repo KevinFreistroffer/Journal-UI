@@ -44,12 +44,11 @@ export async function middleware(request: NextRequest) {
   if (cookie) {
     session = await decrypt(cookie);
   }
-  if (isProtectedRoute) {
-    if (!session) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
 
-    if (!session?.userId) {
+  if (isProtectedRoute) {
+    console.log("middleware() isProtectedRoute", isProtectedRoute);
+    if (!session) {
+      console.log("middleware() NO SESSION or no USER ID");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
