@@ -22,7 +22,7 @@ export const createJournal: CreateJournalFunction = async (
   selectedCategory: string,
   prevState: ICreateJournalState,
   formData: FormData
-) => {
+): Promise<ICreateJournalState> => {
   // Validate form data
   const validatedFields = CreateJournalSchema.safeParse({
     title: formData.get("title"),
@@ -36,12 +36,10 @@ export const createJournal: CreateJournalFunction = async (
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
-      redirect: null,
       user: null,
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Invalid journal.",
       success: false,
-      isVerified: false,
     };
   }
 
@@ -88,7 +86,6 @@ export const createJournal: CreateJournalFunction = async (
         message: "Failed to create journal. Please try again.",
         success: false,
         user: null,
-        isVerified: false,
       };
     }
 
@@ -100,7 +97,6 @@ export const createJournal: CreateJournalFunction = async (
         user: userData,
         message: "Journal created successfully.",
         success: true,
-        isVerified: false,
       };
     }
     // Create a session using the user's _id
@@ -113,7 +109,8 @@ export const createJournal: CreateJournalFunction = async (
       const cookieValue = setCookieHeader.split(";")[0];
       const [cookieName, cookieVal] = cookieValue.split("=");
 
-      cookies().set(cookieName, cookieVal, {
+      const cookiesStore = await cookies();
+      await cookiesStore.set(cookieName, cookieVal, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // TODO: Check this
         maxAge: 60 * 60 * 24 * 7, // 1 week
@@ -139,20 +136,16 @@ export const createJournal: CreateJournalFunction = async (
     return {
       errors: {},
       message: "Journal created successfully.",
-      redirect: "/dashboard",
       user: userData, // TODO: Not sure if this is the best way to do this.
       success: true,
-      isVerified: true,
     };
   } catch (error) {
     console.error(error);
     return {
-      redirect: null,
       user: null,
       errors: prevState.errors ?? {},
       message: "Server Error: Failed to create journal.",
       success: false,
-      isVerified: false,
     };
   }
 };

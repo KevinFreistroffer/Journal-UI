@@ -57,6 +57,13 @@ import {
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
 import SummaryDialog from "@/components/SummaryDialog";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -66,23 +73,21 @@ const createJournalInitialState: ICreateJournalState = {
 };
 
 // Create a new SubmitButton component
-function SubmitButton() {
+function SubmitButton({
+  setShowSaveModal,
+}: {
+  setShowSaveModal: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const { pending } = useFormStatus();
 
   return (
     <Button
-      type="submit"
+      type="button" // Changed from submit
       disabled={pending}
+      onClick={() => setShowSaveModal(true)}
       className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
     >
-      {pending ? (
-        <div className="flex items-center">
-          <Spinner className="mr-2 h-4 w-4" />
-          <span>Saving...</span>
-        </div>
-      ) : (
-        "Save Journal"
-      )}
+      Save Journal
     </Button>
   );
 }
@@ -129,10 +134,8 @@ function WritePage() {
   const [showTitle, setShowTitle] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-
-  useEffect(() => {
-    console.log("createJournalState", createJournalState);
-  }, [createJournalState]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -410,6 +413,38 @@ function WritePage() {
     }
   }, [createJournalState, setUser]);
 
+  // Add or update the useEffect to handle successful submission
+  useEffect(() => {
+    if (createJournalState.success) {
+      setShowSaveModal(false);
+      setJournal(""); // Clear the journal
+      setTitle(""); // Clear the title
+      setSelectedCategory(""); // Reset category
+      setFavorite(false); // Reset favorite
+    }
+  }, [createJournalState.success]);
+
+  // Create a wrapper function for the form action
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      await createJournalAction(formData);
+    } catch (error) {
+      console.error("Error submitting journal:", error);
+    }
+  };
+
+  // Update the handleFinalSubmit function
+  const handleFinalSubmit = async (formData: FormData) => {
+    setIsSubmitting(true);
+    try {
+      createJournalAction(formData);
+    } catch (error) {
+      console.error("Error submitting journal:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Check if the user is verified
   if (isLoading) {
     return (
@@ -438,15 +473,6 @@ function WritePage() {
       </div>
     );
   }
-
-  // Create a wrapper function for the form action
-  const handleSubmit = async (formData: FormData) => {
-    try {
-      await createJournalAction(formData);
-    } catch (error) {
-      console.error("Error submitting journal:", error);
-    }
-  };
 
   return (
     <div className="flex h-full min-h-screen mt-16">
@@ -700,7 +726,7 @@ function WritePage() {
                   </div>
                 </div>
                 <div className="flex items-center justify-start">
-                  <SubmitButton />
+                  <SubmitButton setShowSaveModal={setShowSaveModal} />
                 </div>
                 <div className="flex items-center mt-2">
                   <Button
@@ -778,6 +804,170 @@ function WritePage() {
         onTweet={handleTweet}
         error={summaryError} // Pass the error to the dialog
       />
+
+      {/* Save Modal */}
+      <Dialog open={showSaveModal} onOpenChange={setShowSaveModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Save Journal Entry</DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              handleFinalSubmit(formData);
+            }}
+          >
+            <div className="grid gap-4 py-4">
+              {/* Category Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="category">
+                  Category{" "}
+                  <span className="text-gray-400 text-sm font-normal">
+                    (optional)
+                  </span>
+                </Label>
+                <select
+                  id="category"
+                  name="category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category.category}>
+                      {category.category}
+                    </option>
+                  ))}
+                </select>
+
+                {/* New Category Button */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsAddingCategory(!isAddingCategory)}
+                  className="text-xs mt-2"
+                >
+                  {isAddingCategory ? (
+                    <>
+                      <X size={20} className="mr-2" />
+                      Cancel
+                    </>
+                  ) : (
+                    <>
+                      New <PlusIcon className="mr-2" size={16} />
+                    </>
+                  )}
+                </Button>
+
+                {/* New Category Input */}
+                {isAddingCategory && (
+                  <div className="mt-2 space-y-2">
+                    <Input
+                      value={newCategoryName}
+                      onChange={(e) => {
+                        const newName = e.target.value;
+                        setNewCategoryName(newName);
+                        setShowCreatedCategorySuccessIcon(false);
+                        const exists = categories.some(
+                          ({ category }) =>
+                            category.toLowerCase() === newName.toLowerCase()
+                        );
+                        setCategoryExists(exists);
+                        setCategoryCreatedErrorMessage(
+                          exists ? "Category already exists." : ""
+                        );
+                      }}
+                      placeholder="New category"
+                    />
+                    <Button
+                      type="button"
+                      disabled={
+                        isCreatingCategoryLoading ||
+                        categoryExists ||
+                        newCategoryName.trim() === ""
+                      }
+                      onClick={handleCreateCategory}
+                      className="w-full"
+                    >
+                      {isCreatingCategoryLoading ? <Spinner /> : "Add Category"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Favorite Toggle */}
+              <div className="flex items-center space-x-3">
+                <Label htmlFor="favorite" className="cursor-pointer">
+                  Favorite this entry
+                </Label>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    id="favorite"
+                    name="favorite"
+                    checked={favorite}
+                    onChange={(e) => setFavorite(e.target.checked)}
+                    className="sr-only"
+                  />
+                  <div
+                    className={cn(
+                      "w-5 h-5 border-2 rounded-sm cursor-pointer transition-colors duration-200",
+                      favorite
+                        ? "bg-[#3b82f6] border-[#3b82f6]"
+                        : "bg-white border-gray-300"
+                    )}
+                    onClick={() => setFavorite(!favorite)}
+                  >
+                    {favorite && (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Hidden inputs to carry over the title and entry */}
+              <input type="hidden" name="title" value={title} />
+              <input type="hidden" name="entry" value={journal} />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowSaveModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <div className="flex items-center">
+                    <Spinner className="mr-2 h-4 w-4" />
+                    <span>Saving...</span>
+                  </div>
+                ) : (
+                  "No thanks, just save"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

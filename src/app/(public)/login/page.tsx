@@ -28,7 +28,7 @@ const initialState: State = {
  *
  *
  *
- * so i am signed in however i never verified the account. 
+ * so i am signed in however i never verified the account.
  */
 
 export default function LoginPage() {

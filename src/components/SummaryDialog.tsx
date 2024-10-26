@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog/Dialog";
+} from "@/components/ui/dialog";
 import { useClipboard } from "use-clipboard-copy";
 
 interface SummaryDialogProps {
