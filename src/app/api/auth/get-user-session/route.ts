@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
   try {
-    const cookie = cookies().get(CLIENT_SESSION)?.value;
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get(CLIENT_SESSION)?.value;
 
     if (!cookie) {
       return NextResponse.json({ error: "No cookie" }, { status: 400 });

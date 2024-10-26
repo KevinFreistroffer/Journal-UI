@@ -37,7 +37,8 @@ export async function middleware(request: NextRequest) {
     (path.startsWith("/login") &&
       request.nextUrl.searchParams.get("isVerified") !== null);
 
-  const cookie = cookies().get(CLIENT_SESSION)?.value;
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(CLIENT_SESSION)?.value;
   let session;
 
   // const session = await decrypt(cookie);

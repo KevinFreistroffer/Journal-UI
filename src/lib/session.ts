@@ -36,8 +36,8 @@ export async function decrypt(session: string | undefined = "") {
 export async function createSession(userId: string, isVerified: boolean) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ userId, isVerified, expiresAt });
-
-  cookies().set(CLIENT_SESSION, session, {
+  const cookieStore = await cookies();
+  cookieStore.set(CLIENT_SESSION, session, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     expires: expiresAt,
@@ -47,7 +47,8 @@ export async function createSession(userId: string, isVerified: boolean) {
 }
 
 export async function updateSession() {
-  const session = cookies().get(CLIENT_SESSION)?.value;
+  const cookieStore = await cookies();
+  const session = cookieStore.get(CLIENT_SESSION)?.value;
   const payload = await decrypt(session);
 
   if (!session || !payload) {
@@ -55,7 +56,7 @@ export async function updateSession() {
   }
 
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  cookies().set(CLIENT_SESSION, session, {
+  cookieStore.set(CLIENT_SESSION, session, {
     httpOnly: true,
     secure: true,
     expires: expires,
@@ -64,7 +65,8 @@ export async function updateSession() {
   });
 }
 
-export function deleteSession() {
-  cookies().delete(CLIENT_SESSION);
-  cookies().delete(SESSION_TOKEN);
+export async function deleteSession() {
+  const cookieStore = await cookies();
+  cookieStore.delete(CLIENT_SESSION);
+  cookieStore.delete(SESSION_TOKEN);
 }

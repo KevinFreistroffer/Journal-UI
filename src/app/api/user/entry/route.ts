@@ -21,11 +21,14 @@ export async function GET(req: Request) {
       );
     }
 
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get("session_token")?.value;
+
     const response = await fetch(`${process.env.API_URL}/user/journal/${id}`, {
       headers: {
         //     "Content-Type": "application/json",
         //     Accept: "application/json",
-        Cookie: `session_token=${cookies().get("session_token")?.value || ""}`,
+        Cookie: `session_token=${cookie || ""}`,
       },
     });
 

@@ -14,7 +14,8 @@ export async function GET(req: Request) {
 
     if (!userId) {
       // Is this valid?
-      const cookie = cookies().get(CLIENT_SESSION)?.value;
+      const cookieStore = await cookies();
+      const cookie = cookieStore.get(CLIENT_SESSION)?.value;
       let session;
 
       if (cookie) {

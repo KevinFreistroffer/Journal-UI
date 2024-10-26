@@ -12,8 +12,8 @@ export const verifySession = cache(
     userId: string | null;
   }> => {
     try {
-      const cookie = cookies().get(CLIENT_SESSION)?.value;
-
+      const cookieStore = await cookies();
+      const cookie = cookieStore.get(CLIENT_SESSION)?.value;
       const session = await decrypt(cookie);
 
       if (!session || !session.userId) {
