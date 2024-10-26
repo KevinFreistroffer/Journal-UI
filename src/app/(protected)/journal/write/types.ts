@@ -30,6 +30,7 @@ export type CreateCategoryFunction = (
 
 export type CreateJournalFunction = (
   userId: string,
+  selectedCategory: string,
   prevState: ICreateJournalState,
   formData: FormData
 ) => Promise<ICreateJournalState>;

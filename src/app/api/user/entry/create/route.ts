@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { userId, title, journal, category, favorite } = body;
+    const { userId, title, entry, category, favorite } = body;
 
     const response = await fetch(`${process.env.API_URL}/user/journal/create`, {
       method: "POST",
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         userId,
         title,
-        journal,
+        entry,
         category,
         favorite,
       }),

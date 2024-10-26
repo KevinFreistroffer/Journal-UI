@@ -12,21 +12,22 @@ import { IUser } from "@/lib/interfaces";
 
 const CreateJournalSchema = z.object({
   title: z.string(),
-  journal: z.string(),
+  entry: z.string(),
   category: z.string(),
   favorite: z.boolean().optional(),
 });
 
 export const createJournal: CreateJournalFunction = async (
   userId: string,
+  selectedCategory: string,
   prevState: ICreateJournalState,
   formData: FormData
 ) => {
   // Validate form data
   const validatedFields = CreateJournalSchema.safeParse({
     title: formData.get("title"),
-    journal: formData.get("journal"),
-    category: formData.get("category"),
+    entry: formData.get("entry"),
+    category: selectedCategory,
     favorite: formData.has("favorite")
       ? formData.get("favorite") === "true"
       : false,
@@ -44,7 +45,7 @@ export const createJournal: CreateJournalFunction = async (
     };
   }
 
-  const { title, journal, category, favorite } = validatedFields.data;
+  const { title, entry, category, favorite } = validatedFields.data;
 
   try {
     const response = await fetch("http://localhost:3001/user/journal/create", {
@@ -57,7 +58,7 @@ export const createJournal: CreateJournalFunction = async (
       body: JSON.stringify({
         userId,
         title,
-        journal,
+        entry,
         category,
         favorite,
       }),

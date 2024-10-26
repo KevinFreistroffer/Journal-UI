@@ -404,19 +404,7 @@ function UserDashboard() {
       <Sidebar
         isOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-        icon={
-          <Button
-            className={`relative w-full p-0 cursor-pointer ${
-              isSidebarOpen ? "justify-end" : "justify-center"
-            }`}
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-          >
-            {isSidebarOpen ? <ChevronLeft size={20} /> : <Settings size={20} />}
-          </Button>
-        }
+        icon={<Settings size={20} />}
         sections={[
           {
             title: "Toggle Cards",
@@ -541,7 +529,7 @@ function UserDashboard() {
                   >
                     <Card className="h-full p-4 relative">
                       <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                           Category Breakdown
                         </h2>
                         <Link
@@ -553,9 +541,11 @@ function UserDashboard() {
                       </div>
                       <div className="w-full h-[calc(100%-4rem)] overflow-hidden">
                         {data.length === 0 ? (
-                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                            No categories
-                          </p>
+                          <div className="flex items-center justify-center h-full">
+                            <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              No categories
+                            </p>
+                          </div>
                         ) : isMobileView ? (
                           <div className="overflow-auto">
                             <table className="w-full border-collapse">
@@ -607,31 +597,39 @@ function UserDashboard() {
                     }`}
                   >
                     <Card className="h-full p-4">
-                      <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
+                      <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                         Recent Activity
                       </h2>
-                      <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
-                        <ul className="max-h-72 overflow-y-auto p-4">
-                          {recentEntries.map((journal, index) => (
-                            <li
-                              key={index}
-                              className="border-b py-2 last:border-b-0"
-                            >
-                              <Link
-                                href={`/journal/${journal._id}`}
-                                className="hover:underline flex flex-col"
+                      {recentEntries.length > 0 ? (
+                        <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
+                          <ul className="max-h-72 overflow-y-auto p-4">
+                            {recentEntries.map((journal, index) => (
+                              <li
+                                key={index}
+                                className="border-b py-2 last:border-b-0"
                               >
-                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500">
-                                  {journal.title}
-                                </span>
-                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
-                                  {formatDate(journal.date)}
-                                </span>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                                <Link
+                                  href={`/journal/${journal._id}`}
+                                  className="hover:underline flex flex-col"
+                                >
+                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500">
+                                    {journal.title}
+                                  </span>
+                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
+                                    {formatDate(journal.date)}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-[calc(100%-2rem)]">
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No recent activity
+                          </p>
+                        </div>
+                      )}
                     </Card>
                   </div>
                 )
@@ -651,10 +649,12 @@ function UserDashboard() {
                         : "md:w-full lg:w-1/2 xl:w-1/3"
                     }`}
                   >
-                    <Card className="h-full p-4">
+                    <Card className="h-full p-4 min-h-96">
+                      {" "}
+                      {/* Added min-h-96 */}
                       <div className="flex justify-between items-start mb-4">
-                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold w-1/2">
-                          Upcoming Journals & Reminders
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
+                          Reminders
                         </h2>
                         <Link
                           href="/reminders"
@@ -663,9 +663,9 @@ function UserDashboard() {
                           Manage
                         </Link>
                       </div>
-                      <ul>
-                        {upcomingEntries.length > 0 ? (
-                          upcomingEntries.map((journal, index) => (
+                      {upcomingEntries.length > 0 ? (
+                        <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4">
+                          {upcomingEntries.map((journal, index) => (
                             <li key={index} className="border-b py-2">
                               <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
                                 {journal.title}
@@ -675,13 +675,15 @@ function UserDashboard() {
                                 {formatDate(journal.date)}
                               </span>
                             </li>
-                          ))
-                        ) : (
-                          <p className="text-xs sm:text-sm md:text-xs lg:text-sm">
-                            No upcoming journals.
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No upcoming journals
                           </p>
-                        )}
-                      </ul>
+                        </div>
+                      )}
                     </Card>
                   </div>
                 )
@@ -701,9 +703,11 @@ function UserDashboard() {
                         : "md:w-full lg:w-1/2 xl:w-1/3"
                     }`}
                   >
-                    <Card className="h-full p-4">
+                    <Card className="h-full p-4 min-h-96">
+                      {" "}
+                      {/* Added min-h-96 */}
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold ">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                           Favorite Journals
                         </h2>
                         <Link
@@ -714,7 +718,7 @@ function UserDashboard() {
                         </Link>
                       </div>
                       {favoriteEntries.length > 0 ? (
-                        <ul className="space-y-2">
+                        <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 space-y-2">
                           {favoriteEntries.map((journal, index) => (
                             <li
                               key={index}
@@ -747,9 +751,11 @@ function UserDashboard() {
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                          No favorite journals yet.
-                        </p>
+                        <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No favorite journals yet
+                          </p>
+                        </div>
                       )}
                     </Card>
                   </div>
@@ -772,60 +778,70 @@ function UserDashboard() {
                   >
                     <Card className="h-full p-4 min-h-96">
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                           Keyword Frequency
                         </h2>
-                        <Button
-                          onClick={exportToCSV}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center text-xs sm:text-sm md:text-xs lg:text-sm"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Export CSV
-                        </Button>
-                      </div>
-                      <div className="flex flex-col mb-4">
-                        <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm">
-                          Keyword type
-                        </Label.Root>
-                        <Select
-                          onValueChange={handleValueChange}
-                          value={selectedKeywordType}
-                          className="border border-gray-300"
-                        >
-                          <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
-                            <SelectValue placeholder="Select keyword type" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            <SelectItem value="nouns">Nouns</SelectItem>
-                            <SelectItem value="verbs">Verbs</SelectItem>
-                            <SelectItem value="adjectives">
-                              Adjectives
-                            </SelectItem>
-                            <SelectItem value="terms">Terms</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        {keywordFrequency.length > 0 && (
+                          <Button
+                            onClick={exportToCSV}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center text-xs sm:text-sm md:text-xs lg:text-sm"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export CSV
+                          </Button>
+                        )}
                       </div>
                       {isLoadingKeywordFrequency ? (
                         <div className="flex justify-center h-full items-center max-h-60 p-6 mt-3">
                           <Spinner />
                         </div>
+                      ) : keywordFrequency.length > 0 ? (
+                        <>
+                          <div className="flex flex-col mb-4">
+                            <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              Keyword type
+                            </Label.Root>
+                            <Select
+                              onValueChange={handleValueChange}
+                              value={selectedKeywordType}
+                              className="border border-gray-300"
+                            >
+                              <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
+                                <SelectValue placeholder="Select keyword type" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="nouns">Nouns</SelectItem>
+                                <SelectItem value="verbs">Verbs</SelectItem>
+                                <SelectItem value="adjectives">
+                                  Adjectives
+                                </SelectItem>
+                                <SelectItem value="terms">Terms</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
+                            <ul className="max-h-60 overflow-y-auto p-4">
+                              {keywordFrequency.map(
+                                ({ normal, count }, index) => (
+                                  <li
+                                    key={index}
+                                    className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
+                                  >
+                                    <span className="font-bold">{normal}:</span>{" "}
+                                    {count}
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          </div>
+                        </>
                       ) : (
-                        <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
-                          <ul className="max-h-60 overflow-y-auto p-4">
-                            {keywordFrequency.map(
-                              ({ normal, count }, index) => (
-                                <li
-                                  key={index}
-                                  className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
-                                >
-                                  <span className="font-bold">{normal}:</span>{" "}
-                                  {count}
-                                </li>
-                              )
-                            )}
-                          </ul>
+                        <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No keyword data available
+                          </p>
                         </div>
                       )}
                     </Card>
@@ -848,45 +864,53 @@ function UserDashboard() {
                     }`}
                   >
                     <Card className="h-full p-4">
-                      <h2 className="text-sm sm:text-base md:text-sm lg:text-base font-semibold mb-4">
+                      <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                         Journal Time Distribution
                       </h2>
-                      <Bar
-                        data={{
-                          labels: Object.keys(journalTimeData)
-                            .sort((a, b) => parseInt(a) - parseInt(b))
-                            .map((hour) => formatTime(hour)),
-                          datasets: [
-                            {
-                              label: "Number of Entries",
-                              data: Object.values(journalTimeData),
-                              backgroundColor: "rgba(75, 192, 192, 0.6)",
-                            },
-                          ],
-                        }}
-                        options={{
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                              title: {
-                                display: true,
-                                text: "Number of Entries",
+                      {Object.keys(journalTimeData).length > 0 ? (
+                        <Bar
+                          data={{
+                            labels: Object.keys(journalTimeData)
+                              .sort((a, b) => parseInt(a) - parseInt(b))
+                              .map((hour) => formatTime(hour)),
+                            datasets: [
+                              {
+                                label: "Number of Entries",
+                                data: Object.values(journalTimeData),
+                                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                              },
+                            ],
+                          }}
+                          options={{
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                title: {
+                                  display: true,
+                                  text: "Number of Entries",
+                                },
+                              },
+                              x: {
+                                title: {
+                                  display: true,
+                                  text: "Time of Day",
+                                },
                               },
                             },
-                            x: {
-                              title: {
-                                display: true,
-                                text: "Time of Day",
+                            plugins: {
+                              legend: {
+                                display: false,
                               },
                             },
-                          },
-                          plugins: {
-                            legend: {
-                              display: false,
-                            },
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No time distribution data available
+                          </p>
+                        </div>
+                      )}
                     </Card>
                   </div>
                 )

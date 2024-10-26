@@ -39,7 +39,7 @@ import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
 import Link from "next/link";
 // import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import { ICreateJournalState } from "./types";
 import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
@@ -66,6 +66,28 @@ const createJournalInitialState: ICreateJournalState = {
   user: null,
 };
 
+// Create a new SubmitButton component
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      disabled={pending}
+      className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
+    >
+      {pending ? (
+        <div className="flex items-center">
+          <Spinner className="mr-2 h-4 w-4" />
+          <span>Saving...</span>
+        </div>
+      ) : (
+        "Save Journal"
+      )}
+    </Button>
+  );
+}
+
 function WritePage() {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
@@ -76,8 +98,6 @@ function WritePage() {
   const [title, setTitle] = useState("");
   const [journal, setJournal] = useState("");
   const [favorite, setFavorite] = useState<boolean>(false); // State for favorite checkbox
-  const [isSaving, setIsSaving] = useState(false);
-  const [showJournalSuccessIcon, setShowJournalSuccessIcon] = useState(false);
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
     useState(false); // State for dialog
   const [isCreatingCategoryLoading, setIsCreatingCategoryLoading] =
@@ -101,7 +121,7 @@ function WritePage() {
   const [showTweetThread, setShowTweetThread] = useState(false);
   const clipboard = useClipboard();
   const [createJournalState, createJournalAction] = useFormState(
-    createJournal.bind(null, user?._id || ""),
+    createJournal.bind(null, user?._id || "", selectedCategory),
     createJournalInitialState
   );
   const [showWordStats, setShowWordStats] = useState(false);
@@ -111,6 +131,11 @@ function WritePage() {
   const [showCategory, setShowCategory] = useState(false);
   const [isCategoryScrollAreaVisible, setIsCategoryScrollAreaVisible] =
     useState(false); // Updated state for scroll area visibility
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  useEffect(() => {
+    console.log("createJournalState", createJournalState);
+  }, [createJournalState]);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -254,24 +279,15 @@ function WritePage() {
 
     // Calculate average words across all journals
     if (journals.length > 0) {
-      const totalWordsInEntries = journals.reduce(
-        (acc, journal) =>
-          acc + journal.entry.trim().split(/\s+/).filter(Boolean).length,
-        0
-      );
+      const totalWordsInEntries = journals.reduce((acc, journal) => {
+        console.log(journal);
+        return acc + journal.entry.trim().split(/\s+/).filter(Boolean).length;
+      }, 0);
       setAverageWords(Math.round(totalWordsInEntries / journals.length));
     } else {
       setAverageWords(0);
     }
   }, [journal, journals]);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current); // Clear timeout on component unmount
-      }
-    };
-  }, []);
 
   // Updated summarizeJournal function
   const summarizeJournal = async () => {
@@ -367,12 +383,35 @@ function WritePage() {
     });
   };
 
-  useEffect(() => {}, [journal]);
-
   const generateSampleText = () => {
     const sampleText = generateLoremIpsum(3); // Generate 3 paragraphs
     setJournal(sampleText);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current); // Clear timeout on component unmount
+      }
+    };
+  }, []);
+
+  // Add effect to handle form submission state
+  useEffect(() => {
+    if (createJournalState.success) {
+      setShowSuccessMessage(true);
+      if (createJournalState.user) {
+        setUser(createJournalState.user);
+      }
+
+      // Hide the message after 3 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [createJournalState, setUser]);
 
   // Check if the user is verified
   if (isLoading) {
@@ -403,29 +442,22 @@ function WritePage() {
     );
   }
 
+  // Create a wrapper function for the form action
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      await createJournalAction(formData);
+    } catch (error) {
+      console.error("Error submitting journal:", error);
+    }
+  };
+
   return (
     <div className="flex h-full min-h-screen mt-16">
       {/* Sidebar - only visible on md screens and above */}
       <Sidebar
         isOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-        icon={
-          <Button
-            className={`relative w-full p-0 cursor-pointer ${
-              isSidebarOpen ? "justify-end" : "justify-center"
-            }`}
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-          >
-            {isSidebarOpen ? (
-              <ChevronLeft size={20} />
-            ) : (
-              <ChartNoAxesColumnIncreasing size={20} />
-            )}
-          </Button>
-        }
+        icon={<ChartNoAxesColumnIncreasing size={20} />}
         sections={[
           {
             title: "Word Stats",
@@ -490,7 +522,7 @@ function WritePage() {
                 )}
               </div>
             </div>
-            <form action={createJournalAction} className="space-y-4">
+            <form action={handleSubmit} className="space-y-4">
               {/* Title Input Above Textarea */}
               <div className="flex flex-col">
                 <Input
@@ -508,7 +540,7 @@ function WritePage() {
                 </Label> */}
                 <Textarea
                   id="journal"
-                  name="journal"
+                  name="entry"
                   value={journal}
                   onChange={handleJournalChange}
                   onPaste={handleJournalPaste}
@@ -555,6 +587,7 @@ function WritePage() {
                             value: category.category,
                           }))} // Pass categories as a prop
                           onSelect={(item) => {
+                            console.log("item", item);
                             setSelectedCategory(item.value as string);
                             setIsCategoryScrollAreaVisible(false);
                           }} // Pass the setSelectedCategory function as onSelect prop
@@ -666,13 +699,7 @@ function WritePage() {
                   </div>
                 </div>
                 <div className="flex items-center justify-start">
-                  <Button
-                    type="submit"
-                    disabled={isSaving || !journal}
-                    className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
-                  >
-                    {isSaving ? "Saving..." : "Save Journal"}
-                  </Button>
+                  <SubmitButton />
                 </div>
                 <div className="flex items-center mt-2">
                   <Button
@@ -699,12 +726,10 @@ function WritePage() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                {showJournalSuccessIcon && (
+                {showSuccessMessage && createJournalState.success && (
                   <div className="flex items-center mt-2">
                     <CheckCircle className="text-green-500 mr-2" />
-                    <p className="text-green-500">
-                      Entry created successfully!
-                    </p>
+                    <p className="text-green-500">Entry created successfully!</p>
                   </div>
                 )}
                 {/* Word Stats section for small screens */}
