@@ -239,6 +239,10 @@ export default function Header() {
                       align="end"
                       alignOffset={-17}
                     >
+                      <div className="px-2 py-2 text-sm text-gray-700">
+                        {user.username}
+                      </div>
+                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
                       <DropdownMenu.Item
                         className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                         onSelect={() => router.push("/profile")}

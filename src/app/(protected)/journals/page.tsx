@@ -68,6 +68,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import * as Dialog from "@radix-ui/react-dialog";
 import State from "@/components/ui/debug/State"; // Add this import at the top of the file
+import { PlusIcon } from "@radix-ui/react-icons"; // Import Radix UI Plus icon
 
 export default function JournalsPage() {
   const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
@@ -443,418 +444,258 @@ export default function JournalsPage() {
 
   return (
     <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto">
-      {/* Wrap the entire content in PageWrapper */}
       <div
         className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out`}
       >
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
-          <h1 className="text-3xl font-bold hidden md:block">Your Journals</h1>
-        </div>
-
-        <div className="flex flex-col mb-4 space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            {/* Search bar - moved to the top for xs and sm viewports */}
-            <div className="w-full lg:w-1/3 order-first lg:order-last">
-              <SearchInput
-                id="search-journals"
-                query={query}
-                handleSearch={handleSearch}
-                userEntries={user.journals}
-                containerClassName="w-full"
-                inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
-                placeholder="Find a journal..."
-              />
+        {filteredAndSortedEntries?.length &&
+        filteredAndSortedEntries?.length > 0 ? (
+          <>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
+              <h1 className="text-3xl font-bold hidden md:block">
+                Your Journals
+              </h1>
             </div>
 
-            {/* Category and Sort selects */}
-            <div className="flex flex-row items-center space-x-4">
-              {isMobile ? (
-                <>
-                  <Button
-                    variant="outline"
-                    className="h-9 px-3"
-                    onClick={() => handleFilterClick("category")}
-                  >
-                    <span>{displayedCategoryFilter}</span>
-                    <ChevronDownIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-9 px-3"
-                    onClick={() => handleFilterClick("sort")}
-                  >
-                    <span>{displayedSortFilter}</span>
-                    <ChevronDownIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Dialog.Root
-                    open={categoryFilterDisplayed}
-                    onOpenChange={handleDialogOpenChange}
-                  >
-                    <Dialog.Portal>
-                      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
-                      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-xl">
-                        <div className="flex justify-between items-center border-b border-gray-200">
-                          <Dialog.Title className="text-sm font-semibold py-5 px-6">
-                            {activeFilter === "category"
-                              ? "Select category"
-                              : "Select filter"}
-                          </Dialog.Title>
-                          <button onClick={handleCloseModal} className="p-3">
-                            <Cross1Icon className="h-3 w-3" />
-                          </button>
-                        </div>
-                        <div className="flex flex-col overflow-y-auto max-h-[60vh]">
-                          {activeFilter === "category"
-                            ? categories.map((category) => (
-                                <Button
-                                  key={category}
-                                  variant="ghost"
-                                  className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
-                                  onClick={() => {
-                                    handleOptionSelect(category);
-                                    handleCloseModal();
-                                  }}
-                                >
-                                  <div className="flex items-center w-full">
-                                    <span className="w-6">
-                                      {categoryFilter === category && (
-                                        <CheckIcon className="h-4 w-4" />
-                                      )}
-                                    </span>
-                                    <span className="ml-2">{category}</span>
-                                  </div>
-                                </Button>
-                              ))
-                            : ["Last updated date", "Name", "Favorited"].map(
-                                (option) => (
-                                  <Button
-                                    key={option}
-                                    variant="ghost"
-                                    className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
-                                    onClick={() => {
-                                      handleOptionSelect(option);
-                                      handleCloseModal();
-                                    }}
-                                  >
-                                    <div className="flex items-center w-full">
-                                      <span className="w-6">
-                                        {sortFilter === option && (
-                                          <CheckIcon className="h-4 w-4" />
-                                        )}
-                                      </span>
-                                      <span className="ml-2">{option}</span>
-                                    </div>
-                                  </Button>
-                                )
-                              )}
-                        </div>
-                      </Dialog.Content>
-                    </Dialog.Portal>
-                  </Dialog.Root>
-                </>
-              ) : (
-                <>
-                  <Select
-                    value={selectedCategory}
-                    onValueChange={(value) => {
-                      setSelectedCategory(value);
-                      setIsModalOpen(false);
-                      setCategoryFilterDisplayed(false);
-                    }}
-                    open={categoryFilterDisplayed}
-                    onOpenChange={setCategoryFilterDisplayed}
-                  >
-                    <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
-                      <SelectValue
-                        placeholder="Category"
-                        className="font-bold placeholder:font-bold"
-                      />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      {categories.map((category) => (
-                        <SelectItem
-                          key={category}
-                          value={category}
-                          className="font-normal"
-                        >
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            <div className="flex flex-col mb-4 space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                {/* Search bar */}
+                <div className="w-full lg:w-1/3 order-first lg:order-last">
+                  <SearchInput
+                    id="search-journals"
+                    query={query}
+                    handleSearch={handleSearch}
+                    userEntries={user.journals}
+                    containerClassName="w-full"
+                    inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+                    placeholder="Find a journal..."
+                  />
+                </div>
 
-                  <Select
-                    value={sortBy}
-                    onValueChange={(value) => {
-                      setSortBy(value);
-                      setIsModalOpen(false);
-                    }}
-                  >
-                    <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
-                      <SelectValue
-                        placeholder="Filter"
-                        className="font-bold placeholder:font-bold"
-                      />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      <SelectItem
-                        value="Last updated date"
-                        className="font-normal"
+                {/* Category and Sort selects */}
+                <div className="flex flex-row items-center space-x-4">
+                  {isMobile ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="h-9 px-3"
+                        onClick={() => handleFilterClick("category")}
                       >
-                        Last updated date
-                      </SelectItem>
-                      <SelectItem value="Name" className="font-normal">
-                        Name
-                      </SelectItem>
-                      <SelectItem value="Favorited" className="font-normal">
-                        Favorited
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center mb-4">
-          <ToggleGroup.Root
-            type="single"
-            value={viewMode}
-            onValueChange={(value) =>
-              value && setViewMode(value as "list" | "2-column" | "columns")
-            }
-            className="hidden md:flex items-center"
-          >
-            <ToggleGroup.Item
-              value="list"
-              aria-label="List View"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
-                viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
-              }`}
-            >
-              <ViewHorizontalIcon />
-            </ToggleGroup.Item>
-            <ToggleGroup.Item
-              value="2-column"
-              aria-label="2-Column View"
-              className={`hidden md:flex items-center space-x-2 px-3 py-2 ${
-                viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
-              }`}
-            >
-              <ViewVerticalIcon />
-            </ToggleGroup.Item>
-            <ToggleGroup.Item
-              value="columns"
-              aria-label="Columns View"
-              className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-r ${
-                viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
-              }`}
-            >
-              <ViewGridIcon />
-            </ToggleGroup.Item>
-          </ToggleGroup.Root>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="select-all"
-              checked={showCheckboxes}
-              onCheckedChange={handleSelectAll}
-              className="bg-white border-gray-300"
-            />
-            <label
-              htmlFor="select-all"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Select All
-            </label>
-          </div>
-        </div>
-        <div
-          className={`grid ${
-            viewMode === "list"
-              ? "grid-cols-1"
-              : viewMode === "2-column"
-              ? "grid-cols-1 md:grid-cols-2"
-              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-          } gap-6`}
-        >
-          {filteredAndSortedEntries?.length === 0 ? (
-            <div>
-              <p>No journals found.</p>
-              <Link
-                href="/journal/write"
-                className="text-blue-500 hover:underline"
-              >
-                Create a journal
-              </Link>
-            </div>
-          ) : (
-            filteredAndSortedEntries?.map((journal, index) => {
-              return (
-                <Card
-                  key={index}
-                  className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
-                    selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
-                  } py-4 px-2 relative`} // Changed p-4 to py-4 px-2
-                >
-                  <div
-                    className={`absolute top-2 left-2 transition-opacity duration-200 ${
-                      showCheckboxes ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={selectedEntries.includes(journal._id)}
-                      onCheckedChange={(checked) =>
-                        handleSelectJournal(journal._id, checked as boolean)
-                      }
-                      className="bg-white border-gray-300"
-                    />
-                  </div>
-                  <div className="flex flex-col flex-grow">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="wrap text-wrap overflow-wrap text-md text-blue-500">
-                          <Link
-                            href={`/journal/${journal._id}`}
-                            className="hover:underline"
-                          >
-                            {journal.title.length > 30
-                              ? `${journal.title.substring(0, 30)}...`
-                              : journal.title}
-                          </Link>
-                        </CardTitle>
-
-                        <div className="relative p-0 m-0">
-                          {index === 0 && (
-                            <Joyride
-                              callback={handleJoyrideCallback}
-                              run={helperTextState.run}
-                              disableOverlayClose={true}
-                              steps={helperTextState.steps}
-                              styles={{
-                                options: {
-                                  arrowColor: "#fff",
-                                  primaryColor: "#000",
-                                  zIndex: 1000,
-                                },
-                              }}
-                            />
-                          )}
-                          <Tooltip.Provider delayDuration={100}>
-                            <Tooltip.Root>
-                              <Tooltip.Trigger asChild>
-                                {journal.favorite ? (
-                                  <StarFilledIcon
-                                    onClick={() => handleFavorite(journal._id)}
-                                    className="w-6 h-6 "
-                                  /> // Use StarFilledIcon if favorite
-                                ) : (
-                                  <StarIcon
-                                    onClick={() => handleFavorite(journal._id)}
-                                    className="w-6 h-6 "
-                                  /> // Use StarIcon if not favorite
-                                )}
-                                {/* <ReaderIcon
-                                  className={`cursor-pointer helper-text-step ${"w-5 h-5 md:w-8 md:h-8"}`}
-                                  onClick={() => {
-                                    localStorageService.setItem(
-                                      "selectedJournal",
-                                      journal._id
-                                    );
-                                    router.push(`/journal/${journal._id}`);
-                                  }}
-                                /> */}
-                              </Tooltip.Trigger>
-                              <Tooltip.Portal>
-                                <Tooltip.Content
-                                  className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                                  sideOffset={4}
-                                >
-                                  Favorite
-                                  <Tooltip.Arrow className="fill-gray-800" />
-                                </Tooltip.Content>
-                              </Tooltip.Portal>
-                            </Tooltip.Root>
-                          </Tooltip.Provider>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardFooter className="mt-auto flex justify-between items-end pt-3">
-                      <div className="flex flex-col">
-                        {showCategory && <p>{journal.category}</p>}
-                        {showUpdatedDate && journal.updatedAt ? (
-                          <p className="text-sm text-gray-500">
-                            Updated: {journal.updatedAt.toString()}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-gray-500">
-                            {journal.date}
-                          </p>
-                        )}
-                        {showSentiment && (
-                          <div className="flex items-center text-sm mt-1">
-                            <div
-                              className={`rounded-full mr-1 w-2 h-2 ${getSentimentColor(
-                                analyzeSentiment(journal.entry).score
-                              )}`}
-                            ></div>
-                            <span className="text-sm text-gray-500">
-                              {getSentimentWord(journal.entry)}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center">
-                        {loadingJournalId === journal._id ? (
-                          <Spinner size="sm" className="mr-2" />
-                        ) : (
-                          <>
-                            {/* TODO: determine if this is something people would use / not tend to overuse clicking all of them, or if require them to go to the read page. */}
-                            {/* {journal.favorite ? (
-                            <StarFilledIcon
-                              onClick={() => handleFavorite(journal._id)}
-                              className="w-6 h-6 mr-2"
-                            /> // Use StarFilledIcon if favorite
-                          ) : (
-                            <StarIcon
-                              onClick={() => handleFavorite(journal._id)}
-                              className="w-6 h-6 mr-2"
-                            /> // Use StarIcon if not favorite
-                          )} */}
-                          </>
-                        )}
-                        <Tooltip.Provider delayDuration={100}>
-                          <Tooltip.Root>
-                            <Tooltip.Trigger asChild>
-                              <TrashIcon
-                                className="w-7 h-7 text-red-500 cursor-pointer bg-gray-200 rounded-full p-1 hidden md:block" // Increased size for non-mobile viewports
-                                onClick={() => openDeleteModal(journal._id)} // Open GlobalModal on click
-                              />
-                            </Tooltip.Trigger>
-                            <Tooltip.Portal>
-                              <Tooltip.Content
-                                className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                                sideOffset={4}
+                        <span>{displayedCategoryFilter}</span>
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-9 px-3"
+                        onClick={() => handleFilterClick("sort")}
+                      >
+                        <span>{displayedSortFilter}</span>
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                      </Button>
+                      <Dialog.Root
+                        open={categoryFilterDisplayed}
+                        onOpenChange={handleDialogOpenChange}
+                      >
+                        <Dialog.Portal>
+                          <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
+                          <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-xl">
+                            <div className="flex justify-between items-center border-b border-gray-200">
+                              <Dialog.Title className="text-sm font-semibold py-5 px-6">
+                                {activeFilter === "category"
+                                  ? "Select category"
+                                  : "Select filter"}
+                              </Dialog.Title>
+                              <button
+                                onClick={handleCloseModal}
+                                className="p-3"
                               >
-                                Delete
-                                <Tooltip.Arrow className="fill-gray-800" />
-                              </Tooltip.Content>
-                            </Tooltip.Portal>
-                          </Tooltip.Root>
-                        </Tooltip.Provider>
-                      </div>
-                    </CardFooter>
-                  </div>
-                </Card>
-              );
-            })
-          )}
-        </div>
+                                <Cross1Icon className="h-3 w-3" />
+                              </button>
+                            </div>
+                            <div className="flex flex-col overflow-y-auto max-h-[60vh]">
+                              {activeFilter === "category"
+                                ? categories.map((category) => (
+                                    <Button
+                                      key={category}
+                                      variant="ghost"
+                                      className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
+                                      onClick={() => {
+                                        handleOptionSelect(category);
+                                        handleCloseModal();
+                                      }}
+                                    >
+                                      <div className="flex items-center w-full">
+                                        <span className="w-6">
+                                          {categoryFilter === category && (
+                                            <CheckIcon className="h-4 w-4" />
+                                          )}
+                                        </span>
+                                        <span className="ml-2">{category}</span>
+                                      </div>
+                                    </Button>
+                                  ))
+                                : [
+                                    "Last updated date",
+                                    "Name",
+                                    "Favorited",
+                                  ].map((option) => (
+                                    <Button
+                                      key={option}
+                                      variant="ghost"
+                                      className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
+                                      onClick={() => {
+                                        handleOptionSelect(option);
+                                        handleCloseModal();
+                                      }}
+                                    >
+                                      <div className="flex items-center w-full">
+                                        <span className="w-6">
+                                          {sortFilter === option && (
+                                            <CheckIcon className="h-4 w-4" />
+                                          )}
+                                        </span>
+                                        <span className="ml-2">{option}</span>
+                                      </div>
+                                    </Button>
+                                  ))}
+                            </div>
+                          </Dialog.Content>
+                        </Dialog.Portal>
+                      </Dialog.Root>
+                    </>
+                  ) : (
+                    <>
+                      <Select
+                        value={selectedCategory}
+                        onValueChange={(value) => {
+                          setSelectedCategory(value);
+                          setIsModalOpen(false);
+                          setCategoryFilterDisplayed(false);
+                        }}
+                        open={categoryFilterDisplayed}
+                        onOpenChange={setCategoryFilterDisplayed}
+                      >
+                        <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
+                          <SelectValue
+                            placeholder="Category"
+                            className="font-bold placeholder:font-bold"
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category}
+                              value={category}
+                              className="font-normal"
+                            >
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Select
+                        value={sortBy}
+                        onValueChange={(value) => {
+                          setSortBy(value);
+                          setIsModalOpen(false);
+                        }}
+                      >
+                        <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
+                          <SelectValue
+                            placeholder="Filter"
+                            className="font-bold placeholder:font-bold"
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem
+                            value="Last updated date"
+                            className="font-normal"
+                          >
+                            Last updated date
+                          </SelectItem>
+                          <SelectItem value="Name" className="font-normal">
+                            Name
+                          </SelectItem>
+                          <SelectItem value="Favorited" className="font-normal">
+                            Favorited
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
+              <ToggleGroup.Root
+                type="single"
+                value={viewMode}
+                onValueChange={(value) =>
+                  value && setViewMode(value as "list" | "2-column" | "columns")
+                }
+                className="hidden md:flex items-center"
+              >
+                <ToggleGroup.Item
+                  value="list"
+                  aria-label="List View"
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
+                    viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
+                  }`}
+                >
+                  <ViewHorizontalIcon />
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="2-column"
+                  aria-label="2-Column View"
+                  className={`hidden md:flex items-center space-x-2 px-3 py-2 ${
+                    viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
+                  }`}
+                >
+                  <ViewVerticalIcon />
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="columns"
+                  aria-label="Columns View"
+                  className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-r ${
+                    viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
+                  }`}
+                >
+                  <ViewGridIcon />
+                </ToggleGroup.Item>
+              </ToggleGroup.Root>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={showCheckboxes}
+                  onCheckedChange={handleSelectAll}
+                  className="bg-white border-gray-300"
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Select All
+                </label>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
+            <h1 className="text-3xl font-bold mb-8">Your Journals</h1>
+            <p className="mb-4 text-gray-600">No journals found.</p>
+            <Button
+              onClick={() => router.push("/journal/write")}
+              className="bg-orange-500 hover:bg-orange-600 text-white inline-flex items-center gap-2"
+            >
+              <PlusIcon className="h-4 w-4" />
+              Create a journal
+            </Button>
+          </div>
+        )}
       </div>
-      {/* Global Modal */}
       <GlobalModal />
-      {/* Add this at the end of the component, just before the closing div */}
       <State state={{ categoryFilterDisplayed }} position="bottom-right" />
     </div>
   );
