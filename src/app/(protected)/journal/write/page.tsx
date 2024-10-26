@@ -57,7 +57,6 @@ import {
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
 import SummaryDialog from "@/components/SummaryDialog";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
-import ScrollAreaComponent from "@/components/ui/ScrollArea/ScrollArea"; // Add this import
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -129,8 +128,6 @@ function WritePage() {
   const [summaryError, setSummaryError] = useState<string | null>(null); // New error state
   const [showTitle, setShowTitle] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
-  const [isCategoryScrollAreaVisible, setIsCategoryScrollAreaVisible] =
-    useState(false); // Updated state for scroll area visibility
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
@@ -494,32 +491,49 @@ function WritePage() {
               <div className="flex flex-col items-end">
                 {" "}
                 {/* Container for label and scroll component */}
-                <Label
-                  htmlFor="category"
-                  className="mb-1 cursor-pointer" // Make label clickable
-                  onClick={() =>
-                    setIsCategoryScrollAreaVisible(!isCategoryScrollAreaVisible)
-                  } // Toggle visibility on click
-                >
-                  Categorize it?{" "}
-                  <span className="text-gray-400 text-sm font-normal">
-                    (optional)
-                  </span>
-                </Label>
-                {isCategoryScrollAreaVisible && ( // Conditionally render the new scroll component
-                  <ScrollAreaComponent // Replace with your new scroll component
-                    rootClassName="absolute top-0 right-0"
-                    content={categories.map((category) => ({
-                      id: category._id,
-                      label: category.category,
-                      value: category.category,
-                    }))} // Pass categories as a prop
-                    onSelect={(item) => {
-                      setSelectedCategory(item.value as string);
-                      setIsCategoryScrollAreaVisible(false);
-                    }} // Pass the setSelectedCategory function as onSelect prop
-                  />
-                )}
+                <div className="flex flex-col">
+                  <Label htmlFor="category" className="mb-1">
+                    Categorize it?{" "}
+                    <span className="text-gray-400 text-sm font-normal">
+                      (optional)
+                    </span>
+                  </Label>
+
+                  <select
+                    id="category"
+                    name="category"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[200px]"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category.category}>
+                        {category.category}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsAddingCategory(!isAddingCategory)}
+                      className="text-xs"
+                    >
+                      {isAddingCategory ? (
+                        <>
+                          <X size={20} className="mr-2" />
+                          Cancel
+                        </>
+                      ) : (
+                        <>
+                          New <PlusIcon className="mr-2" size={16} />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
             <form action={handleSubmit} className="space-y-4">
@@ -560,40 +574,27 @@ function WritePage() {
 
                 <div className="space-y-4 flex flex-col">
                   <div className="flex flex-col">
-                    <Label
-                      // htmlFor="category"
-                      className="mb-1 cursor-pointer" // Make label clickable
-                      onClick={() =>
-                        setIsCategoryScrollAreaVisible(
-                          !isCategoryScrollAreaVisible
-                        )
-                      } // Toggle visibility on click
-                    >
+                    <Label htmlFor="category" className="mb-1">
                       Categorize it?{" "}
                       <span className="text-gray-400 text-sm font-normal">
                         (optional)
                       </span>
                     </Label>
 
-                    {isCategoryScrollAreaVisible && ( // Conditionally render the ScrollAreaComponent
-                      <div>
-                        {" "}
-                        {/* Attach ref to the scroll area container */}
-                        <ScrollAreaComponent
-                          rootClassName="absolute top-0 right-0"
-                          content={categories.map((category) => ({
-                            id: category._id,
-                            label: category.category,
-                            value: category.category,
-                          }))} // Pass categories as a prop
-                          onSelect={(item) => {
-                            console.log("item", item);
-                            setSelectedCategory(item.value as string);
-                            setIsCategoryScrollAreaVisible(false);
-                          }} // Pass the setSelectedCategory function as onSelect prop
-                        />
-                      </div>
-                    )}
+                    <select
+                      id="category"
+                      name="category"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[200px]"
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map((category) => (
+                        <option key={category._id} value={category.category}>
+                          {category.category}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
@@ -729,7 +730,9 @@ function WritePage() {
                 {showSuccessMessage && createJournalState.success && (
                   <div className="flex items-center mt-2">
                     <CheckCircle className="text-green-500 mr-2" />
-                    <p className="text-green-500">Entry created successfully!</p>
+                    <p className="text-green-500">
+                      Entry created successfully!
+                    </p>
                   </div>
                 )}
                 {/* Word Stats section for small screens */}

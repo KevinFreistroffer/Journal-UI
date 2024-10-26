@@ -42,8 +42,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // const user = await getUser();/ /how to make this work?
-  const cookieStore = cookies();
-  const consentCookie = cookieStore.get("cookieConsent");
+  const cookieStore = await cookies();
+  const consentCookie = await cookieStore.get("cookieConsent");
   // const initialConsent = consentCookie ? consentCookie.value === "true" : null;
 
   return (
