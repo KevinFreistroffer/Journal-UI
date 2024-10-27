@@ -5,6 +5,7 @@ import { Spinner } from "@/components/ui/spinner"; // Import a spinner component
 // import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { FaSortDown } from "react-icons/fa";
 import {
   List,
   Grid,
@@ -70,13 +71,43 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import * as Dialog from "@radix-ui/react-dialog";
 import State from "@/components/ui/debug/State"; // Add this import at the top of the file
 
+// Add this function near the top of the file with other utility functions
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const currentYear = new Date().getFullYear();
+
+  // Function to add ordinal suffix (1st, 2nd, 3rd, etc.)
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  };
+
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  if (year === currentYear) {
+    return `${month} ${day}${getOrdinalSuffix(day)}`;
+  }
+  return `${month} ${day}${getOrdinalSuffix(day)}, ${year}`;
+};
+
 export default function JournalsPage() {
-  const [viewMode, setViewMode] = useState<"list" | "2-column" | "columns">(
-    "columns"
+  const [viewMode, setViewMode] = useState<"rows" | "2-column" | "3-column">(
+    "3-column"
   ); // Updated state for view mode
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
-  const [showCategory, setShowCategory] = useState(false); // State for showing category
-  const [showUpdatedDate, setShowUpdatedDate] = useState(false); // State for showing updated date
+  const [showCategory, setShowCategory] = useState(true); // State for showing category
+  const [showUpdatedDate, setShowUpdatedDate] = useState(true); // State for showing updated date
 
   // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
@@ -119,6 +150,28 @@ export default function JournalsPage() {
   const [categoryFilterDisplayed, setCategoryFilterDisplayed] = useState(false);
 
   const isMobile = useMediaQuery("(max-width: 639px)");
+
+  const [shouldTruncate, setShouldTruncate] = useState(false);
+  const isMediumScreen = useMediaQuery(
+    "(min-width: 768px) and (max-width: 1023px)"
+  );
+
+  // Add this near your other state declarations
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)"); // lg breakpoint is 1024px
+  const isExtraLargeScreen = useMediaQuery("(min-width: 1280px)"); // xl breakpoint
+
+  // Update the viewMode state to include the effect of screen size
+  useEffect(() => {
+    if (!isLargeScreen) {
+      setViewMode("rows");
+    } else if (!isExtraLargeScreen) {
+      setViewMode("2-column");
+    }
+  }, [isLargeScreen, isExtraLargeScreen]);
+
+  useEffect(() => {
+    setShouldTruncate(viewMode === "2-column" && isMediumScreen);
+  }, [viewMode, isMediumScreen]);
 
   const handleFilterClick = (filterType: "category" | "sort") => {
     if (isMobile) {
@@ -194,7 +247,9 @@ export default function JournalsPage() {
   // Get unique categories
   const categories = [
     "All",
-    ...Array.from(new Set(user?.journals.map((journal) => journal.category))),
+    ...Array.from(
+      new Set(user?.journalCategories?.map((cat) => cat.category) || [])
+    ),
   ];
 
   useEffect(() => {
@@ -424,31 +479,34 @@ export default function JournalsPage() {
     } finally {
     }
   };
-  const [selectIsOpen, setSelectIsOpen] = useState(false);
-  const handleSelectOpenChange = (value: string) => {
-    setSelectIsOpen(!selectIsOpen);
+  const [selectIsOpen, setSelectIsOpen] = useState<string | null>(null);
+  const handleSelectOpenChange = (journalId: string) => {
+    setSelectIsOpen(selectIsOpen === journalId ? null : journalId);
   };
 
-  const handleBulkFavorite = async () => {
-    setLoadingJournalId("bulk"); // Use a special ID for bulk operations
+  // Add this function with your other handlers
+  const handleCategoryChange = async (
+    journalId: string,
+    newCategory: string
+  ) => {
+    setLoadingJournalId(journalId);
     try {
-      // Send API request to favorite all selected journals
       const response = await fetch(`api/user/journal/edit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          journalIds: selectedEntries,
-          favorite: true,
+          journalId,
+          category: newCategory,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update favorite status");
+        throw new Error("Failed to update category");
       }
     } catch (error) {
-      console.error("Error updating favorite status:", error);
+      console.error("Error updating category:", error);
     } finally {
       setLoadingJournalId(null);
     }
@@ -789,16 +847,14 @@ export default function JournalsPage() {
           <ToggleGroup.Root
             type="single"
             value={viewMode}
-            onValueChange={(value) =>
-              value && setViewMode(value as "list" | "2-column" | "columns")
-            }
-            className="hidden md:flex items-center"
+            onValueChange={(value) => value && setViewMode(value as "rows" | "2-column" | "3-column")}
+            className={`items-center ${isLargeScreen ? 'flex' : 'hidden'}`}
           >
             <ToggleGroup.Item
-              value="list"
-              aria-label="List View"
+              value="rows"
+              aria-label="Rows View"
               className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
-                viewMode === "list" ? "bg-blue-100" : "bg-gray-100"
+                viewMode === "rows" ? "bg-blue-100" : "bg-gray-100"
               }`}
             >
               <ViewHorizontalIcon />
@@ -806,69 +862,35 @@ export default function JournalsPage() {
             <ToggleGroup.Item
               value="2-column"
               aria-label="2-Column View"
-              className={`hidden md:flex items-center space-x-2 px-3 py-2 ${
+              className={`flex items-center space-x-2 px-3 py-2 ${
                 viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
-              }`}
+              } ${!isExtraLargeScreen ? 'rounded-r' : ''}`}
             >
               <ViewVerticalIcon />
             </ToggleGroup.Item>
-            <ToggleGroup.Item
-              value="columns"
-              aria-label="Columns View"
-              className={`hidden lg:flex items-center space-x-2 px-3 py-2 rounded-r ${
-                viewMode === "columns" ? "bg-blue-100" : "bg-gray-100"
-              }`}
-            >
-              <ViewGridIcon />
-            </ToggleGroup.Item>
+            {isExtraLargeScreen && (
+              <ToggleGroup.Item
+                value="3-column"
+                aria-label="3-Column View"
+                className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
+                  viewMode === "3-column" ? "bg-blue-100" : "bg-gray-100"
+                }`}
+              >
+                <ViewGridIcon />
+              </ToggleGroup.Item>
+            )}
           </ToggleGroup.Root>
 
           <div className="flex items-center space-x-4">
             {showCheckboxes && selectedEntries.length > 0 && (
               <div className="flex items-center space-x-2 border border-gray-200 rounded-md px-2 py-1">
-                <Tooltip.Provider delayDuration={100}>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <button
-                        onClick={handleBulkFavorite}
-                        className="p-1.5 hover:bg-gray-100 rounded-full"
-                      >
-                        <StarIcon className="w-5 h-5" />
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content
-                        className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                        sideOffset={4}
-                      >
-                        Favorite selected
-                        <Tooltip.Arrow className="fill-gray-800" />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
-
-                <Tooltip.Provider delayDuration={100}>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <button
-                        onClick={() => openDeleteModal(selectedEntries[0])}
-                        className="p-1.5 hover:bg-gray-100 rounded-full"
-                      >
-                        <TrashIcon className="w-5 h-5 text-red-500" />
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content
-                        className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                        sideOffset={4}
-                      >
-                        Delete selected
-                        <Tooltip.Arrow className="fill-gray-800" />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
+                <button
+                  onClick={() => openDeleteModal(selectedEntries[0])}
+                  className="flex items-center space-x-1 p-1.5 hover:bg-gray-100 rounded-md text-red-500 text-sm"
+                >
+                  <TrashIcon className="w-5 h-5" />
+                  <span>Delete all</span>
+                </button>
               </div>
             )}
 
@@ -890,11 +912,11 @@ export default function JournalsPage() {
         </div>
         <div
           className={`grid ${
-            viewMode === "list"
+            viewMode === "rows"
               ? "grid-cols-1"
               : viewMode === "2-column"
               ? "grid-cols-1 md:grid-cols-2"
-              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
           } gap-6`}
         >
           {filteredAndSortedEntries?.length === 0 ? (
@@ -920,10 +942,10 @@ export default function JournalsPage() {
                   key={index}
                   className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
                     selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
-                  } py-4 px-2 relative`} // Changed p-4 to py-4 px-2
+                  } p-3 sm:p-4 md:p-6 relative`}
                 >
                   <div
-                    className={`absolute top-2 left-2 transition-opacity duration-200 ${
+                    className={`absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 transition-opacity duration-200 ${
                       showCheckboxes ? "opacity-100" : "opacity-0"
                     }`}
                   >
@@ -936,57 +958,45 @@ export default function JournalsPage() {
                     />
                   </div>
                   <div className="flex flex-col flex-grow">
-                    <CardHeader className="pb-3">
+                    <CardHeader className="pb-4 pt-0 px-0">
+                      {" "}
+                      {/* Removed top and horizontal padding */}
                       <div className="flex justify-between items-center">
-                        <CardTitle className="wrap text-wrap overflow-wrap text-md text-blue-500">
-                          <Link
-                            href={`/journal/${journal._id}`}
-                            className="hover:underline"
-                          >
-                            {journal.title.length > 30
-                              ? `${journal.title.substring(0, 30)}...`
-                              : journal.title}
-                          </Link>
-                        </CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardFooter className="mt-auto flex justify-between items-end pt-3">
-                      <div className="flex flex-col">
-                        {showCategory && <p>{journal.category}</p>}
-                        {showUpdatedDate && journal.updatedAt ? (
-                          <p className="text-sm text-gray-500">
-                            Updated: {journal.updatedAt.toString()}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-gray-500">
-                            {journal.date}
-                          </p>
-                        )}
-                        <div className="flex items-center text-sm mt-2">  {/* Changed from mt-1 to mt-2 */}
-                          {showSentiment && (
-                            <>
-                              <div
-                                className={`rounded-full mr-1 w-2 h-2 ${getSentimentColor(
-                                  analyzeSentiment(journal.entry).score
-                                )}`}
-                              ></div>
-                              <span className="text-sm text-gray-500">
-                                {getSentimentWord(journal.entry)}
-                              </span>
-                            </>
+                        <div className="flex flex-col">
+                          <CardTitle className="text-wrap break-words text-md text-blue-500 flex-1 break-all mr-1">
+                            <Link
+                              href={`/journal/${journal._id}`}
+                              className="hover:underline"
+                            >
+                              {shouldTruncate
+                                ? `${journal.title.substring(0, 15)}${
+                                    journal.title.length > 15 ? "..." : ""
+                                  }`
+                                : journal.title}
+                            </Link>
+                          </CardTitle>
+                          {showCategory && (
+                            <p className="text-xs mt-2 text-gray-500 bg-gray-100 rounded-full px-2 py-0.5 w-fit mb-2">
+                              {journal.category}
+                            </p>
                           )}
+                        </div>
+                        <div className="flex items-center">
                           <Tooltip.Provider delayDuration={100}>
                             <Tooltip.Root>
-                              <Tooltip.Trigger asChild>
+                              <Tooltip.Trigger
+                                asChild
+                                className="border p-1 w-8 h-8 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
+                              >
                                 {journal.favorite ? (
                                   <StarFilledIcon
                                     onClick={() => handleFavorite(journal._id)}
-                                    className={`w-4 h-4 ${showSentiment ? 'ml-2' : ''}`}
+                                    className="w-4 h-4"
                                   />
                                 ) : (
                                   <StarIcon
                                     onClick={() => handleFavorite(journal._id)}
-                                    className={`w-4 h-4 ${showSentiment ? 'ml-2' : ''}`}
+                                    className="w-4 h-4"
                                   />
                                 )}
                               </Tooltip.Trigger>
@@ -1001,31 +1011,92 @@ export default function JournalsPage() {
                               </Tooltip.Portal>
                             </Tooltip.Root>
                           </Tooltip.Provider>
+
+                          <Popover.Root
+                            open={selectIsOpen === journal._id}
+                            onOpenChange={() =>
+                              handleSelectOpenChange(journal._id)
+                            }
+                          >
+                            <Popover.Trigger asChild>
+                              <button className="flex items-center justify-center w-8 h-8 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                                <ChevronDownIcon className="w-4 h-4" />
+                              </button>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                              <Popover.Content
+                                className="bg-white rounded-md shadow-lg border border-gray-200 w-[200px] p-1 z-50"
+                                sideOffset={5}
+                                align="end"
+                              >
+                                <div className="px-2 py-1.5 text-sm text-gray-500 border-b border-gray-200 flex justify-between items-center">
+                                  Category
+                                  <button
+                                    onClick={() => setSelectIsOpen(null)}
+                                    className="hover:bg-gray-100 p-1 rounded-sm"
+                                  >
+                                    <Cross1Icon className="w-3 h-3" />
+                                  </button>
+                                </div>
+                                {categories
+                                  .filter((cat) => cat !== "All")
+                                  .map((category) => (
+                                    <button
+                                      key={category}
+                                      className={`w-full px-2 py-1.5 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
+                                        journal.category === category
+                                          ? "text-blue-500"
+                                          : ""
+                                      }`}
+                                      onClick={() => {
+                                        handleCategoryChange(
+                                          journal._id,
+                                          category
+                                        );
+                                        setSelectIsOpen(null);
+                                      }}
+                                    >
+                                      {category}
+                                      {journal.category === category && (
+                                        <CheckIcon className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                  ))}
+                              </Popover.Content>
+                            </Popover.Portal>
+                          </Popover.Root>
                         </div>
                       </div>
-                      <div className="flex items-center">
-                        {loadingJournalId === journal._id ? (
-                          <Spinner size="sm" className="mr-2" />
-                        ) : null}
-                        <Tooltip.Provider delayDuration={100}>
-                          <Tooltip.Root>
-                            <Tooltip.Trigger asChild>
-                              <TrashIcon
-                                className="w-7 h-7 text-red-500 cursor-pointer bg-gray-200 rounded-full p-1 hidden md:block"
-                                onClick={() => openDeleteModal(journal._id)}
-                              />
-                            </Tooltip.Trigger>
-                            <Tooltip.Portal>
-                              <Tooltip.Content
-                                className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                                sideOffset={4}
-                              >
-                                Delete
-                                <Tooltip.Arrow className="fill-gray-800" />
-                              </Tooltip.Content>
-                            </Tooltip.Portal>
-                          </Tooltip.Root>
-                        </Tooltip.Provider>
+                    </CardHeader>
+                    <CardFooter className="mt-auto flex flex-col pt-3 p-0 items-start">
+                      <div className="flex justify-between items-center">
+                        {showSentiment && (
+                          <div
+                            className={`flex items-center text-xs ${
+                              showUpdatedDate ? "mr-3" : ""
+                            }`}
+                          >
+                            <div
+                              className={`rounded-full mr-1 w-2 h-2 ${getSentimentColor(
+                                analyzeSentiment(journal.entry).score
+                              )}`}
+                            ></div>
+                            <span className="text-xs text-gray-500">
+                              {getSentimentWord(journal.entry)}
+                            </span>
+                          </div>
+                        )}
+
+                        <p className="text-xs text-gray-500">
+                          {showUpdatedDate && journal.updatedAt ? (
+                            <>
+                              Updated on{" "}
+                              {formatDate(journal.updatedAt.toString())}
+                            </>
+                          ) : (
+                            formatDate(journal.date)
+                          )}
+                        </p>
                       </div>
                     </CardFooter>
                   </div>
