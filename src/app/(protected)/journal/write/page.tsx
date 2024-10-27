@@ -18,6 +18,9 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
 import { IJournal, ICategory } from "@/lib/interfaces";
+import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
+import * as Popover from "@radix-ui/react-popover";
+
 // import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -64,6 +67,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { analyzeSentiment } from "@/lib/utils"; // Add this import
+import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons"; // Add these if not already imported
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -82,12 +87,12 @@ function SubmitButton({
 
   return (
     <Button
-      type="button" // Changed from submit
+      type="button"
       disabled={pending}
       onClick={() => setShowSaveModal(true)}
-      className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm"
+      className="bg-blue-500 hover:bg-blue-600 text-white w-auto md:w-auto py-1 text-sm"
     >
-      Save Journal
+      Save
     </Button>
   );
 }
@@ -125,7 +130,7 @@ function WritePage() {
   const [showTweetThread, setShowTweetThread] = useState(false);
   const clipboard = useClipboard();
   const [createJournalState, createJournalAction] = useFormState(
-    createJournal.bind(null, user?._id || "", selectedCategory),
+    createJournal.bind(null, user?._id || ""),
     createJournalInitialState
   );
   const [showWordStats, setShowWordStats] = useState(false);
@@ -136,6 +141,9 @@ function WritePage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categorySelectIsOpen, setCategorySelectIsOpen] =
+    useState<boolean>(false);
+  const [shouldFavorite, setShouldFavorite] = useState(false);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -437,6 +445,14 @@ function WritePage() {
   const handleFinalSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
+      // Get sentiment score for the journal entry
+      const journalText = formData.get("entry") as string;
+      const sentimentScore = analyzeSentiment(journalText).score;
+
+      // Add sentiment score to form data
+      formData.append("category", selectedCategory);
+      formData.append("sentimentScore", sentimentScore.toString());
+
       createJournalAction(formData);
     } catch (error) {
       console.error("Error submitting journal:", error);
@@ -517,8 +533,94 @@ function WritePage() {
               <div className="flex flex-col items-end">
                 {" "}
                 {/* Container for label and scroll component */}
-                <div className="flex flex-col">
-                  <Label htmlFor="category" className="mb-1">
+                <div className="flex items-center mb-2">
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger
+                        asChild
+                        className="border p-1 w-8 h-8 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
+                      >
+                        {shouldFavorite ? (
+                          <StarFilledIcon
+                            onClick={() => setShouldFavorite(false)}
+                            className="w-4 h-4"
+                          />
+                        ) : (
+                          <StarIcon
+                            onClick={() => setShouldFavorite(true)}
+                            className="w-4 h-4"
+                          />
+                        )}
+                      </TooltipTrigger>
+                      <TooltipContent
+                        className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
+                        sideOffset={4}
+                      >
+                        Favorite
+                        {/* <TooltipArrow className="fill-gray-800" /> */}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <Popover.Root
+                    open={categorySelectIsOpen}
+                    onOpenChange={setCategorySelectIsOpen}
+                  >
+                    <Popover.Trigger asChild>
+                      <button className="flex items-center justify-center w-8 h-8 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                        <ChevronDownIcon className="w-4 h-4" />
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content
+                        className="bg-white rounded-md shadow-lg border border-gray-200 w-[200px] z-50"
+                        sideOffset={5}
+                        align="end"
+                      >
+                        <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 flex justify-between items-center">
+                          Categories
+                          <button
+                            onClick={() => setCategorySelectIsOpen(false)}
+                            className="hover:bg-gray-100 p-1 rounded-sm"
+                          >
+                            <Cross1Icon className="w-3 h-3" />
+                          </button>
+                        </div>
+                        {categories
+                          .filter((cat) => cat.category !== "All")
+                          .map((category, index) => (
+                            <button
+                              key={index}
+                              className={`w-full px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
+                                selectedCategory === category.category
+                                  ? "text-blue-500"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                setSelectedCategory(category.category);
+                                setCategorySelectIsOpen(false);
+                              }}
+                            >
+                              {category.category}
+                              {selectedCategory === category.category && (
+                                <CheckIcon className="w-4 h-4" />
+                              )}
+                            </button>
+                          ))}
+                        <button
+                          onClick={() => {
+                            setIsAddingCategory(true);
+                            setCategorySelectIsOpen(false);
+                          }}
+                          className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 border-t border-gray-200 flex items-center text-blue-500"
+                        >
+                          <PlusIcon className="w-4 h-4 mr-2" />
+                          Create new
+                        </button>
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                  {/* <Label htmlFor="category" className="mb-1">
                     Categorize it?{" "}
                     <span className="text-gray-400 text-sm font-normal">
                       (optional)
@@ -558,7 +660,7 @@ function WritePage() {
                         </>
                       )}
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -600,7 +702,7 @@ function WritePage() {
 
                 <div className="space-y-4 flex flex-col">
                   <div className="flex flex-col">
-                    <Label htmlFor="category" className="mb-1">
+                    {/* <Label htmlFor="category" className="mb-1">
                       Categorize it?{" "}
                       <span className="text-gray-400 text-sm font-normal">
                         (optional)
@@ -620,9 +722,9 @@ function WritePage() {
                           {category.category}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
                   </div>
-                  <div className="flex items-center space-x-2">
+                  {/* <div className="flex items-center space-x-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -640,7 +742,7 @@ function WritePage() {
                         </>
                       )}
                     </Button>
-                  </div>
+                  </div> */}
 
                   {isAddingCategory && (
                     <div className="flex items-center space-x-2 mt-2">
@@ -684,7 +786,7 @@ function WritePage() {
                     </div>
                   )}
                 </div>
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <Label htmlFor="favorite" className="mr-2">
                     Favorite this journal?
                   </Label>
@@ -724,34 +826,43 @@ function WritePage() {
                       )}
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center justify-start">
-                  <SubmitButton setShowSaveModal={setShowSaveModal} />
-                </div>
-                <div className="flex items-center mt-2">
-                  <Button
-                    type="button"
-                    onClick={summarizeJournal}
-                    className="bg-blue-500 hover:bg-blue-600 text-white w-1/4 py-1 text-sm mr-2"
-                    disabled={isSummarizing || !journal}
-                  >
-                    {isSummarizing ? "Summarizing..." : "Generate Summary"}
-                  </Button>
-                  <TooltipProvider delayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="w-5 h-5 text-gray-500 cursor-help border-solid border-black" />
-                      </TooltipTrigger>
-                      <TooltipContent className="border-solid border-black">
-                        <p className="text-sm leading-relaxed">
-                          Summarize your journal entry into fewer sentences.
-                        </p>
-                        <p className="text-xs leading-relaxed">
-                          You can also tweet the summary directly!
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                </div> */}
+                <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
+                  <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
+                    <SubmitButton setShowSaveModal={setShowSaveModal} />
+                    <Button
+                      type="button"
+                      onClick={summarizeJournal}
+                      className="bg-purple-500 hover:bg-purple-600 text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm"
+                    >
+                      <div className="flex items-center justify-center gap-1 mx-auto">
+                        <span>
+                          {isSummarizing
+                            ? "Summarizing..."
+                            : "Generate Summary"}
+                        </span>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs"
+                            >
+                              <p className="text-sm leading-relaxed">
+                                Summarize your journal entry into fewer
+                                sentences.
+                              </p>
+                              <p className="text-xs leading-relaxed text-gray-300">
+                                You can also tweet the summary directly!
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </Button>
+                  </div>
                 </div>
                 {showSuccessMessage && createJournalState.success && (
                   <div className="flex items-center mt-2">

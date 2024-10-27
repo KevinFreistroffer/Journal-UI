@@ -15,11 +15,11 @@ const CreateJournalSchema = z.object({
   entry: z.string(),
   category: z.string(),
   favorite: z.boolean().optional(),
+  sentimentScore: z.number(),
 });
 
 export const createJournal: CreateJournalFunction = async (
   userId: string,
-  selectedCategory: string,
   prevState: ICreateJournalState,
   formData: FormData
 ): Promise<ICreateJournalState> => {
@@ -27,10 +27,11 @@ export const createJournal: CreateJournalFunction = async (
   const validatedFields = CreateJournalSchema.safeParse({
     title: formData.get("title"),
     entry: formData.get("entry"),
-    category: selectedCategory,
+    category: formData.get("category"),
     favorite: formData.has("favorite")
       ? formData.get("favorite") === "true"
       : false,
+    sentimentScore: formData.get("sentimentScore"),
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
@@ -43,7 +44,8 @@ export const createJournal: CreateJournalFunction = async (
     };
   }
 
-  const { title, entry, category, favorite } = validatedFields.data;
+  const { title, entry, category, favorite, sentimentScore } =
+    validatedFields.data;
 
   try {
     const response = await fetch("http://localhost:3001/user/journal/create", {
@@ -59,6 +61,7 @@ export const createJournal: CreateJournalFunction = async (
         entry,
         category,
         favorite,
+        sentimentScore,
       }),
     });
 
