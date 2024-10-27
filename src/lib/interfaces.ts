@@ -5,8 +5,7 @@ export interface IJournal {
   category: string;
   date: string;
   selected: boolean;
-  sentiment?: string;
-  sentimentColor?: string;
+  sentimentScore: number;
   createdAt?: Date;
   updatedAt?: Date;
   favorite?: boolean;

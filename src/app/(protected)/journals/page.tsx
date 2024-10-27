@@ -64,7 +64,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getSentimentWord } from "@/lib/utils"; // Add this import at the top of the file
+import {
+  getSentimentWord,
+  analyzeSentiment,
+  getSentimentColor,
+} from "@/lib/utils"; // Add this import at the top of the file
 import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
 import * as Popover from "@radix-ui/react-popover";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -323,26 +327,13 @@ export default function JournalsPage() {
   //   "I had a meeting and it went well.",
   //   "The project is almost done, just need to finish a few tasks.",
   // ];
-  const sentiment = new Sentiment();
-  const analyzeSentiment = (journal: string) => {
-    const result = sentiment.analyze(journal);
+  // const sentiment = new Sentiment();
+  // const analyzeSentiment = (journal: string) => {
+  //   const result = sentiment.analyze(journal);
+  //   console.log(result);
 
-    return result; // result.score will give you a sentiment score
-  };
-
-  const getSentimentColor = (score: number): string => {
-    if (score < -5) {
-      return "bg-red-600"; // Very Negative
-    } else if (score < 0) {
-      return "bg-red-400"; // Negative
-    } else if (score === 0) {
-      return "bg-gray-400"; // Neutral
-    } else if (score <= 5) {
-      return "bg-green-400"; // Positive
-    } else {
-      return "bg-green-600"; // Very Positive
-    }
-  };
+  //   return result; // result.score will give you a sentiment score
+  // };
 
   const handleFavorite = async (journalId: string) => {
     setLoadingJournalId(journalId); // Set the loading state for the specific journal
@@ -525,16 +516,16 @@ export default function JournalsPage() {
   // Add handler for creating new category
   const handleCreateCategory = async () => {
     try {
-      const response = await fetch('/api/user/category/create', {
-        method: 'POST',
+      const response = await fetch("/api/user/category/create", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ category: newCategoryName }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create category');
+        throw new Error("Failed to create category");
       }
 
       setNewCategoryName("");
@@ -542,7 +533,7 @@ export default function JournalsPage() {
       setSelectIsOpen(null);
       // The user state should automatically update with the new category
     } catch (error) {
-      console.error('Error creating category:', error);
+      console.error("Error creating category:", error);
     }
   };
 
@@ -1130,7 +1121,9 @@ export default function JournalsPage() {
                               )}`}
                             ></div>
                             <span className="text-xs text-gray-500">
-                              {getSentimentWord(journal.entry)}
+                              {getSentimentWord(
+                                analyzeSentiment(journal.entry).score
+                              )}
                             </span>
                           </div>
                         )}
@@ -1159,7 +1152,10 @@ export default function JournalsPage() {
       {/* Add this at the end of the component, just before the closing div */}
       <State state={{ categoryFilterDisplayed }} position="bottom-right" />
       {/* Add the create category modal */}
-      <Dialog.Root open={showCreateCategoryModal} onOpenChange={setShowCreateCategoryModal}>
+      <Dialog.Root
+        open={showCreateCategoryModal}
+        onOpenChange={setShowCreateCategoryModal}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40" />
           <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">

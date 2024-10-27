@@ -102,18 +102,30 @@ export function analyzeSentiment(text: string): ISentimentResult {
   }
 }
 
-export function getSentimentWord(text: string): string {
-  try {
-    const sentiment = new Sentiment();
-    const result = sentiment.analyze(text);
-    const score = result.comparative;
+export const getSentimentColor = (score: number): string => {
+  console.log("getSentimentColor score", score);
+  if (score <= -0.6) {
+    return "bg-red-600"; // Very Negative
+  } else if (score < -0.1) {
+    return "bg-red-400"; // Negative
+  } else if (score >= -0.1 && score <= 0.1) {
+    return "bg-gray-400"; // Neutral
+  } else if (score < 0.6) {
+    return "bg-green-400"; // Positive
+  } else {
+    return "bg-green-600"; // Very Positive
+  }
+};
 
+export function getSentimentWord(score: number): string {
+  console.log("getSentimentWord score", score);
+  try {
     if (score >= 0.6) return "Ecstatic";
     if (score >= 0.3) return "Happy";
     if (score >= 0.1) return "Positive";
-    if (score > -0.1) return "Neutral";
-    if (score > -0.3) return "Negative";
-    if (score > -0.6) return "Sad";
+    if (score >= -0.1) return "Neutral";
+    if (score >= -0.3) return "Negative";
+    if (score >= -0.6) return "Sad";
     return "Angry";
   } catch (error) {
     console.error("Error analyzing sentiment:", error);
