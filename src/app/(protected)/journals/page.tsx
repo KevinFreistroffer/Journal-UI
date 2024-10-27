@@ -70,6 +70,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import * as Dialog from "@radix-ui/react-dialog";
 import State from "@/components/ui/debug/State"; // Add this import at the top of the file
+import { PlusIcon } from "@radix-ui/react-icons";
 
 // Add this function near the top of the file with other utility functions
 const formatDate = (dateString: string) => {
@@ -101,10 +102,15 @@ const formatDate = (dateString: string) => {
   return `${month} ${day}${getOrdinalSuffix(day)}, ${year}`;
 };
 
+// Add this enum near the top of the file, before the component
+enum ViewMode {
+  Rows = "rows",
+  TwoColumn = "two-column",
+  ThreeColumn = "three-column",
+}
+
 export default function JournalsPage() {
-  const [viewMode, setViewMode] = useState<"rows" | "2-column" | "3-column">(
-    "3-column"
-  ); // Updated state for view mode
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.ThreeColumn);
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showCategory, setShowCategory] = useState(true); // State for showing category
   const [showUpdatedDate, setShowUpdatedDate] = useState(true); // State for showing updated date
@@ -160,17 +166,21 @@ export default function JournalsPage() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)"); // lg breakpoint is 1024px
   const isExtraLargeScreen = useMediaQuery("(min-width: 1280px)"); // xl breakpoint
 
-  // Update the viewMode state to include the effect of screen size
+  // Add new state for the create category modal
+  const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
+  // Update useEffect to handle default view modes
   useEffect(() => {
     if (!isLargeScreen) {
-      setViewMode("rows");
+      setViewMode(ViewMode.Rows);
     } else if (!isExtraLargeScreen) {
-      setViewMode("2-column");
+      setViewMode(ViewMode.TwoColumn);
     }
   }, [isLargeScreen, isExtraLargeScreen]);
 
   useEffect(() => {
-    setShouldTruncate(viewMode === "2-column" && isMediumScreen);
+    setShouldTruncate(viewMode === ViewMode.TwoColumn && isMediumScreen);
   }, [viewMode, isMediumScreen]);
 
   const handleFilterClick = (filterType: "category" | "sort") => {
@@ -512,6 +522,30 @@ export default function JournalsPage() {
     }
   };
 
+  // Add handler for creating new category
+  const handleCreateCategory = async () => {
+    try {
+      const response = await fetch('/api/user/category/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ category: newCategoryName }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create category');
+      }
+
+      setNewCategoryName("");
+      setShowCreateCategoryModal(false);
+      setSelectIsOpen(null);
+      // The user state should automatically update with the new category
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
+  };
+
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -847,33 +881,35 @@ export default function JournalsPage() {
           <ToggleGroup.Root
             type="single"
             value={viewMode}
-            onValueChange={(value) => value && setViewMode(value as "rows" | "2-column" | "3-column")}
-            className={`items-center ${isLargeScreen ? 'flex' : 'hidden'}`}
+            onValueChange={(value) => value && setViewMode(value as ViewMode)}
+            className={`items-center ${isLargeScreen ? "flex" : "hidden"}`}
           >
             <ToggleGroup.Item
-              value="rows"
+              value={ViewMode.Rows}
               aria-label="Rows View"
               className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
-                viewMode === "rows" ? "bg-blue-100" : "bg-gray-100"
+                viewMode === ViewMode.Rows ? "bg-blue-100" : "bg-gray-100"
               }`}
             >
               <ViewHorizontalIcon />
             </ToggleGroup.Item>
             <ToggleGroup.Item
-              value="2-column"
+              value={ViewMode.TwoColumn}
               aria-label="2-Column View"
               className={`flex items-center space-x-2 px-3 py-2 ${
-                viewMode === "2-column" ? "bg-blue-100" : "bg-gray-100"
-              } ${!isExtraLargeScreen ? 'rounded-r' : ''}`}
+                viewMode === ViewMode.TwoColumn ? "bg-blue-100" : "bg-gray-100"
+              } ${!isExtraLargeScreen ? "rounded-r" : ""}`}
             >
               <ViewVerticalIcon />
             </ToggleGroup.Item>
             {isExtraLargeScreen && (
               <ToggleGroup.Item
-                value="3-column"
+                value={ViewMode.ThreeColumn}
                 aria-label="3-Column View"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
-                  viewMode === "3-column" ? "bg-blue-100" : "bg-gray-100"
+                  viewMode === ViewMode.ThreeColumn
+                    ? "bg-blue-100"
+                    : "bg-gray-100"
                 }`}
               >
                 <ViewGridIcon />
@@ -881,7 +917,8 @@ export default function JournalsPage() {
             )}
           </ToggleGroup.Root>
 
-          <div className="flex items-center space-x-4">
+          {/* Select all and delete all functionality */}
+          {/* <div className="flex items-center space-x-4">
             {showCheckboxes && selectedEntries.length > 0 && (
               <div className="flex items-center space-x-2 border border-gray-200 rounded-md px-2 py-1">
                 <button
@@ -908,16 +945,17 @@ export default function JournalsPage() {
                 Select All
               </label>
             </div>
-          </div>
+          </div> */}
         </div>
         <div
-          className={`grid ${
-            viewMode === "rows"
-              ? "grid-cols-1"
-              : viewMode === "2-column"
-              ? "grid-cols-1 md:grid-cols-2"
-              : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
-          } gap-6`}
+          className={`grid gap-6 ${
+            {
+              [ViewMode.Rows]: "grid-cols-1",
+              [ViewMode.TwoColumn]: "grid-cols-1 md:grid-cols-2",
+              [ViewMode.ThreeColumn]:
+                "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
+            }[viewMode]
+          }`}
         >
           {filteredAndSortedEntries?.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center text-center">
@@ -1025,12 +1063,12 @@ export default function JournalsPage() {
                             </Popover.Trigger>
                             <Popover.Portal>
                               <Popover.Content
-                                className="bg-white rounded-md shadow-lg border border-gray-200 w-[200px] p-1 z-50"
+                                className="bg-white rounded-md shadow-lg border border-gray-200 w-[200px] z-50"
                                 sideOffset={5}
                                 align="end"
                               >
-                                <div className="px-2 py-1.5 text-sm text-gray-500 border-b border-gray-200 flex justify-between items-center">
-                                  Category
+                                <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 flex justify-between items-center">
+                                  Categories
                                   <button
                                     onClick={() => setSelectIsOpen(null)}
                                     className="hover:bg-gray-100 p-1 rounded-sm"
@@ -1043,7 +1081,7 @@ export default function JournalsPage() {
                                   .map((category) => (
                                     <button
                                       key={category}
-                                      className={`w-full px-2 py-1.5 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
+                                      className={`w-full px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
                                         journal.category === category
                                           ? "text-blue-500"
                                           : ""
@@ -1062,6 +1100,16 @@ export default function JournalsPage() {
                                       )}
                                     </button>
                                   ))}
+                                <button
+                                  onClick={() => {
+                                    setShowCreateCategoryModal(true);
+                                    setSelectIsOpen(null);
+                                  }}
+                                  className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 border-t border-gray-200 flex items-center text-blue-500"
+                                >
+                                  <PlusIcon className="w-4 h-4 mr-2" />
+                                  Create new
+                                </button>
                               </Popover.Content>
                             </Popover.Portal>
                           </Popover.Root>
@@ -1110,6 +1158,39 @@ export default function JournalsPage() {
       <GlobalModal />
       {/* Add this at the end of the component, just before the closing div */}
       <State state={{ categoryFilterDisplayed }} position="bottom-right" />
+      {/* Add the create category modal */}
+      <Dialog.Root open={showCreateCategoryModal} onOpenChange={setShowCreateCategoryModal}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
+            <Dialog.Title className="text-lg font-semibold mb-4">
+              Create New Category
+            </Dialog.Title>
+            <input
+              type="text"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Category name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowCreateCategoryModal(false)}
+                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateCategory}
+                disabled={!newCategoryName.trim()}
+                className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Create
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }
