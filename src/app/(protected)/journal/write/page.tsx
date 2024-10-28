@@ -48,7 +48,6 @@ import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";
-import styles from "./styles.module.css";
 
 // import { SummarizerManager } from "node-summarizer";
 import {
@@ -73,7 +72,8 @@ import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons"; // Add these i
 // Add these imports at the top
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
-
+import { useQuill } from "react-quilljs";
+import "./styles.css";
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
@@ -179,6 +179,7 @@ function WritePage() {
   const [categorySelectIsOpen, setCategorySelectIsOpen] =
     useState<boolean>(false);
   const [shouldFavorite, setShouldFavorite] = useState(false);
+  const { quill, quillRef } = useQuill();
 
   // const { openModal } = useContext(ModalContext);
 
@@ -332,6 +333,57 @@ function WritePage() {
     }
   }, [journal, journals]);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current); // Clear timeout on component unmount
+      }
+    };
+  }, []);
+
+  // Add effect to handle form submission state
+  useEffect(() => {
+    if (createJournalState.success) {
+      setShowSuccessMessage(true);
+      if (createJournalState.user) {
+        setUser(createJournalState.user);
+      }
+
+      // Hide the message after 3 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [createJournalState, setUser]);
+
+  // Add or update the useEffect to handle successful submission
+  useEffect(() => {
+    if (createJournalState.success) {
+      setShowSaveModal(false);
+      setJournal(""); // Clear the journal
+      setTitle(""); // Clear the title
+      setSelectedCategory(""); // Reset category
+      setFavorite(false); // Reset favorite
+    }
+  }, [createJournalState.success]);
+
+  useEffect(() => {
+    if (quill) {
+      quill.on("text-change", (delta, oldDelta, source) => {
+        console.log("Text change!");
+        console.log(quill.getText(), typeof quill.getText()); // Get text only
+        console.log(quill.getContents(), typeof quill.getContents()); // Get delta contents
+        console.log(quill.root.innerHTML, typeof quill.root.innerHTML); // Get innerHTML using quill
+        console.log(
+          quillRef.current.firstChild.innerHTML,
+          typeof quillRef.current.firstChild.innerHTML
+        ); // Get innerHTML using quillRef
+      });
+    }
+  }, [quill, quillRef]);
+
   // Updated summarizeJournal function
   const summarizeJournal = async () => {
     if (!journal.trim()) {
@@ -430,42 +482,6 @@ function WritePage() {
     const sampleText = generateLoremIpsum(3); // Generate 3 paragraphs
     setJournal(sampleText);
   };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current); // Clear timeout on component unmount
-      }
-    };
-  }, []);
-
-  // Add effect to handle form submission state
-  useEffect(() => {
-    if (createJournalState.success) {
-      setShowSuccessMessage(true);
-      if (createJournalState.user) {
-        setUser(createJournalState.user);
-      }
-
-      // Hide the message after 3 seconds
-      const timer = setTimeout(() => {
-        setShowSuccessMessage(false);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [createJournalState, setUser]);
-
-  // Add or update the useEffect to handle successful submission
-  useEffect(() => {
-    if (createJournalState.success) {
-      setShowSaveModal(false);
-      setJournal(""); // Clear the journal
-      setTitle(""); // Clear the title
-      setSelectedCategory(""); // Reset category
-      setFavorite(false); // Reset favorite
-    }
-  }, [createJournalState.success]);
 
   // Create a wrapper function for the form action
   const handleSubmit = async (formData: FormData) => {
@@ -709,21 +725,28 @@ function WritePage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Title (optional)"
+                  className="rounded-b-none"
                 />
               </div>
               <div className="flex flex-col mb-4">
                 {/* <Label htmlFor="journal" className="mb-1">
                   Journal Entry
                 </Label> */}
-                <ReactQuill
-                  theme="snow"
-                  value={journal}
-                  onChange={handleJournalChange}
-                  modules={QUILL_MODULES}
-                  formats={QUILL_FORMATS}
-                  placeholder="Write your journal entry here..."
-                  className="mb-6"
-                />
+                {/* <div className="h-80 mb-24">
+                  <ReactQuill
+                    theme="snow"
+                    value={journal}
+                    onChange={handleJournalChange}
+                    modules={QUILL_MODULES}
+                    formats={QUILL_FORMATS}
+                    placeholder="Write your journal entry here..."
+                    className={`h-full`}
+                  />
+                </div> */}
+                <div style={{ width: "100%" }}>
+                  <div ref={quillRef} />
+                </div>
+
                 <div className="mt-4 fixed top-20 right-10">
                   <Button
                     type="button"

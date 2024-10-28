@@ -17,6 +17,8 @@ water ripple background animated
 
 replace the keyword freq select with another component. too slow.
 
+quill how to use css modules?
+
 public private journals
 
 make sure card in dashboard title, content etc. is aligned on the same row

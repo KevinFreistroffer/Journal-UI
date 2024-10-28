@@ -10,6 +10,7 @@
   --darkMustardYellow: #fea03a;
   --mustardYellow: #ffa751;
   --starFavorite: #ffd700;
+  --border-gray-200: rgb(229, 231, 235);
 }
 
 @media (prefers-color-scheme: dark) {
