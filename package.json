@@ -43,6 +43,7 @@
     "react-joyride": "^2.9.2",
     "react-merge-refs": "^2.1.1",
     "react-popper": "^2.3.0",
+    "react-quill": "^2.0.0",
     "sentiment": "^5.0.2",
     "shadcn-ui": "^0.9.1",
     "tailwind-merge": "^2.5.2",

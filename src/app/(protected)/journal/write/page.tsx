@@ -70,6 +70,41 @@ import {
 import { analyzeSentiment } from "@/lib/utils"; // Add this import
 import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons"; // Add these if not already imported
 
+// Add these imports at the top
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
+
+// Dynamically import ReactQuill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 w-full bg-gray-100 animate-pulse rounded-md" />
+  ),
+});
+
+// Add this constant for Quill modules/formats
+const QUILL_MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    [{ color: [] }, { background: [] }],
+    ["clean"],
+  ],
+};
+
+const QUILL_FORMATS = [
+  "header",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "list",
+  "bullet",
+  "color",
+  "background",
+];
+
 const createJournalInitialState: ICreateJournalState = {
   message: "",
   errors: {},
@@ -379,8 +414,8 @@ function WritePage() {
     return chunks;
   };
 
-  const handleJournalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setJournal(e.target.value);
+  const handleJournalChange = (value: string) => {
+    setJournal(value);
   };
 
   const handleJournalPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -567,8 +602,8 @@ function WritePage() {
                     onOpenChange={setCategorySelectIsOpen}
                   >
                     <Popover.Trigger asChild>
-                      <button className="flex items-center justify-center w-8 h-8 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
-                        <ChevronDownIcon className="w-4 h-4" />
+                      <button className="flex pl-2 pr-2 items-center justify-center text-sm h-8 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                        Category <ChevronDownIcon className="ml-1 w-4 h-4" />
                       </button>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -577,7 +612,7 @@ function WritePage() {
                         sideOffset={5}
                         align="end"
                       >
-                        <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 flex justify-between items-center">
+                        <div className="font-bold px-4 py-3 text-sm border-b border  flex justify-between items-center">
                           Categories
                           <button
                             onClick={() => setCategorySelectIsOpen(false)}
@@ -680,16 +715,15 @@ function WritePage() {
                 {/* <Label htmlFor="journal" className="mb-1">
                   Journal Entry
                 </Label> */}
-                <Textarea
-                  id="journal"
-                  name="entry"
+                <ReactQuill
+                  theme="snow"
                   value={journal}
                   onChange={handleJournalChange}
-                  onPaste={handleJournalPaste}
+                  modules={QUILL_MODULES}
+                  formats={QUILL_FORMATS}
                   placeholder="Write your journal entry here..."
-                  className="h-64 mb-6"
+                  className="mb-6"
                 />
-
                 <div className="mt-4 fixed top-20 right-10">
                   <Button
                     type="button"
