@@ -70,17 +70,13 @@ import { analyzeSentiment } from "@/lib/utils"; // Add this import
 import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons"; // Add these if not already imported
 
 // Add these imports at the top
-import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 import { useQuill } from "react-quilljs";
 import "./styles.css";
+import Quill from "quill";
+import MagicUrl from "quill-magic-url";
+Quill.register("modules/magicUrl", MagicUrl);
 // Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-64 w-full bg-gray-100 animate-pulse rounded-md" />
-  ),
-});
 
 // Add this constant for Quill modules/formats
 const QUILL_MODULES = {
@@ -92,18 +88,6 @@ const QUILL_MODULES = {
     ["clean"],
   ],
 };
-
-const QUILL_FORMATS = [
-  "header",
-  "bold",
-  "italic",
-  "underline",
-  "strike",
-  "list",
-  "bullet",
-  "color",
-  "background",
-];
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -179,7 +163,7 @@ function WritePage() {
   const [categorySelectIsOpen, setCategorySelectIsOpen] =
     useState<boolean>(false);
   const [shouldFavorite, setShouldFavorite] = useState(false);
-  const { quill, quillRef } = useQuill();
+  const { quill, quillRef } = useQuill({ modules: { magicUrl: true } });
 
   // const { openModal } = useContext(ModalContext);
 
@@ -581,15 +565,15 @@ function WritePage() {
               {" "}
               {/* Flex container for alignment */}
               <h1 className="text-xl">Write anything</h1> {/* Title */}
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-center mb-2">
                 {" "}
                 {/* Container for label and scroll component */}
-                <div className="flex items-center mb-2">
+                <div className="flex items-center ">
                   <TooltipProvider delayDuration={100}>
                     <Tooltip>
                       <TooltipTrigger
                         asChild
-                        className="border p-1 w-8 h-8 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
+                        className="border h-full w-6 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
                       >
                         {shouldFavorite ? (
                           <StarFilledIcon
@@ -599,7 +583,7 @@ function WritePage() {
                         ) : (
                           <StarIcon
                             onClick={() => setShouldFavorite(true)}
-                            className="w-4 h-4"
+                            className="w-2 h-2"
                           />
                         )}
                       </TooltipTrigger>
@@ -618,7 +602,13 @@ function WritePage() {
                     onOpenChange={setCategorySelectIsOpen}
                   >
                     <Popover.Trigger asChild>
-                      <button className="flex pl-2 pr-2 items-center justify-center text-sm h-8 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                      <button
+                        style={{
+                          border: "1px solid var(--border-gray-200)",
+                          borderLeft: "none",
+                        }}
+                        className="flex pl-2 pr-2 items-center justify-center text-sm h-6 border bg-gray-100 rounded-tr rounded-br m-0 box-border"
+                      >
                         Category <ChevronDownIcon className="ml-1 w-4 h-4" />
                       </button>
                     </Popover.Trigger>

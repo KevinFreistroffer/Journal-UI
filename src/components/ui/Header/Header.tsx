@@ -65,7 +65,7 @@ export default function Header() {
   const isMediumScreen = useMediaQuery("(min-width: 768px)");
   const isSmallScreen = useMediaQuery("(max-width: 503px)");
   const isVerySmallScreen = useMediaQuery("(max-width: 443px)");
-  const isExtraSmallScreen = useMediaQuery("(max-width: 380px)");
+  const isExtraSmallScreen = useMediaQuery("(max-width: 365px)");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -146,7 +146,9 @@ export default function Header() {
     }
   };
 
-  const isTabRoute = ["/dashboard", "/journals", "/categories"].includes(pathname);
+  const isTabRoute = ["/dashboard", "/journals", "/categories"].includes(
+    pathname
+  );
 
   const handleLogout = async () => {
     try {
