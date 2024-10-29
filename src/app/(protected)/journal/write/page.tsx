@@ -191,6 +191,8 @@ function WritePage() {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
+  const [isWordStatsModalOpen, setIsWordStatsModalOpen] = useState(false);
+
   useEffect(() => {
     if (quill) {
       quill.clipboard.dangerouslyPasteHTML("");
@@ -785,12 +787,19 @@ function WritePage() {
                 >
                   <div ref={quillRef} />
                 </div>
-
-                <div className="mt-4 fixed top-20 right-10">
+                <button
+                  type="button"
+                  onClick={() => setIsWordStatsModalOpen(true)}
+                  className="mb-6 text-[11px] text-black/80 flex items-center self-end hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                >
+                  <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
+                  View Word Stats
+                </button>
+                <div className="mt-2 fixed top-20 right-10 w-auto mb-4">
                   <Button
                     type="button"
                     onClick={generateSampleText}
-                    className="bg-gray-500 "
+                    className="bg-gray-500"
                   >
                     Generate
                   </Button>
@@ -968,34 +977,39 @@ function WritePage() {
                     </p>
                   </div>
                 )}
-                {/* Word Stats section for small screens */}
-                <div className="md:hidden mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowWordStats(!showWordStats)}
-                    className="flex items-center justify-between w-full p-2 bg-gray-200 rounded-md"
+                {/* Word Stats link and modal for small screens */}
+                <div className="md:hidden mt-2 flex justify-end">
+                  <Dialog
+                    open={isWordStatsModalOpen}
+                    onOpenChange={setIsWordStatsModalOpen}
                   >
-                    <span className="font-medium">Word Stats</span>
-                    {showWordStats ? (
-                      <ChevronUp size={20} />
-                    ) : (
-                      <ChevronDown size={20} />
-                    )}
-                  </button>
-                  {showWordStats && (
-                    <div className="mt-2 p-4 bg-gray-100 rounded-md">
-                      <p>
-                        <span className="font-medium">Total Words:</span>{" "}
-                        {totalWords}
-                      </p>
-                      <p>
-                        <span className="font-medium">
-                          Average Words Across All Journals:
-                        </span>{" "}
-                        {averageWords}
-                      </p>
-                    </div>
-                  )}
+                    <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto">
+                      <DialogHeader>
+                        <DialogTitle>Word Stats</DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-2 space-y-4">
+                        <div className="flex justify-between items-center py-2 border-b">
+                          <span className="font-medium">Total Words</span>
+                          <span>{totalWords}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                          <span className="font-medium">
+                            Average Words Per Journal
+                          </span>
+                          <span>{averageWords}</span>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          onClick={() => setIsWordStatsModalOpen(false)}
+                          className="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-black"
+                        >
+                          Close
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </form>
