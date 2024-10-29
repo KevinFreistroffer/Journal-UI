@@ -54,3 +54,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}

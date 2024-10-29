@@ -19,7 +19,7 @@ const Option = (props: any) => {
   return (
     <div
       {...props.innerProps}
-      className={`${props.className} flex items-center px-3 py-2 hover:bg-gray-100`}
+      className={`${props.className} flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer`}
     >
       <input
         type="checkbox"
@@ -57,6 +57,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       className={className}
       classNamePrefix="react-select"
       components={{ Option }}
+      closeMenuOnSelect={false}
     />
   );
 };

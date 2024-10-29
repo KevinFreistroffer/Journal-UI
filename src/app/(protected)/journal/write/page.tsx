@@ -609,7 +609,7 @@ function WritePage() {
                 {" "}
                 {/* Container for label and scroll component */}
                 <div className="flex items-center ">
-                  <TooltipProvider delayDuration={100}>
+                  {/* <TooltipProvider delayDuration={100}>
                     <Tooltip>
                       <TooltipTrigger
                         asChild
@@ -632,13 +632,13 @@ function WritePage() {
                         sideOffset={4}
                       >
                         Favorite
-                        {/* <TooltipArrow className="fill-gray-800" /> */}
+
                       </TooltipContent>
                     </Tooltip>
-                  </TooltipProvider>
+                  </TooltipProvider> */}
 
-                  <Popover.Root
-                    open={true}
+                  {/* <Popover.Root
+                    open={categorySelectIsOpen}
                     onOpenChange={setCategorySelectIsOpen}
                   >
                     <Popover.Trigger asChild>
@@ -673,13 +673,13 @@ function WritePage() {
                             .map((category, index) => (
                               <button
                                 key={index}
-                                className="w-auto px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between min-w-0"
+                                className="break-words px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between min-w-0"
                                 onClick={() => {
                                   setSelectedCategory(category.category);
                                   setCategorySelectIsOpen(false);
                                 }}
                               >
-                                <span className="break-words pr-2 flex-1 min-w-0">
+                                <span className="overflow-wrap-anywhere">
                                   {category.category}
                                 </span>
                                 {selectedCategory === category.category && (
@@ -702,7 +702,7 @@ function WritePage() {
                         </div>
                       </Popover.Content>
                     </Popover.Portal>
-                  </Popover.Root>
+                  </Popover.Root> */}
                   {/* <Label htmlFor="category" className="mb-1">
                     Categorize it?{" "}
                     <span className="text-gray-400 text-sm font-normal">
@@ -1014,9 +1014,9 @@ function WritePage() {
 
       {/* Save Modal */}
       <Dialog open={showSaveModal} onOpenChange={setShowSaveModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[475px]">
           <DialogHeader>
-            <DialogTitle>Save Journal Entry</DialogTitle>
+            <DialogTitle>Optional Settings</DialogTitle>
           </DialogHeader>
 
           <form
@@ -1026,14 +1026,14 @@ function WritePage() {
               handleFinalSubmit(formData);
             }}
           >
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 mb-6">
               {/* Category Selection */}
-              <div className="space-y-2">
-                <Label htmlFor="category">
-                  Categorize it???{" "}
-                  <span className="text-gray-400 text-sm font-normal">
+              <div className="space-y-2 mb-2">
+                <Label htmlFor="category" className="text-sm">
+                  Categorize
+                  {/* <span className="text-gray-400 text-xs font-normal">
                     (optional)
-                  </span>
+                  </span> */}
                 </Label>
                 <MultiSelect
                   options={categories.map((cat) => ({
@@ -1043,48 +1043,49 @@ function WritePage() {
                   selectedValues={selectedCategories}
                   onChange={setSelectedCategories}
                   placeholder="Select categories..."
+                  className="overflow-wrap-anywhere text-sm"
                 />
               </div>
 
               {/* Favorite Toggle */}
               <div className="flex items-center space-x-3">
                 <Label htmlFor="favorite" className="cursor-pointer">
-                  Favorite this entry
+                  Favorite this entry?
                 </Label>
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id="favorite"
-                    name="favorite"
-                    checked={favorite}
-                    onChange={(e) => setFavorite(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div
-                    className={cn(
-                      "w-5 h-5 border-2 rounded-sm cursor-pointer transition-colors duration-200",
-                      favorite
-                        ? "bg-[#3b82f6] border-[#3b82f6]"
-                        : "bg-white border-gray-300"
-                    )}
-                    onClick={() => setFavorite(!favorite)}
-                  >
-                    {favorite && (
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    )}
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="favorite-no"
+                      name="favorite"
+                      value="false"
+                      checked={!favorite}
+                      onChange={() => setFavorite(false)}
+                      className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
+                    />
+                    <label
+                      htmlFor="favorite-no"
+                      className="ml-2 text-sm text-gray-600"
+                    >
+                      No
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="favorite-yes"
+                      name="favorite"
+                      value="true"
+                      checked={favorite}
+                      onChange={() => setFavorite(true)}
+                      className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
+                    />
+                    <label
+                      htmlFor="favorite-yes"
+                      className="ml-2 text-sm text-gray-600"
+                    >
+                      Yes
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1094,24 +1095,31 @@ function WritePage() {
               <input type="hidden" name="entry" value={journal} />
             </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowSaveModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <div className="flex items-center">
-                    <Spinner className="mr-2 h-4 w-4" />
-                    <span>Saving...</span>
-                  </div>
-                ) : (
-                  "No thanks, just save"
-                )}
-              </Button>
+            <DialogFooter className="flex justify-start">
+              <div className="w-full flex flex-col xs:flex-row gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowSaveModal(false)}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 cursor-pointer px-8 py-4"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer px-8 py-4"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <Spinner className="mr-2 h-4 w-4" />
+                      <span>Saving...</span>
+                    </div>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </DialogContent>

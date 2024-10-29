@@ -19,6 +19,10 @@ replace the keyword freq select with another component. too slow.
 
 quill how to use css modules?
 
+By default at least 1 category must exist. If the user edits "My Journals" to "" or tries to delete it if its the only category, than a message that
+at least 1 category must exist.
+-- Should make it so categories aren't required. You can delete all categories. Hide any category dropdowns/features. 
+
 public private journals
 
 make sure card in dashboard title, content etc. is aligned on the same row
