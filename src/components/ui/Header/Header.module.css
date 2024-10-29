@@ -2,3 +2,7 @@
   transition: all 0.04s ease-out;
   font-family: var(--font-mona-sans) !important;
 }
+
+#more-button {
+  border: 1px solid var(--border-gray-300);
+}

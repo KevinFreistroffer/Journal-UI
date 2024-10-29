@@ -23,6 +23,7 @@ export const createJournal: CreateJournalFunction = async (
   prevState: ICreateJournalState,
   formData: FormData
 ): Promise<ICreateJournalState> => {
+  console.log("createJournalAction", userId, prevState, formData);
   // Validate form data
   const validatedFields = CreateJournalSchema.safeParse({
     title: formData.get("title"),

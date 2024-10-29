@@ -324,7 +324,10 @@ export default function Header() {
                 {dropdownItems.length > 0 && (
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <button className="p-[6px] bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none mr-0 ml-auto">
+                      <button
+                        id={styles["more-button"]}
+                        className=" p-[6px] bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none mr-0 ml-auto"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
                     </DropdownMenu.Trigger>

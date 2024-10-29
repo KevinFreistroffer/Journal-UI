@@ -11,6 +11,13 @@
   --mustardYellow: #ffa751;
   --starFavorite: #ffd700;
   --border-gray-200: rgb(229, 231, 235);
+  --border-gray-300: rgb(209, 213, 219);
+  --border-gray-400: rgb(156, 163, 175);
+  --border-gray-500: rgb(107, 114, 128);
+  --border-gray-600: rgb(75, 85, 99);
+  --border-gray-700: rgb(55, 65, 81);
+  --border-gray-800: rgb(31, 41, 55);
+  --border-gray-900: rgb(17, 24, 39);
 }
 
 @media (prefers-color-scheme: dark) {

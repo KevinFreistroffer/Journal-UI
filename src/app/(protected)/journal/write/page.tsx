@@ -37,6 +37,7 @@ import {
   Clipboard,
   ChevronDown,
   ChevronUp,
+  Save, // Add this import
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
@@ -76,6 +77,7 @@ import "./styles.css";
 import Quill from "quill";
 import MagicUrl from "quill-magic-url";
 Quill.register("modules/magicUrl", MagicUrl);
+import { MultiSelect } from "@/components/ui/MultiSelect/MutliSelect";
 // Dynamically import ReactQuill to avoid SSR issues
 
 // Add this constant for Quill modules/formats
@@ -109,9 +111,9 @@ function SubmitButton({
       type="button"
       disabled={pending}
       onClick={() => setShowSaveModal(true)}
-      className="bg-blue-500 hover:bg-blue-600 text-white w-auto md:w-auto py-1 text-sm"
+      className="bg-blue-500 hover:bg-blue-600 text-white w-auto md:w-24 py-1 px-4 text-sm flex items-center justify-center"
     >
-      Save
+      <span className="mr-2">Save</span> <Save className="w-4 h-4" />
     </Button>
   );
 }
@@ -163,7 +165,37 @@ function WritePage() {
   const [categorySelectIsOpen, setCategorySelectIsOpen] =
     useState<boolean>(false);
   const [shouldFavorite, setShouldFavorite] = useState(false);
-  const { quill, quillRef } = useQuill({ modules: { magicUrl: true } });
+  const { quill, quillRef } = useQuill({
+    modules: {
+      magicUrl: true,
+      toolbar: [
+        ["bold", "italic", "underline", "strike"],
+        [{ align: [] }],
+
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ indent: "-1" }, { indent: "+1" }],
+
+        [{ size: ["small", false, "large", "huge"] }],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        [
+          "link",
+          // "image",
+          // "video"
+        ],
+        [{ color: [] }, { background: [] }],
+
+        ["clean"],
+      ],
+    },
+  });
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (quill) {
+      quill.clipboard.dangerouslyPasteHTML("");
+    }
+  }, [quill]);
 
   // const { openModal } = useContext(ModalContext);
 
@@ -360,6 +392,9 @@ function WritePage() {
         console.log(quill.getText(), typeof quill.getText()); // Get text only
         console.log(quill.getContents(), typeof quill.getContents()); // Get delta contents
         console.log(quill.root.innerHTML, typeof quill.root.innerHTML); // Get innerHTML using quill
+        setJournal(
+          quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
+        );
         console.log(
           quillRef.current.firstChild.innerHTML,
           typeof quillRef.current.firstChild.innerHTML
@@ -391,6 +426,11 @@ function WritePage() {
       }
 
       const data: { summary: string[] } = await response.json();
+
+      if (data.summary[0] === journal) {
+        setSummaryError("The journal is too short to summarize.");
+        return;
+      }
       setSummary(data.summary);
       setIsSummaryModalOpen(true);
     } catch (error) {
@@ -536,12 +576,12 @@ function WritePage() {
           {
             title: "Word Stats",
             content: (
-              <div className="mt-2 text-sm font-thin text-gray-600">
+              <div className="mt-2 text-sm  text-gray-600">
                 <p>
                   <span className="font-medium">Total Words:</span> {totalWords}
                 </p>
                 <p>
-                  <span className="font-medium">
+                  <span className="font-medium ">
                     Average Words Across All Journals:
                   </span>{" "}
                   {averageWords}
@@ -554,12 +594,12 @@ function WritePage() {
 
       {/* Main Content */}
       <div
-        className={`flex-1 p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
+        className={`flex-1 p-6 pb-24 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen ? "md:ml-56" : "md:ml-24"
         }`}
       >
         {/* Journal writing section */}
-        <div className="flex-1 flex justify-center">
+        <div className=" flex justify-center w-full max-w-6xl ml-auto mr-auto">
           <div className="w-full md:w-3/4">
             <div className="flex justify-between items-center">
               {" "}
@@ -573,7 +613,7 @@ function WritePage() {
                     <Tooltip>
                       <TooltipTrigger
                         asChild
-                        className="border h-full w-6 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
+                        className="border h-full w-7 p-1  rounded-tl rounded-bl cursor-pointer"
                       >
                         {shouldFavorite ? (
                           <StarFilledIcon
@@ -598,7 +638,7 @@ function WritePage() {
                   </TooltipProvider>
 
                   <Popover.Root
-                    open={categorySelectIsOpen}
+                    open={true}
                     onOpenChange={setCategorySelectIsOpen}
                   >
                     <Popover.Trigger asChild>
@@ -607,9 +647,9 @@ function WritePage() {
                           border: "1px solid var(--border-gray-200)",
                           borderLeft: "none",
                         }}
-                        className="flex pl-2 pr-2 items-center justify-center text-sm h-6 border bg-gray-100 rounded-tr rounded-br m-0 box-border"
+                        className="flex pl-2 pr-2 items-center justify-center text-sm h-7 border  rounded-tr rounded-br m-0 box-border"
                       >
-                        Category <ChevronDownIcon className="ml-1 w-4 h-4" />
+                        Categorize <ChevronDownIcon className="ml-1 w-4 h-4" />
                       </button>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -618,7 +658,7 @@ function WritePage() {
                         sideOffset={5}
                         align="end"
                       >
-                        <div className="font-bold px-4 py-3 text-sm border-b border  flex justify-between items-center">
+                        <div className="font-bold px-4 py-3 text-sm border-b border flex justify-between items-center">
                           Categories
                           <button
                             onClick={() => setCategorySelectIsOpen(false)}
@@ -627,37 +667,39 @@ function WritePage() {
                             <Cross1Icon className="w-3 h-3" />
                           </button>
                         </div>
-                        {categories
-                          .filter((cat) => cat.category !== "All")
-                          .map((category, index) => (
-                            <button
-                              key={index}
-                              className={`w-full px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
-                                selectedCategory === category.category
-                                  ? "text-blue-500"
-                                  : ""
-                              }`}
-                              onClick={() => {
-                                setSelectedCategory(category.category);
-                                setCategorySelectIsOpen(false);
-                              }}
-                            >
-                              {category.category}
-                              {selectedCategory === category.category && (
-                                <CheckIcon className="w-4 h-4" />
-                              )}
-                            </button>
-                          ))}
-                        <button
-                          onClick={() => {
-                            setIsAddingCategory(true);
-                            setCategorySelectIsOpen(false);
-                          }}
-                          className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 border-t border-gray-200 flex items-center text-blue-500"
-                        >
-                          <PlusIcon className="w-4 h-4 mr-2" />
-                          Create new
-                        </button>
+                        <div className="max-w-full">
+                          {categories
+                            .filter((cat) => cat.category !== "All")
+                            .map((category, index) => (
+                              <button
+                                key={index}
+                                className="w-auto px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between min-w-0"
+                                onClick={() => {
+                                  setSelectedCategory(category.category);
+                                  setCategorySelectIsOpen(false);
+                                }}
+                              >
+                                <span className="break-words pr-2 flex-1 min-w-0">
+                                  {category.category}
+                                </span>
+                                {selectedCategory === category.category && (
+                                  <CheckIcon className="w-4 h-4 flex-shrink-0 ml-2" />
+                                )}
+                              </button>
+                            ))}
+                          <button
+                            onClick={() => {
+                              setIsAddingCategory(true);
+                              setCategorySelectIsOpen(false);
+                            }}
+                            className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 border-t border-gray-200 flex items-center text-blue-500"
+                          >
+                            <PlusIcon className="w-4 h-4 flex-shrink-0 mr-2" />
+                            <span className="break-words flex-1 min-w-0">
+                              Create new
+                            </span>
+                          </button>
+                        </div>
                       </Popover.Content>
                     </Popover.Portal>
                   </Popover.Root>
@@ -715,7 +757,8 @@ function WritePage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Title (optional)"
-                  className="rounded-b-none"
+                  className="rounded-b-none outline-none"
+                  focusVisible={false}
                 />
               </div>
               <div className="flex flex-col mb-4">
@@ -733,7 +776,13 @@ function WritePage() {
                     className={`h-full`}
                   />
                 </div> */}
-                <div style={{ width: "100%" }}>
+                <div
+                  style={{
+                    width: "100%",
+                    maxHeight: "500px",
+                    overflow: "auto",
+                  }}
+                >
                   <div ref={quillRef} />
                 </div>
 
@@ -981,79 +1030,20 @@ function WritePage() {
               {/* Category Selection */}
               <div className="space-y-2">
                 <Label htmlFor="category">
-                  Category{" "}
+                  Categorize it???{" "}
                   <span className="text-gray-400 text-sm font-normal">
                     (optional)
                   </span>
                 </Label>
-                <select
-                  id="category"
-                  name="category"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category.category}>
-                      {category.category}
-                    </option>
-                  ))}
-                </select>
-
-                {/* New Category Button */}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setIsAddingCategory(!isAddingCategory)}
-                  className="text-xs mt-2"
-                >
-                  {isAddingCategory ? (
-                    <>
-                      <X size={20} className="mr-2" />
-                      Cancel
-                    </>
-                  ) : (
-                    <>
-                      New <PlusIcon className="mr-2" size={16} />
-                    </>
-                  )}
-                </Button>
-
-                {/* New Category Input */}
-                {isAddingCategory && (
-                  <div className="mt-2 space-y-2">
-                    <Input
-                      value={newCategoryName}
-                      onChange={(e) => {
-                        const newName = e.target.value;
-                        setNewCategoryName(newName);
-                        setShowCreatedCategorySuccessIcon(false);
-                        const exists = categories.some(
-                          ({ category }) =>
-                            category.toLowerCase() === newName.toLowerCase()
-                        );
-                        setCategoryExists(exists);
-                        setCategoryCreatedErrorMessage(
-                          exists ? "Category already exists." : ""
-                        );
-                      }}
-                      placeholder="New category"
-                    />
-                    <Button
-                      type="button"
-                      disabled={
-                        isCreatingCategoryLoading ||
-                        categoryExists ||
-                        newCategoryName.trim() === ""
-                      }
-                      onClick={handleCreateCategory}
-                      className="w-full"
-                    >
-                      {isCreatingCategoryLoading ? <Spinner /> : "Add Category"}
-                    </Button>
-                  </div>
-                )}
+                <MultiSelect
+                  options={categories.map((cat) => ({
+                    value: cat.category,
+                    label: cat.category,
+                  }))}
+                  selectedValues={selectedCategories}
+                  onChange={setSelectedCategories}
+                  placeholder="Select categories..."
+                />
               </div>
 
               {/* Favorite Toggle */}
