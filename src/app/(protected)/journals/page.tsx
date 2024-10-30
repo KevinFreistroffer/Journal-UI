@@ -123,7 +123,7 @@ export default function JournalsPage() {
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
@@ -341,20 +341,27 @@ export default function JournalsPage() {
   //   return result; // result.score will give you a sentiment score
   // };
 
-  const handleFavorite = async (journalId: string) => {
+  const handleFavorite = async (journalId: string, favorite: boolean) => {
+    console.log("favorite", favorite);
     setLoadingJournalId(journalId); // Set the loading state for the specific journal
     try {
       // Send API request to edit the journal
-      const response = await fetch(`api/user/entry/edit`, {
-        method: "POST",
+      const response = await fetch(`/api/user/entry/edit`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ journalId, favorite: true }), // Include the journal ID in the request body
+        body: JSON.stringify({ userId: user?._id, journalId, favorite }), // Include the journal ID in the request body
       });
 
       if (!response.ok) {
         throw new Error("Failed to update favorite status");
+      }
+
+      if (response.status === 200) {
+        const data = await response.json();
+        console.log("Favorite updated successfully");
+        setUser(data.data);
       }
 
       // Handle successful response (e.g., update state)
@@ -1036,12 +1043,16 @@ export default function JournalsPage() {
                                   </div>
                                 ) : journal.favorite ? (
                                   <StarFilledIcon
-                                    onClick={() => handleFavorite(journal._id)}
+                                    onClick={() =>
+                                      handleFavorite(journal._id, false)
+                                    }
                                     className="w-4 h-4"
                                   />
                                 ) : (
                                   <StarIcon
-                                    onClick={() => handleFavorite(journal._id)}
+                                    onClick={() =>
+                                      handleFavorite(journal._id, true)
+                                    }
                                     className="w-4 h-4"
                                   />
                                 )}

@@ -244,6 +244,7 @@ export function sanitizeHtml(
 }
 
 export const decodeHtmlEntities = (htmlString: string) => {
+  console.log("decodeHtmlEntities htmlString", htmlString);
   const textarea = document.createElement("textarea");
   textarea.innerHTML = htmlString;
   return textarea.value;

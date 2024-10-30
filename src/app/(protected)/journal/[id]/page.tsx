@@ -99,6 +99,7 @@ export default function JournalPage() {
       );
 
       if (savedJournal) {
+        console.log("savedJournal", savedJournal);
         setSelectedJournal(savedJournal); // Set state with saved journal
         localStorageService.setItem("selectedJournal", savedJournal); // Save journal to local storage
       }
