@@ -20,7 +20,7 @@ import { useJournal } from "@/hooks/useJournal";
 import { IJournal, ICategory } from "@/lib/interfaces";
 import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
 import * as Popover from "@radix-ui/react-popover";
-import { sanitizeHtml } from "@/lib/utils";
+import { decodeHtmlEntities, sanitizeHtml } from "@/lib/utils";
 // import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -546,10 +546,11 @@ function WritePage({ params }: { params?: { id: string } }) {
       if (existingJournal) {
         // Populate the form with existing journal data
         setTitle(existingJournal.title || "");
+        const decodedJournal = decodeHtmlEntities(existingJournal.entry);
         if (quill) {
-          quill.clipboard.dangerouslyPasteHTML(existingJournal.entry);
+          quill.clipboard.dangerouslyPasteHTML(decodedJournal);
         }
-        setJournal(existingJournal.entry);
+        setJournal(decodedJournal);
         setFavorite(existingJournal.favorite || false);
 
         // Handle categories if they exist
