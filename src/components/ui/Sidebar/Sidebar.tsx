@@ -12,6 +12,7 @@ interface IProps {
   icon: React.ReactNode;
   sections: SidebarSection[];
   setIsSidebarOpen: (isOpen: boolean) => void;
+  headerDisplaysTabs?: boolean;
 }
 
 export const Sidebar: React.FC<IProps> = ({
@@ -19,10 +20,13 @@ export const Sidebar: React.FC<IProps> = ({
   isOpen,
   sections,
   setIsSidebarOpen,
+  headerDisplaysTabs = true,
 }) => {
   return (
     <div
-      className={`fixed mt-[97px] top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 hidden md:block ${
+      className={`fixed ${
+        headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
+      } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-10 hidden md:block ${
         isOpen ? "w-56" : "w-16"
       }`}
     >

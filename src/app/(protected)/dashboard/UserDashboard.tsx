@@ -33,7 +33,7 @@ import { LegendItem } from "@/app/(protected)/dashboard/Legend";
 //   SelectItem,
 //   SelectValue,
 // } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/Spinner";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -405,6 +405,7 @@ function UserDashboard() {
         isOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         icon={<Settings size={20} />}
+        headerDisplaysTabs={true}
         sections={[
           {
             title: "Toggle Cards",

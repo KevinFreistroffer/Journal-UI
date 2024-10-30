@@ -21,6 +21,7 @@ import {
   MoreHorizontal,
   PlusIcon,
   ListIcon,
+  Menu,
 } from "lucide-react"; // Add User icon
 import {
   Sheet,
@@ -66,6 +67,8 @@ export default function Header() {
   const isSmallScreen = useMediaQuery("(max-width: 503px)");
   const isVerySmallScreen = useMediaQuery("(max-width: 443px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 365px)");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isWritePage = pathname.startsWith('/journal/write');
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -192,7 +195,34 @@ export default function Header() {
         className={`sticky px-3 sm:px-4 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
       >
         <div className="flex h-14 items-center justify-between w-full">
-          <div className="flex-1">
+          <div className="flex-1 flex items-center gap-2">
+            {isWritePage && (
+              <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hover:bg-gray-200">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px]">
+                  <SheetHeader>
+                    <SheetTitle>Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4">
+                    {menuItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                        onClick={() => setIsSidebarOpen(false)}
+                      >
+                        {getIcon(item.href)}
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
             <Link href="/" passHref>
               <h1 className="text-lg font-semibold md:text-xl">Journals</h1>
             </Link>
@@ -290,8 +320,8 @@ export default function Header() {
           )}
         </div>
 
-        {/* Tabs - Only visible when user is signed in */}
-        {!isLoading && user && (
+        {/* Tabs - Only visible when user is signed in and not on write page */}
+        {!isLoading && user && !pathname.startsWith('/journal/write') && (
           <div className="w-full">
             <Tabs defaultValue={pathname} className="w-full">
               <TabsList className="bg-transparent p-0 flex flex-wrap justify-start w-full">

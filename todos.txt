@@ -1,5 +1,7 @@
 if cookieConsent is false, use LS
 
+journals filteredAndSorted .sort() Last updated date not sure
+
 try next-auth?
 
 use the data transfer layer. use canShowUsername or isAuthenticated or something with roles, hasUserRoleAccess
@@ -11,6 +13,7 @@ redo the form action error messages
 create a logging system saving errors to a file. example: signup action returns { ..., adminMessage: "No body.data returned from the server".}
 - save this text, with timestamp, with user info username, email, etc.
 
+determine if entry or journal
 
 use colors in globals.css
 water ripple background animated
@@ -21,7 +24,7 @@ quill how to use css modules?
 
 By default at least 1 category must exist. If the user edits "My Journals" to "" or tries to delete it if its the only category, than a message that
 at least 1 category must exist.
--- Should make it so categories aren't required. You can delete all categories. Hide any category dropdowns/features. 
+-- Should make it so categories aren't required. You can delete all categories. Hide any category dropdowns/features.
 
 public private journals
 

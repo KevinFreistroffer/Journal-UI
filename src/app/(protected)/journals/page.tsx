@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Fragment, useContext } from "react";
-import { Spinner } from "@/components/ui/spinner"; // Import a spinner component if you have one
+import { Spinner } from "@/components/ui/Spinner"; // Import a spinner component if you have one
 // import HelperText from "@/components/ui/HelperText/HelperText";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
@@ -75,6 +75,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import * as Dialog from "@radix-ui/react-dialog";
 import State from "@/components/ui/debug/State"; // Add this import at the top of the file
 import { PlusIcon } from "@radix-ui/react-icons";
+import SpinnerIcon from "@/components/SpinnerIcon";
 
 // Add this function near the top of the file with other utility functions
 const formatDate = (dateString: string) => {
@@ -118,7 +119,6 @@ export default function JournalsPage() {
   const [showSentiment, setShowSentiment] = useState(true); // State to show or hide sentiment
   const [showCategory, setShowCategory] = useState(true); // State for showing category
   const [showUpdatedDate, setShowUpdatedDate] = useState(true); // State for showing updated date
-
   // const [favoriteJournals, setFavoriteJournals] = useState<string[]>([]); // State for favorite journals
   const [loadingJournalId, setLoadingJournalId] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -127,7 +127,7 @@ export default function JournalsPage() {
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
-  const [selectedDate, setSelectedDate] = useState<string>(""); // State for selected date
+  const [selectedFilterDate, setSelectedFilterDate] = useState<string>(""); // Changed from selectedDate // This is the createdAt date.
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // New state for sidebar
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
   const { query, handleSearch, setFilteredEntries } = useSearch();
@@ -143,10 +143,8 @@ export default function JournalsPage() {
   });
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("");
-
   // Add this state at the component level
   const [showCheckboxes, setShowCheckboxes] = useState(false);
-
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [displayedCategoryFilter, setDisplayedCategoryFilter] =
     useState("Category");
@@ -156,20 +154,15 @@ export default function JournalsPage() {
   const [activeFilter, setActiveFilter] = useState<"category" | "sort" | null>(
     null
   );
-
   const [categoryFilterDisplayed, setCategoryFilterDisplayed] = useState(false);
-
   const isMobile = useMediaQuery("(max-width: 639px)");
-
   const [shouldTruncate, setShouldTruncate] = useState(false);
   const isMediumScreen = useMediaQuery(
     "(min-width: 768px) and (max-width: 1023px)"
   );
-
   // Add this near your other state declarations
   const isLargeScreen = useMediaQuery("(min-width: 1024px)"); // lg breakpoint is 1024px
   const isExtraLargeScreen = useMediaQuery("(min-width: 1280px)"); // xl breakpoint
-
   // Add new state for the create category modal
   const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -213,15 +206,18 @@ export default function JournalsPage() {
     setCategoryFilterDisplayed(false);
   };
 
+  console.log("user", user);
+
   const filteredAndSortedEntries = user?.journals
     .filter((journal) => {
+      console.log("journal", journal);
       if (showFavoritesOnly && !journal.favorite) {
         return false;
       }
       if (
-        selectedDate &&
-        new Date(journal.date).toDateString() !==
-          new Date(selectedDate).toDateString()
+        selectedFilterDate &&
+        new Date(journal.createdAt).toDateString() !==
+          new Date(selectedFilterDate).toDateString()
       ) {
         return false;
       }
@@ -230,13 +226,20 @@ export default function JournalsPage() {
         return (
           journal.title.toLowerCase().includes(lowercaseQuery) ||
           journal.entry.toLowerCase().includes(lowercaseQuery) ||
-          journal.category.toLowerCase().includes(lowercaseQuery)
+          journal.categories
+            .map((c) => c.category)
+            .join(", ")
+            .toLowerCase()
+            .includes(lowercaseQuery)
         );
       }
       if (
         selectedCategory &&
         selectedCategory !== "" &&
-        journal.category !== selectedCategory
+        journal.categories
+          .map((c) => c.category)
+          .join(", ")
+          .toLowerCase() !== selectedCategory
       ) {
         return false;
       }
@@ -244,10 +247,11 @@ export default function JournalsPage() {
     })
     .sort((a, b) => {
       switch (sortBy) {
+        // NOT SURE
         case "Last updated date":
           return (
-            new Date(b.updatedAt || b.date).getTime() -
-            new Date(a.updatedAt || a.date).getTime()
+            new Date(b.updatedAt || b.createdAt).getTime() -
+            new Date(a.updatedAt || a.createdAt).getTime()
           );
         case "Name":
           return a.title.localeCompare(b.title);
@@ -257,6 +261,8 @@ export default function JournalsPage() {
           return 0;
       }
     });
+
+  console.log("filteredAndSortedEntries", filteredAndSortedEntries);
 
   // Get unique categories
   const categories = [
@@ -339,7 +345,7 @@ export default function JournalsPage() {
     setLoadingJournalId(journalId); // Set the loading state for the specific journal
     try {
       // Send API request to edit the journal
-      const response = await fetch(`api/user/journal/edit`, {
+      const response = await fetch(`api/user/entry/edit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -554,6 +560,7 @@ export default function JournalsPage() {
     <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto">
       <Sidebar
         isOpen={isSidebarOpen}
+        headerDisplaysTabs={true}
         sections={[
           {
             title: "Filters",
@@ -595,15 +602,16 @@ export default function JournalsPage() {
                     size={4}
                   />
                 </div>
+                {/* TODO add an updated by date */}
                 <div className="flex flex-col space-y-2">
                   <label htmlFor="date-filter" className="text-sm font-medium">
-                    Filter by Date
+                    Filter by Created Date
                   </label>
                   <input
                     id="date-filter"
                     type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
+                    value={selectedFilterDate}
+                    onChange={(e) => setSelectedFilterDate(e.target.value)}
                     className="border rounded p-1 text-sm"
                   />
                 </div>
@@ -966,6 +974,9 @@ export default function JournalsPage() {
             </div>
           ) : (
             filteredAndSortedEntries?.map((journal, index) => {
+              console.log("journal", journal);
+              const displayTitle = journal.title.trim() || "Untitled";
+
               return (
                 <Card
                   key={index}
@@ -998,15 +1009,17 @@ export default function JournalsPage() {
                               className="hover:underline"
                             >
                               {shouldTruncate
-                                ? `${journal.title.substring(0, 15)}${
-                                    journal.title.length > 15 ? "..." : ""
+                                ? `${displayTitle.substring(0, 15)}${
+                                    displayTitle.length > 15 ? "..." : ""
                                   }`
-                                : journal.title}
+                                : displayTitle}
                             </Link>
                           </CardTitle>
                           {showCategory && (
                             <p className="text-xs mt-2 text-gray-500 bg-gray-100 rounded-full px-2 py-0.5 w-fit mb-2">
-                              {journal.category}
+                              {/* {journal.categories
+                                .map((c) => c.category)
+                                .join(", ")} */}
                             </p>
                           )}
                         </div>
@@ -1015,9 +1028,13 @@ export default function JournalsPage() {
                             <Tooltip.Root>
                               <Tooltip.Trigger
                                 asChild
-                                className="border p-1 w-8 h-8 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
+                                className="border p-1 w-7 h-7 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
                               >
-                                {journal.favorite ? (
+                                {loadingJournalId === journal._id ? (
+                                  <div className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                                    <SpinnerIcon />
+                                  </div>
+                                ) : journal.favorite ? (
                                   <StarFilledIcon
                                     onClick={() => handleFavorite(journal._id)}
                                     className="w-4 h-4"
@@ -1048,7 +1065,7 @@ export default function JournalsPage() {
                             }
                           >
                             <Popover.Trigger asChild>
-                              <button className="flex items-center justify-center w-8 h-8 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                              <button className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
                                 <ChevronDownIcon className="w-4 h-4" />
                               </button>
                             </Popover.Trigger>
@@ -1062,7 +1079,7 @@ export default function JournalsPage() {
                                   Categories
                                   <button
                                     onClick={() => setSelectIsOpen(null)}
-                                    className="hover:bg-gray-100 p-1 rounded-sm"
+                                    className="hover:bg-gray-100 p-1 rounded-sm "
                                   >
                                     <Cross1Icon className="w-3 h-3" />
                                   </button>
@@ -1072,8 +1089,11 @@ export default function JournalsPage() {
                                   .map((category) => (
                                     <button
                                       key={category}
-                                      className={`w-full px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
-                                        journal.category === category
+                                      className={`box-border overflow-wrap-anywhere w-full px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
+                                        journal.categories
+                                          .map((c) => c.category)
+                                          .join(", ")
+                                          .toLowerCase() === category
                                           ? "text-blue-500"
                                           : ""
                                       }`}
@@ -1086,7 +1106,10 @@ export default function JournalsPage() {
                                       }}
                                     >
                                       {category}
-                                      {journal.category === category && (
+                                      {journal.categories
+                                        .map((c) => c.category)
+                                        .join(", ")
+                                        .toLowerCase() === category && (
                                         <CheckIcon className="w-4 h-4" />
                                       )}
                                     </button>
@@ -1128,16 +1151,12 @@ export default function JournalsPage() {
                           </div>
                         )}
 
-                        <p className="text-xs text-gray-500">
-                          {showUpdatedDate && journal.updatedAt ? (
-                            <>
-                              Updated on{" "}
-                              {formatDate(journal.updatedAt.toString())}
-                            </>
-                          ) : (
-                            formatDate(journal.date)
-                          )}
-                        </p>
+                        {showUpdatedDate && journal.updatedAt ? (
+                          <p className="text-xs text-gray-500">
+                            Updated on{" "}
+                            {formatDate(journal.updatedAt.toString())}
+                          </p>
+                        ) : null}
                       </div>
                     </CardFooter>
                   </div>

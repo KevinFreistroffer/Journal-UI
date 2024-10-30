@@ -32,7 +32,7 @@ export const createJournal: CreateJournalFunction = async (
     favorite: formData.has("favorite")
       ? formData.get("favorite") === "true"
       : false,
-    sentimentScore: formData.get("sentimentScore"),
+    sentimentScore: Number(formData.get("sentimentScore")),
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
@@ -59,14 +59,12 @@ export const createJournal: CreateJournalFunction = async (
       body: JSON.stringify({
         userId,
         title,
-        entry,
+        entry: entry.replace(/\bclass=/g, "className="),
         category,
         favorite,
         sentimentScore,
       }),
     });
-
-    const data = await response.json();
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -77,7 +75,7 @@ export const createJournal: CreateJournalFunction = async (
         user: null,
       };
     }
-
+    const data = await response.json();
     const userDataResult = UserSchema.safeParse(data.data);
 
     if (!userDataResult.success) {

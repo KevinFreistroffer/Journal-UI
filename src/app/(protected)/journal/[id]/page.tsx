@@ -7,12 +7,16 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { IJournal } from "@/lib/interfaces";
 import Link from "next/link";
 import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Import Sidebar component
 import { Settings } from "lucide-react";
+import { decodeHtmlEntities } from "@/lib/utils";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+
 export default function JournalPage() {
   const router = useRouter();
   const params = useParams();
@@ -113,6 +117,7 @@ export default function JournalPage() {
         isOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         icon={<Settings />}
+        headerDisplaysTabs={false}
         sections={[
           {
             title: "Settings",
@@ -169,16 +174,32 @@ export default function JournalPage() {
               </Link>
             </div>
           ) : (
-            <Card className="min-h-[500px] flex flex-col bg-gray-900 text-white p-8 ">
-              <CardHeader className="text-center mb-6">
+            <Card className="min-h-[500px] flex flex-col p-8 relative">
+              <CardHeader className="text-center mb-6 relative">
                 <CardTitle>{selectedJournal.title}</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0"
+                  onClick={() => router.push(`/journal/write/${params.id}`)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               </CardHeader>
               <CardContent className="flex-grow flex flex-col">
-                <p className="mb-4 flex-grow">{selectedJournal.entry}</p>
+                <div
+                  className="mb-4 flex-grow"
+                  dangerouslySetInnerHTML={{
+                    __html: decodeHtmlEntities(selectedJournal.entry),
+                  }}
+                />
                 <div className="mt-auto">
                   {showCategory && (
                     <p className="text-sm text-gray-300">
-                      Category: {selectedJournal.category}
+                      Category:{" "}
+                      {selectedJournal.categories
+                        .map((category) => category.category)
+                        .join(", ")}
                     </p>
                   )}
                   {showLastUpdated && (

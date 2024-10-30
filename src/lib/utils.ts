@@ -5,6 +5,7 @@ import crypto from "crypto";
 // import { SentimentAnalyzer, WordTokenizer, PorterStemmer } from "natural";
 import { ISentimentResult } from "./interfaces";
 import Sentiment from "sentiment";
+import sanitizeHTML from "sanitize-html";
 
 export interface IKeywordFrequency {
   normal: string;
@@ -154,3 +155,96 @@ Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, tur
 
   return loremIpsum.split("\n\n").slice(0, paragraphs).join("\n\n");
 }
+
+export function sanitizeHtml(
+  html: string,
+  options: sanitizeHTML.IOptions = {}
+): string {
+  const defaultOptions: sanitizeHTML.IOptions = {
+    allowedTags: [
+      "address",
+      "article",
+      "aside",
+      "footer",
+      "header",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "hgroup",
+      "main",
+      "nav",
+      "section",
+      "blockquote",
+      "dd",
+      "div",
+      "dl",
+      "dt",
+      "figcaption",
+      "figure",
+      "hr",
+      "li",
+      "main",
+      "ol",
+      "p",
+      "pre",
+      "ul",
+      "a",
+      "abbr",
+      "b",
+      "bdi",
+      "bdo",
+      "br",
+      "cite",
+      "code",
+      "data",
+      "dfn",
+      "em",
+      "i",
+      "kbd",
+      "mark",
+      "q",
+      "rb",
+      "rp",
+      "rt",
+      "rtc",
+      "ruby",
+      "s",
+      "samp",
+      "small",
+      "span",
+      "strong",
+      "sub",
+      "sup",
+      "time",
+      "u",
+      "var",
+      "wbr",
+      "caption",
+      "col",
+      "colgroup",
+      "table",
+      "tbody",
+      "td",
+      "tfoot",
+      "th",
+      "thead",
+      "tr",
+    ],
+    allowedAttributes: {
+      a: ["href"],
+    },
+    allowedSchemes: ["http", "https", "mailto", "tel"],
+    allowedIframeHostnames: [],
+  };
+
+  return sanitizeHTML(html, { ...defaultOptions, ...options });
+}
+
+export const decodeHtmlEntities = (htmlString: string) => {
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = htmlString;
+  return textarea.value;
+};

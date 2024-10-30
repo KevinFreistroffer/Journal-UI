@@ -2,19 +2,20 @@ export interface IJournal {
   _id: string;
   title: string;
   entry: string;
-  category: string;
-  date: string;
+  categories: ICategory[];
   selected: boolean;
   sentimentScore: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  favorite?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  favorite: boolean;
 }
 
 export interface ICategory {
   _id: string;
   category: string;
   selected: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IUser {
