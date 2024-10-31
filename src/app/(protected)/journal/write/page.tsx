@@ -3,18 +3,40 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  ScrollUpButton,
+  ScrollDownButton,
+} from "@/components/ui/select";
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
 import { IJournal, ICategory } from "@/lib/interfaces";
+import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
+import * as Popover from "@radix-ui/react-popover";
 import { sanitizeHtml } from "@/lib/utils";
 // import { useRouter } from "next/navigation";
 import {
   CheckCircle,
+  List,
+  Grid,
+  PlusIcon,
+  ChevronLeft,
+  ChevronRight,
+  X,
   Check,
   Twitter,
   ChartNoAxesColumnIncreasing,
   HelpCircle,
+  Clipboard,
+  ChevronDown,
+  ChevronUp,
   Save, // Add this import
 } from "lucide-react";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -23,10 +45,10 @@ import Link from "next/link";
 // import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { useFormState, useFormStatus } from "react-dom";
 import { ICreateJournalState } from "./types";
+import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
 import { useClipboard } from "use-clipboard-copy";
-
 // import { SummarizerManager } from "node-summarizer";
 import {
   Tooltip,
@@ -34,6 +56,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
+import { cn } from "@/lib/utils"; // Make sure you have this utility function
+import SummaryDialog from "@/components/SummaryDialog";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
 import {
   Dialog,
@@ -43,7 +67,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { analyzeSentiment } from "@/lib/utils"; // Add this import
-
+import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons"; // Add these if not already imported
 // Add these imports at the top
 import "react-quill/dist/quill.snow.css";
 import { useQuill } from "react-quilljs";
@@ -51,7 +75,21 @@ import "./styles.css";
 import Quill from "quill";
 import MagicUrl from "quill-magic-url";
 Quill.register("modules/magicUrl", MagicUrl);
+import { MultiSelect } from "@/components/ui/MultiSelect/MutliSelect";
 // Dynamically import ReactQuill to avoid SSR issues
+import "./styles.css";
+import styles from "./styles.module.css";
+
+// Add this constant for Quill modules/formats
+const QUILL_MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    [{ color: [] }, { background: [] }],
+    ["clean"],
+  ],
+};
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -80,7 +118,7 @@ function SubmitButton({
   );
 }
 
-function WritePage() {
+function WritePage({ children }: { children: React.ReactNode }) {
   const { user, isLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<IJournal[]>([]);
@@ -99,12 +137,14 @@ function WritePage() {
   const [categoryCreatedErrorMessage, setCategoryCreatedErrorMessage] =
     useState(""); // State for error message
   const [isCategoryCreated, setIsCategoryCreated] = useState(false); // State to track if category is created
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isVerifiedModalOpen, setIsVerifiedModalOpen] = useState(false);
+  const [isTextVisible, setIsTextVisible] = useState(false); // New state for text visibility
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store timeout ID
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [totalWords, setTotalWords] = useState(0); // State for total words in current journal
   const [averageWords, setAverageWords] = useState(0); // State for average words across all journals
+  const [showMetrics, setShowMetrics] = useState(true); // State to control visibility of metrics section
   const [categoryExists, setCategoryExists] = useState(false); // State to track if the category already exists
   const [summary, setSummary] = useState<string[]>([]); // Changed to string[]
   const [isSummarizing, setIsSummarizing] = useState(false);
@@ -114,6 +154,7 @@ function WritePage() {
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
   );
+  const [showWordStats, setShowWordStats] = useState(false);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null); // New error state
   const [showTitle, setShowTitle] = useState(false);
@@ -121,6 +162,9 @@ function WritePage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categorySelectIsOpen, setCategorySelectIsOpen] =
+    useState<boolean>(false);
+  const [shouldFavorite, setShouldFavorite] = useState(false);
   const { quill, quillRef } = useQuill({
     modules: {
       magicUrl: true,
@@ -145,6 +189,8 @@ function WritePage() {
     },
   });
 
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
   const [isWordStatsModalOpen, setIsWordStatsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -158,6 +204,18 @@ function WritePage() {
   // const handleOpenModal = () => {
   //   openModal(<div>Your custom content here!</div>);
   // };
+
+  const handleCloseCategoryModal = () => {
+    setShowCreatedCategorySuccessIcon(false); // Hide success icon
+    setIsCreateCategoryDialogOpen(false); // Close dialog immediately
+    setIsCategoryCreated(false); // Reset category created state
+    setNewCategoryName("");
+    setCategoryCreatedErrorMessage("");
+    setIsCreatingCategoryLoading(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current); // Clear the timeout if the dialog is closed
+    }
+  };
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,6 +281,18 @@ function WritePage() {
       }
     }
   };
+
+  // useEffect(() => {
+  //   if (isSidebarOpen) {
+  //     const timer = setTimeout(() => {
+  //       setIsTextVisible(true); // Show text after animation
+  //     }, 200); // Match this duration with your CSS transition duration
+
+  //     return () => clearTimeout(timer);
+  //   } else {
+  //     setIsTextVisible(false); // Hide text when sidebar is closed
+  //   }
+  // }, [isSidebarOpen]);
 
   useEffect(() => {
     const savedJournal =
@@ -374,6 +444,66 @@ function WritePage() {
     }
   };
 
+  const handleTweet = async () => {
+    try {
+      const response = await fetch("/api/user/x/tweet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: summary.join(" ") }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send tweet");
+      }
+
+      const data = await response.json();
+
+      // You can add some UI feedback here, like a success message
+    } catch (error) {
+      console.error("Error sending tweet:", error);
+      // You can add some UI feedback here, like an error message
+    }
+  };
+
+  const generateTweetThread = () => {
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    summary.forEach((sentence) => {
+      if (currentChunk.length + sentence.length + 1 <= 280) {
+        // Add sentence to current chunk if it fits
+        currentChunk += (currentChunk ? " " : "") + sentence;
+      } else {
+        // If current chunk is not empty, push it and start a new one
+        if (currentChunk) {
+          chunks.push(currentChunk);
+        }
+        currentChunk = sentence;
+      }
+    });
+
+    // Push the last chunk if it's not empty
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+
+    return chunks;
+  };
+
+  const handleJournalChange = (value: string) => {
+    setJournal(value);
+  };
+
+  const handleJournalPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+
+    setJournal((prevJournal) => {
+      return prevJournal + pastedText;
+    });
+  };
+
   const generateSampleText = () => {
     const sampleText = generateLoremIpsum(3); // Generate 3 paragraphs
     setJournal(sampleText);
@@ -388,18 +518,111 @@ function WritePage() {
     }
   };
 
+  // Update the handleFinalSubmit function
+  const handleFinalSubmit = async (formData: FormData) => {
+    setIsSubmitting(true);
+    try {
+      // Get sentiment score for the journal entry
+      const journalText = formData.get("entry") as string;
+      const sanitizedJournalText = sanitizeHtml(journalText);
+      console.log("sanitizedJournalText", sanitizedJournalText);
+      const sentimentScore = analyzeSentiment(sanitizedJournalText).score;
+
+      // Add sentiment score to form data
+      formData.append("category", selectedCategory);
+      formData.append("sentimentScore", sentimentScore.toString());
+      console.log("formData", formData);
+      createJournalAction(formData);
+    } catch (error) {
+      console.error("Error submitting journal:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Check if the user is verified
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen h-screen">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (user && !user.isVerified) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Account Not Verified</h1>
+          <p className="mb-4">
+            Please verify your account to access the dashboard.
+          </p>
+          <Button
+            onClick={() => {
+              /* Add logic to resend verification email or redirect */
+            }}
+          >
+            Resend Verification Email
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Add this helper function
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
   return (
-    <div className=" flex justify-center w-full max-w-6xl ml-auto mr-auto">
-      <div className="w-full md:w-3/4">
-        <div className="flex justify-between items-center">
-          {" "}
-          {/* Flex container for alignment */}
-          <h1 className="text-xl">Write anything</h1> {/* Title */}
-          <div className="flex flex-col items-center mb-2">
-            {" "}
-            {/* Container for label and scroll component */}
-            <div className="flex items-center ">
-              {/* <TooltipProvider delayDuration={100}>
+    <div className="flex h-full min-h-screen mt-16">
+      {/* Sidebar - only visible on md screens and above */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        icon={<ChartNoAxesColumnIncreasing size={20} />}
+        headerDisplaysTabs={false}
+        sections={[
+          {
+            title: "Word Stats",
+            content: (
+              <div className="mt-2 text-sm  text-gray-600">
+                <p>
+                  <span className="font-medium">Total Words:</span> {totalWords}
+                </p>
+                <p>
+                  <span className="font-medium ">
+                    Average Words Across All Journals:
+                  </span>{" "}
+                  {averageWords}
+                </p>
+              </div>
+            ),
+          },
+        ]}
+      />
+
+      {/* Main Content */}
+      <div
+        className={`flex-1 p-6 pb-24 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? "md:ml-56" : "md:ml-24"
+        }`}
+      >
+        <div className=" flex justify-center w-full max-w-6xl ml-auto mr-auto">
+          <div className="w-full md:w-3/4">
+            <div className="flex justify-between items-center">
+              {" "}
+              {/* Flex container for alignment */}
+              <h1 className="text-xl">Write anything</h1> {/* Title */}
+              <div className="flex flex-col items-center mb-2">
+                {" "}
+                {/* Container for label and scroll component */}
+                <div className="flex items-center ">
+                  {/* <TooltipProvider delayDuration={100}>
                     <Tooltip>
                       <TooltipTrigger
                         asChild
@@ -427,7 +650,7 @@ function WritePage() {
                     </Tooltip>
                   </TooltipProvider> */}
 
-              {/* <Popover.Root
+                  {/* <Popover.Root
                     open={categorySelectIsOpen}
                     onOpenChange={setCategorySelectIsOpen}
                   >
@@ -493,7 +716,7 @@ function WritePage() {
                       </Popover.Content>
                     </Popover.Portal>
                   </Popover.Root> */}
-              {/* <Label htmlFor="category" className="mb-1">
+                  {/* <Label htmlFor="category" className="mb-1">
                     Categorize it?{" "}
                     <span className="text-gray-400 text-sm font-normal">
                       (optional)
@@ -534,173 +757,303 @@ function WritePage() {
                       )}
                     </Button>
                   </div> */}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <form action={handleSubmit} className="space-y-4">
-          {/* Title Input Above Textarea */}
-          <div className="flex flex-col">
-            <Input
-              type="text"
-              id="title"
-              name="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title (optional)"
-              className="rounded-b-none outline-none"
-              focusVisible={false}
-            />
-          </div>
-          <div className="flex flex-col mb-4">
-            <div
-              style={{
-                width: "100%",
-                maxHeight: "500px",
-                overflow: "auto",
-              }}
-            >
-              <div ref={quillRef} />
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsWordStatsModalOpen(true)}
-              className="mb-6 text-[11px] text-black/80 flex items-center self-end hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-            >
-              <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
-              View Word Stats
-            </button>
-            <div className="mt-2 fixed top-20 right-10 w-auto mb-4">
-              <Button
-                type="button"
-                onClick={generateSampleText}
-                className="bg-gray-500"
-              >
-                Generate
-              </Button>
-            </div>
-
-            <div className="space-y-4 flex flex-col">
-              <div className="flex flex-col"></div>
-
-              {isAddingCategory && (
-                <div className="flex items-center space-x-2 mt-2">
-                  <Input
-                    value={newCategoryName}
-                    onChange={(e) => {
-                      const newName = e.target.value;
-                      setNewCategoryName(newName);
-                      setShowCreatedCategorySuccessIcon(false);
-                      const exists = categories.some(
-                        ({ category }) =>
-                          category.toLowerCase() === newName.toLowerCase()
-                      );
-                      setCategoryExists(exists);
-                      setCategoryCreatedErrorMessage(
-                        exists ? "Category already exists." : ""
-                      );
-                    }}
-                    placeholder="New category"
-                    className="flex-grow"
-                  />
+            <form action={handleSubmit} className="space-y-4">
+              {/* Title Input Above Textarea */}
+              <div className="flex flex-col">
+                <Input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Title (optional)"
+                  className="rounded-b-none outline-none"
+                  focusVisible={false}
+                />
+              </div>
+              <div className="flex flex-col mb-4">
+                <div
+                  style={{
+                    width: "100%",
+                    maxHeight: "500px",
+                    overflow: "auto",
+                  }}
+                >
+                  <div ref={quillRef} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsWordStatsModalOpen(true)}
+                  className="mb-6 text-[11px] text-black/80 flex items-center self-end hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                >
+                  <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
+                  View Word Stats
+                </button>
+                <div className="mt-2 fixed top-20 right-10 w-auto mb-4">
                   <Button
                     type="button"
-                    disabled={
-                      isCreatingCategoryLoading ||
-                      categoryExists ||
-                      newCategoryName.trim() === ""
-                    }
-                    onClick={handleCreateCategory}
+                    onClick={generateSampleText}
+                    className="bg-gray-500"
                   >
-                    {isCreatingCategoryLoading ? <Spinner /> : "Add"}
+                    Generate
                   </Button>
                 </div>
-              )}
-              {showCreatedCategorySuccessIcon && (
-                <div className="flex items-center mt-2">
-                  <Check size={20} className="text-green-500 mr-2" />
-                  <span className="text-green-500">
-                    Category added successfully!
-                  </span>
-                </div>
-              )}
-            </div>
 
-            <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
-              <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
-                <SubmitButton setShowSaveModal={setShowSaveModal} />
-                <Button
-                  type="button"
-                  onClick={summarizeJournal}
-                  className="bg-purple-500 hover:bg-purple-600 text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm"
-                >
-                  <div className="flex items-center justify-center gap-1 mx-auto">
-                    <span>
-                      {isSummarizing ? "Summarizing..." : "Generate Summary"}
-                    </span>
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs"
-                        >
-                          <p className="text-sm leading-relaxed">
-                            Summarize your journal entry into fewer sentences.
-                          </p>
-                          <p className="text-xs leading-relaxed text-gray-300">
-                            You can also tweet the summary directly!
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </Button>
-              </div>
-            </div>
-            {showSuccessMessage && createJournalState.success && (
-              <div className="flex items-center mt-2">
-                <CheckCircle className="text-green-500 mr-2" />
-                <p className="text-green-500">Entry created successfully!</p>
-              </div>
-            )}
-            {/* Word Stats link and modal for small screens */}
-            <div className="md:hidden mt-2 flex justify-end">
-              <Dialog
-                open={isWordStatsModalOpen}
-                onOpenChange={setIsWordStatsModalOpen}
-              >
-                <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto">
-                  <DialogHeader>
-                    <DialogTitle>Word Stats</DialogTitle>
-                  </DialogHeader>
-                  <div className="mt-2 space-y-4">
-                    <div className="flex justify-between items-center py-2 border-b">
-                      <span className="font-medium text-sm">Total Words</span>
-                      <span>{totalWords}</span>
+                <div className="space-y-4 flex flex-col">
+                  <div className="flex flex-col"></div>
+
+                  {isAddingCategory && (
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        value={newCategoryName}
+                        onChange={(e) => {
+                          const newName = e.target.value;
+                          setNewCategoryName(newName);
+                          setShowCreatedCategorySuccessIcon(false);
+                          const exists = categories.some(
+                            ({ category }) =>
+                              category.toLowerCase() === newName.toLowerCase()
+                          );
+                          setCategoryExists(exists);
+                          setCategoryCreatedErrorMessage(
+                            exists ? "Category already exists." : ""
+                          );
+                        }}
+                        placeholder="New category"
+                        className="flex-grow"
+                      />
+                      <Button
+                        type="button"
+                        disabled={
+                          isCreatingCategoryLoading ||
+                          categoryExists ||
+                          newCategoryName.trim() === ""
+                        }
+                        onClick={handleCreateCategory}
+                      >
+                        {isCreatingCategoryLoading ? <Spinner /> : "Add"}
+                      </Button>
                     </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="font-medium text-sm">
-                        Average Words Per Journal
+                  )}
+                  {showCreatedCategorySuccessIcon && (
+                    <div className="flex items-center mt-2">
+                      <Check size={20} className="text-green-500 mr-2" />
+                      <span className="text-green-500">
+                        Category added successfully!
                       </span>
-                      <span>{averageWords}</span>
                     </div>
-                  </div>
-                  <DialogFooter>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
+                  <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
+                    <SubmitButton setShowSaveModal={setShowSaveModal} />
                     <Button
                       type="button"
-                      onClick={() => setIsWordStatsModalOpen(false)}
-                      className="w-14 mt-4 bg-black text-white hover:bg-gray-700 p-1 inline-flex items-center justify-center"
+                      onClick={summarizeJournal}
+                      className="bg-purple-500 hover:bg-purple-600 text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm"
                     >
-                      Close
+                      <div className="flex items-center justify-center gap-1 mx-auto">
+                        <span>
+                          {isSummarizing
+                            ? "Summarizing..."
+                            : "Generate Summary"}
+                        </span>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs"
+                            >
+                              <p className="text-sm leading-relaxed">
+                                Summarize your journal entry into fewer
+                                sentences.
+                              </p>
+                              <p className="text-xs leading-relaxed text-gray-300">
+                                You can also tweet the summary directly!
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
+                  </div>
+                </div>
+                {showSuccessMessage && createJournalState.success && (
+                  <div className="flex items-center mt-2">
+                    <CheckCircle className="text-green-500 mr-2" />
+                    <p className="text-green-500">
+                      Entry created successfully!
+                    </p>
+                  </div>
+                )}
+                {/* Word Stats link and modal for small screens */}
+                <div className="md:hidden mt-2 flex justify-end">
+                  <Dialog
+                    open={isWordStatsModalOpen}
+                    onOpenChange={setIsWordStatsModalOpen}
+                  >
+                    <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto">
+                      <DialogHeader>
+                        <DialogTitle>Word Stats</DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-2 space-y-4">
+                        <div className="flex justify-between items-center py-2 border-b">
+                          <span className="font-medium text-sm">
+                            Total Words
+                          </span>
+                          <span>{totalWords}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                          <span className="font-medium text-sm">
+                            Average Words Per Journal
+                          </span>
+                          <span>{averageWords}</span>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          onClick={() => setIsWordStatsModalOpen(false)}
+                          className="w-14 mt-4 bg-black text-white hover:bg-gray-700 p-1 inline-flex items-center justify-center"
+                        >
+                          Close
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
+
+        {/* Summary Dialog */}
+        <SummaryDialog
+          isOpen={isSummaryModalOpen}
+          onOpenChange={setIsSummaryModalOpen}
+          summary={summary}
+          onTweet={handleTweet}
+          error={summaryError} // Pass the error to the dialog
+        />
+
+        {/* Save Modal */}
+        <Dialog open={showSaveModal} onOpenChange={setShowSaveModal}>
+          <DialogContent className="sm:max-w-[475px] px-8">
+            <DialogHeader>
+              <DialogTitle>Optional Settings</DialogTitle>
+            </DialogHeader>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                handleFinalSubmit(formData);
+              }}
+            >
+              <div className="grid gap-4 py-4 mb-6">
+                {/* Favorite Toggle */}
+                <div className="flex items-center space-x-3">
+                  <Label htmlFor="favorite" className="cursor-pointer">
+                    Favorite this entry?
+                  </Label>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="favorite-no"
+                        name="favorite"
+                        value="false"
+                        checked={!favorite}
+                        onChange={() => setFavorite(false)}
+                        className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="favorite-no"
+                        className="ml-2 text-sm text-gray-600"
+                      >
+                        No
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="favorite-yes"
+                        name="favorite"
+                        value="true"
+                        checked={favorite}
+                        onChange={() => setFavorite(true)}
+                        className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="favorite-yes"
+                        className="ml-2 text-sm text-gray-600"
+                      >
+                        Yes
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                {/* Category Selection */}
+                <div className="space-y-2 mb-2">
+                  <Label htmlFor="category" className="text-sm">
+                    Categorize
+                    {/* <span className="text-gray-400 text-xs font-normal">
+                    (optional)
+                  </span> */}
+                  </Label>
+                  <MultiSelect
+                    options={categories.map((cat) => ({
+                      value: cat.category,
+                      label: cat.category,
+                    }))}
+                    selectedValues={selectedCategories}
+                    onChange={setSelectedCategories}
+                    placeholder="Select categories..."
+                    className="overflow-wrap-anywhere text-sm"
+                  />
+                </div>
+
+                {/* Hidden inputs to carry over the title and entry */}
+                <input type="hidden" name="title" value={title} />
+                <input type="hidden" name="entry" value={journal} />
+              </div>
+
+              <DialogFooter className="flex justify-start">
+                <div className="w-full flex  xs:flex-row gap-3">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`bg-blue-500 hover:bg-blue-600 text-white cursor-pointer px-6 py-1 ${styles["save-modal-button"]}`}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center justify-center">
+                        <Spinner className="mr-2 h-4 w-4" />
+                        <span>Saving...</span>
+                      </div>
+                    ) : (
+                      "Save"
+                    )}
+                  </Button>{" "}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowSaveModal(false)}
+                    className={`bg-gray-100 hover:bg-gray-200 cursor-pointer px-6 py-1 ${styles["save-modal-button"]}`}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

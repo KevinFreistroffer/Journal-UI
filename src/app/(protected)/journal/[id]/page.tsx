@@ -182,7 +182,7 @@ export default function JournalPage() {
                   variant="ghost"
                   size="icon"
                   className="absolute right-0 top-0"
-                  onClick={() => router.push(`/journal/write/${params.id}`)}
+                  onClick={() => router.push(`/journal/edit/${params.id}`)}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>

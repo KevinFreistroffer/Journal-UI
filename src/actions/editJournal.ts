@@ -10,12 +10,13 @@ import { UserSchema } from "@/lib/schemas/UserSchema";
 import { createSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
-const CreateJournalSchema = z.object({
-  title: z.string(),
-  entry: z.string(),
-  category: z.string(),
+const EditJournalSchema = z.object({
+  title: z.string().optional(),
+  entry: z.string().optional(),
+  // TODO: make this an array
+  category: z.string().optional(),
   favorite: z.boolean().optional(),
-  sentimentScore: z.number(),
+  sentimentScore: z.number().optional(),
 });
 
 export const createJournal: CreateJournalFunction = async (
@@ -25,7 +26,7 @@ export const createJournal: CreateJournalFunction = async (
 ): Promise<ICreateJournalState> => {
   console.log("createJournalAction", userId, prevState, formData);
   // Validate form data
-  const validatedFields = CreateJournalSchema.safeParse({
+  const validatedFields = EditJournalSchema.safeParse({
     title: formData.get("title"),
     entry: formData.get("entry"),
     category: formData.get("category"),
@@ -49,6 +50,19 @@ export const createJournal: CreateJournalFunction = async (
     validatedFields.data;
 
   try {
+    const requestBody = {
+      userId,
+      ...(title !== undefined && {
+        title: title.trim() === "" ? UNTITLED_JOURNAL : title,
+      }),
+      ...(entry !== undefined && {
+        entry: entry.replace(/\bclass=/g, "className="),
+      }),
+      ...(category !== undefined && { category }),
+      ...(favorite !== undefined && { favorite }),
+      ...(sentimentScore !== undefined && { sentimentScore }),
+    };
+
     const response = await fetch("http://localhost:3001/user/journal/create", {
       method: "POST",
       headers: {
@@ -56,14 +70,7 @@ export const createJournal: CreateJournalFunction = async (
         Accept: "application/json",
         Cookie: cookies().toString(),
       },
-      body: JSON.stringify({
-        userId,
-        title: title.trim() === "" ? UNTITLED_JOURNAL : title,
-        entry: entry.replace(/\bclass=/g, "className="),
-        category,
-        favorite,
-        sentimentScore,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {

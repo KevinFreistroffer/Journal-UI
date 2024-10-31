@@ -68,7 +68,9 @@ export default function Header() {
   const isVerySmallScreen = useMediaQuery("(max-width: 443px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 365px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const isWritePage = pathname.startsWith('/journal/write');
+  const excludeTabsRoute =
+    pathname.startsWith("/journal/write") ||
+    pathname.startsWith("/journal/edit");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -196,10 +198,14 @@ export default function Header() {
       >
         <div className="flex h-14 items-center justify-between w-full">
           <div className="flex-1 flex items-center gap-2">
-            {isWritePage && (
+            {excludeTabsRoute && (
               <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="hover:bg-gray-200">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-gray-200"
+                  >
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
@@ -217,6 +223,18 @@ export default function Header() {
                       >
                         {getIcon(item.href)}
                         <span>{item.label}</span>
+                        {item.href === "/journals" && user && user.journals && (
+                          <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                            {user.journals.length}
+                          </span>
+                        )}
+                        {item.href === "/categories" &&
+                          user &&
+                          user.journalCategories && (
+                            <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                              {user.journalCategories.length}
+                            </span>
+                          )}
                       </Link>
                     ))}
                   </div>
@@ -321,7 +339,7 @@ export default function Header() {
         </div>
 
         {/* Tabs - Only visible when user is signed in and not on write page */}
-        {!isLoading && user && !pathname.startsWith('/journal/write') && (
+        {!isLoading && user && isTabRoute && (
           <div className="w-full">
             <Tabs defaultValue={pathname} className="w-full">
               <TabsList className="bg-transparent p-0 flex flex-wrap justify-start w-full">
@@ -349,6 +367,13 @@ export default function Header() {
                         {user.journals.length}
                       </span>
                     )}
+                    {item.label === "Categories" &&
+                      user &&
+                      user.journalCategories && (
+                        <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                          {user.journalCategories.length}
+                        </span>
+                      )}
                   </TabsTrigger>
                 ))}
                 {dropdownItems.length > 0 && (

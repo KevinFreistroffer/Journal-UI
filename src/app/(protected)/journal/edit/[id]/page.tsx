@@ -44,7 +44,7 @@ import { Spinner } from "@/components/ui/Spinner"; // Import a spinner component
 import Link from "next/link";
 // import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { useFormState, useFormStatus } from "react-dom";
-import { ICreateJournalState } from "../types";
+import { ICreateJournalState } from "../../write/types";
 import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Corrected casing
 // import { createCategory } from "@/actions/createCategory";
 import { createJournal } from "@/actions/createJournal";
@@ -74,7 +74,7 @@ import { useQuill } from "react-quilljs";
 import { MultiSelect } from "@/components/ui/MultiSelect/MutliSelect";
 import Quill from "quill";
 import MagicUrl from "quill-magic-url";
-import "../styles.css";
+import "../../write/styles.css";
 Quill.register("modules/magicUrl", MagicUrl);
 
 // Dynamically import ReactQuill to avoid SSR issues
@@ -528,6 +528,7 @@ function WritePage({ params }: { params?: { id: string } }) {
       const sentimentScore = analyzeSentiment(sanitizedJournalText).score;
 
       // Add sentiment score to form data
+      formData.append("entry", sanitizedJournalText);
       formData.append("category", selectedCategory);
       formData.append("sentimentScore", sentimentScore.toString());
       console.log("formData", formData);
@@ -547,6 +548,7 @@ function WritePage({ params }: { params?: { id: string } }) {
         // Populate the form with existing journal data
         setTitle(existingJournal.title || "");
         const decodedJournal = decodeHtmlEntities(existingJournal.entry);
+        console.log("decodedJournal", decodedJournal);
         if (quill) {
           quill.clipboard.dangerouslyPasteHTML(decodedJournal);
         }
@@ -635,7 +637,7 @@ function WritePage({ params }: { params?: { id: string } }) {
             <div className="flex justify-between items-center">
               {" "}
               {/* Flex container for alignment */}
-              <h1 className="text-xl">Write anything</h1> {/* Title */}
+              <h1 className="text-xl">Edit</h1>
               <div className="flex flex-col items-center mb-2">
                 {" "}
                 {/* Container for label and scroll component */}

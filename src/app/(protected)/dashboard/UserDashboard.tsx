@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { IJournal } from "@/lib/interfaces";
+import { IJournal, IReminder } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { StarIcon } from "lucide-react";
@@ -12,8 +12,11 @@ import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
 import { ChevronLeft, ChevronRight, Settings, Download } from "lucide-react";
 import Legend from "@/app/(protected)/dashboard/Legend";
-import { getFrequentKeywords } from "@/lib/utils";
-import { IKeywordFrequency } from "@/lib/utils";
+import {
+  IKeywordFrequency,
+  formatDate,
+  getFrequentKeywords,
+} from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
 import { Button } from "@/components/ui/Button";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
@@ -44,6 +47,7 @@ import {
   Tooltip,
   Legend as ChartLegend,
 } from "chart.js";
+import { JournalLink } from "@/app/(protected)/dashboard/(components)/JournalLink";
 
 ChartJS.register(
   CategoryScale,
@@ -80,9 +84,7 @@ function UserDashboard() {
     { title: string; value: number; color: string }[]
   >([]);
   const [recentEntries, setRecentEntries] = useState<IFrontEndJournal[]>([]);
-  const [upcomingEntries, setUpcomingEntries] = useState<IFrontEndJournal[]>(
-    []
-  );
+  const [upcomingEntries, setUpcomingEntries] = useState<IReminder[]>([]);
   const [data, setData] = useState<ICategoryBreakdown[]>([]);
   const [showTotalJournalsCard, setShowTotalJournalsCard] = useState(false);
   const [showCategoryBreakdownCard, setShowCategoryBreakdownCard] =
@@ -125,18 +127,6 @@ function UserDashboard() {
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const [cardLayout, setCardLayout] = useState<CardLayout>("auto-layout");
   const isLgOrLarger = useMediaQuery("(min-width: 1024px)");
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -249,11 +239,11 @@ function UserDashboard() {
       // Get recent journals (last 5 for example)
       setRecentEntries(journals?.slice(-5).reverse() || []);
 
-      // Get upcoming journals (assuming you have a date field)
+      // Update upcoming entries to use reminders
       const today = new Date();
       setUpcomingEntries(
-        journals?.filter(
-          (journal: IJournal) => new Date(journal.date) > today
+        user.reminders?.filter(
+          (reminder: IReminder) => new Date(reminder.date) > today
         ) || []
       );
 
@@ -609,17 +599,12 @@ function UserDashboard() {
                                 key={index}
                                 className="border-b py-2 last:border-b-0"
                               >
-                                <Link
-                                  href={`/journal/${journal._id}`}
+                                <JournalLink
+                                  id={journal._id}
+                                  title={journal.title}
+                                  date={journal.updatedAt}
                                   className="hover:underline flex flex-col"
-                                >
-                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500">
-                                    {journal.title}
-                                  </span>
-                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
-                                    {formatDate(journal.date)}
-                                  </span>
-                                </Link>
+                                />
                               </li>
                             ))}
                           </ul>
@@ -651,8 +636,6 @@ function UserDashboard() {
                     }`}
                   >
                     <Card className="h-full p-4 min-h-96">
-                      {" "}
-                      {/* Added min-h-96 */}
                       <div className="flex justify-between items-start mb-4">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
                           Reminders
@@ -666,22 +649,33 @@ function UserDashboard() {
                       </div>
                       {upcomingEntries.length > 0 ? (
                         <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4">
-                          {upcomingEntries.map((journal, index) => (
-                            <li key={index} className="border-b py-2">
+                          {upcomingEntries.map((reminder, index) => (
+                            <li key={reminder._id} className="border-b py-2">
                               <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
-                                {journal.title}
-                              </span>{" "}
-                              -{" "}
-                              <span className="text-xs sm:text-sm md:text-xs lg:text-sm">
-                                {formatDate(journal.date)}
+                                {reminder.title}
                               </span>
+                              <div className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-600">
+                                {formatDate(
+                                  `${reminder.date}T${reminder.time}`
+                                )}
+                                {reminder.recurring && (
+                                  <span className="ml-2 text-blue-500">
+                                    ({reminder.recurrenceType})
+                                  </span>
+                                )}
+                              </div>
+                              {reminder.description && (
+                                <p className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 mt-1">
+                                  {reminder.description}
+                                </p>
+                              )}
                             </li>
                           ))}
                         </ul>
                       ) : (
                         <div className="flex items-center justify-center h-[calc(100%-3rem)]">
                           <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                            No upcoming journals
+                            No upcoming reminders
                           </p>
                         </div>
                       )}
@@ -730,24 +724,17 @@ function UserDashboard() {
                                   : ""
                               }`}
                             >
-                              {/* <StarIcon className="w-4 h-4 text-yellow-400" /> */}
-                              <Link
-                                href={`/journal/${journal._id}`}
-                                onClick={() => {
+                              <JournalLink
+                                id={journal._id}
+                                title={journal.title}
+                                date={journal.updatedAt}
+                                handleOnClick={() => {
                                   localStorageService.setItem(
                                     "selectedJournal",
                                     journal
                                   );
                                 }}
-                                className="flex-grow flex flex-col hover:underline"
-                              >
-                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-medium text-blue-500">
-                                  {journal.title}
-                                </span>
-                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500">
-                                  {formatDate(journal.date)}
-                                </span>
-                              </Link>
+                              />
                             </li>
                           ))}
                         </ul>

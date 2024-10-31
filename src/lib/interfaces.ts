@@ -34,6 +34,7 @@ export interface IUser {
   updatedAt: Date;
   avatar?: string;
   avatarId?: string;
+  reminders?: IReminder[];
 }
 
 export interface ISentimentResult {
