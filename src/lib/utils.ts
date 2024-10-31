@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { ISentimentResult } from "./interfaces";
 import Sentiment from "sentiment";
 import sanitizeHTML from "sanitize-html";
-
+import { parse } from "node-html-parser";
 export interface IKeywordFrequency {
   normal: string;
   count: number;
@@ -260,4 +260,9 @@ export const formatDate = (dateString: string) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+export const getPlainTextFromHtml = (html: string) => {
+  const root = parse(html);
+  return root.textContent;
 };

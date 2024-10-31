@@ -79,6 +79,13 @@ import { MultiSelect } from "@/components/ui/MultiSelect/MutliSelect";
 // Dynamically import ReactQuill to avoid SSR issues
 import "./styles.css";
 import styles from "./styles.module.css";
+import { FileText, Download } from "lucide-react"; // Add these imports
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Add this constant for Quill modules/formats
 const QUILL_MODULES = {
@@ -571,11 +578,45 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   // Add this helper function
   const toggleCategory = (category: string) => {
-    setSelectedCategories(prev =>
+    setSelectedCategories((prev) =>
       prev.includes(category)
-        ? prev.filter(c => c !== category)
+        ? prev.filter((c) => c !== category)
         : [...prev, category]
     );
+  };
+
+  // Add this function inside WritePage component, before the return statement
+  const handleExport = async (format: "pdf" | "docx") => {
+    try {
+      const response = await fetch("/api/export", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          content: journal,
+          format,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Export failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title || "journal"}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error exporting document:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   return (
@@ -784,107 +825,92 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 >
                   <div ref={quillRef} />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsWordStatsModalOpen(true)}
-                  className="mb-6 text-[11px] text-black/80 flex items-center self-end hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                >
-                  <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
-                  View Word Stats
-                </button>
-                <div className="mt-2 fixed top-20 right-10 w-auto mb-4">
-                  <Button
-                    type="button"
-                    onClick={generateSampleText}
-                    className="bg-gray-500"
-                  >
-                    Generate
-                  </Button>
+                <div className="flex justify-between items-center mb-6">
+                  {/* Export and Word Stats buttons on the left */}
+                  <div className="flex items-center space-x-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="text-[11px] text-black/80 flex items-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer">
+                          <Download className="w-3 h-3 mr-1" />
+                          Export
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        className="bg-white p-0"
+                      >
+                        <DropdownMenuItem className="p-0 text-xs">
+                          <Button
+                            type="button"
+                            onClick={() => handleExport("pdf")}
+                            className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
+                          >
+                            Export as PDF
+                          </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="p-0">
+                          <Button
+                            type="button"
+                            onClick={() => handleExport("docx")}
+                            className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
+                          >
+                            Export as DOCX
+                          </Button>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsWordStatsModalOpen(true)}
+                      className="text-[11px] text-black/80 flex items-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                    >
+                      <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
+                      View Word Stats
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-4 flex flex-col">
-                  <div className="flex flex-col"></div>
-
-                  {isAddingCategory && (
-                    <div className="flex items-center space-x-2 mt-2">
-                      <Input
-                        value={newCategoryName}
-                        onChange={(e) => {
-                          const newName = e.target.value;
-                          setNewCategoryName(newName);
-                          setShowCreatedCategorySuccessIcon(false);
-                          const exists = categories.some(
-                            ({ category }) =>
-                              category.toLowerCase() === newName.toLowerCase()
-                          );
-                          setCategoryExists(exists);
-                          setCategoryCreatedErrorMessage(
-                            exists ? "Category already exists." : ""
-                          );
-                        }}
-                        placeholder="New category"
-                        className="flex-grow"
-                      />
+                  <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
+                    <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
+                      <SubmitButton setShowSaveModal={setShowSaveModal} />
                       <Button
                         type="button"
-                        disabled={
-                          isCreatingCategoryLoading ||
-                          categoryExists ||
-                          newCategoryName.trim() === ""
-                        }
-                        onClick={handleCreateCategory}
+                        onClick={summarizeJournal}
+                        className="bg-purple-500 hover:bg-purple-600 text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm"
                       >
-                        {isCreatingCategoryLoading ? <Spinner /> : "Add"}
+                        <div className="flex items-center justify-center gap-1 mx-auto">
+                          <span>
+                            {isSummarizing
+                              ? "Summarizing..."
+                              : "Generate Summary"}
+                          </span>
+                          <TooltipProvider delayDuration={100}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="top"
+                                className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs"
+                              >
+                                <p className="text-sm leading-relaxed">
+                                  Summarize your journal entry into fewer
+                                  sentences.
+                                </p>
+                                <p className="text-xs leading-relaxed text-gray-300">
+                                  You can also tweet the summary directly!
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </Button>
                     </div>
-                  )}
-                  {showCreatedCategorySuccessIcon && (
-                    <div className="flex items-center mt-2">
-                      <Check size={20} className="text-green-500 mr-2" />
-                      <span className="text-green-500">
-                        Category added successfully!
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
-                  <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
-                    <SubmitButton setShowSaveModal={setShowSaveModal} />
-                    <Button
-                      type="button"
-                      onClick={summarizeJournal}
-                      className="bg-purple-500 hover:bg-purple-600 text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm"
-                    >
-                      <div className="flex items-center justify-center gap-1 mx-auto">
-                        <span>
-                          {isSummarizing
-                            ? "Summarizing..."
-                            : "Generate Summary"}
-                        </span>
-                        <TooltipProvider delayDuration={100}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs"
-                            >
-                              <p className="text-sm leading-relaxed">
-                                Summarize your journal entry into fewer
-                                sentences.
-                              </p>
-                              <p className="text-xs leading-relaxed text-gray-300">
-                                You can also tweet the summary directly!
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </Button>
                   </div>
                 </div>
+
                 {showSuccessMessage && createJournalState.success && (
                   <div className="flex items-center mt-2">
                     <CheckCircle className="text-green-500 mr-2" />

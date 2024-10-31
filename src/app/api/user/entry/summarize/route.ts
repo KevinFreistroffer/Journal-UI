@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SummarizerManager } from "node-summarizer";
-import { countSentences } from "@/lib/utils";
-import { parse } from "node-html-parser";
+import { countSentences, getPlainTextFromHtml } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   const { text } = await req.json();
@@ -12,10 +11,9 @@ export async function POST(req: NextRequest) {
 
   try {
     // Parse HTML and extract text content
-    const root = parse(text);
-    console.log(root);
-    const plainText = root.textContent;
-    console.log(plainText);
+    const plainText = getPlainTextFromHtml(text);
+    console.log("plainText", plainText);
+
     const sentenceCount = countSentences(plainText);
 
     if (sentenceCount < 5) {

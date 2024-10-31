@@ -14,8 +14,10 @@ import { ChevronLeft, ChevronRight, Settings, Download } from "lucide-react";
 import Legend from "@/app/(protected)/dashboard/Legend";
 import {
   IKeywordFrequency,
+  decodeHtmlEntities,
   formatDate,
   getFrequentKeywords,
+  getPlainTextFromHtml,
 } from "@/lib/utils";
 import * as Label from "@radix-ui/react-label";
 import { Button } from "@/components/ui/Button";
@@ -154,7 +156,12 @@ function UserDashboard() {
 
   useEffect(() => {
     const allEntriesText =
-      journals?.map(({ title, entry }) => title + " " + entry).join(" ") || "";
+      journals
+        ?.map(({ title, entry }) => {
+          return title + " " + getPlainTextFromHtml(decodeHtmlEntities(entry));
+        })
+        .join(" ") || "";
+    console.log("allEntriesText", allEntriesText);
 
     if (selectedKeywordType === "nouns") {
       const nounsFrequency = getFrequentKeywords(allEntriesText, 15, "nouns");
@@ -785,7 +792,13 @@ function UserDashboard() {
                         <div className="flex justify-center h-full items-center max-h-60 p-6 mt-3">
                           <Spinner />
                         </div>
-                      ) : keywordFrequency.length > 0 ? (
+                      ) : !journals?.length ? (
+                        <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                            No keyword data available
+                          </p>
+                        </div>
+                      ) : (
                         <>
                           <div className="flex flex-col mb-4">
                             <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm">
@@ -809,28 +822,29 @@ function UserDashboard() {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
-                            <ul className="max-h-60 overflow-y-auto p-4">
-                              {keywordFrequency.map(
-                                ({ normal, count }, index) => (
-                                  <li
-                                    key={index}
-                                    className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
-                                  >
-                                    <span className="font-bold">{normal}:</span>{" "}
-                                    {count}
-                                  </li>
-                                )
-                              )}
-                            </ul>
-                          </div>
+                          {keywordFrequency.length > 0 ? (
+                            <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden">
+                              <ul className="max-h-60 overflow-y-auto p-4">
+                                {keywordFrequency.map(
+                                  ({ normal, count }, index) => (
+                                    <li
+                                      key={index}
+                                      className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
+                                    >
+                                      <span className="font-bold">{normal}:</span> {count}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center h-[calc(100%-6rem)]">
+                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                                No keyword data available
+                              </p>
+                            </div>
+                          )}
                         </>
-                      ) : (
-                        <div className="flex items-center justify-center h-[calc(100%-3rem)]">
-                          <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                            No keyword data available
-                          </p>
-                        </div>
                       )}
                     </Card>
                   </div>
