@@ -4,44 +4,24 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  ScrollUpButton,
-  ScrollDownButton,
-} from "@/components/ui/select";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useJournal } from "@/hooks/useJournal";
 import { IJournal, ICategory } from "@/lib/interfaces";
-import { ChevronDownIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
-import * as Popover from "@radix-ui/react-popover";
-import { sanitizeHtml } from "@/lib/utils";
+import {
+  sanitizeHtml,
+  getPlainTextFromHtml,
+  decodeHtmlEntities,
+} from "@/lib/utils";
 // import { useRouter } from "next/navigation";
 import {
   CheckCircle,
-  List,
-  Grid,
-  PlusIcon,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Check,
-  Twitter,
   ChartNoAxesColumnIncreasing,
   HelpCircle,
-  Clipboard,
-  ChevronDown,
-  ChevronUp,
   Save, // Add this import
 } from "lucide-react";
+import { UNTITLED_JOURNAL } from "@/lib/constants";
 import { localStorageService } from "@/lib/services/localStorageService";
 import { Spinner } from "@/components/ui/Spinner"; // Import a spinner component if you have one
-import Link from "next/link";
 // import { IFrontEndJournal } from "@/app/(protected)/dashboard/UserDashboard";
 import { useFormState, useFormStatus } from "react-dom";
 import { ICreateJournalState } from "./types";
@@ -87,17 +67,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Add this constant for Quill modules/formats
-const QUILL_MODULES = {
-  toolbar: [
-    [{ header: [1, 2, 3, false] }],
-    ["bold", "italic", "underline", "strike"],
-    [{ list: "ordered" }, { list: "bullet" }],
-    [{ color: [] }, { background: [] }],
-    ["clean"],
-  ],
-};
-
 const createJournalInitialState: ICreateJournalState = {
   message: "",
   errors: {},
@@ -120,8 +89,10 @@ function SubmitButton({
       type="button"
       disabled={disabled || pending}
       onClick={() => setShowSaveModal(true)}
-      className={`bg-blue-500 hover:bg-blue-600 text-white w-auto md:w-24 py-1 px-4 text-sm flex items-center justify-center ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
+      className={` text-white w-auto md:w-24 py-1 px-4 text-sm flex items-center justify-center ${
+        disabled
+          ? "bg-blue-300 hover:bg-blue-300 cursor-not-allowed"
+          : "bg-blue-500 hover:bg-blue-600"
       }`}
     >
       <span className="mr-2">Save</span> <Save className="w-4 h-4" />
@@ -353,7 +324,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
     // Calculate average words across all journals
     if (journals.length > 0) {
       const totalWordsInEntries = journals.reduce((acc, journal) => {
-        console.log(journal);
         return acc + journal.entry.trim().split(/\s+/).filter(Boolean).length;
       }, 0);
       setAverageWords(Math.round(totalWordsInEntries / journals.length));
@@ -401,17 +371,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (delta, oldDelta, source) => {
-        console.log("Text change!");
-        console.log(quill.getText(), typeof quill.getText()); // Get text only
-        console.log(quill.getContents(), typeof quill.getContents()); // Get delta contents
-        console.log(quill.root.innerHTML, typeof quill.root.innerHTML); // Get innerHTML using quill
-        setJournal(
+        handleJournalChange(
           quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
         );
-        console.log(
-          quillRef.current.firstChild.innerHTML,
-          typeof quillRef.current.firstChild.innerHTML
-        ); // Get innerHTML using quillRef
       });
     }
   }, [quill, quillRef]);
@@ -504,7 +466,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
   };
 
   const handleJournalChange = (value: string) => {
-    setJournal(value);
+    const plainText = getPlainTextFromHtml(value);
+    if (plainText.trim() === "") {
+      setJournal("");
+    } else {
+      setJournal(value);
+    }
   };
 
   const handleJournalPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -536,13 +503,11 @@ function WritePage({ children }: { children: React.ReactNode }) {
       // Get sentiment score for the journal entry
       const journalText = formData.get("entry") as string;
       const sanitizedJournalText = sanitizeHtml(journalText);
-      console.log("sanitizedJournalText", sanitizedJournalText);
       const sentimentScore = analyzeSentiment(sanitizedJournalText).score;
 
       // Add sentiment score to form data
       formData.append("category", selectedCategory);
       formData.append("sentimentScore", sentimentScore.toString());
-      console.log("formData", formData);
       createJournalAction(formData);
     } catch (error) {
       console.error("Error submitting journal:", error);
@@ -592,11 +557,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
   // Add this function inside WritePage component, before the return statement
   const handleExport = async (format: "pdf" | "docx") => {
     try {
-      console.log({
-        title,
-        content: journal,
-        format,
-      });
       const response = await fetch("/api/user/entry/export", {
         method: "POST",
         headers: {
@@ -609,18 +569,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
         }),
       });
 
-      console.log("response", response);
-
       if (!response.ok) {
         throw new Error("Export failed");
       }
 
       const blob = await response.blob();
-      console.log("blob", blob);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${title || "journal"}.${format}`;
+      a.download = `${title || UNTITLED_JOURNAL}.${format}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -827,6 +784,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                   focusVisible={false}
                 />
               </div>
+              {journal}
               <div className="flex flex-col mb-4">
                 <div
                   style={{
@@ -892,8 +850,13 @@ function WritePage({ children }: { children: React.ReactNode }) {
                       />
                       <Button
                         type="button"
+                        disabled={!journal.trim()}
                         onClick={summarizeJournal}
-                        className="bg-purple-500 hover:bg-purple-600 text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm"
+                        className={`text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm ${
+                          !journal.trim()
+                            ? "cursor-not-allowed bg-purple-300 hover:bg-purple-300"
+                            : "bg-purple-500 hover:bg-purple-600"
+                        }`}
                       >
                         <div className="flex items-center justify-center gap-1 mx-auto">
                           <span>
@@ -908,7 +871,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                               </TooltipTrigger>
                               <TooltipContent
                                 side="top"
-                                className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs"
+                                className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs opacity-1"
                               >
                                 <p className="text-sm leading-relaxed">
                                   Summarize your journal entry into fewer
