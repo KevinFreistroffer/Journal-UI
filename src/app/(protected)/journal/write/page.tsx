@@ -784,7 +784,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
                   focusVisible={false}
                 />
               </div>
-              {journal}
               <div className="flex flex-col mb-4">
                 <div
                   style={{

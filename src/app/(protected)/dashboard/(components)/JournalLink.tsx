@@ -25,7 +25,7 @@ export function JournalLink({
       <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500 mb-1">
         {title}
       </span>
-      <span className="text-xs text-gray-500">
+      <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500">
         {formatDate(date.toString())}
       </span>
     </Link>
