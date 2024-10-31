@@ -244,10 +244,20 @@ export function sanitizeHtml(
 }
 
 export const decodeHtmlEntities = (htmlString: string) => {
-  console.log("decodeHtmlEntities htmlString", htmlString);
-  const textarea = document.createElement("textarea");
-  textarea.innerHTML = htmlString;
-  return textarea.value;
+  try {
+    if (document !== undefined) {
+      console.log("decodeHtmlEntities htmlString", htmlString);
+      const textarea = document.createElement("textarea");
+      textarea.innerHTML = htmlString;
+      return textarea.value;
+    } else {
+      console.log("decodeHtmlEntities document is undefined");
+      return htmlString;
+    }
+  } catch (error) {
+    console.error("Error decoding html entities:", error);
+    return htmlString;
+  }
 };
 
 export const formatDate = (dateString: string) => {

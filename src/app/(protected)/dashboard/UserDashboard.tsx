@@ -782,6 +782,7 @@ function UserDashboard() {
                             variant="outline"
                             size="sm"
                             className="flex items-center text-xs sm:text-sm md:text-xs lg:text-sm"
+                            disabled={!journals?.length}
                           >
                             <Download className="w-4 h-4 mr-2" />
                             Export CSV

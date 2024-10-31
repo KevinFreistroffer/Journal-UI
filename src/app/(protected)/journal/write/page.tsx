@@ -108,17 +108,21 @@ const createJournalInitialState: ICreateJournalState = {
 // Create a new SubmitButton component
 function SubmitButton({
   setShowSaveModal,
+  disabled,
 }: {
   setShowSaveModal: React.Dispatch<React.SetStateAction<boolean>>;
+  disabled: boolean;
 }) {
   const { pending } = useFormStatus();
 
   return (
     <Button
       type="button"
-      disabled={pending}
+      disabled={disabled || pending}
       onClick={() => setShowSaveModal(true)}
-      className="bg-blue-500 hover:bg-blue-600 text-white w-auto md:w-24 py-1 px-4 text-sm flex items-center justify-center"
+      className={`bg-blue-500 hover:bg-blue-600 text-white w-auto md:w-24 py-1 px-4 text-sm flex items-center justify-center ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
     >
       <span className="mr-2">Save</span> <Save className="w-4 h-4" />
     </Button>
@@ -588,7 +592,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
   // Add this function inside WritePage component, before the return statement
   const handleExport = async (format: "pdf" | "docx") => {
     try {
-      const response = await fetch("/api/export", {
+      console.log({
+        title,
+        content: journal,
+        format,
+      });
+      const response = await fetch("/api/user/entry/export", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -600,11 +609,14 @@ function WritePage({ children }: { children: React.ReactNode }) {
         }),
       });
 
+      console.log("response", response);
+
       if (!response.ok) {
         throw new Error("Export failed");
       }
 
       const blob = await response.blob();
+      console.log("blob", blob);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -620,7 +632,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-full min-h-screen mt-16">
+    <div className="flex h-full min-h-screen bg-grey-100">
       {/* Sidebar - only visible on md screens and above */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -649,7 +661,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <div
-        className={`flex-1 p-6 pb-24 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
+        className={`flex-1 p-6 pb-24 pt-16 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
           isSidebarOpen ? "md:ml-56" : "md:ml-24"
         }`}
       >
@@ -874,7 +886,10 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 <div className="space-y-4 flex flex-col">
                   <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
                     <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
-                      <SubmitButton setShowSaveModal={setShowSaveModal} />
+                      <SubmitButton
+                        setShowSaveModal={setShowSaveModal}
+                        disabled={!journal.trim()}
+                      />
                       <Button
                         type="button"
                         onClick={summarizeJournal}
