@@ -76,6 +76,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import State from "@/components/ui/debug/State"; // Add this import at the top of the file
 import { PlusIcon } from "@radix-ui/react-icons";
 import SpinnerIcon from "@/components/SpinnerIcon";
+import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
 
 // Add this function near the top of the file with other utility functions
 const formatDate = (dateString: string) => {
@@ -558,16 +559,19 @@ export default function JournalsPage() {
   };
 
   return (
-    <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto p-3 sm:p-4 md:p-6">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        headerDisplaysTabs={true}
-        sections={[
-          {
-            title: "Filters",
-            content: (
-              <div className="flex flex-col space-y-2">
-                {/* <div className="flex items-center">
+    <DashboardContainer
+      isSidebarOpen={isSidebarOpen}
+      // setIsSidebarOpen={setIsSidebarOpen}
+      sidebar={
+        <Sidebar
+          isOpen={isSidebarOpen}
+          headerDisplaysTabs={true}
+          sections={[
+            {
+              title: "Filters",
+              content: (
+                <div className="flex flex-col space-y-2">
+                  {/* <div className="flex items-center">
                   <Checkbox
                     id="select-all"
                     checked={
@@ -586,127 +590,127 @@ export default function JournalsPage() {
                   </label>
                 </div> */}
 
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="show-favorites"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Show Favorites Only
-                  </label>{" "}
-                  <Checkbox
-                    id="show-favorites"
-                    checked={showFavoritesOnly}
-                    onCheckedChange={(checked) =>
-                      setShowFavoritesOnly(checked as boolean)
-                    }
-                    className="bg-white border-gray-300 ml-2"
-                    size={4}
-                  />
-                </div>
-                {/* TODO add an updated by date */}
-                <div className="flex flex-col space-y-2">
-                  <label htmlFor="date-filter" className="text-sm font-medium">
-                    Filter by Created Date
-                  </label>
-                  <input
-                    id="date-filter"
-                    type="date"
-                    value={selectedFilterDate}
-                    onChange={(e) => setSelectedFilterDate(e.target.value)}
-                    className="border rounded p-1 text-sm"
-                  />
-                </div>
-              </div>
-            ),
-          },
-          {
-            title: "Settings",
-            content: (
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="show-sentiment"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Show Sentiment
-                  </label>{" "}
-                  <Checkbox
-                    id="show-sentiment"
-                    checked={showSentiment}
-                    onCheckedChange={(checked) =>
-                      setShowSentiment(checked as boolean)
-                    }
-                    className="bg-white border-gray-300 ml-2"
-                    size={4}
-                  />
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center justify-between">
-                    {" "}
-                    <label
-                      htmlFor="show-category"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Show Category
-                    </label>
-                    <Checkbox
-                      id="show-category"
-                      checked={showCategory} // New state for showing category
-                      onCheckedChange={
-                        (checked) => setShowCategory(checked as boolean) // Update state on change
-                      }
-                      className="bg-white border-gray-300 ml-2"
-                      size={4}
-                    />
-                  </div>
                   <div className="flex items-center justify-between">
                     <label
-                      htmlFor="show-updated-date"
+                      htmlFor="show-favorites"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
-                      Show Updated Date
+                      Show Favorites Only
                     </label>{" "}
                     <Checkbox
-                      id="show-updated-date"
-                      checked={showUpdatedDate} // New state for showing updated date
-                      onCheckedChange={
-                        (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
+                      id="show-favorites"
+                      checked={showFavoritesOnly}
+                      onCheckedChange={(checked) =>
+                        setShowFavoritesOnly(checked as boolean)
                       }
                       className="bg-white border-gray-300 ml-2"
                       size={4}
                     />
                   </div>
+                  {/* TODO add an updated by date */}
+                  <div className="flex flex-col space-y-2">
+                    <label
+                      htmlFor="date-filter"
+                      className="text-sm font-medium"
+                    >
+                      Filter by Created Date
+                    </label>
+                    <input
+                      id="date-filter"
+                      type="date"
+                      value={selectedFilterDate}
+                      onChange={(e) => setSelectedFilterDate(e.target.value)}
+                      className="border rounded p-1 text-sm"
+                    />
+                  </div>
                 </div>
-              </div>
-            ),
-          },
-          {
-            title: "Data", // New Data section
-            content: (
-              <div className="flex flex-col space-y-2">
-                <p className="text-sm font-medium">
-                  Total Journal Entries: {user?.journals.length || 0}
-                </p>{" "}
-                {/* Display total journal entries */}
-                <p className="text-sm font-medium">
-                  Total Favorited Journals:{" "}
-                  {user?.journals.filter((journal) => journal.favorite)
-                    .length || 0}
-                </p>{" "}
-                {/* Display total favorited journals */}
-              </div>
-            ),
-          },
-        ]}
-        setIsSidebarOpen={setIsSidebarOpen}
-        icon={<ChevronRightIcon size={20} />}
-      />
-      {/* Wrap the entire content in PageWrapper */}
-      <div
-        className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
-          !isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16"
-        }`}
-      >
+              ),
+            },
+            {
+              title: "Settings",
+              content: (
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="show-sentiment"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Show Sentiment
+                    </label>{" "}
+                    <Checkbox
+                      id="show-sentiment"
+                      checked={showSentiment}
+                      onCheckedChange={(checked) =>
+                        setShowSentiment(checked as boolean)
+                      }
+                      className="bg-white border-gray-300 ml-2"
+                      size={4}
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center justify-between">
+                      {" "}
+                      <label
+                        htmlFor="show-category"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Show Category
+                      </label>
+                      <Checkbox
+                        id="show-category"
+                        checked={showCategory} // New state for showing category
+                        onCheckedChange={
+                          (checked) => setShowCategory(checked as boolean) // Update state on change
+                        }
+                        className="bg-white border-gray-300 ml-2"
+                        size={4}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="show-updated-date"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Show Updated Date
+                      </label>{" "}
+                      <Checkbox
+                        id="show-updated-date"
+                        checked={showUpdatedDate} // New state for showing updated date
+                        onCheckedChange={
+                          (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
+                        }
+                        className="bg-white border-gray-300 ml-2"
+                        size={4}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Data", // New Data section
+              content: (
+                <div className="flex flex-col space-y-2">
+                  <p className="text-sm font-medium">
+                    Total Journal Entries: {user?.journals.length || 0}
+                  </p>{" "}
+                  {/* Display total journal entries */}
+                  <p className="text-sm font-medium">
+                    Total Favorited Journals:{" "}
+                    {user?.journals.filter((journal) => journal.favorite)
+                      .length || 0}
+                  </p>{" "}
+                  {/* Display total favorited journals */}
+                </div>
+              ),
+            },
+          ]}
+          setIsSidebarOpen={setIsSidebarOpen}
+          icon={<ChevronRightIcon size={20} />}
+        />
+      }
+    >
+      <>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
           <h1 className="text-3xl font-bold hidden md:block">Your Journals</h1>
         </div>
@@ -1169,47 +1173,46 @@ export default function JournalsPage() {
             })
           )}
         </div>
-      </div>
-      {/* Global Modal */}
-      <GlobalModal />
-      {/* Add this at the end of the component, just before the closing div */}
-      <State state={{ categoryFilterDisplayed }} position="bottom-right" />
-      {/* Add the create category modal */}
-      <Dialog.Root
-        open={showCreateCategoryModal}
-        onOpenChange={setShowCreateCategoryModal}
-      >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
-            <Dialog.Title className="text-lg font-semibold mb-4">
-              Create New Category
-            </Dialog.Title>
-            <input
-              type="text"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Category name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowCreateCategoryModal(false)}
-                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateCategory}
-                disabled={!newCategoryName.trim()}
-                className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Create
-              </button>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </div>
+        <GlobalModal />
+        {/* Add this at the end of the component, just before the closing div */}
+        <State state={{ categoryFilterDisplayed }} position="bottom-right" />
+        {/* Add the create category modal */}
+        <Dialog.Root
+          open={showCreateCategoryModal}
+          onOpenChange={setShowCreateCategoryModal}
+        >
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/40" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
+              <Dialog.Title className="text-lg font-semibold mb-4">
+                Create New Category
+              </Dialog.Title>
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Category name"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setShowCreateCategoryModal(false)}
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateCategory}
+                  disabled={!newCategoryName.trim()}
+                  className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create
+                </button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </>
+    </DashboardContainer>
   );
 }

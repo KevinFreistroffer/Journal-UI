@@ -7,6 +7,7 @@ interface DashboardContainerProps {
   sidebar: React.ReactNode;
   className?: string;
   isSidebarOpen: boolean;
+  bottomBar?: React.ReactNode;
 }
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({
@@ -14,6 +15,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   sidebar,
   className = "",
   isSidebarOpen,
+  bottomBar,
 }) => {
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
@@ -35,6 +37,13 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
       >
         {children}
       </div>
+
+      {/* Bottom bar */}
+      {bottomBar && (
+        <div className="fixed bottom-0 left-0 right-0 z-30">
+          {bottomBar}
+        </div>
+      )}
     </div>
   );
 };
