@@ -104,7 +104,6 @@ export function analyzeSentiment(text: string): ISentimentResult {
 }
 
 export const getSentimentColor = (score: number): string => {
-  console.log("getSentimentColor score", score);
   if (score <= -0.6) {
     return "bg-red-600"; // Very Negative
   } else if (score < -0.1) {
@@ -119,7 +118,6 @@ export const getSentimentColor = (score: number): string => {
 };
 
 export function getSentimentWord(score: number): string {
-  console.log("getSentimentWord score", score);
   try {
     if (score >= 0.6) return "Ecstatic";
     if (score >= 0.3) return "Happy";
@@ -246,12 +244,10 @@ export function sanitizeHtml(
 export const decodeHtmlEntities = (htmlString: string) => {
   try {
     if (document !== undefined) {
-      console.log("decodeHtmlEntities htmlString", htmlString);
       const textarea = document.createElement("textarea");
       textarea.innerHTML = htmlString;
       return textarea.value;
     } else {
-      console.log("decodeHtmlEntities document is undefined");
       return htmlString;
     }
   } catch (error) {

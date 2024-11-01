@@ -272,7 +272,6 @@ function WritePage() {
     // Calculate average words across all journals
     if (journals.length > 0) {
       const totalWordsInEntries = journals.reduce((acc, journal) => {
-        console.log(journal);
         return acc + journal.entry.trim().split(/\s+/).filter(Boolean).length;
       }, 0);
       setAverageWords(Math.round(totalWordsInEntries / journals.length));
@@ -320,10 +319,9 @@ function WritePage() {
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (delta, oldDelta, source) => {
-        console.log("Text change!");
         console.log(quill.getText(), typeof quill.getText()); // Get text only
         console.log(quill.getContents(), typeof quill.getContents()); // Get delta contents
-        console.log(quill.root.innerHTML, typeof quill.root.innerHTML); // Get innerHTML using quill
+        // Get innerHTML using quill
         setJournal(
           quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
         );

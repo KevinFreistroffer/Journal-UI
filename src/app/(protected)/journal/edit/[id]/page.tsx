@@ -341,7 +341,6 @@ function WritePage({ params }: { params?: { id: string } }) {
     // Calculate average words across all journals
     if (journals.length > 0) {
       const totalWordsInEntries = journals.reduce((acc, journal) => {
-        console.log(journal);
         return acc + journal.entry.trim().split(/\s+/).filter(Boolean).length;
       }, 0);
       setAverageWords(Math.round(totalWordsInEntries / journals.length));
@@ -389,10 +388,9 @@ function WritePage({ params }: { params?: { id: string } }) {
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (delta, oldDelta, source) => {
-        console.log("Text change!");
         console.log(quill.getText(), typeof quill.getText()); // Get text only
         console.log(quill.getContents(), typeof quill.getContents()); // Get delta contents
-        console.log(quill.root.innerHTML, typeof quill.root.innerHTML); // Get innerHTML using quill
+        // Get innerHTML using quill
         setJournal(
           quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
         );
@@ -524,14 +522,14 @@ function WritePage({ params }: { params?: { id: string } }) {
       // Get sentiment score for the journal entry
       const journalText = formData.get("entry") as string;
       const sanitizedJournalText = sanitizeHtml(journalText);
-      console.log("sanitizedJournalText", sanitizedJournalText);
+
       const sentimentScore = analyzeSentiment(sanitizedJournalText).score;
 
       // Add sentiment score to form data
       formData.append("entry", sanitizedJournalText);
       formData.append("category", selectedCategory);
       formData.append("sentimentScore", sentimentScore.toString());
-      console.log("formData", formData);
+
       createJournalAction(formData);
     } catch (error) {
       console.error("Error submitting journal:", error);
@@ -548,7 +546,7 @@ function WritePage({ params }: { params?: { id: string } }) {
         // Populate the form with existing journal data
         setTitle(existingJournal.title || "");
         const decodedJournal = decodeHtmlEntities(existingJournal.entry);
-        console.log("decodedJournal", decodedJournal);
+
         if (quill) {
           quill.clipboard.dangerouslyPasteHTML(decodedJournal);
         }

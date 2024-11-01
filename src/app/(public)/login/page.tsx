@@ -48,12 +48,12 @@ export default function LoginPage() {
       let userId = state.user?._id;
       if (!userId) {
         const userResponse = await fetch("/api/auth/get-user-session");
-        console.log("userResponse", userResponse);
+
         if (!userResponse.ok) {
           throw new Error("Failed to get current user");
         }
         const userData = await userResponse.json();
-        console.log("userData", userData);
+
         userId = userData.userId;
       }
 

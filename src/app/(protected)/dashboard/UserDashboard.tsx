@@ -50,7 +50,8 @@ import {
   Legend as ChartLegend,
 } from "chart.js";
 import { JournalLink } from "@/app/(protected)/dashboard/(components)/JournalLink";
-
+import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -125,6 +126,8 @@ function UserDashboard() {
   const [journalTimeData, setJournalTimeData] = useState<{
     [key: string]: number;
   }>({});
+  // Add this new media query hook usage at the top of the component
+  const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const [cardLayout, setCardLayout] = useState<CardLayout>("auto-layout");
   const isLgOrLarger = useMediaQuery("(min-width: 1024px)");
@@ -139,8 +142,13 @@ function UserDashboard() {
 
   // Update sidebar state when viewport changes
   useEffect(() => {
-    setIsSidebarOpen(!isMobileView);
-  }, [isMobileView]);
+    // Don't show sidebar if viewport is 360px or smaller
+    if (isExtraSmallScreen) {
+      setIsSidebarOpen(false);
+    } else {
+      setIsSidebarOpen(!isMobileView);
+    }
+  }, [isMobileView, isExtraSmallScreen]);
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -404,6 +412,26 @@ function UserDashboard() {
     );
   };
 
+  const sidebarContent = (
+    <div className="flex flex-col">
+      <Legend
+        showCategoryBreakdownCard={showCategoryBreakdownCard}
+        setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
+        showRecentEntriesCard={showRecentEntriesCard}
+        setShowRecentEntriesCard={setShowRecentEntriesCard}
+        showUpcomingEntriesCard={showUpcomingEntriesCard}
+        setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
+        showFavoriteJournalsCard={showFavoriteJournalsCard}
+        setShowFavoriteJournalsCard={setShowFavoriteJournalsCard}
+        showKeywordFrequencyCard={showKeywordFrequencyCard}
+        setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
+        showJournalTimeCard={showJournalTimeCard}
+        setShowJournalTimeCard={setShowJournalTimeCard}
+        checkboxSize={4}
+      />
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="p-6 w-full h-full min-h-screen flex justify-center items-center">
@@ -420,89 +448,33 @@ function UserDashboard() {
     );
   }
   //xs:px-0 sm:px-4 md:px-6 lg:px-8
+
   return (
-    <div className="p-3 sm:p-4 md:p-6 lg:p-8 min-h-screen">
-      {/* Sidebar - only visible on md screens and above */}
-
-      <Sidebar
-        isOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        icon={<Settings size={20} />}
-        headerDisplaysTabs={true}
-        sections={[
-          {
-            title: "Toggle Cards",
-            content: (
-              <div className="flex flex-col">
-                <Legend
-                  // isMobile={isMobile}
-                  // isMobileLegendOpen={isMobileLegendOpen}
-                  // setIsMobileLegendOpen={setIsMobileLegendOpen}
-                  // showTotalJournalsCard={showTotalJournalsCard}
-                  // setShowTotalJournalsCard={setShowTotalJournalsCard}
-                  showCategoryBreakdownCard={showCategoryBreakdownCard}
-                  setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
-                  showRecentEntriesCard={showRecentEntriesCard}
-                  setShowRecentEntriesCard={setShowRecentEntriesCard}
-                  showUpcomingEntriesCard={showUpcomingEntriesCard}
-                  setShowUpcomingEntriesCard={setShowUpcomingEntriesCard}
-                  showFavoriteJournalsCard={showFavoriteJournalsCard}
-                  setShowFavoriteJournalsCard={setShowFavoriteJournalsCard}
-                  showKeywordFrequencyCard={showKeywordFrequencyCard}
-                  setShowKeywordFrequencyCard={setShowKeywordFrequencyCard}
-                  showJournalTimeCard={showJournalTimeCard}
-                  setShowJournalTimeCard={setShowJournalTimeCard}
-                  checkboxSize={4}
-                />
-              </div>
-            ),
-          },
-          // ...(isLgOrLarger
-          //   ? [
-          //       {
-          //         title: "Display Settings",
-          //         content: (
-          //           <div className="flex flex-col space-y-2">
-          //             <LegendItem
-          //               id="auto-layout"
-          //               label="Auto Layout"
-          //               checked={cardLayout === "auto-layout"}
-          //               onChange={() => setCardLayout("auto-layout")}
-          //               checkboxSize={4}
-          //             />
-          //             <LegendItem
-          //               id="single-column"
-          //               label="Single Column"
-          //               checked={cardLayout === "single-column"}
-          //               onChange={() => setCardLayout("single-column")}
-          //               checkboxSize={4}
-          //             />
-          //             <LegendItem
-          //               id="two-column"
-          //               label="Two-Column"
-          //               checked={cardLayout === "two-column"}
-          //               onChange={() => setCardLayout("two-column")}
-          //               checkboxSize={4}
-          //             />
-          //           </div>
-          //         ),
-          //       },
-          //     ]
-          //   : []),
-        ]}
-      />
-
-      {/* Main Content */}
-      <div
-        className={`flex-1 p-0 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
-          !isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16"
-        }`}
+    <>
+      <DashboardContainer
+        isSidebarOpen={!isExtraSmallScreen && isSidebarOpen}
+        sidebar={
+          !isExtraSmallScreen && (
+            <Sidebar
+              isOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+              icon={<Settings size={20} />}
+              headerDisplaysTabs={true}
+              sections={[
+                {
+                  title: "Toggle Cards",
+                  content: sidebarContent,
+                },
+              ]}
+            />
+          )
+        }
       >
-        {/* Dashboard title - only visible on non-mobile viewports */}
-        {/* {!isMobileView && (
-          <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-        )} */}
-        <div className="flex flex-col md:flex-row mb-6">
+        <div
+          className={`flex flex-col md:flex-row mb-6 ${
+            isExtraSmallScreen ? "p-2" : ""
+          }`}
+        >
           {/* Main Content Area */}
           <div className="flex flex-col md:flex-row md:flex-wrap w-full">
             {areAnyCardsVisible() ? (
@@ -956,8 +928,29 @@ function UserDashboard() {
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </DashboardContainer>
+
+      {/* Fixed Bottom Menu Bar */}
+      {isExtraSmallScreen && (
+        <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh]">
+              <div className="pt-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  Dashboard Settings
+                </h3>
+                {sidebarContent}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
+    </>
   );
 }
 // Placeholder component

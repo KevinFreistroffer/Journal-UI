@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
   try {
     // Parse HTML and extract text content
     const plainText = getPlainTextFromHtml(text);
-    console.log("plainText", plainText);
 
     const sentenceCount = countSentences(plainText);
 

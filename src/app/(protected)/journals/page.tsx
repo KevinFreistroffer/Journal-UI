@@ -155,7 +155,7 @@ export default function JournalsPage() {
     null
   );
   const [categoryFilterDisplayed, setCategoryFilterDisplayed] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 639px)");
+  const isMobileView = useMediaQuery("(max-width: 639px)");
   const [shouldTruncate, setShouldTruncate] = useState(false);
   const isMediumScreen = useMediaQuery(
     "(min-width: 768px) and (max-width: 1023px)"
@@ -181,7 +181,7 @@ export default function JournalsPage() {
   }, [viewMode, isMediumScreen]);
 
   const handleFilterClick = (filterType: "category" | "sort") => {
-    if (isMobile) {
+    if (isMobileView) {
       setActiveFilter(filterType);
       setIsModalOpen(true);
       setCategoryFilterDisplayed(true);
@@ -206,11 +206,8 @@ export default function JournalsPage() {
     setCategoryFilterDisplayed(false);
   };
 
-  console.log("user", user);
-
   const filteredAndSortedEntries = user?.journals
     .filter((journal) => {
-      console.log("journal", journal);
       if (showFavoritesOnly && !journal.favorite) {
         return false;
       }
@@ -261,8 +258,6 @@ export default function JournalsPage() {
           return 0;
       }
     });
-
-  console.log("filteredAndSortedEntries", filteredAndSortedEntries);
 
   // Get unique categories
   const categories = [
@@ -336,13 +331,12 @@ export default function JournalsPage() {
   // const sentiment = new Sentiment();
   // const analyzeSentiment = (journal: string) => {
   //   const result = sentiment.analyze(journal);
-  //   console.log(result);
+  //
 
   //   return result; // result.score will give you a sentiment score
   // };
 
   const handleFavorite = async (journalId: string, favorite: boolean) => {
-    console.log("favorite", favorite);
     setLoadingJournalId(journalId); // Set the loading state for the specific journal
     try {
       // Send API request to edit the journal
@@ -360,7 +354,7 @@ export default function JournalsPage() {
 
       if (response.status === 200) {
         const data = await response.json();
-        console.log("Favorite updated successfully");
+
         setUser(data.data);
       }
 
@@ -564,7 +558,7 @@ export default function JournalsPage() {
   };
 
   return (
-    <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto">
+    <div className="flex h-full min-h-screen mt-2 md:mt-8 max-w-screen-2xl mx-auto p-3 sm:p-4 md:p-6">
       <Sidebar
         isOpen={isSidebarOpen}
         headerDisplaysTabs={true}
@@ -710,7 +704,7 @@ export default function JournalsPage() {
       {/* Wrap the entire content in PageWrapper */}
       <div
         className={`flex-1 p-4 md:p-6 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "md:ml-56 md:pl-8" : "md:ml-24 md:pl-4"
+          !isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16"
         }`}
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
@@ -734,7 +728,7 @@ export default function JournalsPage() {
 
             {/* Category and Sort selects */}
             <div className="flex flex-row items-center space-x-4">
-              {isMobile ? (
+              {isMobileView ? (
                 <>
                   <Button
                     variant="outline"
@@ -981,7 +975,6 @@ export default function JournalsPage() {
             </div>
           ) : (
             filteredAndSortedEntries?.map((journal, index) => {
-              console.log("journal", journal);
               const displayTitle = journal.title.trim() || "Untitled";
 
               return (

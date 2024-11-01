@@ -186,17 +186,32 @@ export default function Header() {
     return true;
   });
 
+  const getVisibleMenuItems = () => {
+    const currentRoute = menuItems.find(item => item.href === pathname);
+    if (!currentRoute) return filteredMenuItems;
+
+    // If current route is not in filtered items, swap it with the last filtered item
+    if (!filteredMenuItems.includes(currentRoute)) {
+      const newFilteredItems = [...filteredMenuItems];
+      newFilteredItems.pop(); // Remove last item
+      return [...newFilteredItems, currentRoute]; // Add current route
+    }
+
+    return filteredMenuItems;
+  };
+
   const dropdownItems = menuItems.filter(
-    (item) => !filteredMenuItems.includes(item)
+    (item) => !getVisibleMenuItems().includes(item)
   );
 
   return (
     <>
       <header
         id={styles["header"]}
-        className={`sticky px-3 sm:px-4 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
+        className={`sticky px-0 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
       >
-        <div className="flex h-14 items-center justify-between w-full">
+        <div className="flex h-14 items-center justify-between px-3 sm:px-4 w-full">
+          {/* Title and Mobile menu icon */}
           <div className="flex-1 flex items-center gap-2">
             {excludeTabsRoute && (
               <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -342,13 +357,13 @@ export default function Header() {
         {!isLoading && user && isTabRoute && (
           <div className="w-full">
             <Tabs defaultValue={pathname} className="w-full">
-              <TabsList className="bg-transparent p-0 flex flex-wrap justify-start w-full">
-                {filteredMenuItems.map((item) => (
+              <TabsList className="bg-transparent ml-2 p-0 flex flex-wrap justify-start w-full">
+                {getVisibleMenuItems().map((item) => (
                   <TabsTrigger
                     key={item.href}
                     value={item.href}
                     onClick={() => router.push(item.href)}
-                    className={`fdasfdas bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
+                    className={`bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
                       pathname === item.href ? "font-bold" : "font-light"
                     } flex items-center`}
                     style={{
@@ -381,7 +396,7 @@ export default function Header() {
                     <DropdownMenu.Trigger asChild>
                       <button
                         id={styles["more-button"]}
-                        className=" p-[6px] bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none mr-0 ml-auto"
+                        className="p-[6px] mr-3 sm:mr-4 bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none ml-auto"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>

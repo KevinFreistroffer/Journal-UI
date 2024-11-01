@@ -6,9 +6,6 @@ export async function POST(req: Request) {
   try {
     const { title: originalTitle, content, format } = await req.json();
     const title = originalTitle || UNTITLED_JOURNAL;
-    console.log("title", title);
-    console.log("content", content);
-    console.log("format", format);
 
     if (format === "pdf") {
       // Create new PDF
@@ -26,12 +23,11 @@ export async function POST(req: Request) {
       // Get the PDF as bytes
       const pdfBytes = doc.output("arraybuffer");
 
-      console.log(title, "fileName");
       const headers = {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${title}.pdf"`,
       };
-      console.log("headers", headers);
+
       // Return the PDF
       return new NextResponse(pdfBytes, {
         headers,
