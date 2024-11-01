@@ -21,18 +21,24 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
   return (
-    <div className={`${isExtraSmallScreen ? 'p-2' : 'p-3 sm:p-4 md:p-6 lg:p-8'} min-h-screen`}>
+    <div
+      className={`${
+        isExtraSmallScreen ? "p-2" : "p-3 sm:p-4 md:p-6 lg:p-8"
+      } min-h-screen`}
+    >
       {/* Sidebar - hidden on extra small screens */}
       {!isExtraSmallScreen && (
-        <div className="md:block fixed left-0 top-0 h-full z-30">
-          {sidebar}
-        </div>
+        <div className="md:block fixed left-0 top-0 h-full z-30">{sidebar}</div>
       )}
       <div
         className={`flex-1 p-0 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
           isExtraSmallScreen
-            ? ''
-            : (!isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16")
+            ? ""
+            : !isMobileView
+            ? isSidebarOpen
+              ? "sm:ml-56"
+              : "sm:ml-16"
+            : "ml-16"
         }`}
       >
         {children}
@@ -40,9 +46,7 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
 
       {/* Bottom bar */}
       {bottomBar && (
-        <div className="fixed bottom-0 left-0 right-0 z-30">
-          {bottomBar}
-        </div>
+        <div className="fixed bottom-0 left-0 right-0 z-[500]">{bottomBar}</div>
       )}
     </div>
   );

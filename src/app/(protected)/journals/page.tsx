@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   Settings,
   ChevronRightIcon,
+  ChevronUpIcon,
+  Menu,
 } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
 // import StarIcon from "@/components/ui/StarIcon/StarIcon";
@@ -32,6 +34,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/Button";
 import Carrot from "@/components/ui/Carrot/Carrot";
 import Sentiment from "sentiment";
@@ -77,6 +80,7 @@ import State from "@/components/ui/debug/State"; // Add this import at the top o
 import { PlusIcon } from "@radix-ui/react-icons";
 import SpinnerIcon from "@/components/SpinnerIcon";
 import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import SidebarContent from "@/components/ui/SidebarContent/SidebarContent";
 
 // Add this function near the top of the file with other utility functions
 const formatDate = (dateString: string) => {
@@ -158,6 +162,7 @@ export default function JournalsPage() {
   const [categoryFilterDisplayed, setCategoryFilterDisplayed] = useState(false);
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const [shouldTruncate, setShouldTruncate] = useState(false);
+  const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
   const isMediumScreen = useMediaQuery(
     "(min-width: 768px) and (max-width: 1023px)"
   );
@@ -561,153 +566,72 @@ export default function JournalsPage() {
   return (
     <DashboardContainer
       isSidebarOpen={isSidebarOpen}
-      // setIsSidebarOpen={setIsSidebarOpen}
       sidebar={
         <Sidebar
           isOpen={isSidebarOpen}
           headerDisplaysTabs={true}
-          sections={[
-            {
-              title: "Filters",
-              content: (
-                <div className="flex flex-col space-y-2">
-                  {/* <div className="flex items-center">
-                  <Checkbox
-                    id="select-all"
-                    checked={
-                      selectedEntries.length ===
-                      filteredAndSortedEntries?.length
-                    }
-                    onCheckedChange={handleSelectAll}
-                    className="bg-white border-gray-300 mr-2"
-                    size={4}
-                  />
-                  <label
-                    htmlFor="select-all"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Select All
-                  </label>
-                </div> */}
-
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="show-favorites"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Show Favorites Only
-                    </label>{" "}
-                    <Checkbox
-                      id="show-favorites"
-                      checked={showFavoritesOnly}
-                      onCheckedChange={(checked) =>
-                        setShowFavoritesOnly(checked as boolean)
-                      }
-                      className="bg-white border-gray-300 ml-2"
-                      size={4}
-                    />
-                  </div>
-                  {/* TODO add an updated by date */}
-                  <div className="flex flex-col space-y-2">
-                    <label
-                      htmlFor="date-filter"
-                      className="text-sm font-medium"
-                    >
-                      Filter by Created Date
-                    </label>
-                    <input
-                      id="date-filter"
-                      type="date"
-                      value={selectedFilterDate}
-                      onChange={(e) => setSelectedFilterDate(e.target.value)}
-                      className="border rounded p-1 text-sm"
-                    />
-                  </div>
-                </div>
-              ),
-            },
-            {
-              title: "Settings",
-              content: (
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="show-sentiment"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Show Sentiment
-                    </label>{" "}
-                    <Checkbox
-                      id="show-sentiment"
-                      checked={showSentiment}
-                      onCheckedChange={(checked) =>
-                        setShowSentiment(checked as boolean)
-                      }
-                      className="bg-white border-gray-300 ml-2"
-                      size={4}
-                    />
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center justify-between">
-                      {" "}
-                      <label
-                        htmlFor="show-category"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Show Category
-                      </label>
-                      <Checkbox
-                        id="show-category"
-                        checked={showCategory} // New state for showing category
-                        onCheckedChange={
-                          (checked) => setShowCategory(checked as boolean) // Update state on change
-                        }
-                        className="bg-white border-gray-300 ml-2"
-                        size={4}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <label
-                        htmlFor="show-updated-date"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Show Updated Date
-                      </label>{" "}
-                      <Checkbox
-                        id="show-updated-date"
-                        checked={showUpdatedDate} // New state for showing updated date
-                        onCheckedChange={
-                          (checked) => setShowUpdatedDate(checked as boolean) // Update state on change
-                        }
-                        className="bg-white border-gray-300 ml-2"
-                        size={4}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              title: "Data", // New Data section
-              content: (
-                <div className="flex flex-col space-y-2">
-                  <p className="text-sm font-medium">
-                    Total Journal Entries: {user?.journals.length || 0}
-                  </p>{" "}
-                  {/* Display total journal entries */}
-                  <p className="text-sm font-medium">
-                    Total Favorited Journals:{" "}
-                    {user?.journals.filter((journal) => journal.favorite)
-                      .length || 0}
-                  </p>{" "}
-                  {/* Display total favorited journals */}
-                </div>
-              ),
-            },
-          ]}
+          sections={SidebarContent({
+            showFavoritesOnly,
+            setShowFavoritesOnly,
+            selectedFilterDate,
+            setSelectedFilterDate,
+            showSentiment,
+            setShowSentiment,
+            showCategory,
+            setShowCategory,
+            showUpdatedDate,
+            setShowUpdatedDate,
+            journalCount: user?.journals.length,
+            favoritedJournalCount: user?.journals.filter(
+              (journal) => journal.favorite
+            ).length,
+          })}
           setIsSidebarOpen={setIsSidebarOpen}
           icon={<ChevronRightIcon size={20} />}
         />
+      }
+      bottomBar={
+        isExtraSmallScreen ? (
+          <div className="fixed m-1 bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10">
+                  {/* <Settings className="h-5 w-5" /> */}
+                  <ChevronUpIcon className="h-5 w-5" />
+                  {/* <Menu className="h-5 w-5" /> */}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-auto m-4 mb-0 max-w-md ">
+                <div className="pt-6">
+                  <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3>
+                  <div className="space-y-4">
+                    {SidebarContent({
+                      showFavoritesOnly,
+                      setShowFavoritesOnly,
+                      selectedFilterDate,
+                      setSelectedFilterDate,
+                      showSentiment,
+                      setShowSentiment,
+                      showCategory,
+                      setShowCategory,
+                      showUpdatedDate,
+                      setShowUpdatedDate,
+                      journalCount: user?.journals.length,
+                      favoritedJournalCount: user?.journals.filter(
+                        (journal) => journal.favorite
+                      ).length,
+                    }).map((section) => (
+                      <div key={section.title}>
+                        <h4 className="font-medium mb-2">{section.title}</h4>
+                        {section.content}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        ) : undefined
       }
     >
       <>
@@ -1175,7 +1099,7 @@ export default function JournalsPage() {
         </div>
         <GlobalModal />
         {/* Add this at the end of the component, just before the closing div */}
-        <State state={{ categoryFilterDisplayed }} position="bottom-right" />
+        {/* <State state={{ categoryFilterDisplayed }} position="bottom-right" /> */}
         {/* Add the create category modal */}
         <Dialog.Root
           open={showCreateCategoryModal}

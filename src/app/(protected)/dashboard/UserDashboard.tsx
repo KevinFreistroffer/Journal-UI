@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { IJournal, IReminder } from "@/lib/interfaces";
 import CategoryBreakdown from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
 import { ICategoryBreakdown } from "@/components/ui/CategoryBreakdown/CategoryBreakdown";
-import { StarIcon } from "lucide-react";
+import { ChevronUpIcon, StarIcon } from "lucide-react";
 import styles from "@/app/(protected)/dashboard/UserDashboard.module.css";
 import Link from "next/link"; // Import Link for navigation
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -475,10 +475,11 @@ function UserDashboard() {
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-10 w-10">
-                    <Settings className="h-5 w-5" />
+                    {/* <Settings className="h-5 w-5" /> */}
+                    <ChevronUpIcon className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-auto mx-auto max-w-md">
+                <SheetContent side="bottom" className="h-auto m-4 mb-0">
                   <div className="pt-6">
                     <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3>
                     {sidebarContent}
