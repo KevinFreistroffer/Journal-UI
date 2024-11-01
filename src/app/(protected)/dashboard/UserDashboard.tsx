@@ -125,10 +125,22 @@ function UserDashboard() {
   const [journalTimeData, setJournalTimeData] = useState<{
     [key: string]: number;
   }>({});
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const [cardLayout, setCardLayout] = useState<CardLayout>("auto-layout");
   const isLgOrLarger = useMediaQuery("(min-width: 1024px)");
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    // Only run client-side
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 640; // 640px is the 'sm' breakpoint
+    }
+    return true; // Default to open on server-side
+  });
+
+  // Update sidebar state when viewport changes
+  useEffect(() => {
+    setIsSidebarOpen(!isMobileView);
+  }, [isMobileView]);
 
   const handleValueChange = (value: string) => {
     setIsLoadingKeywordFrequency(true);
@@ -411,6 +423,7 @@ function UserDashboard() {
   return (
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 min-h-screen">
       {/* Sidebar - only visible on md screens and above */}
+
       <Sidebar
         isOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
@@ -485,6 +498,20 @@ function UserDashboard() {
           !isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16"
         }`}
       >
+        <div
+          style={{
+            position: "fixed",
+            top: "10px",
+            right: "10px",
+            backgroundColor: "red",
+            color: "white",
+            padding: "5px",
+            borderRadius: "5px",
+            zIndex: "1000",
+          }}
+        >
+          {isSidebarOpen.toString()}
+        </div>
         {/* Dashboard title - only visible on non-mobile viewports */}
         {/* {!isMobileView && (
           <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
@@ -558,8 +585,10 @@ function UserDashboard() {
                               </p>
                             </div>
                           ) : isMobileView ? (
-                            <div className="overflow-auto">
-                              <table className="w-full border-collapse">
+                            <div
+                              className={`${styles["category-breakdown-table-container"]} max-w-[440px]`}
+                            >
+                              <table className="w-full border-collapse min-w-[300px]">
                                 <thead>
                                   <tr>
                                     <th className="text-left sticky top-0 bg-white border-b p-2 text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
