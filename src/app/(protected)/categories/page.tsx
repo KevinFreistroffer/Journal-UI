@@ -131,112 +131,126 @@ const CategoriesPage: React.FC = () => {
   };
 
   return (
-    <div className="p-12 space-y-4 min-h-screen relative">
-      <div className="flex justify-between items-center">
-        {/* Delete button on the left */}
-        <div>
-          {!isMobile && selectedCategories.length > 0 && (
+    <DashboardContainer
+      sidebar={
+        <Sidebar
+          isOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          icon={<Settings size={20} />}
+        />
+      }
+      isSidebarOpen={isSidebarOpen}
+    >
+      {" "}
+      <div className="p-12 space-y-4 min-h-screen relative">
+        <div className="flex justify-between items-center">
+          {/* Delete button on the left */}
+          <div>
+            {!isMobile && selectedCategories.length > 0 && (
+              <Button
+                variant="ghost"
+                onClick={handleDeleteCategories}
+                disabled={isLoading}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            )}
+          </div>
+
+          {/* New category form on the right */}
+          <form onSubmit={handleCreateCategory} className="flex gap-2">
+            <Input
+              placeholder="New category name"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+            />
             <Button
-              variant="ghost"
-              onClick={handleDeleteCategories}
+              type="submit"
               disabled={isLoading}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              New
             </Button>
-          )}
+          </form>
         </div>
 
-        {/* New category form on the right */}
-        <form onSubmit={handleCreateCategory} className="flex gap-2">
-          <Input
-            placeholder="New category name"
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-          />
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            New
-          </Button>
-        </form>
-      </div>
+        {error && <div className="text-red-500">{error}</div>}
 
-      {error && <div className="text-red-500">{error}</div>}
-
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="w-14 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <Checkbox
-                  checked={
-                    categories.length > 0 &&
-                    selectedCategories.length === categories.length
-                  }
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setSelectedCategories(categories.map((cat) => cat._id));
-                    } else {
-                      setSelectedCategories([]);
-                    }
-                  }}
-                />
-              </th>
-              <th className="w-full px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                category
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {categories.map((category) => (
-              <tr key={category._id}>
-                <td className="w-14 px-6 py-4 whitespace-nowrap">
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="w-14 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <Checkbox
-                    checked={selectedCategories.includes(category._id)}
+                    checked={
+                      categories.length > 0 &&
+                      selectedCategories.length === categories.length
+                    }
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setSelectedCategories([
-                          ...selectedCategories,
-                          category._id,
-                        ]);
+                        setSelectedCategories(categories.map((cat) => cat._id));
                       } else {
-                        setSelectedCategories(
-                          selectedCategories.filter((id) => id !== category._id)
-                        );
+                        setSelectedCategories([]);
                       }
                     }}
                   />
-                </td>
-                <td className="w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center gap-2">
-                  {category.category}
-                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                    {getJournalCountForCategory(
-                      category.category,
-                      user?.journals || []
-                    )}
-                  </span>
-                </td>
+                </th>
+                <th className="w-full px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  category
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {categories.map((category) => (
+                <tr key={category._id}>
+                  <td className="w-14 px-6 py-4 whitespace-nowrap">
+                    <Checkbox
+                      checked={selectedCategories.includes(category._id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedCategories([
+                            ...selectedCategories,
+                            category._id,
+                          ]);
+                        } else {
+                          setSelectedCategories(
+                            selectedCategories.filter(
+                              (id) => id !== category._id
+                            )
+                          );
+                        }
+                      }}
+                    />
+                  </td>
+                  <td className="w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center gap-2">
+                    {category.category}
+                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                      {getJournalCountForCategory(
+                        category.category,
+                        user?.journals || []
+                      )}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Mobile FAB */}
-      {isMobile && selectedCategories.length > 0 && (
-        <Button
-          variant="ghost"
-          className="fixed bottom-6 right-6 rounded-full p-4 shadow-lg h-14 w-14 hover:scale-105 transition-all text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
-          onClick={handleDeleteCategories}
-          disabled={isLoading}
-        >
-          <Trash2 className="h-6 w-6 text-red-500" />
-        </Button>
-      )}
-    </div>
+        {/* Mobile FAB */}
+        {isMobile && selectedCategories.length > 0 && (
+          <Button
+            variant="ghost"
+            className="fixed bottom-6 right-6 rounded-full p-4 shadow-lg h-14 w-14 hover:scale-105 transition-all text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
+            onClick={handleDeleteCategories}
+            disabled={isLoading}
+          >
+            <Trash2 className="h-6 w-6 text-red-500" />
+          </Button>
+        )}
+      </div>
+    </DashboardContainer>
   );
 };
 

@@ -187,7 +187,7 @@ export default function Header() {
   });
 
   const getVisibleMenuItems = () => {
-    const currentRoute = menuItems.find(item => item.href === pathname);
+    const currentRoute = menuItems.find((item) => item.href === pathname);
     if (!currentRoute) return filteredMenuItems;
 
     // If current route is not in filtered items, swap it with the last filtered item
@@ -262,12 +262,14 @@ export default function Header() {
           </div>
 
           {!isLoading && (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Add New Journal button before the user menu, only show on dashboard and not on create page */}
               {user && pathname !== "/journal/write" && (
                 <Button
                   onClick={() => router.push("/journal/write")}
-                  className="bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2"
+                  className={`bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2 ${
+                    isExtraSmallScreen ? "p-[5px] h-auto" : ""
+                  }`}
                   size="sm"
                 >
                   <PlusIcon className="h-4 w-4" />
@@ -287,10 +289,16 @@ export default function Header() {
                           alt={`${user.username}'s avatar`}
                           width={36}
                           height={36}
-                          className="w-9 h-9 rounded-full"
+                          className={`rounded-full ${
+                            isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
+                          }`}
                         />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
+                        <div
+                          className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium ${
+                            isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
+                          }`}
+                        >
                           {getUserInitial(user.username)}
                         </div>
                       )}
@@ -304,7 +312,7 @@ export default function Header() {
                       align="end"
                       alignOffset={-17}
                     >
-                      <div className="px-2 py-2 text-sm text-gray-700">
+                      <div className="px-2 py-2 text-sm text-gray-700 font-bold">
                         {user.username}
                       </div>
                       <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
@@ -396,7 +404,7 @@ export default function Header() {
                     <DropdownMenu.Trigger asChild>
                       <button
                         id={styles["more-button"]}
-                        className="p-[6px] mr-3 sm:mr-4 bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none ml-auto"
+                        className="p-[6px] mr-3 sm:mr-4 mr-5 bg-transparent self-center rounded-[5px] hover:bg-gray-300 border border-gray-300 transition-colors duration-200 text-gray-700 focus:outline-none ml-auto"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>

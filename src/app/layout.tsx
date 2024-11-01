@@ -13,6 +13,7 @@ import { ModalProvider } from "@/context/GlobalModalContext";
 import CookieConsent from "@/components/ui/CookieConsent";
 import GlobalModal from "@/components/ui/GlobalModal";
 import { SearchProvider } from "@/context/SearchContext";
+import { ViewportProvider } from "@/context/ViewportContext";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -53,17 +54,19 @@ export default async function RootLayout({
           <SearchProvider>
             <AuthProvider>
               <JournalProvider>
-                <Theme>
-                  <ModalProvider>
-                    <Header />
-                    {children}
-                    <CookieConsent
-                      initialConsent={consentCookie !== undefined}
-                    />
-                    <GlobalModal />
-                    <Footer />
-                  </ModalProvider>
-                </Theme>
+                <ViewportProvider>
+                  <Theme>
+                    <ModalProvider>
+                      <Header />
+                      {children}
+                      <CookieConsent
+                        initialConsent={consentCookie !== undefined}
+                      />
+                      <GlobalModal />
+                      <Footer />
+                    </ModalProvider>
+                  </Theme>
+                </ViewportProvider>
               </JournalProvider>
             </AuthProvider>
           </SearchProvider>

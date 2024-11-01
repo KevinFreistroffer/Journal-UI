@@ -932,18 +932,16 @@ function UserDashboard() {
 
       {/* Fixed Bottom Menu Bar */}
       {isExtraSmallScreen && (
-        <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center">
+        <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-10 w-10">
                 <Settings className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh]">
+            <SheetContent side="bottom" className="h-auto mx-auto max-w-md">
               <div className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Dashboard Settings
-                </h3>
+                <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3>
                 {sidebarContent}
               </div>
             </SheetContent>
