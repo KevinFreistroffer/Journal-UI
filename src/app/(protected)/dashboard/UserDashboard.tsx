@@ -498,20 +498,6 @@ function UserDashboard() {
           !isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16"
         }`}
       >
-        <div
-          style={{
-            position: "fixed",
-            top: "10px",
-            right: "10px",
-            backgroundColor: "red",
-            color: "white",
-            padding: "5px",
-            borderRadius: "5px",
-            zIndex: "1000",
-          }}
-        >
-          {isSidebarOpen.toString()}
-        </div>
         {/* Dashboard title - only visible on non-mobile viewports */}
         {/* {!isMobileView && (
           <h1 className="text-3xl font-bold mb-6">Dashboard</h1>

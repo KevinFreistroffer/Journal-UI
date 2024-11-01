@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 
 interface SidebarSection {
   title: string;
@@ -23,6 +23,7 @@ export const Sidebar: React.FC<IProps> = ({
   headerDisplaysTabs = true,
 }) => {
   const [isSmallViewport, setIsSmallViewport] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkViewport = () => {
@@ -30,16 +31,26 @@ export const Sidebar: React.FC<IProps> = ({
     };
 
     checkViewport();
-    window.addEventListener('resize', checkViewport);
-    return () => window.removeEventListener('resize', checkViewport);
+    window.addEventListener("resize", checkViewport);
+    return () => window.removeEventListener("resize", checkViewport);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 100); // Match this with the transition duration
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   return (
     <>
       <div
         className={`fixed ${
           headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
-        } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-all duration-300 ease-in-out z-20 ${
+        } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-20 ${
           isOpen ? "w-56" : "w-16"
         }`}
       >
@@ -57,17 +68,40 @@ export const Sidebar: React.FC<IProps> = ({
           {isOpen ? <ChevronLeft size={20} /> : icon}
         </Button>
         {isOpen && (
-          <div className="flex flex-col mt-4">
-            {sections.map((section, index) => (
-              <div key={index} className="mb-8">
-                <p>
-                  <span className="font-medium">{section.title}</span>
-                </p>
-                <div className="mt-2 text-sm font-normal text-gray-600">
-                  {section.content}
+          <div
+            className={`flex flex-col mt-4 transition-opacity duration-300 ${
+              isLoading ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            {isLoading ? (
+              // Placeholder loading state
+              <>
+                {/* <div className="mb-8 animate-pulse w-full">
+                  <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                  <div className="h-12 bg-gray-200 rounded"></div>
+                </div>{" "}
+                <div className="mb-8 animate-pulse w-full">
+                  <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                  <div className="h-12 bg-gray-200 rounded"></div>
+                </div>{" "}
+                <div className="mb-8 animate-pulse w-full">
+                  <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                  <div className="h-12 bg-gray-200 rounded"></div>
+                </div> */}
+              </>
+            ) : (
+              // Actual content
+              sections.map((section, index) => (
+                <div key={index} className="mb-8">
+                  <p>
+                    <span className="font-medium">{section.title}</span>
+                  </p>
+                  <div className="mt-2 text-sm font-normal text-gray-600">
+                    {section.content}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
