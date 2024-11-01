@@ -18,6 +18,11 @@
   --border-gray-700: rgb(55, 65, 81);
   --border-gray-800: rgb(31, 41, 55);
   --border-gray-900: rgb(17, 24, 39);
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  --screen-2xl: 1536px;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -33,11 +33,6 @@ export function LegendItem({
 }
 
 interface LegendProps {
-  isMobile: boolean;
-  isMobileLegendOpen: boolean;
-  setIsMobileLegendOpen: (isOpen: boolean) => void;
-  showTotalJournalsCard: boolean;
-  setShowTotalJournalsCard: (show: boolean) => void;
   showCategoryBreakdownCard: boolean;
   setShowCategoryBreakdownCard: (show: boolean) => void;
   showRecentEntriesCard: boolean;
@@ -54,11 +49,6 @@ interface LegendProps {
 }
 
 const Legend: React.FC<LegendProps> = ({
-  isMobile,
-  isMobileLegendOpen,
-  setIsMobileLegendOpen,
-  showTotalJournalsCard,
-  setShowTotalJournalsCard,
   showCategoryBreakdownCard,
   setShowCategoryBreakdownCard,
   showRecentEntriesCard,
@@ -73,280 +63,87 @@ const Legend: React.FC<LegendProps> = ({
   setShowJournalTimeCard,
   checkboxSize,
 }) => {
-  return isMobile ? (
-    <div className="relative mb-4 md:mb-0">
-      <button
-        onClick={() => setIsMobileLegendOpen(!isMobileLegendOpen)}
-        className="flex items-center justify-between w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded"
-      >
-        <span>Toggle Dashboard Cards</span>
-        {isMobileLegendOpen ? (
-          <ChevronUp size={20} />
-        ) : (
-          <ChevronDown size={20} />
-        )}
-      </button>
-      {isMobileLegendOpen && (
-        <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
-          <div className="p-4">
-            {/* <h2
-              id={`${styles["h2"]}`}
-              className="text-xl font-semibold mb-2 overflow"
-            >
-              Toggle Metrics
-            </h2> */}
-            <div className="flex flex-col space-y-2">
-              {/* <LegendItem
-                id="totalJournalsCard"
-                label="Total Journals"
-                checked={showTotalJournalsCard}
-                onChange={() => {
-                  const newValue = !showTotalJournalsCard;
-                  setShowTotalJournalsCard(newValue);
-                  localStorageService.setItem(
-                    "showTotalJournalsCard",
-                    newValue
-                  );
-                }}
-                checkboxSize={checkboxSize}
-              /> */}
-              <LegendItem
-                id="categoryBreakdownCard"
-                label="Category Breakdown"
-                checked={showCategoryBreakdownCard}
-                onChange={() => {
-                  const newValue = !showCategoryBreakdownCard;
-                  setShowCategoryBreakdownCard(newValue);
-                  localStorageService.setItem(
-                    "showCategoryBreakdownCard",
-                    newValue
-                  );
-                }}
-                checkboxSize={checkboxSize}
-              />
-              <LegendItem
-                id="recentEntriesCard"
-                label="Recent Journals"
-                checked={showRecentEntriesCard}
-                onChange={() => {
-                  const newValue = !showRecentEntriesCard;
-                  setShowRecentEntriesCard(newValue);
-                  localStorageService.setItem(
-                    "showRecentEntriesCard",
-                    newValue
-                  );
-                }}
-                checkboxSize={checkboxSize}
-              />
-              <LegendItem
-                id="upcomingEntriesCard"
-                label="Upcoming Journals"
-                checked={showUpcomingEntriesCard}
-                onChange={() => {
-                  const newValue = !showUpcomingEntriesCard;
-                  setShowUpcomingEntriesCard(newValue);
-                  localStorageService.setItem(
-                    "showUpcomingEntriesCard",
-                    newValue
-                  );
-                }}
-                checkboxSize={checkboxSize}
-              />
-              <LegendItem
-                id="favoriteJournalsCard"
-                label="Favorite Journals"
-                checked={showFavoriteJournalsCard}
-                onChange={() => {
-                  const newValue = !showFavoriteJournalsCard;
-                  setShowFavoriteJournalsCard(newValue);
-                  localStorageService.setItem(
-                    "showFavoriteJournalsCard",
-                    newValue
-                  );
-                }}
-                checkboxSize={checkboxSize}
-              />
-              <LegendItem
-                id="keywordFrequencyCard"
-                label="Keyword Frequency"
-                checked={showKeywordFrequencyCard}
-                onChange={() => {
-                  const newValue = !showKeywordFrequencyCard;
-                  setShowKeywordFrequencyCard(newValue);
-                  localStorageService.setItem(
-                    "showKeywordFrequencyCard",
-                    newValue
-                  );
-                }}
-                checkboxSize={checkboxSize}
-              />
-              <LegendItem
-                id="journalTimeCard"
-                label="Journal Time"
-                checked={showJournalTimeCard}
-                onChange={() => {
-                  const newValue = !showJournalTimeCard;
-                  setShowJournalTimeCard(newValue);
-                  localStorageService.setItem("showJournalTimeCard", newValue);
-                }}
-                checkboxSize={checkboxSize}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  ) : (
-    <>
-      {/* <h2 className="text-xl font-semibold mb-2">Toggle Cards</h2> */}
-      <div className="flex flex-wrap">
-        {/* <div className="mr-4 mb-2 w-full"> */}
-        {/* <label
-            htmlFor="totalJournalsCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="totalJournalsCard"
-              checked={showTotalJournalsCard}
-              onCheckedChange={() => {
-                const newValue = !showTotalJournalsCard;
-                setShowTotalJournalsCard(newValue);
-                localStorageService.setItem("showTotalJournalsCard", newValue);
-              }}
-              className="mr-2 form-checkbox text-blue-600"
-              size={checkboxSize}
-            />
-            Total Journals
-          </label>
-        </div> */}
-        <div className="mr-4 mb-2 w-full">
-          <label
-            htmlFor="categoryBreakdownCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="categoryBreakdownCard"
-              checked={showCategoryBreakdownCard}
-              onCheckedChange={() => {
-                const newValue = !showCategoryBreakdownCard;
-                setShowCategoryBreakdownCard(newValue);
-                localStorageService.setItem(
-                  "showCategoryBreakdownCard",
-                  newValue
-                );
-              }}
-              className="mr-2 form-checkbox text-blue-600"
-              size={checkboxSize}
-            />
-            Category Breakdown
-          </label>
-        </div>
-        <div className="mr-4 mb-2 w-full">
-          <label
-            htmlFor="recentEntriesCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="recentEntriesCard"
-              checked={showRecentEntriesCard}
-              onCheckedChange={() => {
-                const newValue = !showRecentEntriesCard;
-                setShowRecentEntriesCard(newValue);
-                localStorageService.setItem("showRecentEntriesCard", newValue);
-              }}
-              size={checkboxSize}
-              className="mr-2 form-checkbox text-blue-600"
-            />
-            Recent Journals
-          </label>
-        </div>
-        <div className="mr-4 mb-2 w-full">
-          <label
-            htmlFor="upcomingEntriesCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="upcomingEntriesCard"
-              checked={showUpcomingEntriesCard}
-              onCheckedChange={() => {
-                const newValue = !showUpcomingEntriesCard;
-                setShowUpcomingEntriesCard(newValue);
-                localStorageService.setItem(
-                  "showUpcomingEntriesCard",
-                  newValue
-                );
-              }}
-              className="mr-2 form-checkbox text-blue-600"
-              size={checkboxSize}
-            />
-            Upcoming Journals
-          </label>
-        </div>
-        <div className="mr-4 mb-2 w-full">
-          <label
-            htmlFor="favoriteJournalsCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="favoriteJournalsCard"
-              checked={showFavoriteJournalsCard}
-              onCheckedChange={() => {
-                const newValue = !showFavoriteJournalsCard;
-                setShowFavoriteJournalsCard(newValue);
-                localStorageService.setItem(
-                  "showFavoriteJournalsCard",
-                  newValue
-                );
-              }}
-              className="mr-2 form-checkbox text-blue-600"
-              size={checkboxSize}
-            />
-            Favorite Journals
-          </label>
-        </div>
-        <div className="mr-4 mb-2 w-full">
-          <label
-            htmlFor="keywordFrequencyCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="keywordFrequencyCard"
-              checked={showKeywordFrequencyCard}
-              onCheckedChange={() => {
-                const newValue = !showKeywordFrequencyCard;
-                setShowKeywordFrequencyCard(newValue);
-                localStorageService.setItem(
-                  "showKeywordFrequencyCard",
-                  newValue
-                );
-              }}
-              className="mr-2 form-checkbox text-blue-600"
-              size={checkboxSize}
-            />
-            Keyword Frequency
-          </label>
-        </div>
-        <div className="mr-4 mb-2 w-full">
-          <label
-            htmlFor="journalTimeCard"
-            className="flex items-center text-sm"
-          >
-            <Checkbox
-              id="journalTimeCard"
-              checked={showJournalTimeCard}
-              onCheckedChange={(checked) => {
-                const newValue = !showJournalTimeCard;
-                setShowJournalTimeCard(newValue as boolean);
-                localStorageService.setItem("showJournalTimeCard", newValue);
-              }}
-              className="mr-2 form-checkbox text-blue-600"
-              size={checkboxSize}
-            />
-            Journal Time
-          </label>
-        </div>
+  return (
+    <div className="flex flex-wrap">
+      <div className="mr-4 mb-2 w-full">
+        <LegendItem
+          id="categoryBreakdownCard"
+          label="Category Breakdown"
+          checked={showCategoryBreakdownCard}
+          onChange={() => {
+            const newValue = !showCategoryBreakdownCard;
+            setShowCategoryBreakdownCard(newValue);
+            localStorageService.setItem("showCategoryBreakdownCard", newValue);
+          }}
+          checkboxSize={checkboxSize}
+        />
       </div>
-    </>
+      <div className="mr-4 mb-2 w-full">
+        <LegendItem
+          id="recentEntriesCard"
+          label="Recent Journals"
+          checked={showRecentEntriesCard}
+          onChange={() => {
+            const newValue = !showRecentEntriesCard;
+            setShowRecentEntriesCard(newValue);
+            localStorageService.setItem("showRecentEntriesCard", newValue);
+          }}
+          checkboxSize={checkboxSize}
+        />
+      </div>
+      <div className="mr-4 mb-2 w-full">
+        <LegendItem
+          id="upcomingEntriesCard"
+          label="Upcoming Journals"
+          checked={showUpcomingEntriesCard}
+          onChange={() => {
+            const newValue = !showUpcomingEntriesCard;
+            setShowUpcomingEntriesCard(newValue);
+            localStorageService.setItem("showUpcomingEntriesCard", newValue);
+          }}
+          checkboxSize={checkboxSize}
+        />
+      </div>
+      <div className="mr-4 mb-2 w-full">
+        <LegendItem
+          id="favoriteJournalsCard"
+          label="Favorite Journals"
+          checked={showFavoriteJournalsCard}
+          onChange={() => {
+            const newValue = !showFavoriteJournalsCard;
+            setShowFavoriteJournalsCard(newValue);
+            localStorageService.setItem("showFavoriteJournalsCard", newValue);
+          }}
+          checkboxSize={checkboxSize}
+        />
+      </div>
+      <div className="mr-4 mb-2 w-full">
+        <LegendItem
+          id="keywordFrequencyCard"
+          label="Keyword Frequency"
+          checked={showKeywordFrequencyCard}
+          onChange={() => {
+            const newValue = !showKeywordFrequencyCard;
+            setShowKeywordFrequencyCard(newValue);
+            localStorageService.setItem("showKeywordFrequencyCard", newValue);
+          }}
+          checkboxSize={checkboxSize}
+        />
+      </div>
+      <div className="mr-4 mb-2 w-full">
+        <LegendItem
+          id="journalTimeCard"
+          label="Journal Time"
+          checked={showJournalTimeCard}
+          onChange={() => {
+            const newValue = !showJournalTimeCard;
+            setShowJournalTimeCard(newValue);
+            localStorageService.setItem("showJournalTimeCard", newValue);
+          }}
+          checkboxSize={checkboxSize}
+        />
+      </div>
+    </div>
   );
 };
 

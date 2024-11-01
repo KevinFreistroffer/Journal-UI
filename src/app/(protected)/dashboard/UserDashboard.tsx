@@ -422,11 +422,11 @@ function UserDashboard() {
             content: (
               <div className="flex flex-col">
                 <Legend
-                  isMobile={isMobile}
-                  isMobileLegendOpen={isMobileLegendOpen}
-                  setIsMobileLegendOpen={setIsMobileLegendOpen}
-                  showTotalJournalsCard={showTotalJournalsCard}
-                  setShowTotalJournalsCard={setShowTotalJournalsCard}
+                  // isMobile={isMobile}
+                  // isMobileLegendOpen={isMobileLegendOpen}
+                  // setIsMobileLegendOpen={setIsMobileLegendOpen}
+                  // showTotalJournalsCard={showTotalJournalsCard}
+                  // setShowTotalJournalsCard={setShowTotalJournalsCard}
                   showCategoryBreakdownCard={showCategoryBreakdownCard}
                   setShowCategoryBreakdownCard={setShowCategoryBreakdownCard}
                   showRecentEntriesCard={showRecentEntriesCard}
@@ -444,45 +444,45 @@ function UserDashboard() {
               </div>
             ),
           },
-          ...(isLgOrLarger
-            ? [
-                {
-                  title: "Display Settings",
-                  content: (
-                    <div className="flex flex-col space-y-2">
-                      <LegendItem
-                        id="auto-layout"
-                        label="Auto Layout"
-                        checked={cardLayout === "auto-layout"}
-                        onChange={() => setCardLayout("auto-layout")}
-                        checkboxSize={4}
-                      />
-                      <LegendItem
-                        id="single-column"
-                        label="Single Column"
-                        checked={cardLayout === "single-column"}
-                        onChange={() => setCardLayout("single-column")}
-                        checkboxSize={4}
-                      />
-                      <LegendItem
-                        id="two-column"
-                        label="Two-Column"
-                        checked={cardLayout === "two-column"}
-                        onChange={() => setCardLayout("two-column")}
-                        checkboxSize={4}
-                      />
-                    </div>
-                  ),
-                },
-              ]
-            : []),
+          // ...(isLgOrLarger
+          //   ? [
+          //       {
+          //         title: "Display Settings",
+          //         content: (
+          //           <div className="flex flex-col space-y-2">
+          //             <LegendItem
+          //               id="auto-layout"
+          //               label="Auto Layout"
+          //               checked={cardLayout === "auto-layout"}
+          //               onChange={() => setCardLayout("auto-layout")}
+          //               checkboxSize={4}
+          //             />
+          //             <LegendItem
+          //               id="single-column"
+          //               label="Single Column"
+          //               checked={cardLayout === "single-column"}
+          //               onChange={() => setCardLayout("single-column")}
+          //               checkboxSize={4}
+          //             />
+          //             <LegendItem
+          //               id="two-column"
+          //               label="Two-Column"
+          //               checked={cardLayout === "two-column"}
+          //               onChange={() => setCardLayout("two-column")}
+          //               checkboxSize={4}
+          //             />
+          //           </div>
+          //         ),
+          //       },
+          //     ]
+          //   : []),
         ]}
       />
 
       {/* Main Content */}
       <div
         className={`flex-1 p-0 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "md:ml-56" : "md:ml-24"
+          !isMobileView ? (isSidebarOpen ? "sm:ml-56" : "sm:ml-16") : "ml-16"
         }`}
       >
         {/* Dashboard title - only visible on non-mobile viewports */}
@@ -530,7 +530,7 @@ function UserDashboard() {
                   showCategoryBreakdownCard && (
                     <div
                       id={`${styles["categoryBreakdown"]}`}
-                      className={`w-full mb-2 p-2 ${
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] sm:min-h-96 ${
                         cardLayout === "single-column"
                           ? "md:w-full"
                           : cardLayout === "two-column"
@@ -538,7 +538,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 relative bg-blue-50">
+                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50">
                         <div className="flex justify-between items-center mb-6">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                             Category Breakdown
@@ -550,7 +550,7 @@ function UserDashboard() {
                             Manage
                           </Link>
                         </div>
-                        <div className="w-full h-[calc(100%-4rem)] overflow-hidden">
+                        <div className="w-full h-full overflow-hidden">
                           {data.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                               <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
@@ -599,7 +599,7 @@ function UserDashboard() {
                 ) : (
                   showRecentEntriesCard && (
                     <div
-                      className={`w-full mb-2 p-2 ${
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto]  ${
                         cardLayout === "single-column"
                           ? "md:w-full"
                           : cardLayout === "two-column"
@@ -647,7 +647,7 @@ function UserDashboard() {
                 ) : (
                   showUpcomingEntriesCard && (
                     <div
-                      className={`w-full mb-2 p-2 ${
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
                         cardLayout === "single-column"
                           ? "md:w-full"
                           : cardLayout === "two-column"
@@ -655,7 +655,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 min-h-96 bg-purple-50">
+                      <Card className="h-full p-4 bg-purple-50">
                         <div className="flex justify-between items-start mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
                             Reminders
@@ -710,7 +710,7 @@ function UserDashboard() {
                 ) : (
                   showFavoriteJournalsCard && (
                     <div
-                      className={`w-full mb-2 p-2 ${
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
                         cardLayout === "single-column"
                           ? "md:w-full"
                           : cardLayout === "two-column"
@@ -718,7 +718,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 min-h-96 bg-yellow-50">
+                      <Card className="h-full p-4 bg-yellow-50">
                         {" "}
                         {/* Added min-h-96 */}
                         <div className="flex justify-between items-center mb-4">
@@ -776,7 +776,7 @@ function UserDashboard() {
                 ) : (
                   showKeywordFrequencyCard && (
                     <div
-                      className={`w-full mb-2 p-2 ${
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
                         cardLayout === "single-column"
                           ? "md:w-full"
                           : cardLayout === "two-column"
@@ -784,7 +784,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 min-h-96 bg-red-50">
+                      <Card className="h-full p-4 bg-red-50">
                         <div className="flex justify-between items-center mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                             Keyword Frequency
@@ -871,7 +871,7 @@ function UserDashboard() {
                 ) : (
                   showJournalTimeCard && (
                     <div
-                      className={`w-full mb-2 p-2 ${
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
                         cardLayout === "single-column"
                           ? "md:w-full"
                           : cardLayout === "two-column"
@@ -949,7 +949,7 @@ function UserDashboard() {
 function PlaceholderCard({ cardLayout }: { cardLayout: CardLayout }) {
   return (
     <div
-      className={`w-full mb-2 p-2 ${
+      className={`w-full mb-2 p-2 h-auto sm:min-h-96 ${
         cardLayout === "single-column"
           ? "md:w-full"
           : cardLayout === "two-column"
@@ -957,7 +957,7 @@ function PlaceholderCard({ cardLayout }: { cardLayout: CardLayout }) {
           : "md:w-full lg:w-1/2 xl:w-1/3"
       }`}
     >
-      <Card className="h-full p-4">
+      <Card className="h-full p-4 bg-gray-50 border border-gray-200 shadow-md">
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">
           <div className="animate-pulse bg-gray-300 h-full w-full rounded"></div>
