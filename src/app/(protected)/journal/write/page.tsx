@@ -66,6 +66,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Maximize2, Minimize2 } from "lucide-react"; // Add these imports
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -174,6 +175,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const [isWordStatsModalOpen, setIsWordStatsModalOpen] = useState(false);
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (quill) {
@@ -588,187 +591,71 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Add this function to handle fullscreen toggle
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
     <div className="flex h-full min-h-screen bg-grey-100">
-      {/* Sidebar - only visible on md screens and above */}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        icon={<ChartNoAxesColumnIncreasing size={20} />}
-        headerDisplaysTabs={false}
-        sections={[
-          {
-            title: "Word Stats",
-            content: (
-              <div className="mt-2 text-sm  text-gray-600">
-                <p>
-                  <span className="font-medium">Total Words:</span> {totalWords}
-                </p>
-                <p>
-                  <span className="font-medium ">
-                    Average Words Across All Journals:
-                  </span>{" "}
-                  {averageWords}
-                </p>
-              </div>
-            ),
-          },
-        ]}
-      />
+      {/* Only show sidebar when not in fullscreen */}
+      {!isFullscreen && (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          icon={<ChartNoAxesColumnIncreasing size={20} />}
+          headerDisplaysTabs={false}
+          sections={[
+            {
+              title: "Word Stats",
+              content: (
+                <div className="mt-2 text-sm  text-gray-600">
+                  <p>
+                    <span className="font-medium">Total Words:</span>{" "}
+                    {totalWords}
+                  </p>
+                  <p>
+                    <span className="font-medium ">
+                      Average Words Across All Journals:
+                    </span>{" "}
+                    {averageWords}
+                  </p>
+                </div>
+              ),
+            },
+          ]}
+        />
+      )}
 
       {/* Main Content */}
       <div
-        className={`flex-1 p-6 pb-24 pt-16 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "md:ml-56" : "md:ml-24"
-        }`}
+        className={cn(
+          "flex-1 p-6 pb-24 pt-16 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out",
+          isFullscreen
+            ? "fixed inset-0 z-50 bg-white"
+            : isSidebarOpen
+            ? "md:ml-56"
+            : "md:ml-24"
+        )}
       >
-        <div className=" flex justify-center w-full max-w-6xl ml-auto mr-auto">
+        <div className="flex justify-center w-full max-w-6xl ml-auto mr-auto">
           <div className="w-full md:w-3/4">
             <div className="flex justify-between items-center">
-              {" "}
-              {/* Flex container for alignment */}
-              <h1 className="text-xl">Write anything</h1> {/* Title */}
-              <div className="flex flex-col items-center mb-2">
-                {" "}
-                {/* Container for label and scroll component */}
-                <div className="flex items-center ">
-                  {/* <TooltipProvider delayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger
-                        asChild
-                        className="border h-full w-7 p-1  rounded-tl rounded-bl cursor-pointer"
-                      >
-                        {shouldFavorite ? (
-                          <StarFilledIcon
-                            onClick={() => setShouldFavorite(false)}
-                            className="w-4 h-4"
-                          />
-                        ) : (
-                          <StarIcon
-                            onClick={() => setShouldFavorite(true)}
-                            className="w-2 h-2"
-                          />
-                        )}
-                      </TooltipTrigger>
-                      <TooltipContent
-                        className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
-                        sideOffset={4}
-                      >
-                        Favorite
+              <h1 className="text-xl">Write anything</h1>
 
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider> */}
-
-                  {/* <Popover.Root
-                    open={categorySelectIsOpen}
-                    onOpenChange={setCategorySelectIsOpen}
-                  >
-                    <Popover.Trigger asChild>
-                      <button
-                        style={{
-                          border: "1px solid var(--border-gray-200)",
-                          borderLeft: "none",
-                        }}
-                        className="flex pl-2 pr-2 items-center justify-center text-sm h-7 border  rounded-tr rounded-br m-0 box-border"
-                      >
-                        Categorize <ChevronDownIcon className="ml-1 w-4 h-4" />
-                      </button>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Content
-                        className="bg-white rounded-md shadow-lg border border-gray-200 w-[200px] z-50"
-                        sideOffset={5}
-                        align="end"
-                      >
-                        <div className="font-bold px-4 py-3 text-sm border-b border flex justify-between items-center">
-                          Categories
-                          <button
-                            onClick={() => setCategorySelectIsOpen(false)}
-                            className="hover:bg-gray-100 p-1 rounded-sm"
-                          >
-                            <Cross1Icon className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <div className="max-w-full">
-                          {categories
-                            .filter((cat) => cat.category !== "All")
-                            .map((category, index) => (
-                              <button
-                                key={index}
-                                className="break-words px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between min-w-0"
-                                onClick={() => {
-                                  setSelectedCategory(category.category);
-                                  setCategorySelectIsOpen(false);
-                                }}
-                              >
-                                <span className="overflow-wrap-anywhere">
-                                  {category.category}
-                                </span>
-                                {selectedCategory === category.category && (
-                                  <CheckIcon className="w-4 h-4 flex-shrink-0 ml-2" />
-                                )}
-                              </button>
-                            ))}
-                          <button
-                            onClick={() => {
-                              setIsAddingCategory(true);
-                              setCategorySelectIsOpen(false);
-                            }}
-                            className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 border-t border-gray-200 flex items-center text-blue-500"
-                          >
-                            <PlusIcon className="w-4 h-4 flex-shrink-0 mr-2" />
-                            <span className="break-words flex-1 min-w-0">
-                              Create new
-                            </span>
-                          </button>
-                        </div>
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root> */}
-                  {/* <Label htmlFor="category" className="mb-1">
-                    Categorize it?{" "}
-                    <span className="text-gray-400 text-sm font-normal">
-                      (optional)
-                    </span>
-                  </Label>
-
-                  <select
-                    id="category"
-                    name="category"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[200px]"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category._id} value={category.category}>
-                        {category.category}
-                      </option>
-                    ))}
-                  </select>
-
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setIsAddingCategory(!isAddingCategory)}
-                      className="text-xs"
-                    >
-                      {isAddingCategory ? (
-                        <>
-                          <X size={20} className="mr-2" />
-                          Cancel
-                        </>
-                      ) : (
-                        <>
-                          New <PlusIcon className="mr-2" size={16} />
-                        </>
-                      )}
-                    </Button>
-                  </div> */}
-                </div>
-              </div>
+              {/* Add fullscreen toggle button */}
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={toggleFullscreen}
+                className="p-2 hover:bg-gray-100 rounded-full w-9 h-9 flex items-center justify-center mb-2"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-5 h-5" />
+                ) : (
+                  <Maximize2 className="w-5 h-5" />
+                )}
+              </Button>
             </div>
             <form action={handleSubmit} className="space-y-4">
               {/* Title Input Above Textarea */}

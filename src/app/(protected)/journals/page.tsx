@@ -133,7 +133,6 @@ export default function JournalsPage() {
   const { openModal, closeModal } = useContext(ModalContext); // Get openModal and closeModal from context
   const [journalToDelete, setJournalToDelete] = useState<string | null>(null); // State to hold the journal ID to delete
   const [selectedFilterDate, setSelectedFilterDate] = useState<string>(""); // Changed from selectedDate // This is the createdAt date.
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // New state for sidebar
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
   const { query, handleSearch, setFilteredEntries } = useSearch();
   const [helperTextState, setHelperTextState] = useState({
@@ -172,6 +171,14 @@ export default function JournalsPage() {
   // Add new state for the create category modal
   const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    // Only run client-side
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 640; // 640px is the 'sm' breakpoint
+    }
+    return true; // Default to open on server-side
+  });
 
   // Update useEffect to handle default view modes
   useEffect(() => {
@@ -603,7 +610,7 @@ export default function JournalsPage() {
               </SheetTrigger>
               <SheetContent side="bottom" className="h-auto m-4 mb-0 max-w-md ">
                 <div className="pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3>
+                  {/* <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3> */}
                   <div className="space-y-4">
                     {SidebarContent({
                       showFavoritesOnly,

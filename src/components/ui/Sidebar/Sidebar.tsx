@@ -92,7 +92,7 @@ export const Sidebar: React.FC<IProps> = ({
             ) : (
               // Actual content
               sections.map((section, index) => (
-                <div key={index} className="mb-8">
+                <div key={index} className="mb-8 border-b border-[#d7d7d7] pb-2" >
                   <p>
                     <span className="font-medium">{section.title}</span>
                   </p>

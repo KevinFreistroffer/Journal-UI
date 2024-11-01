@@ -290,13 +290,13 @@ export default function Header() {
                           width={36}
                           height={36}
                           className={`rounded-full ${
-                            isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
+                            isExtraSmallScreen ? "w-7 h-7" : "w-7 h-7"
                           }`}
                         />
                       ) : (
                         <div
                           className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium ${
-                            isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
+                            isExtraSmallScreen ? "w-8 h-8" : "w-8 h-8"
                           }`}
                         >
                           {getUserInitial(user.username)}
