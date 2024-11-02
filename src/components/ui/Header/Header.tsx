@@ -280,7 +280,7 @@ export default function Header() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none bg-gray-200 rounded-full  hover:bg-gray-300 transition-colors duration-200"
+                      className="focus:outline-none cursor-pointer bg-gray-200 rounded-full  hover:bg-gray-300 transition-colors duration-200"
                       aria-label="User menu"
                     >
                       {user.avatar ? (

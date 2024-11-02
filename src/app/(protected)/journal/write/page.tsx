@@ -72,6 +72,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { MonitorIcon, MaximizeIcon, Minimize2, Maximize2 } from "lucide-react";
+import { Eye } from "lucide-react"; // Add this import
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -156,6 +157,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [contentWidth, setContentWidth] = useState<"default" | "full">(
     "default"
   );
+  // Inside WritePage component, add this state
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // Add this state to track the previous width setting
   const [previousWidth, setPreviousWidth] = useState<"default" | "full">(
     "default"
@@ -384,7 +387,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
     if (quill) {
       quill.on("text-change", (delta, oldDelta, source) => {
         handleJournalChange(
-          quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
+          sanitizeHtml(
+            quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
+          )
         );
       });
     }
@@ -479,6 +484,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   const handleJournalChange = (value: string) => {
     const plainText = getPlainTextFromHtml(value);
+    console.log(plainText);
     if (plainText.trim() === "") {
       setJournal("");
     } else {
@@ -604,6 +610,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
   };
+
+  // Add the preview button near your other action buttons
 
   return (
     <DashboardContainer
@@ -809,6 +817,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsPreviewOpen(true)}
+                      className="text-[11px] text-black/80 flex items-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                      disabled={!journal.trim()}
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview
+                    </button>
 
                     <button
                       type="button"
@@ -1036,6 +1054,36 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 </div>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+        {journal}
+        {/* Add this Preview Dialog near your other dialogs */}
+        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+          <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">
+                {title || "Untitled Journal"}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="mt-4 px-4">
+              <div
+                className="preview-content ql-editor"
+                dangerouslySetInnerHTML={{
+                  __html: journal
+                }}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                onClick={() => setIsPreviewOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

@@ -1,3 +1,4 @@
+@import "react-quill/dist/quill.snow.css";
 .ql-container {
   height: calc(100% - 42px) !important;
   margin-bottom: 1rem !important;
@@ -36,4 +37,41 @@
 
 .scroll-button:hover {
   background-color: #f0f0f0;
+}
+
+/* Add these styles for the preview */
+.preview-content.ql-editor {
+  padding: 0; /* Remove default padding */
+}
+
+.preview-content.ql-editor h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.preview-content.ql-editor h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.preview-content.ql-editor p {
+  margin-bottom: 1em;
+}
+
+.preview-content.ql-editor ul,
+.preview-content.ql-editor ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.preview-content.ql-editor li {
+  margin-bottom: 0.25em;
+}
+
+.preview-content.ql-editor blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1em;
+  margin: 1em 0;
 }
