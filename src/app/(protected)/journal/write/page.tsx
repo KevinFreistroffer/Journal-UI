@@ -17,7 +17,8 @@ import {
   CheckCircle,
   ChartNoAxesColumnIncreasing,
   HelpCircle,
-  Save, // Add this import
+  Save,
+  ChevronUpIcon, // Add this import
 } from "lucide-react";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -55,6 +56,7 @@ import "./styles.css";
 import Quill from "quill";
 import MagicUrl from "quill-magic-url";
 Quill.register("modules/magicUrl", MagicUrl);
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MultiSelect } from "@/components/ui/MultiSelect/MutliSelect";
 // Dynamically import ReactQuill to avoid SSR issues
 import "./styles.css";
@@ -66,7 +68,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Maximize2, Minimize2 } from "lucide-react"; // Add these imports
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import { MonitorIcon, MaximizeIcon, Minimize2, Maximize2 } from "lucide-react";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -148,6 +153,13 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [categorySelectIsOpen, setCategorySelectIsOpen] =
     useState<boolean>(false);
   const [shouldFavorite, setShouldFavorite] = useState(false);
+  const [contentWidth, setContentWidth] = useState<"default" | "full">(
+    "default"
+  );
+  // Add this state to track the previous width setting
+  const [previousWidth, setPreviousWidth] = useState<"default" | "full">(
+    "default"
+  );
   const { quill, quillRef } = useQuill({
     modules: {
       magicUrl: true,
@@ -171,13 +183,10 @@ function WritePage({ children }: { children: React.ReactNode }) {
       ],
     },
   });
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
   const [isWordStatsModalOpen, setIsWordStatsModalOpen] = useState(false);
-
   const [isFullscreen, setIsFullscreen] = useState(false);
-
+  const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
   useEffect(() => {
     if (quill) {
       quill.clipboard.dangerouslyPasteHTML("");
@@ -597,9 +606,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-full min-h-screen bg-grey-100">
-      {/* Only show sidebar when not in fullscreen */}
-      {!isFullscreen && (
+    <DashboardContainer
+      isSidebarOpen={isSidebarOpen}
+      sidebar={
         <Sidebar
           isOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
@@ -625,37 +634,122 @@ function WritePage({ children }: { children: React.ReactNode }) {
             },
           ]}
         />
-      )}
-
-      {/* Main Content */}
+        // undefined
+      }
+      bottomBar={
+        isExtraSmallScreen ? (
+          <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10">
+                  {/* <Settings className="h-5 w-5" /> */}
+                  <ChevronUpIcon className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-auto m-4 mb-0">
+                <div className="pt-6 min-h-[15rem]">
+                  <h3 className="text-lg font-semibold mb-4">Data</h3>
+                  <div className="mt-2 text-sm  text-gray-600">
+                    <p>
+                      <span className="font-medium">Total Words:</span>{" "}
+                      {totalWords}
+                    </p>
+                    <p>
+                      <span className="font-medium ">
+                        Average Words Across All Journals:
+                      </span>{" "}
+                      {averageWords}
+                    </p>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        ) : undefined
+      }
+    >
       <div
         className={cn(
           "flex-1 p-6 pb-24 pt-16 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out",
           isFullscreen
             ? "fixed inset-0 z-50 bg-white"
             : isSidebarOpen
-            ? "md:ml-56"
-            : "md:ml-24"
+            ? "md:ml-0"
+            : "md:ml-0"
         )}
       >
-        <div className="flex justify-center w-full max-w-6xl ml-auto mr-auto">
-          <div className="w-full md:w-3/4">
-            <div className="flex justify-between items-center">
+        <div
+          className={cn(
+            "flex justify-center w-full ml-auto mr-auto transition-all duration-300",
+            contentWidth === "default" ? "max-w-6xl" : "max-w-[95%]"
+          )}
+        >
+          <div
+            className={cn(
+              "w-full transition-all duration-300",
+              contentWidth === "default"
+                ? "md:max-w-[51.0625rem]"
+                : "md:max-w-full"
+            )}
+          >
+            <div className="flex justify-between items-center mb-4">
               <h1 className="text-xl">Write anything</h1>
 
-              {/* Add fullscreen toggle button */}
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={toggleFullscreen}
-                className="p-2 hover:bg-gray-100 rounded-full w-9 h-9 flex items-center justify-center mb-2"
+              <ToggleGroup.Root
+                type="single"
+                value={isFullscreen ? "fullscreen" : contentWidth}
+                onValueChange={(value) => {
+                  if (value === "fullscreen") {
+                    setPreviousWidth(contentWidth); // Store current width before going fullscreen
+                    toggleFullscreen();
+                  } else if (isFullscreen) {
+                    toggleFullscreen();
+                    setContentWidth(previousWidth); // Restore previous width when exiting fullscreen
+                  } else {
+                    setContentWidth(value as "default" | "full");
+                  }
+                }}
+                className="flex items-center bg-gray-100 rounded-md p-1"
               >
-                {isFullscreen ? (
-                  <Minimize2 className="w-5 h-5" />
-                ) : (
-                  <Maximize2 className="w-5 h-5" />
-                )}
-              </Button>
+                <ToggleGroup.Item
+                  value="default"
+                  aria-label="Default Width"
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    !isFullscreen && contentWidth === "default"
+                      ? "bg-white shadow-sm"
+                      : "hover:bg-gray-200"
+                  )}
+                >
+                  <MonitorIcon className="w-4 h-4" />
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="full"
+                  aria-label="Full Width"
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    !isFullscreen && contentWidth === "full"
+                      ? "bg-white shadow-sm"
+                      : "hover:bg-gray-200"
+                  )}
+                >
+                  <MaximizeIcon className="w-4 h-4" />
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="fullscreen"
+                  aria-label="Fullscreen Mode"
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    isFullscreen ? "bg-white shadow-sm" : "hover:bg-gray-200"
+                  )}
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="w-4 h-4" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4" />
+                  )}
+                </ToggleGroup.Item>
+              </ToggleGroup.Root>
             </div>
             <form action={handleSubmit} className="space-y-4">
               {/* Title Input Above Textarea */}
@@ -945,7 +1039,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </DashboardContainer>
   );
 }
 

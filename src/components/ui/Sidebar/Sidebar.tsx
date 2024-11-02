@@ -92,7 +92,10 @@ export const Sidebar: React.FC<IProps> = ({
             ) : (
               // Actual content
               sections.map((section, index) => (
-                <div key={index} className="mb-8 border-b border-[#d7d7d7] pb-2" >
+                <div
+                  key={index}
+                  className="mb-8 border-b border-[#e5e5e5] pb-2"
+                >
                   <p>
                     <span className="font-medium">{section.title}</span>
                   </p>
@@ -109,7 +112,7 @@ export const Sidebar: React.FC<IProps> = ({
       {/* Backdrop for small viewport */}
       {isSmallViewport && isOpen && (
         <div
-          className="fixed inset-0 bg-black/70 z-10"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-10"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}

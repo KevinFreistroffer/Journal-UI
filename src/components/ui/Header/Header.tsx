@@ -226,7 +226,7 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px]">
                   <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
+                    <SheetTitle>Journals</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4">
                     {menuItems.map((item) => (

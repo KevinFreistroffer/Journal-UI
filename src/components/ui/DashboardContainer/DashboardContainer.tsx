@@ -2,21 +2,28 @@
 import React, { useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-interface DashboardContainerProps {
+type DashboardContainerProps = {
   children: React.ReactNode;
-  sidebar: React.ReactNode;
   className?: string;
-  isSidebarOpen: boolean;
   bottomBar?: React.ReactNode;
-}
+} & (
+  | {
+      sidebar: React.ReactNode; // When sidebar is provided
+      isSidebarOpen: boolean; // isSidebarOpen must be provided
+    }
+  | {
+      sidebar?: undefined; // When sidebar is not provided
+      isSidebarOpen?: boolean; // isSidebarOpen is optional
+    }
+);
 
-const DashboardContainer: React.FC<DashboardContainerProps> = ({
+const DashboardContainer = ({
   children,
   sidebar,
   className = "",
-  isSidebarOpen,
+  isSidebarOpen = true,
   bottomBar,
-}) => {
+}: DashboardContainerProps) => {
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
@@ -27,18 +34,20 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
       } min-h-screen`}
     >
       {/* Sidebar - hidden on extra small screens */}
-      {!isExtraSmallScreen && (
+      {sidebar && !isExtraSmallScreen && (
         <div className="md:block fixed left-0 top-0 h-full z-30">{sidebar}</div>
       )}
       <div
         className={`flex-1 p-0 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out ${
           isExtraSmallScreen
             ? ""
-            : !isMobileView
+            : sidebar && !isMobileView
             ? isSidebarOpen
               ? "sm:ml-56"
               : "sm:ml-16"
-            : "ml-16"
+            : sidebar
+            ? "ml-16"
+            : ""
         }`}
       >
         {children}
