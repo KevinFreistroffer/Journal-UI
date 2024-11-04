@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
-import { CLIENT_SESSION } from "@/lib/constants";
+import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
+import { deleteSessions } from "@/lib/session";
+import { experimental_jwksCache } from "jose";
+import { FaSeedling } from "react-icons/fa";
+import { Terminal, Waypoints } from "lucide-react";
 
 const protectedRoutes = [
   "/dashboard",
@@ -31,29 +35,32 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(
     (route) => path === route || path.startsWith(`${route}/`)
   );
-
   const isPublicRoute =
     publicRoutes.some((route) => path === route) ||
     (path.startsWith("/login") &&
       request.nextUrl.searchParams.get("isVerified") !== null);
-
   const cookieStore = await cookies();
-  const cookie = cookieStore.get(CLIENT_SESSION)?.value;
-  let session;
+  console.log("middleware() cookieStore", cookieStore);
+  console.log("middleware() request.cookies", request.cookies);
+  const clientSessionCookie = cookieStore.get(CLIENT_SESSION)?.value;
+  const serverSessionCookie = cookieStore.get(SESSION_TOKEN)?.value;
+  let clientSession;
 
   // const session = await decrypt(cookie);
-  if (cookie) {
-    session = await decrypt(cookie);
+  if (clientSessionCookie) {
+    clientSession = await decrypt(clientSessionCookie);
   }
 
   if (isProtectedRoute) {
     console.log("middleware() isProtectedRoute", isProtectedRoute);
-    if (!session) {
+
+    // If there's no server session, than data can't be fetched, so sign in again.
+    if (!clientSession || !serverSessionCookie) {
       console.log("middleware() NO SESSION or no USER ID");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (session?.userId && !session.isVerified) {
+    if (clientSession?.userId && !clientSession.isVerified) {
       return NextResponse.redirect(
         new URL("/login?isVerified=false", request.url)
       );
@@ -80,8 +87,9 @@ export async function middleware(request: NextRequest) {
   // Commented this out 10/2 to add it to the public routes
   if (
     isPublicRoute &&
-    session?.userId &&
-    session?.isVerified &&
+    clientSession?.userId &&
+    clientSession?.isVerified &&
+    serverSessionCookie &&
     !request.nextUrl.pathname.startsWith("/dashboard")
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));

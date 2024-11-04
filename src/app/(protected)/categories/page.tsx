@@ -9,6 +9,11 @@ import { Input } from "@/components/ui/Input";
 import Link from "next/link"; // Changed from: import { Link } from "next/link"
 import { Trash2 } from "lucide-react"; // Add this import at the top with other imports
 import { useMediaQuery } from "@/hooks/useMediaQuery"; // Add this import if you don't have it
+import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
+import { Settings } from "lucide-react";
+import { Edit2 } from "lucide-react"; // Add this import
+import { LayoutGrid, Table } from "lucide-react"; // Add these to your existing lucide-react imports
 
 // Add this utility function at the top of the file
 const getJournalCountForCategory = (category: string, journals: any[]) => {
@@ -29,6 +34,8 @@ const CategoriesPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const isMobile = useMediaQuery("(max-width: 639px)"); // sm breakpoint
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
   useEffect(() => {
     if (user) {
@@ -137,6 +144,7 @@ const CategoriesPage: React.FC = () => {
           isOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           icon={<Settings size={20} />}
+          sections={[]}
         />
       }
       isSidebarOpen={isSidebarOpen}
@@ -144,8 +152,8 @@ const CategoriesPage: React.FC = () => {
       {" "}
       <div className="p-12 space-y-4 min-h-screen relative">
         <div className="flex justify-between items-center">
-          {/* Delete button on the left */}
-          <div>
+          <div className="flex items-center gap-2">
+            {/* Delete button */}
             {!isMobile && selectedCategories.length > 0 && (
               <Button
                 variant="ghost"
@@ -156,6 +164,34 @@ const CategoriesPage: React.FC = () => {
                 <Trash2 className="h-4 w-4 text-red-500" />
               </Button>
             )}
+
+            {/* View toggle buttons - only show on larger screens */}
+            <div className="hidden sm:flex bg-gray-100 rounded-lg p-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 ${
+                  viewMode === "grid"
+                    ? "bg-white shadow-sm"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("table")}
+                className={`p-1.5 ${
+                  viewMode === "table"
+                    ? "bg-white shadow-sm"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                <Table className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* New category form on the right */}
@@ -177,66 +213,221 @@ const CategoriesPage: React.FC = () => {
 
         {error && <div className="text-red-500">{error}</div>}
 
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="w-14 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        {/* Grid view */}
+        {viewMode === "grid" && (
+          <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {categories.map((category) => (
+              <div
+                key={category._id}
+                className="group relative bg-white rounded-lg border p-4 hover:shadow-md transition-all"
+              >
+                {/* Checkbox overlay in top-left */}
+                <div className="absolute top-3 left-3">
                   <Checkbox
-                    checked={
-                      categories.length > 0 &&
-                      selectedCategories.length === categories.length
-                    }
+                    checked={selectedCategories.includes(category._id)}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setSelectedCategories(categories.map((cat) => cat._id));
+                        setSelectedCategories([
+                          ...selectedCategories,
+                          category._id,
+                        ]);
                       } else {
-                        setSelectedCategories([]);
+                        setSelectedCategories(
+                          selectedCategories.filter((id) => id !== category._id)
+                        );
                       }
                     }}
                   />
-                </th>
-                <th className="w-full px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  category
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {categories.map((category) => (
-                <tr key={category._id}>
-                  <td className="w-14 px-6 py-4 whitespace-nowrap">
-                    <Checkbox
-                      checked={selectedCategories.includes(category._id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedCategories([
-                            ...selectedCategories,
-                            category._id,
-                          ]);
-                        } else {
-                          setSelectedCategories(
-                            selectedCategories.filter(
-                              (id) => id !== category._id
-                            )
-                          );
+                </div>
+
+                {/* Edit button in top-right */}
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-0 h-auto hover:bg-transparent"
+                    onClick={() =>
+                      setEditingCategory({
+                        id: category._id,
+                        category: category.category,
+                      })
+                    }
+                  >
+                    <Edit2 className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+                  </Button>
+                </div>
+
+                {/* Category content */}
+                <div className="pt-8">
+                  {editingCategory?.id === category._id ? (
+                    <div className="space-y-2">
+                      <Input
+                        value={editingCategory.category}
+                        onChange={(e) =>
+                          setEditingCategory({
+                            ...editingCategory,
+                            category: e.target.value,
+                          })
                         }
-                      }}
-                    />
-                  </td>
-                  <td className="w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center gap-2">
-                    {category.category}
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      {getJournalCountForCategory(
-                        category.category,
-                        user?.journals || []
-                      )}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        className="py-1 px-2 h-8"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={handleUpdateCategory}
+                          disabled={isLoading}
+                          className="h-8"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingCategory(null)}
+                          className="h-8"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        {category.category}
+                      </h3>
+                      <span className="inline-block bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                        {getJournalCountForCategory(
+                          category.category,
+                          user?.journals || []
+                        )}{" "}
+                        journals
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Table view - now available on all screen sizes */}
+        {(viewMode === "table" || isMobile) && (
+          <div className="overflow-x-auto border rounded-lg relative">
+            <div className="min-w-[500px]">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="sticky left-0 z-10 bg-gray-50 w-14 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <Checkbox
+                        checked={
+                          categories.length > 0 &&
+                          selectedCategories.length === categories.length
+                        }
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedCategories(
+                              categories.map((cat) => cat._id)
+                            );
+                          } else {
+                            setSelectedCategories([]);
+                          }
+                        }}
+                      />
+                    </th>
+                    <th className="w-14 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Edit
+                    </th>
+                    <th className="w-full px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {categories.map((category) => (
+                    <tr key={category._id}>
+                      <td className="sticky left-0 z-10 bg-white w-14 px-6 py-4 whitespace-nowrap">
+                        <Checkbox
+                          checked={selectedCategories.includes(category._id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedCategories([
+                                ...selectedCategories,
+                                category._id,
+                              ]);
+                            } else {
+                              setSelectedCategories(
+                                selectedCategories.filter(
+                                  (id) => id !== category._id
+                                )
+                              );
+                            }
+                          }}
+                        />
+                      </td>
+                      <td className="w-14 px-6 py-4 whitespace-nowrap">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-0 h-auto hover:bg-transparent"
+                          onClick={() =>
+                            setEditingCategory({
+                              id: category._id,
+                              category: category.category,
+                            })
+                          }
+                        >
+                          <Edit2 className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+                        </Button>
+                      </td>
+                      <td className="w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center gap-2">
+                        {editingCategory?.id === category._id ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={editingCategory.category}
+                              onChange={(e) =>
+                                setEditingCategory({
+                                  ...editingCategory,
+                                  category: e.target.value,
+                                })
+                              }
+                              className="py-1 px-2 h-8"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={handleUpdateCategory}
+                              disabled={isLoading}
+                              className="h-8"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditingCategory(null)}
+                              className="h-8"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            {category.category}
+                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                              {getJournalCountForCategory(
+                                category.category,
+                                user?.journals || []
+                              )}
+                            </span>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Mobile FAB */}
         {isMobile && selectedCategories.length > 0 && (

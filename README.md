@@ -59,8 +59,8 @@ router.push("/login");
 
 Session management is handled in the `src/lib/session.ts` file. It includes functions for creating, updating, and deleting sessions. Here's a brief overview of the session management functions:
 
-- `createSession(userId: string)`: Creates a new session for the specified user ID.
-- `updateSession()`: Updates the current session's expiration time.
-- `deleteSession()`: Deletes the current session.
+- `createClientSession(userId: string)`: Creates a new session for the specified user ID.
+- `updateClientSession()`: Updates the current session's expiration time.
+- `deleteSessions()`: Deletes the current session.
 
 For more details, refer to the `src/lib/session.ts` file.

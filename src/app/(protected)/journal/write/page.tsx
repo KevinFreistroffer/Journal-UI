@@ -73,6 +73,7 @@ import DashboardContainer from "@/components/ui/DashboardContainer/DashboardCont
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { MonitorIcon, MaximizeIcon, Minimize2, Maximize2 } from "lucide-react";
 import { Eye } from "lucide-react"; // Add this import
+import { ViewToggle } from "@/components/ui/ViewToggle/ViewToggle";
 
 const createJournalInitialState: ICreateJournalState = {
   message: "",
@@ -157,6 +158,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [contentWidth, setContentWidth] = useState<"default" | "full">(
     "default"
   );
+    const [isFullscreen, setIsFullscreen] = useState(false);
   // Inside WritePage component, add this state
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // Add this state to track the previous width setting
@@ -188,7 +190,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isWordStatsModalOpen, setIsWordStatsModalOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
   useEffect(() => {
     if (quill) {
@@ -606,7 +608,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Add this function to handle fullscreen toggle
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
   };
@@ -702,62 +703,21 @@ function WritePage({ children }: { children: React.ReactNode }) {
           >
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-xl">Write anything</h1>
-
-              <ToggleGroup.Root
-                type="single"
-                value={isFullscreen ? "fullscreen" : contentWidth}
-                onValueChange={(value) => {
+              <ViewToggle
+                isFullscreen={isFullscreen}
+                contentWidth={contentWidth}
+                onToggle={(value) => {
                   if (value === "fullscreen") {
-                    setPreviousWidth(contentWidth); // Store current width before going fullscreen
+                    setPreviousWidth(contentWidth);
                     toggleFullscreen();
                   } else if (isFullscreen) {
                     toggleFullscreen();
-                    setContentWidth(previousWidth); // Restore previous width when exiting fullscreen
+                    setContentWidth(previousWidth);
                   } else {
                     setContentWidth(value as "default" | "full");
                   }
                 }}
-                className="flex items-center bg-gray-100 rounded-md p-1"
-              >
-                <ToggleGroup.Item
-                  value="default"
-                  aria-label="Default Width"
-                  className={cn(
-                    "p-1.5 rounded-md transition-colors",
-                    !isFullscreen && contentWidth === "default"
-                      ? "bg-white shadow-sm"
-                      : "hover:bg-gray-200"
-                  )}
-                >
-                  <MonitorIcon className="w-4 h-4" />
-                </ToggleGroup.Item>
-                <ToggleGroup.Item
-                  value="full"
-                  aria-label="Full Width"
-                  className={cn(
-                    "p-1.5 rounded-md transition-colors",
-                    !isFullscreen && contentWidth === "full"
-                      ? "bg-white shadow-sm"
-                      : "hover:bg-gray-200"
-                  )}
-                >
-                  <MaximizeIcon className="w-4 h-4" />
-                </ToggleGroup.Item>
-                <ToggleGroup.Item
-                  value="fullscreen"
-                  aria-label="Fullscreen Mode"
-                  className={cn(
-                    "p-1.5 rounded-md transition-colors",
-                    isFullscreen ? "bg-white shadow-sm" : "hover:bg-gray-200"
-                  )}
-                >
-                  {isFullscreen ? (
-                    <Minimize2 className="w-4 h-4" />
-                  ) : (
-                    <Maximize2 className="w-4 h-4" />
-                  )}
-                </ToggleGroup.Item>
-              </ToggleGroup.Root>
+              />
             </div>
             <form action={handleSubmit} className="space-y-4">
               {/* Title Input Above Textarea */}
@@ -1056,7 +1016,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
             </form>
           </DialogContent>
         </Dialog>
-        {journal}
         {/* Add this Preview Dialog near your other dialogs */}
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
           <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
@@ -1070,7 +1029,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
               <div
                 className="preview-content ql-editor"
                 dangerouslySetInnerHTML={{
-                  __html: journal
+                  __html: journal,
                 }}
               />
             </div>

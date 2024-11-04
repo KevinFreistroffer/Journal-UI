@@ -4,9 +4,9 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 // import { redirect } from "next/navigation";
 import { decrypt } from "@/lib/session";
-import { CLIENT_SESSION } from "@/lib/constants";
+import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
 
-export const verifySession = cache(
+export const verifyClientSession = cache(
   async (): Promise<{
     isAuth: boolean;
     userId: string | null;
@@ -31,13 +31,26 @@ export const verifySession = cache(
   }
 );
 
+// verify the session cookie exists
+export const verifyServerSession = cache(async (): Promise<boolean> => {
+  try {
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get(SESSION_TOKEN)?.value;
+
+    return !!cookie;
+  } catch (error: unknown) {
+    console.error("Failed to verify server session", error);
+    return false;
+  }
+});
+
 export const getUser = cache(async () => {
   try {
     if (!process.env.API_URL) {
       return null;
     }
 
-    const session = await verifySession();
+    const session = await verifyClientSession();
 
     if (!session || !session.userId) {
       return null;

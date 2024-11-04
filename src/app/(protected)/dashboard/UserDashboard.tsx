@@ -79,7 +79,7 @@ const formatTime = (hour: string) => {
 type CardLayout = "auto-layout" | "single-column" | "two-column";
 
 function UserDashboard() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, setIsLoading } = useAuth();
   const [totalJournals, setTotalJournals] = useState(
     user?.journals?.length || 0
   );

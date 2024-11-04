@@ -24,6 +24,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { setFilteredEntries } = useSearch();
 
+  const handleSetUser = (newUser: IUser | null) => {
+    setUser(newUser);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     async function checkSession() {
       try {
@@ -31,16 +36,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const sessionUser = await getUser();
 
         if (!sessionUser) {
-          setUser(null);
+          handleSetUser(null);
         } else {
-          setUser(sessionUser);
           setFilteredEntries(sessionUser.journals);
+          handleSetUser(sessionUser);
         }
       } catch (error) {
         console.error("Error verifying session:", error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+        handleSetUser(null);
       }
     }
 
@@ -48,7 +51,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setFilteredEntries]);
 
   return (
-    <AuthState.Provider value={{ user, setUser, isLoading, setIsLoading }}>
+    <AuthState.Provider
+      value={{
+        user,
+        setUser: handleSetUser,
+        isLoading,
+        setIsLoading
+      }}
+    >
       {children}
     </AuthState.Provider>
   );

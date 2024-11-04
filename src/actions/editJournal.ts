@@ -7,7 +7,7 @@ import {
   ICreateJournalState,
 } from "@/app/(protected)/journal/write/types";
 import { UserSchema } from "@/lib/schemas/UserSchema";
-import { createSession } from "@/lib/session";
+import { createClientSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
 const EditJournalSchema = z.object({
@@ -108,7 +108,7 @@ export const createJournal: CreateJournalFunction = async (
       };
     }
     // Create a session using the user's _id
-    await createSession(userData._id, userData.isVerified);
+    await createClientSession(userData._id, userData.isVerified);
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
 
@@ -128,7 +128,7 @@ export const createJournal: CreateJournalFunction = async (
       console.warn("No Set-Cookie header found in the response");
     }
 
-    // Deleting because already am using createSession()
+    // Deleting because already am using createClientSession()
     // // Set a cookie to simulate user session
     // cookies().set(
     //   "user",

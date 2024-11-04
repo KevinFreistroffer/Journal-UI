@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { State, SignUpFunction } from "../app/(public)/signup/types";
-import { createSession } from "../lib/session";
+import { createClientSession } from "../lib/session";
 import { has } from "lodash";
 // Import the crypto module
 // Define a schema for input validation
@@ -106,7 +106,7 @@ export const signUp: SignUpFunction = async (
 
     const user = body.data;
 
-    await createSession(user._id, user.isVerified);
+    await createClientSession(user._id, user.isVerified);
 
     return {
       errors: {},

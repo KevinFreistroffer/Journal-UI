@@ -33,7 +33,7 @@ export async function decrypt(session: string | undefined = "") {
   }
 }
 
-export async function createSession(userId: string, isVerified: boolean) {
+export async function createClientSession(userId: string, isVerified: boolean) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ userId, isVerified, expiresAt });
   const cookieStore = await cookies();
@@ -46,7 +46,7 @@ export async function createSession(userId: string, isVerified: boolean) {
   });
 }
 
-export async function updateSession() {
+export async function updateClientSession() {
   const cookieStore = await cookies();
   const session = cookieStore.get(CLIENT_SESSION)?.value;
   const payload = await decrypt(session);
@@ -65,7 +65,7 @@ export async function updateSession() {
   });
 }
 
-export async function deleteSession() {
+export async function deleteSessions() {
   const cookieStore = await cookies();
   cookieStore.delete(CLIENT_SESSION);
   cookieStore.delete(SESSION_TOKEN);

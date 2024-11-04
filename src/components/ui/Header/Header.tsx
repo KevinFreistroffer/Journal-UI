@@ -210,7 +210,7 @@ export default function Header() {
         id={styles["header"]}
         className={`sticky px-0 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
       >
-        <div className="flex h-14 items-center justify-between px-3 sm:px-4 w-full">
+        <div className="flex h-14 items-center justify-between px-3 sm:px-4 w-full pt-1">
           {/* Title and Mobile menu icon */}
           <div className="flex-1 flex items-center gap-2">
             {excludeTabsRoute && (
@@ -290,13 +290,13 @@ export default function Header() {
                           width={36}
                           height={36}
                           className={`rounded-full ${
-                            isExtraSmallScreen ? "w-7 h-7" : "w-7 h-7"
+                            isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
                           }`}
                         />
                       ) : (
                         <div
                           className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium ${
-                            isExtraSmallScreen ? "w-8 h-8" : "w-8 h-8"
+                            isExtraSmallScreen ? "w-8 h-8" : "w-10 h-10"
                           }`}
                         >
                           {getUserInitial(user.username)}
