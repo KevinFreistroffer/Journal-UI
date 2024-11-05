@@ -563,33 +563,23 @@ function UserDashboard() {
                               </p>
                             </div>
                           ) : isMobileView ? (
-                            <div
-                              className={`${styles["category-breakdown-table-container"]} max-w-[440px]`}
-                            >
-                              <table className="w-full border-collapse min-w-[300px]">
-                                <thead>
-                                  <tr>
-                                    <th className="text-left sticky top-0 bg-white border-b p-2 text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
-                                      Category
-                                    </th>
-                                    <th className="text-right sticky top-0 bg-white border-b p-2 pr-4 text-xs sm:text-sm md:text-xs lg:text-sm font-medium">
-                                      Count
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {data.map((item) => (
-                                    <tr key={item.id} className="border-b">
-                                      <td className="text-left p-2 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                        {item.label}
-                                      </td>
-                                      <td className="text-right p-2 pr-4 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                        {item.value}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                            <div className="space-y-2 max-h-72 overflow-y-auto">
+                              {data.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="flex items-start gap-2 p-2 hover:bg-white/50 rounded-lg transition-colors min-w-0"
+                                >
+                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm flex-1 break-words overflow-wrap-anywhere pr-2">
+                                    {item.label}
+                                  </span>
+                                  <span
+                                    className="inline-flex items-center justify-center w-8 h-8 text-xs sm:text-sm md:text-xs lg:text-sm font-medium rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: `${item.color}40` }}
+                                  >
+                                    {item.value}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
                           ) : (
                             <CategoryBreakdown data={data} />
@@ -740,31 +730,33 @@ function UserDashboard() {
                           </Link>
                         </div>
                         {favoriteEntries.length > 0 ? (
-                          <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 space-y-2 bg-white">
-                            {favoriteEntries.map((journal, index) => (
-                              <li
-                                key={index}
-                                className={`flex items-center space-x-2 py-2 ${
-                                  favoriteEntries.length > 1 &&
-                                  index !== favoriteEntries.length - 1
-                                    ? "border-b"
-                                    : ""
-                                }`}
-                              >
-                                <JournalLink
-                                  id={journal._id}
-                                  title={journal.title}
-                                  date={journal.updatedAt}
-                                  handleOnClick={() => {
-                                    localStorageService.setItem(
-                                      "selectedJournal",
-                                      journal
-                                    );
-                                  }}
-                                />
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white">
+                            <ul className="max-h-72 overflow-y-auto p-4 space-y-2">
+                              {favoriteEntries.map((journal, index) => (
+                                <li
+                                  key={index}
+                                  className={`flex items-center space-x-2 py-2 ${
+                                    favoriteEntries.length > 1 &&
+                                    index !== favoriteEntries.length - 1
+                                      ? "border-b"
+                                      : ""
+                                  }`}
+                                >
+                                  <JournalLink
+                                    id={journal._id}
+                                    title={journal.title}
+                                    date={journal.updatedAt}
+                                    handleOnClick={() => {
+                                      localStorageService.setItem(
+                                        "selectedJournal",
+                                        journal
+                                      );
+                                    }}
+                                  />
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         ) : (
                           <div className="flex items-center justify-center h-[calc(100%-3rem)]">
                             <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
@@ -801,7 +793,7 @@ function UserDashboard() {
                               onClick={exportToCSV}
                               variant="outline"
                               size="sm"
-                              className="flex items-center text-xs sm:text-sm md:text-xs lg:text-sm"
+                              className="flex w-auto items-center text-xs sm:text-sm md:text-xs lg:text-sm"
                               disabled={!journals?.length}
                             >
                               <Download className="w-4 h-4 mr-2" />

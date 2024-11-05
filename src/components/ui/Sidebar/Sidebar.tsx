@@ -55,7 +55,7 @@ export const Sidebar: React.FC<IProps> = ({
         }`}
       >
         <Button
-          className={`relative w-full p-0 cursor-pointer ${
+          className={`border border-[#d9d9d9] p-1 block ml-auto relative w-auto h-auto ${
             isOpen ? "justify-end" : "justify-center"
           }`}
           variant="ghost"

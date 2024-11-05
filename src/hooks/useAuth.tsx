@@ -54,9 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthState.Provider
       value={{
         user,
-        setUser: handleSetUser,
+        setUser: handleSetUser as React.Dispatch<
+          React.SetStateAction<IUser | null>
+        >,
         isLoading,
-        setIsLoading
+        setIsLoading,
       }}
     >
       {children}

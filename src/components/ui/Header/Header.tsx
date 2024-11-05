@@ -219,7 +219,7 @@ export default function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="hover:bg-gray-200"
+                    className="hover:bg-gray-200 border border-red-600 p-1 w-auto h-auto bg-transparent"
                   >
                     <Menu className="h-5 w-5" />
                   </Button>

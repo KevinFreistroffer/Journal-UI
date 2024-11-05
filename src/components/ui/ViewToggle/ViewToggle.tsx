@@ -6,44 +6,55 @@ interface ViewToggleProps {
   isFullscreen: boolean;
   contentWidth: "default" | "full";
   onToggle: (value: string) => void;
+  showDefaultWidth?: boolean;
+  showFullWidth?: boolean;
 }
 
 export function ViewToggle({
   isFullscreen,
   contentWidth,
   onToggle,
+  showDefaultWidth = true,
+  showFullWidth = true,
 }: ViewToggleProps) {
   return (
     <ToggleGroup.Root
       type="single"
       value={isFullscreen ? "fullscreen" : contentWidth}
       onValueChange={onToggle}
-      className="flex items-center bg-gray-100 rounded-md p-1"
+      className={cn(
+        "flex items-center bg-gray-100 p-1",
+        showDefaultWidth && showFullWidth ? "rounded-md" : "rounded-lg"
+      )}
     >
-      <ToggleGroup.Item
-        value="default"
-        aria-label="Default Width"
-        className={cn(
-          "p-1.5 rounded-md transition-colors",
-          !isFullscreen && contentWidth === "default"
-            ? "bg-white shadow-sm"
-            : "hover:bg-gray-200"
-        )}
-      >
-        <MonitorIcon className="w-4 h-4" />
-      </ToggleGroup.Item>
-      <ToggleGroup.Item
-        value="full"
-        aria-label="Full Width"
-        className={cn(
-          "p-1.5 rounded-md transition-colors",
-          !isFullscreen && contentWidth === "full"
-            ? "bg-white shadow-sm"
-            : "hover:bg-gray-200"
-        )}
-      >
-        <MaximizeIcon className="w-4 h-4" />
-      </ToggleGroup.Item>
+      {showDefaultWidth && (
+        <ToggleGroup.Item
+          value="default"
+          aria-label="Default Width"
+          className={cn(
+            "p-1.5 rounded-md transition-colors",
+            !isFullscreen && contentWidth === "default"
+              ? "bg-white shadow-sm"
+              : "hover:bg-gray-200"
+          )}
+        >
+          <MonitorIcon className="w-4 h-4" />
+        </ToggleGroup.Item>
+      )}
+      {showFullWidth && (
+        <ToggleGroup.Item
+          value="full"
+          aria-label="Full Width"
+          className={cn(
+            "p-1.5 rounded-md transition-colors",
+            !isFullscreen && contentWidth === "full"
+              ? "bg-white shadow-sm"
+              : "hover:bg-gray-200"
+          )}
+        >
+          <MaximizeIcon className="w-4 h-4" />
+        </ToggleGroup.Item>
+      )}
       <ToggleGroup.Item
         value="fullscreen"
         aria-label="Fullscreen Mode"

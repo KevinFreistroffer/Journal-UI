@@ -90,9 +90,9 @@ export async function middleware(request: NextRequest) {
     clientSession?.userId &&
     clientSession?.isVerified &&
     serverSessionCookie &&
-    !request.nextUrl.pathname.startsWith("/dashboard")
+    !request.nextUrl.pathname.startsWith("/journal/write")
   ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/journal/write", request.url));
   }
 
   // return NextResponse.next();
