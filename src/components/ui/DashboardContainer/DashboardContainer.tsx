@@ -28,11 +28,7 @@ const DashboardContainer = ({
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
   return (
-    <div
-      className={`${
-        isExtraSmallScreen ? "p-2" : "p-3 sm:p-4 md:p-6 lg:p-8"
-      } min-h-screen`}
-    >
+    <div className={`${"p-3 sm:p-4 md:p-6 lg:p-8"} min-h-screen`}>
       {/* Sidebar - hidden on extra small screens */}
       {sidebar && !isExtraSmallScreen && (
         <div className="md:block fixed left-0 top-0 h-full z-30">{sidebar}</div>

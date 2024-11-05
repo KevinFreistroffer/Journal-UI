@@ -96,12 +96,58 @@ const createJournalInitialState: ICreateJournalState = {
 };
 
 // Create a new SubmitButton component
-function SubmitButton({
-  setShowSaveModal,
-  disabled,
+function SaveButton({
+  hasContent,
+  onSave,
 }: {
-  setShowSaveModal: React.Dispatch<React.SetStateAction<boolean>>;
+  hasContent: boolean;
+  onSave: () => void;
+}) {
+  const handleClick = () => {
+    if (hasContent) {
+      onSave();
+    }
+  };
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleClick}
+            className={cn(
+              "w-auto h-auto border border-solid p-1 rounded-md",
+              hasContent
+                ? "bg-blue-600 hover:bg-blue-700 border-blue-700 text-white"
+                : "bg-blue-400 border-blue-400 text-white/80"
+            )}
+          >
+            <Save className="w-5 h-5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[250px] bg-white text-gray-700 shadow-lg rounded-lg text-sm p-2 border border-gray-100"
+        >
+          <p>
+            Save your progress locally. This will allow you to restore your work
+            if you accidentally close the page.
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+// Add new PublishButton component
+function PublishButton({
+  disabled,
+  onPublish,
+}: {
   disabled: boolean;
+  onPublish: () => void;
 }) {
   const { pending } = useFormStatus();
 
@@ -109,26 +155,7 @@ function SubmitButton({
     <Button
       type="button"
       disabled={disabled || pending}
-      onClick={() => setShowSaveModal(true)}
-      className={`w-auto md:w-10 text-white py-1 px-2 text-sm flex items-center justify-center ${
-        disabled
-          ? "bg-blue-300 hover:bg-blue-300 cursor-not-allowed"
-          : "bg-blue-500 hover:bg-blue-600"
-      }`}
-    >
-      <Save className="w-4 h-4" />
-    </Button>
-  );
-}
-
-// Add new PublishButton component
-function PublishButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button
-      type="submit"
-      disabled={disabled || pending}
+      onClick={onPublish}
       className={`text-white w-auto md:w-auto py-1 px-4 text-sm flex items-center justify-center ${
         disabled
           ? "bg-green-300 hover:bg-green-300 cursor-not-allowed"
@@ -138,6 +165,59 @@ function PublishButton({ disabled }: { disabled: boolean }) {
       <span className="mr-2">Publish</span>
       <FileText className="w-4 h-4" />
     </Button>
+  );
+}
+
+// Add a new StorageControls component to group the autosave checkbox and save button
+function StorageControls({
+  hasContent,
+  onSave,
+  autoSaveEnabled,
+  onAutoSaveChange,
+}: {
+  hasContent: boolean;
+  onSave: () => void;
+  autoSaveEnabled: boolean;
+  onAutoSaveChange: (enabled: boolean) => void;
+}) {
+  const [hasStorage, setHasStorage] = useState<boolean>(false);
+
+  // Check for storage availability on mount
+  useEffect(() => {
+    const checkStorage = () => {
+      try {
+        localStorage.setItem("test", "test");
+        localStorage.removeItem("test");
+        // Also check sessionStorage as fallback
+        sessionStorage.setItem("test", "test");
+        sessionStorage.removeItem("test");
+        setHasStorage(true);
+      } catch {
+        setHasStorage(false);
+      }
+    };
+    checkStorage();
+  }, []);
+
+  // Don't render anything if no storage is available
+  if (!hasStorage) return null;
+
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        {!autoSaveEnabled && <SaveButton hasContent={hasContent} onSave={onSave} />}
+        <Label htmlFor="autosave" className="text-sm text-gray-600">
+          Autosave
+        </Label>
+        <input
+          type="checkbox"
+          id="autosave"
+          checked={autoSaveEnabled}
+          onChange={(e) => onAutoSaveChange(e.target.checked)}
+          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        />
+      </div>
+    </>
   );
 }
 
@@ -922,40 +1002,37 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 : "md:max-w-full"
             )}
           >
+            <div className="flex justify-end mb-4">
+              <div className="hidden sm:block">
+                <ViewToggle
+                  isFullscreen={isFullscreen}
+                  contentWidth={contentWidth}
+                  showDefaultWidth={isLargeScreen}
+                  showFullWidth={isLargeScreen}
+                  onToggle={(value) => {
+                    if (value === "fullscreen") {
+                      setPreviousWidth(contentWidth);
+                      toggleFullscreen();
+                    } else if (isFullscreen) {
+                      toggleFullscreen();
+                      setContentWidth(previousWidth);
+                    } else {
+                      setContentWidth(value as "default" | "full");
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
-              <h1 className="text-xl">Write anything</h1>
+              <h1 className="text-xl">Thoughts</h1>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="autosave" className="text-sm text-gray-600">
-                    Autosave
-                  </Label>
-                  <input
-                    type="checkbox"
-                    id="autosave"
-                    checked={autoSaveEnabled}
-                    onChange={(e) => setAutoSaveEnabled(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  />
-                </div>
-                <div className="hidden sm:block">
-                  <ViewToggle
-                    isFullscreen={isFullscreen}
-                    contentWidth={contentWidth}
-                    showDefaultWidth={isLargeScreen}
-                    showFullWidth={isLargeScreen}
-                    onToggle={(value) => {
-                      if (value === "fullscreen") {
-                        setPreviousWidth(contentWidth);
-                        toggleFullscreen();
-                      } else if (isFullscreen) {
-                        toggleFullscreen();
-                        setContentWidth(previousWidth);
-                      } else {
-                        setContentWidth(value as "default" | "full");
-                      }
-                    }}
-                  />
-                </div>
+                <StorageControls
+                  hasContent={Boolean(journal.trim())}
+                  onSave={saveToStorage}
+                  autoSaveEnabled={autoSaveEnabled}
+                  onAutoSaveChange={setAutoSaveEnabled}
+                />
               </div>
             </div>
             <form action={handleSubmit} className="space-y-4">
@@ -1082,11 +1159,10 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 <div className="space-y-4 flex flex-col">
                   <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
                     <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
-                      <SubmitButton
-                        setShowSaveModal={setShowSaveModal}
+                      <PublishButton
                         disabled={!journal.trim()}
+                        onPublish={() => setShowSaveModal(true)}
                       />
-                      <PublishButton disabled={!journal.trim()} />
                       <Button
                         type="button"
                         disabled={!journal.trim()}
@@ -1110,15 +1186,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
                               </TooltipTrigger>
                               <TooltipContent
                                 side="top"
-                                className="bg-gray-800 text-white p-2 rounded-md shadow-lg z-50 max-w-xs opacity-1"
+                                className="rounded-md shadow-lg z-50 max-w-xs opacity-1"
                               >
                                 <p className="text-sm leading-relaxed">
                                   Summarize your journal entry into fewer
                                   sentences.
                                 </p>
-                                <p className="text-xs leading-relaxed text-gray-300">
+                                {/* <p className="text-xs leading-relaxed text-gray-600">
                                   You can also tweet the summary directly!
-                                </p>
+                                </p> */}
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

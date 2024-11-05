@@ -50,7 +50,7 @@ export const Sidebar: React.FC<IProps> = ({
       <div
         className={`fixed ${
           headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
-        } top-0 fdsafdasfdasfdas left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 ${
+        } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 ${
           isOpen ? "w-56" : "w-16"
         }`}
       >
