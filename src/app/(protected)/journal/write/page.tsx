@@ -85,6 +85,7 @@ import NoContentWarningModal from "./components/NoContentWarningModal";
 interface IAutoSaveState {
   title: string;
   journal: string;
+  categories: string[];
   lastSaved: Date;
 }
 
@@ -96,17 +97,10 @@ const createJournalInitialState: ICreateJournalState = {
 };
 
 // Create a new SubmitButton component
-function SaveButton({
-  hasContent,
-  onSave,
-}: {
-  hasContent: boolean;
-  onSave: () => void;
-}) {
+function SaveButton({ onSave }: { onSave: () => void }) {
   const handleClick = () => {
-    if (hasContent) {
-      onSave();
-    }
+    // Only save if there's any content to save
+    onSave();
   };
 
   return (
@@ -118,13 +112,10 @@ function SaveButton({
             variant="ghost"
             onClick={handleClick}
             className={cn(
-              "w-auto h-auto border border-solid p-1 rounded-md",
-              hasContent
-                ? "bg-blue-600 hover:bg-blue-700 border-blue-700 text-white"
-                : "bg-blue-400 border-blue-400 text-white/80"
+              "w-auto h-auto border border-solid p-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
             )}
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-4 h-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent
@@ -170,12 +161,10 @@ function PublishButton({
 
 // Add a new StorageControls component to group the autosave checkbox and save button
 function StorageControls({
-  hasContent,
   onSave,
   autoSaveEnabled,
   onAutoSaveChange,
 }: {
-  hasContent: boolean;
   onSave: () => void;
   autoSaveEnabled: boolean;
   onAutoSaveChange: (enabled: boolean) => void;
@@ -205,7 +194,7 @@ function StorageControls({
   return (
     <>
       <div className="flex items-center gap-2">
-        {!autoSaveEnabled && <SaveButton hasContent={hasContent} onSave={onSave} />}
+        {!autoSaveEnabled && <SaveButton onSave={onSave} />}
         <Label htmlFor="autosave" className="text-sm text-gray-600">
           Autosave
         </Label>
@@ -788,6 +777,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
       debouncedSave({
         title,
         journal,
+        categories: selectedCategories,
         lastSaved: new Date(),
       });
     }, 500);
@@ -815,6 +805,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
     title,
     autoSaveEnabled,
     debouncedSave,
+    selectedCategories,
     INACTIVITY_TIMEOUT,
     saveToDatabase,
   ]); // Only include necessary dependencies
@@ -980,7 +971,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
     >
       <div
         className={cn(
-          "flex-1  overflow-y-auto flex flex-col transition-all duration-300 ease-in-out",
+          "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out",
           isFullscreen
             ? "fixed inset-0 z-50 bg-white"
             : isSidebarOpen
@@ -988,55 +979,68 @@ function WritePage({ children }: { children: React.ReactNode }) {
             : "md:ml-0"
         )}
       >
+        <div className="flex justify-end p-4">
+          <div className="hidden sm:block">
+            <ViewToggle
+              isFullscreen={isFullscreen}
+              contentWidth={contentWidth}
+              showDefaultWidth={isLargeScreen}
+              showFullWidth={isLargeScreen}
+              onToggle={(value) => {
+                console.log(value);
+                if (value === "fullscreen") {
+                  setPreviousWidth(contentWidth);
+                  setIsFullscreen(true);
+                } else if (
+                  value === "default" &&
+                  (isFullscreen || contentWidth !== "default")
+                ) {
+                  // Only change to default if we're either in fullscreen or not already in default view
+                  setIsFullscreen(false);
+                  setContentWidth("default");
+                } else {
+                  setContentWidth(value as "default" | "full");
+                }
+              }}
+            />
+          </div>
+        </div>
         <div
           className={cn(
             "flex justify-center w-full ml-auto mr-auto transition-all duration-300",
-            contentWidth === "default" ? "max-w-6xl" : "max-w-[95%]"
+            contentWidth === "default" ? "max-w-6xl" : "max-w-[95%]",
+            "pb-20"
           )}
         >
           <div
             className={cn(
-              "w-full transition-all duration-300",
+              "w-full transition-all duration-300 relative",
               contentWidth === "default"
                 ? "md:max-w-[51.0625rem]"
                 : "md:max-w-full"
             )}
           >
-            <div className="flex justify-end mb-4">
-              <div className="hidden sm:block">
-                <ViewToggle
-                  isFullscreen={isFullscreen}
-                  contentWidth={contentWidth}
-                  showDefaultWidth={isLargeScreen}
-                  showFullWidth={isLargeScreen}
-                  onToggle={(value) => {
-                    if (value === "fullscreen") {
-                      setPreviousWidth(contentWidth);
-                      toggleFullscreen();
-                    } else if (isFullscreen) {
-                      toggleFullscreen();
-                      setContentWidth(previousWidth);
-                    } else {
-                      setContentWidth(value as "default" | "full");
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
+              <div className="flex justify-between items-center space-x-4 sm:space-x-8">
+                <h1 className="text-xl">Thoughts</h1>
+                <StorageControls
+                  onSave={() => {
+                    if (journal.trim() || title.trim() || categories.length > 0) {
+                      saveToStorage({
+                        journal,
+                        title,
+                        categories: selectedCategories,
+                        lastSaved: new Date(),
+                      });
                     }
                   }}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
-              <h1 className="text-xl">Thoughts</h1>
-              <div className="flex items-center gap-4">
-                <StorageControls
-                  hasContent={Boolean(journal.trim())}
-                  onSave={saveToStorage}
                   autoSaveEnabled={autoSaveEnabled}
                   onAutoSaveChange={setAutoSaveEnabled}
                 />
               </div>
             </div>
             <form action={handleSubmit} className="space-y-4">
-              {/* Title Input Above Textarea */}
+              {/* Title Input standalone again */}
               <div className="flex flex-col">
                 <Input
                   type="text"
@@ -1101,58 +1105,56 @@ function WritePage({ children }: { children: React.ReactNode }) {
                   <div ref={quillRef} />
                 </div>
                 <div className="flex justify-between items-center mb-6">
-                  {/* Export and Word Stats buttons on the left */}
-                  <div className="flex items-center space-x-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="text-[11px] text-black/80 flex items-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer">
-                          <Download className="w-3 h-3 mr-1" />
-                          Export
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="start"
-                        className="bg-white p-0"
+                  <div className="flex items-center w-full px-4 sm:px-0">
+                    <div className="grid grid-cols-3 w-full gap-2 sm:flex sm:w-auto">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer">
+                            <Download className="w-3 h-3 mr-1" />
+                            <span className="truncate sm:text-clip">Export</span>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="bg-white p-0">
+                          <DropdownMenuItem className="p-0 text-xs">
+                            <Button
+                              type="button"
+                              onClick={() => handleExport("pdf")}
+                              className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
+                            >
+                              Export as PDF
+                            </Button>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="p-0">
+                            <Button
+                              type="button"
+                              onClick={() => handleExport("docx")}
+                              className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
+                            >
+                              Export as DOCX
+                            </Button>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsPreviewOpen(true)}
+                        className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                        disabled={!journal.trim()}
                       >
-                        <DropdownMenuItem className="p-0 text-xs">
-                          <Button
-                            type="button"
-                            onClick={() => handleExport("pdf")}
-                            className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
-                          >
-                            Export as PDF
-                          </Button>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="p-0">
-                          <Button
-                            type="button"
-                            onClick={() => handleExport("docx")}
-                            className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
-                          >
-                            Export as DOCX
-                          </Button>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                        <Eye className="w-3 h-3 mr-1" />
+                        <span className="truncate sm:text-clip">Preview</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setIsPreviewOpen(true)}
-                      className="text-[11px] text-black/80 flex items-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                      disabled={!journal.trim()}
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsWordStatsModalOpen(true)}
-                      className="text-[11px] text-black/80 flex items-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                    >
-                      <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
-                      View Word Stats
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsWordStatsModalOpen(true)}
+                        className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                      >
+                        <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
+                        <span className="truncate sm:text-clip">Word Stats</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1253,7 +1255,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
           title={title}
           journal={journal}
         />
-
         {/*  */}
         <StorageAccessWarningModal
           open={showStorageWarning}
