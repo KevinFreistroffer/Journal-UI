@@ -20,6 +20,7 @@ import {
   Save,
   ChevronUpIcon, // Add this import
   AlertCircle,
+  Settings,
 } from "lucide-react";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -81,6 +82,7 @@ import SaveJournalModal from "./components/SaveJournalModal";
 import PreviewModal from "./components/PreviewModal";
 import StorageAccessWarningModal from "./components/StorageAccessWarningModal";
 import NoContentWarningModal from "./components/NoContentWarningModal";
+import { Switch } from "@/components/ui/switch";
 
 interface IAutoSaveState {
   title: string;
@@ -192,21 +194,22 @@ function StorageControls({
   if (!hasStorage) return null;
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        {!autoSaveEnabled && <SaveButton onSave={onSave} />}
-        <Label htmlFor="autosave" className="text-sm text-gray-600">
-          Autosave
-        </Label>
-        <input
-          type="checkbox"
+    <div className="flex items-center gap-2">
+      <SaveButton onSave={onSave} />
+      <div className="flex items-center space-x-2">
+        <Switch
           id="autosave"
           checked={autoSaveEnabled}
-          onChange={(e) => onAutoSaveChange(e.target.checked)}
-          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          onCheckedChange={onAutoSaveChange}
         />
+        <Label
+          htmlFor="autosave"
+          className="text-sm text-gray-600 cursor-pointer"
+        >
+          Autosave
+        </Label>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -267,6 +270,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [previousWidth, setPreviousWidth] = useState<"default" | "full">(
     "default"
   );
+  const [showSettings, setShowSettings] = useState(false);
+  const [showLastSaved, setShowLastSaved] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("showLastSaved");
+      return saved ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
+
   const { quill, quillRef } = useQuill({
     modules: {
       magicUrl: true,
@@ -980,6 +992,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex justify-end p-4">
+          <div className="flex items-center gap-4 mr-4">
+            {showLastSaved && (
+              <div className="text-sm text-gray-500">
+                {isAutosaving && <span>Saving...</span>}
+                {!isAutosaving && lastSavedTime && (
+                  <span>Last saved {lastSavedTime.toLocaleTimeString()}</span>
+                )}
+              </div>
+            )}
+          </div>
           <div className="hidden sm:block">
             <ViewToggle
               isFullscreen={isFullscreen}
@@ -1020,9 +1042,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 : "md:max-w-full"
             )}
           >
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
-              <div className="flex justify-between items-center space-x-4 sm:space-x-8">
-                <h1 className="text-xl">Thoughts</h1>
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-xl">Thoughts</h1>
+              <div className="flex items-center gap-4">
                 <StorageControls
                   onSave={() => {
                     if (journal.trim() || title.trim() || categories.length > 0) {
@@ -1037,6 +1059,56 @@ function WritePage({ children }: { children: React.ReactNode }) {
                   autoSaveEnabled={autoSaveEnabled}
                   onAutoSaveChange={setAutoSaveEnabled}
                 />
+                <Dialog open={showSettings} onOpenChange={setShowSettings}>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="p-1.5 hover:bg-gray-100 rounded-md"
+                  >
+                    <Settings className="w-5 h-5 text-gray-500" />
+                  </button>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Settings</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex items-center justify-between py-4">
+                      <div className="flex items-center gap-2">
+                        <label
+                          htmlFor="show-last-saved"
+                          className="text-sm text-gray-700"
+                        >
+                          Show last saved status
+                        </label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="right"
+                              className="max-w-[250px]"
+                            >
+                              <p>
+                                When enabled, this will show the auto-save
+                                status and last saved time.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <Switch
+                        id="show-last-saved"
+                        checked={showLastSaved}
+                        onCheckedChange={(checked) => {
+                          setShowLastSaved(checked);
+                          localStorage.setItem(
+                            "showLastSaved",
+                            JSON.stringify(checked)
+                          );
+                        }}
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             <form action={handleSubmit} className="space-y-4">
@@ -1111,10 +1183,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         <DropdownMenuTrigger asChild>
                           <button className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer">
                             <Download className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">Export</span>
+                            <span className="truncate sm:text-clip">
+                              Export
+                            </span>
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="bg-white p-0">
+                        <DropdownMenuContent
+                          align="start"
+                          className="bg-white p-0"
+                        >
                           <DropdownMenuItem className="p-0 text-xs">
                             <Button
                               type="button"
@@ -1152,7 +1229,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
                       >
                         <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
-                        <span className="truncate sm:text-clip">Word Stats</span>
+                        <span className="truncate sm:text-clip">
+                          Word Stats
+                        </span>
                       </button>
                     </div>
                   </div>
