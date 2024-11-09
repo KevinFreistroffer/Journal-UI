@@ -30,6 +30,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetPrimitive,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -228,8 +230,12 @@ export default function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] dark:bg-black">
-                  <SheetHeader>
-                    <SheetTitle>Journals</SheetTitle>
+                  <SheetHeader className="flex flex-row justify-between items-center space-y-0">
+                    <SheetTitle>Journals</SheetTitle>{" "}
+                    <SheetClose className="mt-0 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Close</span>
+                    </SheetClose>
                   </SheetHeader>
                   <div className="mt-4">
                     {menuItems.map((item) => (

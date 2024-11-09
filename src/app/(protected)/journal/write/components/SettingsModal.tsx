@@ -35,8 +35,8 @@ export default function SettingsDialog({
       >
         <Settings className="w-5 h-5 text-gray-500 dark:text-white dark:hover:bg-transparent cursor-pointer" />
       </button>
-      <DialogOverlay className="bg-white/80 backdrop-blur-sm dark:bg-white/20" />
-      <DialogContent className="w-[85%] max-w-[400px] mx-auto rounded-lg sm:rounded-lg dark:bg-black dark:border-gray-800 ">
+      <DialogOverlay className="bg-white/10 backdrop-blur-sm dark:bg-white/20" />
+      <DialogContent className="w-[85%] max-w-[400px] mx-auto rounded-lg bg-white sm:rounded-lg dark:bg-black dark:border-gray-800 ">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>

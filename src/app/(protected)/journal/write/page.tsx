@@ -814,14 +814,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
               {
                 title: "Word Stats",
                 content: (
-                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-100">
-                    <p>
-                      <span className="font-medium">Total Words:</span>{" "}
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-100 ">
+                    <p className="leading-5">
+                      <span className="font-medium dark:text-gray-100">
+                        Total Words:
+                      </span>{" "}
                       <span className="text-gray-500 dark:text-gray-400">
                         {totalWords}
                       </span>
                     </p>
-                    <p>
+                    <p className="leading-5">
                       <span className="font-medium">
                         Average Words Across All Journals:
                       </span>{" "}
@@ -874,7 +876,10 @@ function WritePage({ children }: { children: React.ReactNode }) {
           isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
         )}
       >
-        <div className="flex justify-end p-4">
+        <div className={cn(
+          "flex justify-end p-4",
+          !isFullscreen ? "pt-0 pr-0" : ""
+        )}>
           <div className="flex items-center mr-4">
             {showLastSaved && lastSavedTime && (
               <div className="text-sm text-gray-500">
