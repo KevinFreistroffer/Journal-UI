@@ -505,7 +505,20 @@ function WritePage({ children }: { children: React.ReactNode }) {
     [saveToStorage]
   );
 
-  // Updated summarizeJournal function
+  // Add this effect to handle sidebar and viewport changes
+  useEffect(() => {
+    if (!showSidebar && isSidebarOpen && summary.length > 0) {
+      // When viewport becomes small and sidebar is open
+      setIsSummaryModalOpen(true);
+      setIsSidebarOpen(false);
+    } else if (showSidebar && isSummaryModalOpen && summary.length > 0) {
+      // When viewport becomes large and modal is showing
+      setIsSummaryModalOpen(false);
+      setIsSidebarOpen(true);
+    }
+  }, [showSidebar, isSidebarOpen, isSummaryModalOpen, summary.length]);
+
+  // Update the summarizeJournal function to be simpler
   const summarizeJournal = async () => {
     if (!(journal.trim() || title.trim())) {
       setShowNoContentWarning(true);
@@ -514,6 +527,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
     setIsSummarizing(true);
     setSummaryError(null);
+    // Open sidebar immediately
+    setIsSidebarOpen(true);
+
     try {
       const response = await fetch("/api/user/entry/summarize", {
         method: "POST",
@@ -534,11 +550,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
         return;
       }
       setSummary(data.summary);
-      setIsSummaryModalOpen(true);
     } catch (error) {
       console.error("Error generating summary:", error);
       setSummaryError("An error occurred while generating the summary.");
-      // Don't open the modal if there's an error
     } finally {
       setIsSummarizing(false);
     }
@@ -811,35 +825,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
             icon={<ChevronRightIcon size={20} />}
             headerDisplaysTabs={false}
             sections={[
-              // {
-              //   title: "Word Stats",
-              //   content: (
-              //     <div className="mt-2 text-sm text-gray-600 dark:text-gray-100 ">
-              //       <p className="leading-5">
-              //         <span className="font-medium dark:text-gray-100">
-              //           Total Words:
-              //         </span>{" "}
-              //         <span className="text-gray-500 dark:text-gray-400">
-              //           {totalWords}
-              //         </span>
-              //       </p>
-              //       <p className="leading-5">
-              //         <span className="font-medium">
-              //           Average Words Across All Journals:
-              //         </span>{" "}
-              //         <span className="text-gray-500 dark:text-gray-400">
-              //           {averageWords}
-              //         </span>
-              //       </p>
-              //     </div>
-              //   ),
-              // },
               {
                 title: "Summary",
                 content: (
                   <div className="mt-2 text-sm text-gray-600 dark:text-gray-100">
-                    {/* Add the summary section */}
-                    {summary.length > 0 ? (
+                    {isSummarizing ? (
+                      <div className="flex items-center space-x-2">
+                        <Spinner className="w-4 h-4" />
+                        <span>Generating summary...</span>
+                      </div>
+                    ) : summary.length > 0 ? (
                       <>
                         <div className="mt-4 mb-2 font-medium">
                           Generated Summary:
@@ -851,6 +846,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             </p>
                           ))}
                         </div>
+                        <Button
+                          onClick={handleTweet}
+                          className="mt-4 w-auto bg-blue-500 hover:bg-blue-600 text-white"
+                          size="sm"
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            Tweet
+                          </div>
+                        </Button>
                       </>
                     ) : (
                       <p className="text-gray-500 dark:text-gray-400">
