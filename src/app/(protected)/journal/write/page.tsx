@@ -21,6 +21,7 @@ import {
   ChevronUpIcon, // Add this import
   AlertCircle,
   Settings,
+  ChevronRightIcon,
 } from "lucide-react";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -42,13 +43,7 @@ import {
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
 import SummaryDialog from "@/components/SummaryDialog";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import StorageControls from "./components/StorageControls";
 import { analyzeSentiment } from "@/lib/utils"; // Add this import
 import { StarFilledIcon, StarIcon } from "@radix-ui/react-icons"; // Add these if not already imported
 // Add these imports at the top
@@ -82,8 +77,10 @@ import SaveJournalModal from "./components/SaveJournalModal";
 import PreviewModal from "./components/PreviewModal";
 import StorageAccessWarningModal from "./components/StorageAccessWarningModal";
 import NoContentWarningModal from "./components/NoContentWarningModal";
-import { Switch } from "@/components/ui/switch";
-
+import SettingsModal from "./components/SettingsModal";
+import { Switch } from "@/components/ui/Switch";
+import { useTheme } from "next-themes";
+import PublishButton from "./components/PublishButton";
 interface IAutoSaveState {
   title: string;
   journal: string;
@@ -97,121 +94,6 @@ const createJournalInitialState: ICreateJournalState = {
   success: false,
   user: null,
 };
-
-// Create a new SubmitButton component
-function SaveButton({ onSave }: { onSave: () => void }) {
-  const handleClick = () => {
-    // Only save if there's any content to save
-    onSave();
-  };
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleClick}
-            className={cn(
-              "w-auto h-auto border border-solid p-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
-            )}
-          >
-            <Save className="w-4 h-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent
-          side="top"
-          className="max-w-[250px] bg-white text-gray-700 shadow-lg rounded-lg text-sm p-2 border border-gray-100"
-        >
-          <p>
-            Save your progress locally. This will allow you to restore your work
-            if you accidentally close the page.
-          </p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
-// Add new PublishButton component
-function PublishButton({
-  disabled,
-  onPublish,
-}: {
-  disabled: boolean;
-  onPublish: () => void;
-}) {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button
-      type="button"
-      disabled={disabled || pending}
-      onClick={onPublish}
-      className={`text-white w-auto md:w-auto py-1 px-4 text-sm flex items-center justify-center ${
-        disabled
-          ? "bg-green-300 hover:bg-green-300 cursor-not-allowed"
-          : "bg-green-500 hover:bg-green-600"
-      }`}
-    >
-      <span className="mr-2">Publish</span>
-      <FileText className="w-4 h-4" />
-    </Button>
-  );
-}
-
-// Add a new StorageControls component to group the autosave checkbox and save button
-function StorageControls({
-  onSave,
-  autoSaveEnabled,
-  onAutoSaveChange,
-}: {
-  onSave: () => void;
-  autoSaveEnabled: boolean;
-  onAutoSaveChange: (enabled: boolean) => void;
-}) {
-  const [hasStorage, setHasStorage] = useState<boolean>(false);
-
-  // Check for storage availability on mount
-  useEffect(() => {
-    const checkStorage = () => {
-      try {
-        localStorage.setItem("test", "test");
-        localStorage.removeItem("test");
-        // Also check sessionStorage as fallback
-        sessionStorage.setItem("test", "test");
-        sessionStorage.removeItem("test");
-        setHasStorage(true);
-      } catch {
-        setHasStorage(false);
-      }
-    };
-    checkStorage();
-  }, []);
-
-  // Don't render anything if no storage is available
-  if (!hasStorage) return null;
-
-  return (
-    <div className="flex items-center gap-2">
-      <SaveButton onSave={onSave} />
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="autosave"
-          checked={autoSaveEnabled}
-          onCheckedChange={onAutoSaveChange}
-        />
-        <Label
-          htmlFor="autosave"
-          className="text-sm text-gray-600 cursor-pointer"
-        >
-          Autosave
-        </Label>
-      </div>
-    </div>
-  );
-}
 
 function WritePage({ children }: { children: React.ReactNode }) {
   const { user, isLoading, setUser } = useAuth();
@@ -270,14 +152,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [previousWidth, setPreviousWidth] = useState<"default" | "full">(
     "default"
   );
-  const [showSettings, setShowSettings] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [showLastSaved, setShowLastSaved] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("showLastSaved");
-      return saved ? JSON.parse(saved) : true;
+      return saved === null ? true : JSON.parse(saved);
     }
     return true;
   });
+  const { theme } = useTheme();
 
   const { quill, quillRef } = useQuill({
     modules: {
@@ -624,7 +507,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   // Updated summarizeJournal function
   const summarizeJournal = async () => {
-    if (!journal.trim()) {
+    if (!(journal.trim() || title.trim())) {
       setShowNoContentWarning(true);
       return;
     }
@@ -925,22 +808,26 @@ function WritePage({ children }: { children: React.ReactNode }) {
           <Sidebar
             isOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
-            icon={<ChartNoAxesColumnIncreasing size={20} />}
+            icon={<ChevronRightIcon size={20} />}
             headerDisplaysTabs={false}
             sections={[
               {
                 title: "Word Stats",
                 content: (
-                  <div className="mt-2 text-sm  text-gray-600">
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-100">
                     <p>
                       <span className="font-medium">Total Words:</span>{" "}
-                      {totalWords}
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {totalWords}
+                      </span>
                     </p>
                     <p>
-                      <span className="font-medium ">
+                      <span className="font-medium">
                         Average Words Across All Journals:
                       </span>{" "}
-                      {averageWords}
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {averageWords}
+                      </span>
                     </p>
                   </div>
                 ),
@@ -983,20 +870,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
     >
       <div
         className={cn(
-          "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out",
-          isFullscreen
-            ? "fixed inset-0 z-50 bg-white"
-            : isSidebarOpen
-            ? "md:ml-0"
-            : "md:ml-0"
+          "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
+          isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
         )}
       >
         <div className="flex justify-end p-4">
-          <div className="flex items-center gap-4 mr-4">
-            {showLastSaved && (
+          <div className="flex items-center mr-4">
+            {showLastSaved && lastSavedTime && (
               <div className="text-sm text-gray-500">
                 {isAutosaving && <span>Saving...</span>}
-                {!isAutosaving && lastSavedTime && (
+                {!isAutosaving && (
                   <span>Last saved {lastSavedTime.toLocaleTimeString()}</span>
                 )}
               </div>
@@ -1009,18 +892,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
               showDefaultWidth={isLargeScreen}
               showFullWidth={isLargeScreen}
               onToggle={(value) => {
-                console.log(value);
-                if (value === "fullscreen") {
+                if (isFullscreen) {
+                  // If currently fullscreen, exit fullscreen and restore previous width
+                  setIsFullscreen(false);
+                  setContentWidth(previousWidth);
+                } else if (value === "fullscreen") {
+                  // If not fullscreen and fullscreen is requested, enter fullscreen
                   setPreviousWidth(contentWidth);
                   setIsFullscreen(true);
-                } else if (
-                  value === "default" &&
-                  (isFullscreen || contentWidth !== "default")
-                ) {
-                  // Only change to default if we're either in fullscreen or not already in default view
-                  setIsFullscreen(false);
-                  setContentWidth("default");
                 } else {
+                  // Handle regular width toggles when not in fullscreen mode
                   setContentWidth(value as "default" | "full");
                 }
               }}
@@ -1044,10 +925,14 @@ function WritePage({ children }: { children: React.ReactNode }) {
           >
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-xl">Thoughts</h1>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <StorageControls
                   onSave={() => {
-                    if (journal.trim() || title.trim() || categories.length > 0) {
+                    if (
+                      journal.trim() ||
+                      title.trim() ||
+                      categories.length > 0
+                    ) {
                       saveToStorage({
                         journal,
                         title,
@@ -1059,56 +944,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
                   autoSaveEnabled={autoSaveEnabled}
                   onAutoSaveChange={setAutoSaveEnabled}
                 />
-                <Dialog open={showSettings} onOpenChange={setShowSettings}>
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className="p-1.5 hover:bg-gray-100 rounded-md"
-                  >
-                    <Settings className="w-5 h-5 text-gray-500" />
-                  </button>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Settings</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex items-center justify-between py-4">
-                      <div className="flex items-center gap-2">
-                        <label
-                          htmlFor="show-last-saved"
-                          className="text-sm text-gray-700"
-                        >
-                          Show last saved status
-                        </label>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="right"
-                              className="max-w-[250px]"
-                            >
-                              <p>
-                                When enabled, this will show the auto-save
-                                status and last saved time.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <Switch
-                        id="show-last-saved"
-                        checked={showLastSaved}
-                        onCheckedChange={(checked) => {
-                          setShowLastSaved(checked);
-                          localStorage.setItem(
-                            "showLastSaved",
-                            JSON.stringify(checked)
-                          );
-                        }}
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <SettingsModal
+                  open={isSettingsModalOpen}
+                  onOpenChange={setIsSettingsModalOpen}
+                  showLastSaved={showLastSaved}
+                  onShowLastSavedChange={setShowLastSaved}
+                />
               </div>
             </div>
             <form action={handleSubmit} className="space-y-4">
@@ -1181,7 +1022,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
                     <div className="grid grid-cols-3 w-full gap-2 sm:flex sm:w-auto">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer">
+                          <button
+                            className={cn(
+                              "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                              !(journal.trim() || title.trim())
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                            )}
+                            disabled={!(journal.trim() || title.trim())}
+                          >
                             <Download className="w-3 h-3 mr-1" />
                             <span className="truncate sm:text-clip">
                               Export
@@ -1190,22 +1039,32 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="start"
-                          className="bg-white p-0"
+                          className="bg-white p-0 dark:bg-black dark:border-gray-800"
                         >
-                          <DropdownMenuItem className="p-0 text-xs">
+                          <DropdownMenuItem
+                            className="p-0 text-xs"
+                            disabled={!(journal.trim() || title.trim())}
+                          >
                             <Button
                               type="button"
+                              variant={"ghost"}
                               onClick={() => handleExport("pdf")}
-                              className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
+                              className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs dark:bg-transparent dark:hover:bg-gray-800 dark:text-white"
+                              disabled={!(journal.trim() || title.trim())}
                             >
                               Export as PDF
                             </Button>
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="p-0">
+                          <DropdownMenuItem
+                            className="p-0"
+                            disabled={!(journal.trim() || title.trim())}
+                          >
                             <Button
                               type="button"
+                              variant={"ghost"}
                               onClick={() => handleExport("docx")}
-                              className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs"
+                              className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs dark:bg-transparent dark:hover:bg-gray-800 dark:text-white bg-transparent"
+                              disabled={!(journal.trim() || title.trim())}
                             >
                               Export as DOCX
                             </Button>
@@ -1216,8 +1075,13 @@ function WritePage({ children }: { children: React.ReactNode }) {
                       <button
                         type="button"
                         onClick={() => setIsPreviewOpen(true)}
-                        className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                        disabled={!journal.trim()}
+                        className={cn(
+                          "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                          !(journal.trim() || title.trim())
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                            : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white "
+                        )}
+                        disabled={!(journal.trim() || title.trim())}
                       >
                         <Eye className="w-3 h-3 mr-1" />
                         <span className="truncate sm:text-clip">Preview</span>
@@ -1226,7 +1090,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                       <button
                         type="button"
                         onClick={() => setIsWordStatsModalOpen(true)}
-                        className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                        className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white  "
                       >
                         <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
                         <span className="truncate sm:text-clip">
@@ -1248,11 +1112,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         type="button"
                         disabled={!journal.trim()}
                         onClick={summarizeJournal}
-                        className={`text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm ${
-                          !journal.trim()
-                            ? "cursor-not-allowed bg-purple-300 hover:bg-purple-300"
+                        className={cn(
+                          "text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm",
+                          !(journal.trim() || title.trim())
+                            ? theme === "dark"
+                              ? "cursor-not-allowed bg-purple-900/50 hover:bg-purple-900/50"
+                              : "cursor-not-allowed bg-purple-300 hover:bg-purple-300"
+                            : theme === "dark"
+                            ? "bg-purple-900 hover:bg-purple-800"
                             : "bg-purple-500 hover:bg-purple-600"
-                        }`}
+                        )}
                       >
                         <div className="flex items-center justify-center gap-1 mx-auto">
                           <span>
@@ -1334,7 +1203,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
           title={title}
           journal={journal}
         />
-        {/*  */}
         <StorageAccessWarningModal
           open={showStorageWarning}
           onOpenChange={setShowStorageWarning}

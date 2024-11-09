@@ -22,10 +22,10 @@ export function JournalLink({
       className={`hover:underline flex flex-col ${className}`}
       onClick={handleOnClick}
     >
-      <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500 mb-1">
+      <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold text-blue-500 mb-1 dark:text-gray-200">
         {title}
       </span>
-      <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500">
+      <span className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 dark:text-gray-300">
         {formatDate(date.toString())}
       </span>
     </Link>

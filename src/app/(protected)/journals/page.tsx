@@ -656,7 +656,7 @@ export default function JournalsPage() {
                 handleSearch={handleSearch}
                 userEntries={user.journals}
                 containerClassName="w-full"
-                inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+                inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300"
                 placeholder="Find a journal..."
               />
             </div>
@@ -963,10 +963,10 @@ export default function JournalsPage() {
                             <Tooltip.Root>
                               <Tooltip.Trigger
                                 asChild
-                                className="border p-1 w-7 h-7 bg-gray-100 rounded-tl rounded-bl cursor-pointer"
+                                className="border p-1 w-7 h-7 bg-gray-100 rounded-tl rounded-bl cursor-pointer dark:bg-black "
                               >
                                 {loadingJournalId === journal._id ? (
-                                  <div className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
+                                  <div className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none dark:text-white">
                                     <SpinnerIcon />
                                   </div>
                                 ) : journal.favorite ? (
@@ -987,7 +987,7 @@ export default function JournalsPage() {
                               </Tooltip.Trigger>
                               <Tooltip.Portal>
                                 <Tooltip.Content
-                                  className="bg-gray-800 text-white px-2 py-1 rounded text-sm"
+                                  className="bg-gray-800 text-white px-2 py-1 rounded text-sm "
                                   sideOffset={4}
                                 >
                                   Favorite
@@ -1003,7 +1003,10 @@ export default function JournalsPage() {
                               handleSelectOpenChange(journal._id)
                             }
                           >
-                            <Popover.Trigger asChild>
+                            <Popover.Trigger
+                              asChild
+                              className="dark:bg-black dark:text-white"
+                            >
                               <button className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
                                 <ChevronDownIcon className="w-4 h-4" />
                               </button>

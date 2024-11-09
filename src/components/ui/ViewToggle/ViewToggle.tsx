@@ -23,7 +23,7 @@ export function ViewToggle({
       value={isFullscreen ? "fullscreen" : contentWidth}
       onValueChange={onToggle}
       className={cn(
-        "flex items-center bg-gray-100 p-1",
+        "flex items-center bg-gray-100 p-1 dark:bg-transparent",
         showDefaultWidth && showFullWidth ? "rounded-md" : "rounded-lg"
       )}
     >
@@ -34,8 +34,8 @@ export function ViewToggle({
           className={cn(
             "p-1.5 rounded-md transition-colors",
             !isFullscreen && contentWidth === "default"
-              ? "bg-white shadow-sm"
-              : "hover:bg-gray-200"
+              ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+              : "hover:bg-gray-200 dark:hover:bg-transparent"
           )}
         >
           <MonitorIcon className="w-4 h-4" />
@@ -48,8 +48,8 @@ export function ViewToggle({
           className={cn(
             "p-1.5 rounded-md transition-colors",
             !isFullscreen && contentWidth === "full"
-              ? "bg-white shadow-sm"
-              : "hover:bg-gray-200"
+              ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+              : "hover:bg-gray-200 dark:hover:bg-transparent"
           )}
         >
           <MaximizeIcon className="w-4 h-4" />
@@ -59,8 +59,10 @@ export function ViewToggle({
         value="fullscreen"
         aria-label="Fullscreen Mode"
         className={cn(
-          "p-1.5 rounded-md transition-colors",
-          isFullscreen ? "bg-white shadow-sm" : "hover:bg-gray-200"
+          "p-1.5 rounded-md transition-colors dark:text-white dark:bg-transparent",
+          isFullscreen
+            ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+            : "hover:bg-gray-200 dark:hover:bg-transparent"
         )}
       >
         {isFullscreen ? (

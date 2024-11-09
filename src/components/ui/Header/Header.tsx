@@ -12,6 +12,7 @@ import { useRef } from "react"; // Import useRef
 import SearchInput from "../SearchInput/SearchInput";
 import { useCallback } from "react"; // Ensure useCallback is imported
 import { usePathname } from "next/navigation"; // Add this import
+import { useTheme } from "next-themes";
 import {
   UserIcon,
   X,
@@ -42,6 +43,7 @@ import DebugLayout from "@/components/ui/debug/Layout";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Image from "next/image"; // Add this import at the top of the file
 import { Button } from "@/components/ui/Button"; // Add this import if not already present
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { MdCategory } from "react-icons/md";
 export interface IMenuItem {
   href: string;
@@ -68,6 +70,7 @@ export default function Header() {
   const isVerySmallScreen = useMediaQuery("(max-width: 443px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 365px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { theme } = useTheme();
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||
     pathname.startsWith("/journal/edit");
@@ -208,7 +211,7 @@ export default function Header() {
     <>
       <header
         id={styles["header"]}
-        className={`sticky px-0 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-gray-100 flex flex-col`}
+        className={`sticky px-0 top-0 z-50 w-full border-b bg-gray-100 flex flex-col dark:bg-black`}
       >
         <div className="flex h-14 items-center justify-between px-3 sm:px-4 w-full pt-1">
           {/* Title and Mobile menu icon */}
@@ -219,12 +222,12 @@ export default function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="hover:bg-gray-200 border border-red-600 p-1 w-auto h-auto bg-transparent"
+                    className="hover:bg-gray-200 border border-red-600 p-1 w-auto h-auto bg-transparent dark:hover:bg-gray-800"
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px]">
+                <SheetContent side="left" className="w-[300px] dark:bg-black">
                   <SheetHeader>
                     <SheetTitle>Journals</SheetTitle>
                   </SheetHeader>
@@ -233,20 +236,20 @@ export default function Header() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-white dark:hover:bg-gray-800"
                         onClick={() => setIsSidebarOpen(false)}
                       >
                         {getIcon(item.href)}
                         <span>{item.label}</span>
                         {item.href === "/journals" && user && user.journals && (
-                          <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                          <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
                             {user.journals.length}
                           </span>
                         )}
                         {item.href === "/categories" &&
                           user &&
                           user.journalCategories && (
-                            <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                            <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
                               {user.journalCategories.length}
                             </span>
                           )}
@@ -262,8 +265,9 @@ export default function Header() {
           </div>
 
           {!isLoading && (
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2">
               {/* Add New Journal button before the user menu, only show on dashboard and not on create page */}
+              <ThemeToggle />
               {user && pathname !== "/journal/write" && (
                 <Button
                   onClick={() => router.push("/journal/write")}
@@ -276,11 +280,12 @@ export default function Header() {
                   <span className="hidden sm:inline">New Journal</span>
                 </Button>
               )}
+
               {user ? (
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none cursor-pointer bg-gray-200 rounded-full  hover:bg-gray-300 transition-colors duration-200"
+                      className="focus:outline-none cursor-pointer bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-200"
                       aria-label="User menu"
                     >
                       {user.avatar ? (
@@ -296,7 +301,7 @@ export default function Header() {
                       ) : (
                         <div
                           className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium ${
-                            isExtraSmallScreen ? "w-8 h-8" : "w-10 h-10"
+                            isExtraSmallScreen ? "w-8 h-8" : "w-8 h-8"
                           }`}
                         >
                           {getUserInitial(user.username)}
@@ -351,12 +356,24 @@ export default function Header() {
               )}
             </div>
           )}
-          {isLoading && ( // Added loading state
+          {isLoading && (
             <div className="flex items-center space-x-4">
               {/* Placeholder icons or styles */}
-              <div className="w-24 h-8 bg-gray-300 animate-pulse rounded"></div>
-              <div className="w-24 h-8 bg-gray-300 animate-pulse rounded"></div>
-              <div className="w-24 h-8 bg-gray-300 animate-pulse rounded"></div>
+              <div
+                className={`w-24 h-8 animate-pulse rounded ${
+                  theme === "dark" ? "bg-gray-700" : "bg-gray-300"
+                }`}
+              ></div>
+              <div
+                className={`w-24 h-8 animate-pulse rounded ${
+                  theme === "dark" ? "bg-gray-700" : "bg-gray-300"
+                }`}
+              ></div>
+              <div
+                className={`w-24 h-8 animate-pulse rounded ${
+                  theme === "dark" ? "bg-gray-700" : "bg-gray-300"
+                }`}
+              ></div>
             </div>
           )}
         </div>
@@ -371,8 +388,8 @@ export default function Header() {
                     key={item.href}
                     value={item.href}
                     onClick={() => router.push(item.href)}
-                    className={`bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap ${
-                      pathname === item.href ? "font-bold" : "font-light"
+                    className={`bg-transparent px-4 py-2 rounded-none border-b-2 border-transparent data-[state=active]:border-b-2 data-[state=active]:!border-orange-500 data-[state=active]:bg-transparent text-xs sm:text-sm whitespace-nowrap  ${
+                      pathname === item.href ? "font-semibold" : "font-light"
                     } flex items-center`}
                     style={{
                       borderBottom:
@@ -384,16 +401,16 @@ export default function Header() {
                     }}
                   >
                     {getIcon(item.href)}
-                    <span>{item.label}</span>
+                    <span className="dark:text-white">{item.label}</span>
                     {item.label === "Journals" && user && user.journals && (
-                      <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                      <span className="ml-2 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
                         {user.journals.length}
                       </span>
                     )}
                     {item.label === "Categories" &&
                       user &&
                       user.journalCategories && (
-                        <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px]">
+                        <span className="ml-2 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
                           {user.journalCategories.length}
                         </span>
                       )}

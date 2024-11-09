@@ -4,9 +4,13 @@ journals filteredAndSorted .sort() Last updated date not sure
 
 try next-auth?
 
+consider using shadcn for all components
+
 use the data transfer layer. use canShowUsername or isAuthenticated or something with roles, hasUserRoleAccess
 
 save new categories in the DB.
+
+dashboardcontainer should set the same styles across all pages
 
 redo the form action error messages
 
@@ -14,6 +18,8 @@ create a logging system saving errors to a file. example: signup action returns 
 - save this text, with timestamp, with user info username, email, etc.
 
 determine if entry or journal
+
+lazy loading to fix maybe ssr issues?
 
 use colors in globals.css
 water ripple background animated

@@ -52,6 +52,8 @@ import {
 import { JournalLink } from "@/app/(protected)/dashboard/(components)/JournalLink";
 import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -139,6 +141,7 @@ function UserDashboard() {
     }
     return true; // Default to open on server-side
   });
+  const { theme } = useTheme();
 
   // Update sidebar state when viewport changes
   useEffect(() => {
@@ -432,24 +435,17 @@ function UserDashboard() {
     </div>
   );
 
-  if (isLoading) {
-    return (
-      <div className="p-6 w-full h-full min-h-screen flex justify-center items-center">
-        <Spinner />
-      </div> // Add your spinner or loading state here
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="p-6 min-h-screen flex justify-center items-center">
-        No user found.
-      </div>
-    );
-  }
   //xs:px-0 sm:px-4 md:px-6 lg:px-8
 
-  return (
+  return isLoading ? (
+    <div className="p-6 w-full h-full min-h-screen flex justify-center items-center">
+      <Spinner />
+    </div>
+  ) : !user ? (
+    <div className="p-6 min-h-screen flex justify-center items-center">
+      No user found.
+    </div>
+  ) : (
     <>
       <DashboardContainer
         isSidebarOpen={!isExtraSmallScreen && isSidebarOpen}
@@ -543,14 +539,14 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50">
+                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50 dark:bg-blue-950/30">
                         <div className="flex justify-between items-center mb-6">
-                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
+                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold ">
                             Category Breakdown
                           </h2>
                           <Link
                             href="/categories"
-                            className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal"
+                            className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal dark:text-gray-200"
                           >
                             Manage
                           </Link>
@@ -558,7 +554,7 @@ function UserDashboard() {
                         <div className="w-full h-full overflow-hidden">
                           {data.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
-                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
                                 No categories
                               </p>
                             </div>
@@ -574,7 +570,9 @@ function UserDashboard() {
                                   </span>
                                   <span
                                     className="inline-flex items-center justify-center w-8 h-8 text-xs sm:text-sm md:text-xs lg:text-sm font-medium rounded-full flex-shrink-0"
-                                    style={{ backgroundColor: `${item.color}40` }}
+                                    style={{
+                                      backgroundColor: `${item.color}40`,
+                                    }}
                                   >
                                     {item.value}
                                   </span>
@@ -582,7 +580,10 @@ function UserDashboard() {
                               ))}
                             </div>
                           ) : (
-                            <CategoryBreakdown data={data} />
+                            <CategoryBreakdown
+                              data={data}
+                              theme={theme as "light" | "dark"}
+                            />
                           )}
                         </div>
                       </Card>
@@ -604,12 +605,12 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-green-50">
+                      <Card className="h-full p-4 bg-green-50 dark:bg-green-950/30">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                           Recent Activity
                         </h2>
                         {recentEntries.length > 0 ? (
-                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white">
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 dark:bg-black dark:shadow-none">
                             <ul className="max-h-72 overflow-y-auto p-4">
                               {recentEntries.map((journal, index) => (
                                 <li
@@ -652,20 +653,20 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-purple-50">
+                      <Card className="h-full p-4 bg-purple-50 dark:bg-purple-950/30">
                         <div className="flex justify-between items-start mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
                             Reminders
                           </h2>
                           <Link
                             href="/reminders"
-                            className="text-xs sm:text-sm md:text-xs lg:text-sm text-blue-500 font-normal"
+                            className="text-xs sm:text-sm md:text-xs lg:text-sm text-blue-500 font-normal dark:text-gray-200"
                           >
                             Manage
                           </Link>
                         </div>
                         {upcomingEntries.length > 0 ? (
-                          <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4">
+                          <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 dark:shadow-none">
                             {upcomingEntries.map((reminder, index) => (
                               <li key={reminder._id} className="border-b py-2">
                                 <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
@@ -715,7 +716,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-yellow-50">
+                      <Card className="h-full p-4 bg-yellow-50 dark:bg-yellow-950/30">
                         {" "}
                         {/* Added min-h-96 */}
                         <div className="flex justify-between items-center mb-4">
@@ -724,13 +725,13 @@ function UserDashboard() {
                           </h2>
                           <Link
                             href="/journals/favorites"
-                            className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal"
+                            className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal dark:text-gray-200"
                           >
                             Manage
                           </Link>
                         </div>
                         {favoriteEntries.length > 0 ? (
-                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white">
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
                             <ul className="max-h-72 overflow-y-auto p-4 space-y-2">
                               {favoriteEntries.map((journal, index) => (
                                 <li
@@ -783,7 +784,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-red-50">
+                      <Card className="h-full p-4 bg-red-50 dark:bg-red-950/30">
                         <div className="flex justify-between items-center mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                             Keyword Frequency
@@ -814,7 +815,7 @@ function UserDashboard() {
                         ) : (
                           <>
                             <div className="flex flex-col mb-4">
-                              <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
                                 Keyword type
                               </Label.Root>
                               <Select
@@ -822,7 +823,7 @@ function UserDashboard() {
                                 value={selectedKeywordType}
                                 className="border border-gray-300"
                               >
-                                <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm">
+                                <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200 dark:bg-black">
                                   <SelectValue placeholder="Select keyword type" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
@@ -836,7 +837,7 @@ function UserDashboard() {
                               </Select>
                             </div>
                             {keywordFrequency.length > 0 ? (
-                              <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white">
+                              <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
                                 <ul className="max-h-60 overflow-y-auto p-4">
                                   {keywordFrequency.map(
                                     ({ normal, count }, index) => (
@@ -878,7 +879,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-orange-50">
+                      <Card className="h-full p-4 bg-orange-50 dark:bg-orange-950/30">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                           Journal Time Distribution
                         </h2>
@@ -956,7 +957,7 @@ function PlaceholderCard({ cardLayout }: { cardLayout: CardLayout }) {
           : "md:w-full lg:w-1/2 xl:w-1/3"
       }`}
     >
-      <Card className="h-full p-4 bg-gray-50 border border-gray-200 shadow-md">
+      <Card className="h-full p-4 bg-gray-50 dark:bg-gray-950/30 border border-gray-200 dark:border-gray-800 shadow-md">
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">
           <div className="animate-pulse bg-gray-300 h-full w-full rounded"></div>

@@ -27,7 +27,7 @@ export function LegendItem({
         className="form-checkbox h-4 w-4 text-blue-600"
         size={checkboxSize}
       />
-      <span className="text-sm">{label}</span>
+      <span className="text-xs dark:text-gray-300">{label}</span>
     </label>
   );
 }

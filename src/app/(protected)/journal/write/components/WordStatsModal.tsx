@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/Button";
 import {
   Dialog,
   DialogContent,
+  DialogOverlay,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -22,7 +23,8 @@ export default function WordStatsModal({
 }: WordStatsModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto">
+      <DialogOverlay className="dark:bg-white dark:bg-opacity-50" />
+      <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto dark:bg-black dark:border-gray-800 dark:text-white">
         <DialogHeader>
           <DialogTitle>Word Stats</DialogTitle>
         </DialogHeader>

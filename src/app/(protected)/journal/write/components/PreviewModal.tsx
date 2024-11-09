@@ -5,6 +5,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogOverlay,
 } from "@/components/ui/dialog";
 
 interface PreviewModalProps {
@@ -22,7 +23,8 @@ export default function PreviewModal({
 }: PreviewModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto">
+      <DialogOverlay className="dark:bg-white dark:bg-opacity-50" />
+      <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto dark:bg-black dark:border-gray-800 dark:text-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             {title || "Untitled Journal"}

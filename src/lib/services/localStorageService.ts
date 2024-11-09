@@ -1,4 +1,4 @@
-const LOCAL_STORAGE_PREFIX = "sumx_";
+export const LOCAL_STORAGE_PREFIX = "sumx_";
 
 export const localStorageService = {
   setItem: (key: string, value: unknown): void => {

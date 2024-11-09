@@ -14,6 +14,8 @@ import CookieConsent from "@/components/ui/CookieConsent";
 import GlobalModal from "@/components/ui/GlobalModal";
 import { SearchProvider } from "@/context/SearchContext";
 import { ViewportProvider } from "@/context/ViewportContext";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { LOCAL_STORAGE_PREFIX } from "@/lib/services/localStorageService";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -48,14 +50,20 @@ export default async function RootLayout({
   // const initialConsent = consentCookie ? consentCookie.value === "true" : null;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${monaSans.variable} antialiased`}>
         <div className="flex flex-col min-h-screen">
           <SearchProvider>
             <AuthProvider>
               <JournalProvider>
                 <ViewportProvider>
-                  <Theme>
+                  <ThemeProvider
+                    attribute="class"
+                    defaultTheme="light"
+                    enableSystem={false}
+                    disableTransitionOnChange
+                    storageKey={LOCAL_STORAGE_PREFIX + "theme"}
+                  >
                     <ModalProvider>
                       <Header />
                       {children}
@@ -65,7 +73,7 @@ export default async function RootLayout({
                       <GlobalModal />
                       <Footer />
                     </ModalProvider>
-                  </Theme>
+                  </ThemeProvider>
                 </ViewportProvider>
               </JournalProvider>
             </AuthProvider>

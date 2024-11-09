@@ -50,13 +50,13 @@ export const Sidebar: React.FC<IProps> = ({
       <div
         className={`fixed ${
           headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
-        } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 ${
+        } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 dark:bg-black dark:border-r-1 ${
           isOpen ? "w-56" : "w-16"
         }`}
       >
         <Button
-          className={`border border-[#d9d9d9] p-1 block ml-auto relative w-auto h-auto ${
-            isOpen ? "justify-end" : "justify-center"
+          className={`border border-[#d9d9d9] dark:border-gray-800 p-1 block  relative w-auto h-auto ${
+            isOpen ? "justify-end ml-auto" : "justify-center"
           }`}
           variant="ghost"
           size="sm"
@@ -69,7 +69,7 @@ export const Sidebar: React.FC<IProps> = ({
         </Button>
         {isOpen && (
           <div
-            className={`flex flex-col mt-4 transition-opacity duration-300 ${
+            className={`flex flex-col transition-opacity duration-300 ${
               isLoading ? "opacity-0" : "opacity-100"
             }`}
           >
@@ -94,12 +94,15 @@ export const Sidebar: React.FC<IProps> = ({
               sections.map((section, index) => (
                 <div
                   key={index}
-                  className="mb-8 border-b border-[#e5e5e5] pb-2"
+                  className="mb-8 pb-2 "
+                  // removed border className="mb-8 border-b border-[#e5e5e5] pb-2 dark:border-b-1"
                 >
                   <p>
-                    <span className="font-medium">{section.title}</span>
+                    <span className="font-medium dark:text-white">
+                      {section.title}
+                    </span>
                   </p>
-                  <div className="mt-2 text-sm font-normal text-gray-600">
+                  <div className="mt-2 text-xs md:text-sm font-normal text-gray-600 dark:text-white">
                     {section.content}
                   </div>
                 </div>

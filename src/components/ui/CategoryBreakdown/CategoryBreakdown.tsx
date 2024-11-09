@@ -142,7 +142,13 @@ const data: {
   },
 ];
 
-const CategoryBreakdown = ({ data }: { data: ICategoryBreakdown[] }) => {
+const CategoryBreakdown = ({
+  data,
+  theme,
+}: {
+  data: ICategoryBreakdown[];
+  theme: "light" | "dark";
+}) => {
   return (
     <ResponsivePie
       data={data}
@@ -157,7 +163,7 @@ const CategoryBreakdown = ({ data }: { data: ICategoryBreakdown[] }) => {
         modifiers: [["darker", 0.2]],
       }}
       arcLinkLabelsSkipAngle={10}
-      arcLinkLabelsTextColor="#333333"
+      arcLinkLabelsTextColor={theme === "light" ? "#333333" : "#fff"}
       arcLinkLabelsThickness={2}
       arcLinkLabelsColor={{ from: "color" }}
       arcLabelsSkipAngle={10}
