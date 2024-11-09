@@ -40,8 +40,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
+import SummaryModal from "./components/SummaryModal";
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
-import SummaryDialog from "@/components/SummaryDialog";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
 import StorageControls from "./components/StorageControls";
 import { analyzeSentiment } from "@/lib/utils"; // Add this import
@@ -811,26 +811,52 @@ function WritePage({ children }: { children: React.ReactNode }) {
             icon={<ChevronRightIcon size={20} />}
             headerDisplaysTabs={false}
             sections={[
+              // {
+              //   title: "Word Stats",
+              //   content: (
+              //     <div className="mt-2 text-sm text-gray-600 dark:text-gray-100 ">
+              //       <p className="leading-5">
+              //         <span className="font-medium dark:text-gray-100">
+              //           Total Words:
+              //         </span>{" "}
+              //         <span className="text-gray-500 dark:text-gray-400">
+              //           {totalWords}
+              //         </span>
+              //       </p>
+              //       <p className="leading-5">
+              //         <span className="font-medium">
+              //           Average Words Across All Journals:
+              //         </span>{" "}
+              //         <span className="text-gray-500 dark:text-gray-400">
+              //           {averageWords}
+              //         </span>
+              //       </p>
+              //     </div>
+              //   ),
+              // },
               {
-                title: "Word Stats",
+                title: "Summary",
                 content: (
-                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-100 ">
-                    <p className="leading-5">
-                      <span className="font-medium dark:text-gray-100">
-                        Total Words:
-                      </span>{" "}
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {totalWords}
-                      </span>
-                    </p>
-                    <p className="leading-5">
-                      <span className="font-medium">
-                        Average Words Across All Journals:
-                      </span>{" "}
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {averageWords}
-                      </span>
-                    </p>
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-100">
+                    {/* Add the summary section */}
+                    {summary.length > 0 ? (
+                      <>
+                        <div className="mt-4 mb-2 font-medium">
+                          Generated Summary:
+                        </div>
+                        <div className="text-gray-500 dark:text-gray-400 space-y-2">
+                          {summary.map((paragraph, index) => (
+                            <p key={index} className="leading-relaxed">
+                              {paragraph}
+                            </p>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400">
+                        No summary generated yet.
+                      </p>
+                    )}
                   </div>
                 ),
               },
@@ -876,10 +902,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
           isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
         )}
       >
-        <div className={cn(
-          "flex justify-end p-4",
-          !isFullscreen ? "pt-0 pr-0" : ""
-        )}>
+        <div
+          className={cn(
+            "flex justify-end p-4",
+            !isFullscreen ? "pt-0 pr-0" : ""
+          )}
+        >
           <div className="flex items-center mr-4">
             {showLastSaved && lastSavedTime && (
               <div className="text-sm text-gray-500">
@@ -1178,7 +1206,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         {/* Summary Dialog */}
-        <SummaryDialog
+        <SummaryModal
           isOpen={isSummaryModalOpen}
           onOpenChange={setIsSummaryModalOpen}
           summary={summary}

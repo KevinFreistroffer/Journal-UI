@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogOverlay,
 } from "@/components/ui/dialog";
 import { useClipboard } from "use-clipboard-copy";
 
@@ -17,7 +18,7 @@ interface SummaryDialogProps {
   error: string | null;
 }
 
-const SummaryDialog: React.FC<SummaryDialogProps> = ({
+const SummaryModal: React.FC<SummaryDialogProps> = ({
   isOpen,
   onOpenChange,
   summary,
@@ -69,14 +70,20 @@ const SummaryDialog: React.FC<SummaryDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] flex flex-col">
+      <DialogOverlay className="bg-black/0" />
+      <DialogContent className="sm:max-w-[425px] max-w-[575px] max-h-[80vh] flex flex-col bg-white dark:bg-black">
         <DialogHeader>
           <DialogTitle>Journal Summary</DialogTitle>
         </DialogHeader>
         <div className="mt-4 p-2 bg-white rounded relative flex-grow overflow-y-auto">
           {tweetTexts.map((tweet, index) => (
-            <div key={index} className="mb-4 relative">
-              <h3 className="text-sm font-semibold mb-1">
+            <div
+              key={index}
+              className={`mb-4 text-black relative ${
+                index === 0 ? "mt-0" : ""
+              }`}
+            >
+              <h3 className="text-sm font-semibold mb-1`">
                 {isTweetThread ? `Tweet ${index + 1}` : "Summary"}
               </h3>
               <p className="text-sm mb-2 pr-8">{tweet}</p>
@@ -117,4 +124,4 @@ const SummaryDialog: React.FC<SummaryDialogProps> = ({
   );
 };
 
-export default SummaryDialog;
+export default SummaryModal;

@@ -32,7 +32,7 @@ export function ViewToggle({
           value="default"
           aria-label="Default Width"
           className={cn(
-            "p-1.5 rounded-md transition-colors",
+            "p-1.5 rounded-md transition-colors cursor-pointer",
             !isFullscreen && contentWidth === "default"
               ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
               : "hover:bg-gray-200 dark:hover:bg-transparent"
@@ -46,7 +46,7 @@ export function ViewToggle({
           value="full"
           aria-label="Full Width"
           className={cn(
-            "p-1.5 rounded-md transition-colors",
+            "p-1.5 rounded-md transition-colors cursor-pointer",
             !isFullscreen && contentWidth === "full"
               ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
               : "hover:bg-gray-200 dark:hover:bg-transparent"
@@ -59,7 +59,7 @@ export function ViewToggle({
         value="fullscreen"
         aria-label="Fullscreen Mode"
         className={cn(
-          "p-1.5 rounded-md transition-colors dark:text-white dark:bg-transparent",
+          "p-1.5 rounded-md transition-colors dark:text-white dark:bg-transparent cursor-pointer",
           isFullscreen
             ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
             : "hover:bg-gray-200 dark:hover:bg-transparent"

@@ -57,7 +57,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
-import SummaryDialog from "@/components/SummaryDialog";
+import SummaryModal from "@/components/SummaryModal";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
 import {
   Dialog,
@@ -1049,7 +1049,7 @@ function WritePage({ params }: { params?: { id: string } }) {
       </div>
 
       {/* Summary Dialog */}
-      <SummaryDialog
+      <SummaryModal
         isOpen={isSummaryModalOpen}
         onOpenChange={setIsSummaryModalOpen}
         summary={summary}
