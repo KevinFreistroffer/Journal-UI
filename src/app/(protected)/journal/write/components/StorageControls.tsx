@@ -44,9 +44,9 @@ export default function StorageControls({
   if (!hasStorage) return null;
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center">
       <SaveButton onSave={onSave} />{" "}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 ml-2 mr-1">
         <Switch
           id="autosave"
           checked={autoSaveEnabled}
