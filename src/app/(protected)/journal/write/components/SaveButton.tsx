@@ -24,11 +24,11 @@ export default function SaveButton({ onSave }: { onSave: () => void }) {
             variant="ghost"
             onClick={handleClick}
             className={cn(
-              "w-auto h-auto border border-solid p-1 rounded-md bg-blue-500  hover:bg-gray-100 text-white transition-colors duration-200",
-              "dark:bg-transparent  dark:text-gray-100 dark:hover:bg-transparent dark:border-gray-800"
+              "w-auto h-auto border border-solid p-1 rounded-md bg-blue-500 hover:bg-blue-600 hover:text-white text-white transition-colors duration-200",
+              "dark:bg-transparent dark:text-gray-100 dark:hover:bg-transparent dark:border-gray-800"
             )}
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-[18px] h-[18px]" />
           </Button>
         </TooltipTrigger>
         <TooltipContent

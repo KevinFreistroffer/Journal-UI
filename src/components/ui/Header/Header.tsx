@@ -30,7 +30,6 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetPrimitive,
   SheetClose,
 } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -294,7 +293,7 @@ export default function Header() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none cursor-pointer bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200"
+                      className="focus:outline-none cursor-pointer bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200 border p-0"
                       aria-label="User menu"
                     >
                       {user.avatar ? (
@@ -321,25 +320,24 @@ export default function Header() {
 
                   <DropdownMenu.Portal>
                     <DropdownMenu.Content
-                      className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50 dark:bg-gray-900 dark:border dark:border-gray-800"
+                      className="left-[-17px] min-w-[200px] bg-white rounded-md shadow-lg z-50 dark:bg-gray-800 dark:border border-gray-300 dark:border-gray-800"
                       sideOffset={5}
                       align="end"
-                      alignOffset={-17}
                     >
-                      <div className="px-2 py-2 text-sm text-gray-700 font-bold dark:text-gray-200">
+                      <div className="px-2 py-3 text-sm text-gray-700 font-bold dark:text-gray-200">
                         {user.username}
                       </div>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
+                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-0" />
                       <DropdownMenu.Item
-                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-800"
+                        className="outline-none flex items-center px-2 py-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-700"
                         onSelect={() => router.push("/profile")}
                       >
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
+                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-0" />
                       <DropdownMenu.Item
-                        className="flex items-center px-2 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-800"
+                        className="outline-none flex items-center px-2 py-3 text-sm text-red-500 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700"
                         onSelect={handleLogout}
                       >
                         <LogOut className="mr-2 h-4 w-4" />

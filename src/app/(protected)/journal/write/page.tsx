@@ -551,12 +551,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
       }
 
       // Decode HTML entities and remove escaped characters from each summary item
-      const cleanedSummary = data.summary.map(item =>
+      const cleanedSummary = data.summary.map((item) =>
         decodeHtmlEntities(item)
-          .replace(/\\n/g, ' ')
+          .replace(/\\n/g, " ")
           .replace(/\\"/g, '"')
           .replace(/\\'/g, "'")
-          .replace(/\\/g, '')
+          .replace(/\\/g, "")
       );
 
       setSummary(cleanedSummary);
@@ -1090,7 +1090,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="start"
-                          className="bg-white p-0 dark:bg-black dark:border-gray-800"
+                          className="bg-white p-0 dark:bg-black dark:border-gray-800 "
                         >
                           <DropdownMenuItem
                             className="p-0 text-xs"

@@ -24,7 +24,7 @@ export default function WordStatsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogOverlay className="dark:bg-white dark:bg-opacity-50" />
-      <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto dark:bg-black dark:border-gray-800 dark:text-white">
+      <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto bg-white dark:bg-black dark:border-gray-800 dark:text-white">
         <DialogHeader>
           <DialogTitle>Word Stats</DialogTitle>
         </DialogHeader>
@@ -44,7 +44,7 @@ export default function WordStatsModal({
           <Button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="w-14 mt-4 bg-black text-white hover:bg-gray-700 p-1 inline-flex items-center justify-center"
+            className="w-14 mt-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-700 p-1 inline-flex items-center justify-center"
           >
             Close
           </Button>
