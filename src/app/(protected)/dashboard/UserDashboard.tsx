@@ -445,6 +445,15 @@ function UserDashboard() {
     <div className="p-6 min-h-screen flex justify-center items-center">
       No user found.
     </div>
+  ) : !journals?.length ? (
+    <div className="p-6 min-h-screen flex flex-col gap-4 justify-center items-center">
+      <p className="text-gray-500 text-lg text-center">
+        You haven&apos;t created any journals yet.
+      </p>
+      <Link href="/journal/write">
+        <Button>Create Your First Journal</Button>
+      </Link>
+    </div>
   ) : (
     <>
       <DashboardContainer

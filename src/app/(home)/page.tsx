@@ -11,20 +11,30 @@ import "./styles.css";
 // import PWA from "@/components/ui/PWA/PWA";
 // import GlobalModal from "@/components/ui/GlobalModal";
 import { PenLine, Sparkles, Twitter } from "lucide-react"; // Import icons
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   return (
     <div
       id="home"
-      className="flex flex-col items-center justify-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]"
+      className={cn(
+        "flex flex-col items-center justify-center min-h-screen p-8 pb-20 gap-16 sm:p-20",
+        "font-[family-name:var(--font-geist-sans)]"
+      )}
     >
-      <main className="flex flex-col gap-8 items-center text-center max-w-2xl">
-        <h1 className="text-4xl sm:text-6xl font-bold mb-4">SumX</h1>
-        <p className="text-xl sm:text-2xl mb-8">
+      <main
+        className={cn("flex flex-col gap-8 items-center text-center max-w-2xl")}
+      >
+        <h1 className={cn("text-4xl sm:text-6xl font-bold mb-4")}>SumX</h1>
+        <p className={cn("text-xl sm:text-2xl mb-8")}>
           Transform your thoughts into concise tweets with ease
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-12">
+        <div
+          className={cn(
+            "flex flex-col sm:flex-row gap-4 items-center justify-center mb-12"
+          )}
+        >
           <div className="flex flex-col items-center">
             <PenLine size={64} className="mb-2" />
             <p className="text-sm">Write your thoughts</p>
@@ -41,23 +51,37 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+        <div className={cn("flex gap-4 items-center flex-col sm:flex-row")}>
           <Link
             href="/signup"
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            className={cn(
+              "rounded-full border border-solid border-transparent transition-colors",
+              "flex items-center justify-center bg-foreground text-background gap-2",
+              "hover:bg-[#383838] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 text-white",
+              " dark:border-white/[.145] dark:hover:bg-[#1a1a1a] dark:hover:bg-[#ccc]"
+            )}
           >
             Start Writing
           </Link>
           <Link
             href="/about"
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+            className={cn(
+              "rounded-full border border-solid border-black/[.08] sm:min-w-44 ",
+              "transition-colors flex items-center justify-center",
+              "hover:bg-[#f2f2f2] hover:border-transparent px-4 sm:px-5",
+              "text-sm sm:text-base h-10 sm:h-12 dark:hover:bg-[#1a1a1a] dark:border-white/[.145]"
+            )}
           >
             Learn More
           </Link>
         </div>
       </main>
 
-      <footer className="flex gap-6 flex-wrap items-center justify-center text-sm">
+      <footer
+        className={cn(
+          "flex gap-6 flex-wrap items-center justify-center text-sm"
+        )}
+      >
         <Link href="/privacy" className="hover:underline">
           Privacy Policy
         </Link>

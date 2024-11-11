@@ -2,6 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -63,7 +64,14 @@ const FormButton = React.forwardRef<HTMLButtonElement, FormButtonProps>(
         disabled={pending}
         {...props}
       >
-        {pending ? pendingText || "Loading..." : children}
+        {pending ? (
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            {pendingText}
+          </div>
+        ) : (
+          children
+        )}
       </Comp>
     );
   }

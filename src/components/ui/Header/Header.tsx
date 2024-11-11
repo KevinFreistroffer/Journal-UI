@@ -102,8 +102,8 @@ export default function Header() {
               { href: "/categories", label: "Categories" },
             ]
           : [
-              { href: "/signup", label: "Sign Up" },
               { href: "/login", label: "Login" },
+              { href: "/signup", label: "Sign Up" },
             ]
       );
     }
@@ -274,13 +274,13 @@ export default function Header() {
           </div>
 
           {!isLoading && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">
               {/* Add New Journal button before the user menu, only show on dashboard and not on create page */}
               <ThemeToggle />
               {user && pathname !== "/journal/write" && (
                 <Button
                   onClick={() => router.push("/journal/write")}
-                  className={`bg-orange-500 text-white hover:bg-orange-600 flex items-center gap-2 ${
+                  className={`bg-orange-500 text-white hover:bg-orange-600 dark:bg-purple-600 dark:hover:bg-purple-700 flex items-center gap-2 ${
                     isExtraSmallScreen ? "p-[5px] h-auto" : ""
                   }`}
                   size="sm"
@@ -294,7 +294,7 @@ export default function Header() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none cursor-pointer bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-200"
+                      className="focus:outline-none cursor-pointer bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200"
                       aria-label="User menu"
                     >
                       {user.avatar ? (
@@ -309,7 +309,7 @@ export default function Header() {
                         />
                       ) : (
                         <div
-                          className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium ${
+                          className={`rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-medium ${
                             isExtraSmallScreen ? "w-8 h-8" : "w-8 h-8"
                           }`}
                         >
@@ -321,25 +321,25 @@ export default function Header() {
 
                   <DropdownMenu.Portal>
                     <DropdownMenu.Content
-                      className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50 "
+                      className="min-w-[200px] bg-white rounded-md shadow-lg p-1 z-50 dark:bg-gray-900 dark:border dark:border-gray-800"
                       sideOffset={5}
                       align="end"
                       alignOffset={-17}
                     >
-                      <div className="px-2 py-2 text-sm text-gray-700 font-bold">
+                      <div className="px-2 py-2 text-sm text-gray-700 font-bold dark:text-gray-200">
                         {user.username}
                       </div>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
+                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
                       <DropdownMenu.Item
-                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-800"
                         onSelect={() => router.push("/profile")}
                       >
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
+                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
                       <DropdownMenu.Item
-                        className="flex items-center px-2 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center px-2 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-800"
                         onSelect={handleLogout}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
@@ -354,8 +354,12 @@ export default function Header() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`text-sm text-gray-700 hover:text-gray-900 ${
+                      className={`text-sm text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 ${
                         pathname === item.href ? "font-bold" : "font-medium"
+                      } ${
+                        item.label === "Sign Up"
+                          ? "border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1.5 ml-2"
+                          : ""
                       }`}
                     >
                       {item.label}
