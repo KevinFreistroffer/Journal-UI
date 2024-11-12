@@ -11,14 +11,16 @@ const ProfilePage = () => {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [avatarFileId, setAvatarFileId] = useState<string | null>(null);
   const { user } = useAuth();
 
   const handleSave = async (avatar: string) => {
+    console.log("handleSave() avatar", avatar, typeof avatar);
     setIsLoading(true);
     setMessage(null);
 
     try {
-      const response = await fetch("/api/user/update", {
+      const response = await fetch("/api/user/avatar/upload", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,14 +28,18 @@ const ProfilePage = () => {
         body: JSON.stringify({ avatar, userId: user?._id }),
       });
 
-      if (response.ok) {
-        setMessage({ type: "success", text: "Avatar updated successfully" });
-        setTimeout(() => setMessage(null), 3000);
-      } else {
+      if (!response.ok) {
         setMessage({
           type: "error",
           text: `Failed to update avatar: ${response.statusText}`,
         });
+      } else {
+        const result = await response.json();
+        setAvatarFileId(result.fileId);
+        console.log("handleSave() result", result);
+        setMessage({ type: "success", text: "Avatar updated successfully" });
+        setTimeout(() => setMessage(null), 3000);
+
       }
     } catch (error) {
       setMessage({ type: "error", text: `Error updating avatar: ${error}` });
