@@ -57,7 +57,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip/tooltip"; // Add these imports
 import { cn } from "@/lib/utils"; // Make sure you have this utility function
-import SummaryModal from "@/components/SummaryModal";
+import SummaryModal from "@/app/(protected)/journal/write/components/SummaryModal";
 import { generateLoremIpsum } from "@/lib/utils"; // Add this import
 import {
   Dialog,
