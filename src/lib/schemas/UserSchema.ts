@@ -10,8 +10,11 @@ export const UserSchema = z.object({
   resetPasswordTokenExpires: z.date().nullable(),
   resetPasswordAttempts: z.array(z.object({ timestamp: z.string() })),
   isVerified: z.boolean(),
-  avatar: z.object({
-    data: z.string(),
-    contentType: z.string(),
-  }),
+  avatar: z
+    .object({
+      data: z.string(),
+      contentType: z.string(),
+    })
+    .nullable(),
+  avatarId: z.string().nullable(),
 });

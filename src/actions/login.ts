@@ -67,6 +67,7 @@ export const login: LoginFunction = async (
     });
 
     const data = await response.json();
+    console.log("login() data", data);
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -149,7 +150,7 @@ export const login: LoginFunction = async (
       isVerified: true,
     };
   } catch (error) {
-    console.error(error);
+    console.error("login action error", error);
     return {
       redirect: null,
       user: null,

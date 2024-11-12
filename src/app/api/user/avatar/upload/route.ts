@@ -20,13 +20,11 @@ export async function POST(request: Request) {
     }
 
     // Parse the request body
-    const { userId, hasAcknowledgedHelperText, avatar } = await request.json();
+    const { userId, avatar } = await request.json();
 
     // Validate the input
     if (
       typeof userId !== "string" ||
-      (hasAcknowledgedHelperText !== undefined &&
-        typeof hasAcknowledgedHelperText !== "boolean") ||
       (avatar !== undefined && typeof avatar !== "string")
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -35,13 +33,8 @@ export async function POST(request: Request) {
     // Prepare the update object
     const updateData: {
       userId: string;
-      hasAcknowledgedHelperText?: boolean;
       avatar?: string;
     } = { userId };
-
-    if (hasAcknowledgedHelperText !== undefined) {
-      updateData.hasAcknowledgedHelperText = hasAcknowledgedHelperText;
-    }
 
     if (avatar !== undefined) {
       updateData.avatar = avatar;

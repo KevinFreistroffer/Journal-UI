@@ -94,7 +94,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (state.success && state.user) {
-      console.log("login() state", state);
       if (state.isVerified === false) {
         setShowVerificationModal(true);
       } else {

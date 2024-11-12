@@ -78,7 +78,6 @@ export default function Header() {
     setMounted(true);
   }, []);
 
-  useEffect(() => console.log("Header user = ", user), [user]);
   console.log("Header useTheme() theme = ", theme);
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||

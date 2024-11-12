@@ -18,7 +18,9 @@ const AvatarUpload = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result as string);
+        const result = reader.result as string;
+        setAvatar(result);
+        console.log('Avatar string size:', new Blob([result]).size, 'bytes');
       };
       reader.readAsDataURL(file);
     }
