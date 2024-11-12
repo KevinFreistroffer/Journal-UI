@@ -36,6 +36,7 @@ export async function decrypt(session: string | undefined = "") {
 export async function createClientSession(userId: string, isVerified: boolean) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ userId, isVerified, expiresAt });
+
   const cookieStore = await cookies();
   cookieStore.set(CLIENT_SESSION, session, {
     httpOnly: true,

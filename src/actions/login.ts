@@ -17,6 +17,17 @@ export const login: LoginFunction = async (
   prevState: State,
   formData: FormData
 ) => {
+  if (!process.env.API_URL) {
+    return {
+      errors: {},
+      redirect: null,
+      user: null,
+      message: "Server Error: API URL is not defined.",
+      success: false,
+      isVerified: false,
+    };
+  }
+
   // Validate form data
   const validatedFields = LoginSchema.safeParse({
     usernameOrEmail: formData.get("usernameOrEmail"),
@@ -41,7 +52,7 @@ export const login: LoginFunction = async (
   const { usernameOrEmail, password, staySignedIn } = validatedFields.data;
 
   try {
-    const response = await fetch("http://localhost:3001/user/login", {
+    const response = await fetch(`${process.env.API_URL}/user/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +67,6 @@ export const login: LoginFunction = async (
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -70,7 +80,6 @@ export const login: LoginFunction = async (
     }
 
     const userDataResult = UserSchema.safeParse(data.data);
-
     if (!userDataResult.success) {
       console.error(
         "Invalid user data. Did the API have an update to the user schema?",
@@ -79,7 +88,6 @@ export const login: LoginFunction = async (
       return {
         errors: {},
         redirect: null,
-
         message: "Failed to login. Please try again.",
         success: false,
         user: null,

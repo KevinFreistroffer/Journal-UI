@@ -71,7 +71,15 @@ export default function Header() {
   const isVerySmallScreen = useMediaQuery("(max-width: 443px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 365px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => console.log("Header user = ", user), [user]);
+  console.log("Header useTheme() theme = ", theme);
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||
     pathname.startsWith("/journal/edit");
@@ -288,7 +296,7 @@ export default function Header() {
                   <span className="hidden sm:inline">New Journal</span>
                 </Button>
               )}
-
+              <h1>{user?.avatar ? "User avatar!" : "No user avatar!"}</h1>
               {user ? (
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
@@ -298,7 +306,7 @@ export default function Header() {
                     >
                       {user.avatar ? (
                         <Image
-                          src={user.avatar}
+                          src={user.avatar.data}
                           alt={`${user.username}'s avatar`}
                           width={36}
                           height={36}
@@ -369,22 +377,15 @@ export default function Header() {
           )}
           {isLoading && (
             <div className="flex items-center space-x-4">
-              {/* Placeholder icons or styles */}
-              <div
-                className={`w-24 h-8 animate-pulse rounded ${
-                  theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-                }`}
-              ></div>
-              <div
-                className={`w-24 h-8 animate-pulse rounded ${
-                  theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-                }`}
-              ></div>
-              <div
-                className={`w-24 h-8 animate-pulse rounded ${
-                  theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-                }`}
-              ></div>
+              {[1, 2, 3].map((index) => (
+                <div
+                  key={index}
+                  className={`w-24 h-8 animate-pulse rounded ${
+                    mounted &&
+                    (resolvedTheme === "dark" ? "bg-gray-700" : "bg-gray-300")
+                  }`}
+                ></div>
+              ))}
             </div>
           )}
         </div>

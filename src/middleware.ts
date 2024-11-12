@@ -40,8 +40,7 @@ export async function middleware(request: NextRequest) {
     (path.startsWith("/login") &&
       request.nextUrl.searchParams.get("isVerified") !== null);
   const cookieStore = await cookies();
-  console.log("middleware() cookieStore", cookieStore);
-  console.log("middleware() request.cookies", request.cookies);
+
   const clientSessionCookie = cookieStore.get(CLIENT_SESSION)?.value;
   const serverSessionCookie = cookieStore.get(SESSION_TOKEN)?.value;
   let clientSession;
@@ -52,11 +51,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtectedRoute) {
-    console.log("middleware() isProtectedRoute", isProtectedRoute);
-
     // If there's no server session, than data can't be fetched, so sign in again.
     if (!clientSession || !serverSessionCookie) {
-      console.log("middleware() NO SESSION or no USER ID");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 

@@ -319,8 +319,8 @@ function WritePage() {
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (delta, oldDelta, source) => {
-        console.log(quill.getText(), typeof quill.getText()); // Get text only
-        console.log(quill.getContents(), typeof quill.getContents()); // Get delta contents
+        // Get text only
+        // Get delta contents
         // Get innerHTML using quill
         setJournal(
           quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')

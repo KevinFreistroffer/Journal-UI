@@ -474,11 +474,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
   // Update the saveToStorage function
   const saveToStorage = useCallback((data: IAutoSaveState) => {
     try {
-      console.log("Saving to storage:", data);
       localStorageService.setItem("journalAutoSave", data);
       setLastSavedTime(new Date());
       setIsAutosaving(false);
-      console.log("Saved to storage:", data);
 
       // Show "Saved!" message
       setShowSavedMessage(true);
@@ -618,7 +616,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   const handleJournalChange = (value: string) => {
     const plainText = getPlainTextFromHtml(value);
-    console.log(plainText);
+
     if (plainText.trim() === "") {
       setJournal("");
     } else {
@@ -803,9 +801,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    console.log(summary);
-  }, [summary]);
+  useEffect(() => {}, [summary]);
 
   // Add to your JSX, perhaps near the save button
   return isLoading ? (

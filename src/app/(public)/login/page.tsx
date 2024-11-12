@@ -94,6 +94,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (state.success && state.user) {
+      console.log("login() state", state);
       if (state.isVerified === false) {
         setShowVerificationModal(true);
       } else {
@@ -202,7 +203,10 @@ export default function LoginPage() {
             )}
             <p className="mt-4 text-center dark:text-gray-300 text-sm">
               Don&apos;t have an account?
-              <Link href="/signup" className="text-blue-500 hover:underline ml-2">
+              <Link
+                href="/signup"
+                className="text-blue-500 hover:underline ml-2"
+              >
                 Sign up
               </Link>
             </p>

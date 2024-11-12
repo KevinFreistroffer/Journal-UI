@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setFilteredEntries } = useSearch();
 
   const handleSetUser = (newUser: IUser | null) => {
+    console.log("handleSetUser() newUser", newUser);
     setUser(newUser);
     setIsLoading(false);
   };
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true);
         const sessionUser = await getUser();
-
+        console.log("checkSession() sessionUser", sessionUser);
         if (!sessionUser) {
           handleSetUser(null);
         } else {

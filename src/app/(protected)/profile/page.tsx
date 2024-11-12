@@ -15,7 +15,6 @@ const ProfilePage = () => {
   const { user } = useAuth();
 
   const handleSave = async (avatar: string) => {
-    console.log("handleSave() avatar", avatar, typeof avatar);
     setIsLoading(true);
     setMessage(null);
 
@@ -36,10 +35,9 @@ const ProfilePage = () => {
       } else {
         const result = await response.json();
         setAvatarFileId(result.fileId);
-        console.log("handleSave() result", result);
+
         setMessage({ type: "success", text: "Avatar updated successfully" });
         setTimeout(() => setMessage(null), 3000);
-
       }
     } catch (error) {
       setMessage({ type: "error", text: `Error updating avatar: ${error}` });

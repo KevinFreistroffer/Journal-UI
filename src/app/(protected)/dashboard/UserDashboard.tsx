@@ -184,7 +184,6 @@ function UserDashboard() {
           return title + " " + getPlainTextFromHtml(decodeHtmlEntities(entry));
         })
         .join(" ") || "";
-    console.log("allEntriesText", allEntriesText);
 
     if (selectedKeywordType === "nouns") {
       const nounsFrequency = getFrequentKeywords(allEntriesText, 15, "nouns");

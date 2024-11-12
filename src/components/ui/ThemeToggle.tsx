@@ -13,9 +13,7 @@ export function ThemeToggle() {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  useEffect(() => {
-    console.log(theme);
-  }, [theme]);
+  useEffect(() => {}, [theme]);
 
   return (
     <Button

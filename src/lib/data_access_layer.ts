@@ -98,6 +98,7 @@ export const getUserById = cache(async (userId: string) => {
       return null;
     } else {
       const body = await response.json();
+
       return body.data;
     }
   } catch (error: unknown) {

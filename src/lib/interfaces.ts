@@ -32,7 +32,10 @@ export interface IUser {
   journalCategories: ICategory[];
   createdAt: Date;
   updatedAt: Date;
-  avatar?: string;
+  avatar?: {
+    data: string;
+    contentType: string;
+  };
   avatarId?: string;
   reminders?: IReminder[];
 }

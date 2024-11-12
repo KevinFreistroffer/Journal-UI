@@ -31,8 +31,6 @@ export const signUp: SignUpFunction = async (
     confirmPassword: formData.get("confirmPassword"),
   });
 
-  console.log(validatedFields);
-
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
@@ -55,7 +53,7 @@ export const signUp: SignUpFunction = async (
   }
 
   const { username, email, password } = validatedFields.data;
-  console.log(username, email, password);
+
   try {
     // Send data to Node.js server
     const response = await fetch("http://localhost:3001/user/create", {

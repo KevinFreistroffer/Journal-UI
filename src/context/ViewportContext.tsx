@@ -6,20 +6,29 @@ interface ViewportContextType {
   viewportHeight: number;
 }
 
-const ViewportContext = createContext<ViewportContextType>({
-  viewportWidth: window.innerWidth,
-  viewportHeight: window.innerHeight,
-});
+const defaultViewport = {
+  viewportWidth: 0,
+  viewportHeight: 0,
+};
+
+const ViewportContext = createContext<ViewportContextType>(defaultViewport);
 
 export const ViewportProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [viewport, setViewport] = useState<ViewportContextType>({
-    viewportWidth: window.innerWidth,
-    viewportHeight: window.innerHeight,
+  const [viewport, setViewport] = useState<ViewportContextType>(() => {
+    if (typeof window !== "undefined") {
+      return {
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+      };
+    }
+    return defaultViewport;
   });
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const handleResize = () => {
       setViewport({
         viewportWidth: window.innerWidth,

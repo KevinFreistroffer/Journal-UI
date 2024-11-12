@@ -13,7 +13,7 @@ async function DashboardPage() {
   if (userId) {
     // probably would put this in middleware or somewhere, where if the route requires database user access
     // const serverSession = await verifyServerSession();
-    // console.log("Dashboard serverSession", serverSession);
+    //
     // if (!serverSession) {
     //   return redirect("/login");
     // }
