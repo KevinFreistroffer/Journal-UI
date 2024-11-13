@@ -9,7 +9,8 @@ interface SidebarSection {
 
 interface IProps {
   isOpen: boolean;
-  icon: React.ReactNode;
+  isAlwaysOpen?: boolean;
+  icon?: React.ReactNode;
   sections: SidebarSection[];
   setIsSidebarOpen: (isOpen: boolean) => void;
   headerDisplaysTabs?: boolean;
@@ -18,6 +19,7 @@ interface IProps {
 export const Sidebar: React.FC<IProps> = ({
   icon,
   isOpen,
+  isAlwaysOpen = false,
   sections,
   setIsSidebarOpen,
   headerDisplaysTabs = true,
@@ -51,22 +53,24 @@ export const Sidebar: React.FC<IProps> = ({
         className={`fixed ${
           headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
         } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 dark:bg-black dark:border-r-1 ${
-          isOpen ? "w-56" : "w-16"
+          isOpen || isAlwaysOpen ? "w-56" : "w-16"
         }`}
       >
-        <Button
-          className={`border border-[#d9d9d9] dark:border-gray-800 p-1 block  relative w-auto h-auto ${
-            isOpen ? "justify-end ml-auto" : "justify-center"
-          }`}
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setIsSidebarOpen(!isOpen);
-          }}
-          title={isOpen ? "Close sidebar" : "Open sidebar"}
-        >
-          {isOpen ? <ChevronLeft size={20} /> : icon}
-        </Button>
+        {icon && (
+          <Button
+            className={`border border-[#d9d9d9] dark:border-gray-800 p-1 block  relative w-auto h-auto ${
+              isOpen ? "justify-end ml-auto" : "justify-center"
+            }`}
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setIsSidebarOpen(!isOpen);
+            }}
+            title={isOpen ? "Close sidebar" : "Open sidebar"}
+          >
+            {isOpen ? <ChevronLeft size={20} /> : icon}
+          </Button>
+        )}
         {isOpen && (
           <div
             className={`flex flex-col transition-opacity duration-300 ${

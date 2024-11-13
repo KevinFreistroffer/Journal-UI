@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
 
 const AvatarUpload = ({
   clickableAvatar = false,
@@ -10,8 +11,15 @@ const AvatarUpload = ({
   clickableAvatar: boolean;
   handleSave: (avatar: string) => void;
 }) => {
+  const { user } = useAuth();
   const [avatar, setAvatar] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatar(user.avatar.data);
+    }
+  }, [user?.avatar]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -20,7 +28,7 @@ const AvatarUpload = ({
       reader.onloadend = () => {
         const result = reader.result as string;
         setAvatar(result);
-        console.log('Avatar string size:', new Blob([result]).size, 'bytes');
+        console.log("Avatar string size:", new Blob([result]).size, "bytes");
       };
       reader.readAsDataURL(file);
     }
@@ -36,21 +44,27 @@ const AvatarUpload = ({
     }
   };
 
-  useEffect(() => {}, [avatar]);
-
   return (
     <div className="flex flex-col items-center">
-      <div className="mb-4 cursor-pointer" onClick={handleAvatarClick}>
+      <div
+        className="mb-4 cursor-pointer"
+        onClick={handleAvatarClick}
+        title={clickableAvatar ? "Change avatar" : undefined}
+      >
         {avatar ? (
           <Image
             src={avatar}
             alt="User Avatar"
-            width={100}
-            height={100}
-            className="rounded-full object-cover w-24 h-24"
+            width={260}
+            height={260}
+            className="rounded-full object-cover w-full h-full max-w-[260px] max-h-[260px]"
+            title={clickableAvatar ? "Change avatar" : undefined}
           />
         ) : (
-          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+          <div
+            className="w-full h-full max-w-[260px] max-h-[260px] bg-gray-200 rounded-full flex items-center justify-center overflow-hidden"
+            title={clickableAvatar ? "Change avatar" : undefined}
+          >
             <span className="text-gray-500">No Image</span>
           </div>
         )}

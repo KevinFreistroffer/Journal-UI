@@ -81,7 +81,8 @@ export default function Header() {
   console.log("Header useTheme() theme = ", theme);
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||
-    pathname.startsWith("/journal/edit");
+    pathname.startsWith("/journal/edit") ||
+    pathname.startsWith("/profile");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -219,9 +220,13 @@ export default function Header() {
     <>
       <header
         id={styles["header"]}
-        className={`sticky px-0 top-0 z-50 w-full border-b bg-gray-100 flex flex-col dark:bg-black`}
+        className={`sticky px-3 sm:px-4 top-0 z-50 w-full border-b bg-gray-100 flex flex-col dark:bg-black`}
       >
-        <div className="flex h-14 items-center justify-between px-3 sm:px-4 w-full pt-1">
+        <div
+          className={`flex items-center justify-between  w-full ${
+            !user || !isTabRoute || excludeTabsRoute ? "h-16" : "h-14"
+          }`}
+        >
           {/* Title and Mobile menu icon */}
           <div className="flex-1 flex items-center gap-2">
             {excludeTabsRoute && (
@@ -230,7 +235,7 @@ export default function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="hover:bg-gray-200 border border-red-600 p-1 w-auto h-auto bg-transparent dark:hover:bg-gray-800"
+                    className="hover:bg-gray-200 border border-gray-600 p-1 w-auto h-auto bg-transparent dark:hover:bg-gray-800"
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
@@ -295,7 +300,6 @@ export default function Header() {
                   <span className="hidden sm:inline">New Journal</span>
                 </Button>
               )}
-              <h1>{user?.avatar ? "User avatar!" : "No user avatar!"}</h1>
               {user ? (
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>

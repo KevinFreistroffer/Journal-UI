@@ -21,6 +21,11 @@ export interface ICategory {
 export interface IUser {
   _id: string;
   username: string;
+  name?: string;
+  bio?: string;
+  company?: string;
+  location?: string;
+  website?: string;
   email: string;
   resetPasswordToken: string;
   resetPasswordTokenExpires?: Date;
