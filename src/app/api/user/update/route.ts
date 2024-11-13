@@ -14,14 +14,28 @@ export async function POST(request: Request) {
     }
 
     // Parse the request body
-    const { userId, hasAcknowledgedHelperText, avatar } = await request.json();
+    const {
+      userId,
+      hasAcknowledgedHelperText,
+      avatar,
+      name,
+      bio,
+      company,
+      location,
+      website
+    } = await request.json();
 
     // Validate the input
     if (
       typeof userId !== "string" ||
       (hasAcknowledgedHelperText !== undefined &&
         typeof hasAcknowledgedHelperText !== "boolean") ||
-      (avatar !== undefined && typeof avatar !== "string")
+      (avatar !== undefined && typeof avatar !== "string") ||
+      (name !== undefined && typeof name !== "string") ||
+      (bio !== undefined && typeof bio !== "string") ||
+      (company !== undefined && typeof company !== "string") ||
+      (location !== undefined && typeof location !== "string") ||
+      (website !== undefined && typeof website !== "string")
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
@@ -31,6 +45,11 @@ export async function POST(request: Request) {
       userId: string;
       hasAcknowledgedHelperText?: boolean;
       avatar?: string;
+      name?: string;
+      bio?: string;
+      company?: string;
+      location?: string;
+      website?: string;
     } = { userId };
 
     if (hasAcknowledgedHelperText !== undefined) {
@@ -39,6 +58,26 @@ export async function POST(request: Request) {
 
     if (avatar !== undefined) {
       updateData.avatar = avatar;
+    }
+
+    if (name !== undefined) {
+      updateData.name = name;
+    }
+
+    if (bio !== undefined) {
+      updateData.bio = bio;
+    }
+
+    if (company !== undefined) {
+      updateData.company = company;
+    }
+
+    if (location !== undefined) {
+      updateData.location = location;
+    }
+
+    if (website !== undefined) {
+      updateData.website = website;
     }
 
     // Send the API request to /user/update
