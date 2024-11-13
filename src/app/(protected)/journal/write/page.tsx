@@ -66,7 +66,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import DashboardContainer from "@/components/ui/layout/DashboardContainer/DashboardContainer";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { MonitorIcon, MaximizeIcon, Minimize2, Maximize2 } from "lucide-react";
 import { Eye } from "lucide-react"; // Add this import

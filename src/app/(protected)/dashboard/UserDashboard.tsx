@@ -50,7 +50,7 @@ import {
   Legend as ChartLegend,
 } from "chart.js";
 import { JournalLink } from "@/app/(protected)/dashboard/(components)/JournalLink";
-import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import DashboardContainer from "@/components/ui/layout/DashboardContainer/DashboardContainer";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
 

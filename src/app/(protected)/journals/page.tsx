@@ -79,7 +79,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import State from "@/components/ui/debug/State"; // Add this import at the top of the file
 import { PlusIcon } from "@radix-ui/react-icons";
 import SpinnerIcon from "@/components/SpinnerIcon";
-import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import DashboardContainer from "@/components/ui/layout/DashboardContainer/DashboardContainer";
 import SidebarContent from "@/components/ui/SidebarContent/SidebarContent";
 
 // Add this function near the top of the file with other utility functions

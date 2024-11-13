@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import Link from "next/link"; // Changed from: import { Link } from "next/link"
 import { Trash2 } from "lucide-react"; // Add this import at the top with other imports
 import { useMediaQuery } from "@/hooks/useMediaQuery"; // Add this import if you don't have it
-import DashboardContainer from "@/components/ui/DashboardContainer/DashboardContainer";
+import DashboardContainer from "@/components/ui/layout/DashboardContainer/DashboardContainer";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { Settings } from "lucide-react";
 import { Edit2 } from "lucide-react"; // Add this import

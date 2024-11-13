@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       bio,
       company,
       location,
-      website
+      website,
     } = await request.json();
 
     // Validate the input
@@ -79,6 +79,8 @@ export async function POST(request: Request) {
     if (website !== undefined) {
       updateData.website = website;
     }
+
+    console.log(updateData);
 
     // Send the API request to /user/update
     console.log(
