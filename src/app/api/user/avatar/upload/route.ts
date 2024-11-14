@@ -21,11 +21,12 @@ export async function POST(request: Request) {
 
     // Parse the request body
     const { userId, avatar } = await request.json();
-
+    console.log("userId", userId);
+    console.log("avatar", avatar);
     // Validate the input
     if (
       typeof userId !== "string" ||
-      (avatar !== undefined && typeof avatar !== "string")
+      (avatar !== undefined && typeof avatar.data !== "string")
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
@@ -37,8 +38,10 @@ export async function POST(request: Request) {
     } = { userId };
 
     if (avatar !== undefined) {
-      updateData.avatar = avatar;
+      updateData.avatar = avatar.data;
     }
+
+    console.log("updateData", updateData);
 
     // Send the API request to /user/update
     console.log(
@@ -59,7 +62,7 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json();
-
+    console.log(result);
     /**
      * fileId: "6732741ff598d0858563387d"
      * filename: "avatar-67316785c8793fae8af74654-1731359775876.png"

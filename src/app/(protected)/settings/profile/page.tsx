@@ -32,7 +32,7 @@ const ProfilePage = () => {
     text: string;
   } | null>(null);
   const [avatarFileId, setAvatarFileId] = useState<string | null>(null);
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, setUser } = useAuth();
   const isMobileView = useMediaQuery("(max-width: 767px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
@@ -63,7 +63,7 @@ const ProfilePage = () => {
     }
   }, [user]);
 
-  const handleSave = async (avatar: string) => {
+  const handleSave = async (avatar: { data: string; contentType: string }) => {
     setMessage(null);
 
     try {
@@ -83,6 +83,17 @@ const ProfilePage = () => {
       } else {
         const result = await response.json();
         setAvatarFileId(result.fileId);
+        console.log("WOULD UPDATE USER", avatar);
+        if (user && avatar && avatar.contentType) {
+          setUser({
+            ...user,
+            avatar: {
+              ...user.avatar,
+              data: avatar.data,
+              contentType: avatar.contentType,
+            },
+          });
+        }
 
         setMessage({ type: "success", text: "Avatar updated successfully" });
         setTimeout(() => setMessage(null), 3000);

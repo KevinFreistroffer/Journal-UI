@@ -127,6 +127,7 @@ Your original username will be unavailable for 90 days following the rename.
           <div className="w-10 h-10 rounded-full overflow-hidden">
             {user?.avatar?.data && (
               <Image
+                key={user?.avatar?.data}
                 src={user?.avatar?.data}
                 alt={user?.name || "User avatar"}
                 width={40}
