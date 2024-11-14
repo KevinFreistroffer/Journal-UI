@@ -27,6 +27,8 @@ const AvatarUpload = ({
   const [crop, setCrop] = useState<Crop>();
   const [tempImage, setTempImage] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.avatar) {
@@ -49,29 +51,38 @@ const AvatarUpload = ({
 
   const getCroppedImg = () => {
     const image = imgRef.current;
-    if (!image || !crop) return null;
+    if (!image) return null;
 
     const canvas = document.createElement("canvas");
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
 
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-    const ctx = canvas.getContext("2d");
+    if (!crop) {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
 
-    if (!ctx) return null;
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+    } else {
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
 
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+
+      ctx.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.height
+      );
+    }
 
     return {
       data: canvas.toDataURL("image/jpeg"),
@@ -79,13 +90,21 @@ const AvatarUpload = ({
     };
   };
 
-  const handleCropComplete = () => {
+  const handleCropComplete = async () => {
     const croppedImage = getCroppedImg();
     if (croppedImage) {
-      setAvatar(croppedImage.data);
-      handleSave(croppedImage);
-      setShowCropModal(false);
-      setTempImage(null);
+      setIsSaving(true);
+      setError(null);
+      try {
+        await handleSave(croppedImage);
+        setAvatar(croppedImage.data);
+        setShowCropModal(false);
+        setTempImage(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to save avatar');
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -183,6 +202,11 @@ const AvatarUpload = ({
             <Dialog.Title className="text-lg font-bold mb-4">
               Crop Image
             </Dialog.Title>
+            {error && (
+              <div className="mb-4 text-red-500 text-sm">
+                {error}
+              </div>
+            )}
             {tempImage && (
               <ReactCrop crop={crop} onChange={(c) => setCrop(c)} aspect={1}>
                 <Image
@@ -198,6 +222,7 @@ const AvatarUpload = ({
               <button
                 onClick={() => setShowCropModal(false)}
                 className="px-4 py-2 text-gray-500 hover:text-gray-700"
+                disabled={isSaving}
               >
                 Cancel
               </button>
@@ -208,15 +233,24 @@ const AvatarUpload = ({
                     setAvatar(croppedImage.data);
                   }
                 }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                disabled={isSaving}
               >
                 Apply Crop
               </button>
               <button
                 onClick={handleCropComplete}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+                disabled={isSaving}
               >
-                Save
+                {isSaving ? (
+                  <>
+                    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save'
+                )}
               </button>
             </div>
           </Dialog.Content>
