@@ -82,7 +82,7 @@ export default function Header() {
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||
     pathname.startsWith("/journal/edit") ||
-    pathname.startsWith("/profile");
+    pathname.startsWith("/settings");
 
   const handleScroll = () => {
     if (window.scrollY > 0) {
@@ -252,29 +252,43 @@ export default function Header() {
                     </SheetClose>
                   </SheetHeader>
                   <div className="mt-4">
-                    {menuItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-white dark:hover:bg-gray-800"
-                        onClick={() => setIsSidebarOpen(false)}
-                      >
-                        {getIcon(item.href)}
-                        <span>{item.label}</span>
-                        {item.href === "/journals" && user && user.journals && (
-                          <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
-                            {user.journals.length}
-                          </span>
-                        )}
-                        {item.href === "/categories" &&
-                          user &&
-                          user.journalCategories && (
-                            <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
-                              {user.journalCategories.length}
-                            </span>
-                          )}
-                      </Link>
-                    ))}
+                    {isLoading ? (
+                      // Placeholder icons while loading
+                      <div className="flex items-center space-x-2">
+                        {[1, 2, 3].map((index) => (
+                          <div
+                            key={index}
+                            className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"
+                          ></div>
+                        ))}
+                      </div>
+                    ) : (
+                      menuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-white dark:hover:bg-gray-800"
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          {getIcon(item.href)}
+                          <span>{item.label}</span>
+                          {item.href === "/journals" &&
+                            user &&
+                            user.journals && (
+                              <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
+                                {user.journals.length}
+                              </span>
+                            )}
+                          {item.href === "/categories" &&
+                            user &&
+                            user.journalCategories && (
+                              <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
+                                {user.journalCategories.length}
+                              </span>
+                            )}
+                        </Link>
+                      ))
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -285,7 +299,7 @@ export default function Header() {
           </div>
 
           {!isLoading && (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 sm:space-x-4">
               {/* Add New Journal button before the user menu, only show on dashboard and not on create page */}
               <ThemeToggle />
               {user && pathname !== "/journal/write" && (
@@ -341,7 +355,7 @@ export default function Header() {
                       <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-0" />
                       <DropdownMenu.Item
                         className="outline-none flex items-center px-2 py-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-700"
-                        onSelect={() => router.push("/profile")}
+                        onSelect={() => router.push("/settings/profile")}
                       >
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>

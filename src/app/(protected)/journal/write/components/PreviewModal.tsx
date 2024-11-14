@@ -23,7 +23,7 @@ export default function PreviewModal({
 }: PreviewModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogOverlay className=" dark:bg-white dark:bg-opacity-50" />
+      <DialogOverlay className="dark:bg-white dark:bg-opacity-50" />
       <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[80vh] overflow-y-auto bg-white dark:bg-black dark:border-gray-800 dark:text-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
@@ -44,7 +44,7 @@ export default function PreviewModal({
           <Button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="mt-4"
+            className="w-14 mt-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-700 p-1 inline-flex items-center justify-center"
           >
             Close
           </Button>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
+import { Pencil2Icon } from "@radix-ui/react-icons";
 
 const AvatarUpload = ({
   clickableAvatar = false,
@@ -45,24 +46,31 @@ const AvatarUpload = ({
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col self-start sm:self-centers">
       <div
-        className="mb-4 cursor-pointer"
+        className="mb-4 cursor-pointer relative"
         onClick={handleAvatarClick}
         title={clickableAvatar ? "Change avatar" : undefined}
       >
         {avatar ? (
-          <Image
-            src={avatar}
-            alt="User Avatar"
-            width={260}
-            height={260}
-            className="rounded-full object-cover w-full h-full max-w-[260px] max-h-[260px]"
-            title={clickableAvatar ? "Change avatar" : undefined}
-          />
+          <>
+            <Image
+              src={avatar}
+              alt="User Avatar"
+              width={260}
+              height={260}
+              className="rounded-full object-cover aspect-square w-[260px] h-[260px]"
+              title={clickableAvatar ? "Change avatar" : undefined}
+            />
+            {clickableAvatar && (
+              <div className="absolute bottom-5 left-5 bg-white rounded-full p-2 shadow-md">
+                <Pencil2Icon className="h-5 w-5 text-gray-600" />
+              </div>
+            )}
+          </>
         ) : (
           <div
-            className="w-full h-full max-w-[260px] max-h-[260px] bg-gray-200 rounded-full flex items-center justify-center overflow-hidden"
+            className="aspect-square w-[260px] h-[260px] bg-gray-200 rounded-full flex items-center justify-center overflow-hidden"
             title={clickableAvatar ? "Change avatar" : undefined}
           >
             <span className="text-gray-500">No Image</span>

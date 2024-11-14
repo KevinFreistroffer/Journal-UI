@@ -15,6 +15,7 @@ const protectedRoutes = [
   "/journals",
   "/reminders",
   "/schedule",
+  "/settings/settings/profile",
   "/tweet",
 ];
 const publicRoutes = [

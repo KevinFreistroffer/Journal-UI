@@ -20,7 +20,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      className={`!bg-transparent ${
+      className={`!bg-transparent w-auto ${
         theme === "light"
           ? "text-black hover:text-black"
           : theme === "dark"

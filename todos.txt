@@ -12,6 +12,10 @@ save new categories in the DB.
 
 dashboardcontainer should set the same styles across all pages
 
+add a save summary button / feature.
+
+consider the https://www.anthropic.com/ home styles
+
 redo the form action error messages
 
 create a logging system saving errors to a file. example: signup action returns { ..., adminMessage: "No body.data returned from the server".}
@@ -25,6 +29,8 @@ use colors in globals.css
 water ripple background animated
 
 replace the keyword freq select with another component. too slow.
+
+when first starting the app, it shows the login signup links, tho can't redirect to them. is stuck on "is auth'd" yet not showing auth'd content. fix auth.
 
 quill how to use css modules?
 
