@@ -178,7 +178,7 @@ Your original username will be unavailable for 90 days following the rename.
     >
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row gap-4 sm:gap-8">
-          <div className="flex-1 order-2 md:order-1">
+          <div className="w-full md:w-2/3 order-2 md:order-1">
             <form onSubmit={handleFormSubmit} className="space-y-6">
               <div className="space-y-4">
                 {isLoading ? (
@@ -296,7 +296,7 @@ Your original username will be unavailable for 90 days following the rename.
           </div>
 
           <div className="w-full md:w-80 order-1 md:order-2">
-            <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-8 flex flex-col items-start md:items-center text-left md:text-center">
               {isLoading ? (
                 <>
                   <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
@@ -307,7 +307,11 @@ Your original username will be unavailable for 90 days following the rename.
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Profile picture
                   </p>
-                  <AvatarUpload clickableAvatar handleSave={handleSave} />
+                  <AvatarUpload
+                    clickableAvatar
+                    handleSave={handleSave}
+                    align={isMobileView ? "start" : "center"}
+                  />
                 </div>
               )}
             </div>
