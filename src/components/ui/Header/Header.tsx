@@ -327,7 +327,7 @@ export default function Header() {
                           alt={`${user.username}'s avatar`}
                           width={36}
                           height={36}
-                          className={`rounded-full ${
+                          className={`rounded-full object-cover ${
                             isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
                           }`}
                         />

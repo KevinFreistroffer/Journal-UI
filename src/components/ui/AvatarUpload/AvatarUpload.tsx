@@ -128,7 +128,7 @@ const AvatarUpload = ({
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <div
-              className="mb-4 cursor-pointer relative"
+              className="mb-4 cursor-pointer relative group"
               title={clickableAvatar ? "Change avatar" : undefined}
             >
               <Image
@@ -143,23 +143,42 @@ const AvatarUpload = ({
                 }`}
               />
               {clickableAvatar && (
-                <div className="absolute bottom-5 left-5 bg-white rounded-full p-2 shadow-md cursor-pointer">
-                  <Pencil2Icon className="h-5 w-5 text-gray-600" />
-                </div>
+                <>
+                  <div className="absolute bottom-5 left-5 bg-white rounded-full p-2 shadow-md cursor-pointer">
+                    <Pencil2Icon className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 15 15"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4 6L7.5 9L11 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </>
               )}
             </div>
           </DropdownMenu.Trigger>
           {clickableAvatar && (
             <DropdownMenu.Portal>
-              <DropdownMenu.Content className="bg-white rounded-lg shadow-lg p-2 min-w-[150px]">
+              <DropdownMenu.Content className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 p-2 min-w-[150px] text-sm">
                 <DropdownMenu.Item
-                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 rounded"
+                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded text-gray-700"
                   onSelect={handleUploadClick}
                 >
                   Upload a photo
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
-                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 rounded text-red-500"
+                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-red-500 dark:text-red-400"
                   onSelect={handleRemovePhoto}
                 >
                   Remove photo
