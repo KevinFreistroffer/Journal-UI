@@ -29,29 +29,34 @@ const ChangeUsernameModal = ({
 }: IProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogOverlay className="dark:bg-white dark:bg-opacity-50" />
-      <DialogContent className="bg-white dark:bg-background">
+      <DialogOverlay className="dark:bg-neutral-900/50" />
+      <DialogContent className="bg-white dark:bg-neutral-900">
         <DialogHeader>
           <DialogTitle>Change Username</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="newUsername">New Username</Label>
+        <form onSubmit={onSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="newUsername" className="text-xs">
+              New Username
+            </Label>
             <Input
               type="text"
               id="newUsername"
+              className="dark:bg-gray-800 dark:text-white"
               value={username}
               onChange={onUsernameChange}
             />
           </div>
 
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p>Username changes may take a few minutes to complete.</p>
-            <p>
-              Your original username will be unavailable for 90 days following
-              the rename.
-            </p>
+          <div className="text-xs text-muted-foreground space-y-4">
+            <ul className="list-disc pl-4 space-y-1">
+              <li>Username changes may take a few minutes to complete.</li>
+              <li>
+                Your original username will be unavailable for 90 days following
+                the rename.
+              </li>
+            </ul>
           </div>
 
           {error && <p className="text-destructive text-sm">{error}</p>}
@@ -61,10 +66,13 @@ const ChangeUsernameModal = ({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="text-xs"
             >
               Cancel
             </Button>
-            <Button type="submit">Update Username</Button>
+            <Button type="submit" className="text-xs">
+              Update Username
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

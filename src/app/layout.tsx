@@ -15,6 +15,7 @@ import GlobalModal from "@/components/ui/GlobalModal";
 import { SearchProvider } from "@/context/SearchContext";
 import { ViewportProvider } from "@/context/ViewportContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { NotificationProvider } from "@/context/NotificationContext";
 import { LOCAL_STORAGE_PREFIX } from "@/lib/services/localStorageService";
 
 const geistSans = localFont({
@@ -55,27 +56,29 @@ export default async function RootLayout({
         <div className="flex flex-col min-h-screen">
           <SearchProvider>
             <AuthProvider>
-              <JournalProvider>
-                <ViewportProvider>
-                  <ThemeProvider
-                    attribute="class"
-                    defaultTheme="light"
-                    enableSystem={false}
-                    disableTransitionOnChange
-                    storageKey={LOCAL_STORAGE_PREFIX + "theme"}
-                  >
-                    <ModalProvider>
-                      <Header />
-                      {children}
-                      <CookieConsent
-                        initialConsent={consentCookie !== undefined}
-                      />
-                      <GlobalModal />
-                      <Footer />
-                    </ModalProvider>
-                  </ThemeProvider>
-                </ViewportProvider>
-              </JournalProvider>
+              <NotificationProvider>
+                <JournalProvider>
+                  <ViewportProvider>
+                    <ThemeProvider
+                      attribute="class"
+                      defaultTheme="light"
+                      enableSystem={false}
+                      disableTransitionOnChange
+                      storageKey={LOCAL_STORAGE_PREFIX + "theme"}
+                    >
+                      <ModalProvider>
+                        <Header />
+                        {children}
+                        <CookieConsent
+                          initialConsent={consentCookie !== undefined}
+                        />
+                        <GlobalModal />
+                        <Footer />
+                      </ModalProvider>
+                    </ThemeProvider>
+                  </ViewportProvider>
+                </JournalProvider>
+              </NotificationProvider>
             </AuthProvider>
           </SearchProvider>
         </div>

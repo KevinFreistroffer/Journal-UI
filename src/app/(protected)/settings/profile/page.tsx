@@ -12,6 +12,8 @@ import Link from "next/link";
 import ChangeUsernameModal from "../components/ChangeUsernameModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Image from "next/image";
+import { useNotification } from "@/context/NotificationContext";
+
 const SubmitButton = ({ isFormDirty }: { isFormDirty: boolean }) => {
   const { pending } = useFormStatus();
 
@@ -19,7 +21,7 @@ const SubmitButton = ({ isFormDirty }: { isFormDirty: boolean }) => {
     <button
       type="submit"
       disabled={pending || !isFormDirty}
-      className="w-full sm:w-auto flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+      className="w-full sm:w-auto flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
     >
       {pending ? "Saving..." : "Save Profile"}
     </button>
@@ -27,14 +29,10 @@ const SubmitButton = ({ isFormDirty }: { isFormDirty: boolean }) => {
 };
 
 const ProfilePage = () => {
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const { showSuccess, showError } = useNotification();
   const [avatarFileId, setAvatarFileId] = useState<string | null>(null);
   const { user, isLoading, setUser } = useAuth();
   const isMobileView = useMediaQuery("(max-width: 767px)");
-  const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -52,6 +50,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
+      console.log("user = ", user.avatar);
       setFormData({
         name: user.name || "",
         bio: user.bio || "",
@@ -63,9 +62,11 @@ const ProfilePage = () => {
     }
   }, [user]);
 
-  const handleSave = async (avatar: { data: string; contentType: string }) => {
-    setMessage(null);
-
+  const handleSaveAvatar = async (avatar: {
+    data: string;
+    contentType: string;
+  }) => {
+    console.log("avatar = ", avatar);
     try {
       const response = await fetch("/api/user/avatar/upload", {
         method: "POST",
@@ -76,14 +77,11 @@ const ProfilePage = () => {
       });
 
       if (!response.ok) {
-        setMessage({
-          type: "error",
-          text: `Failed to update avatar: ${response.statusText}`,
-        });
+        showError(`Failed to update avatar: ${response.statusText}`);
       } else {
         const result = await response.json();
+        console.log("result = ", result);
         setAvatarFileId(result.fileId);
-        console.log("WOULD UPDATE USER", avatar);
         if (user && avatar && avatar.contentType) {
           setUser({
             ...user,
@@ -91,18 +89,49 @@ const ProfilePage = () => {
               ...user.avatar,
               data: avatar.data,
               contentType: avatar.contentType,
+              fileId: result.fileId,
             },
           });
         }
 
-        setMessage({ type: "success", text: "Avatar updated successfully" });
-        setTimeout(() => setMessage(null), 3000);
+        showSuccess("Avatar updated successfully");
       }
     } catch (error) {
-      setMessage({ type: "error", text: `Error updating avatar: ${error}` });
+      showError(`Error updating avatar: ${error}`);
     }
   };
+  const handleDeleteAvatar = async () => {
+    try {
+      const response = await fetch("/api/user/avatar/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user?._id,
+          avatarId: "1",
+          // avatarId: user?.avatar?.fileId,
+        }),
+      });
 
+      if (!response.ok) {
+        showError(`Failed to delete avatar: ${response.statusText}`);
+        return;
+      }
+
+      // Update local user state to remove avatar
+      if (user) {
+        setUser({
+          ...user,
+          avatar: { data: "", contentType: "", fileId: "" },
+        });
+      }
+
+      showSuccess("Avatar deleted successfully");
+    } catch (error) {
+      showError(`Error deleting avatar: ${error}`);
+    }
+  };
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -128,10 +157,9 @@ const ProfilePage = () => {
         throw new Error(response.statusText);
       }
 
-      setMessage({ type: "success", text: "Profile updated successfully" });
-      setTimeout(() => setMessage(null), 3000);
+      showSuccess("Profile updated successfully");
     } catch (error) {
-      setMessage({ type: "error", text: `Error updating profile: ${error}` });
+      showError(`Error updating profile: ${error}`);
     }
   };
 
@@ -169,9 +197,8 @@ const ProfilePage = () => {
         throw new Error(await response.text());
       }
 
-      setMessage({ type: "success", text: "Username updated successfully" });
+      showSuccess("Username updated successfully");
       setIsChangeUsernameModalOpen(false);
-      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       setUsernameError(`Error updating username: ${error}`);
     }
@@ -185,11 +212,18 @@ Your original username will be unavailable for 90 days following the rename.
   return (
     <div
       id="profile-page"
-      className={`min-h-screen bg-background dark:bg-background`}
+      className={`min-h-[calc(100vh-theme(spacing.header))] bg-background dark:bg-background`}
     >
       <div className="max-w-6xl mx-auto">
+        {isLoading ? (
+          <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4 border-b border-gray-700 pb-2" />
+        ) : (
+          <h1 className="text-2xl font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2 text-gray-900 dark:text-white">
+            Profile
+          </h1>
+        )}
         <div className="flex flex-col md:flex-row gap-4 sm:gap-8">
-          <div className="w-full md:w-2/3 order-2 md:order-1">
+          <div className="w-full md:w-2/3 md:min-w-[255px] order-2 md:order-1">
             <form onSubmit={handleFormSubmit} className="space-y-6">
               <div className="space-y-4">
                 {isLoading ? (
@@ -207,7 +241,7 @@ Your original username will be unavailable for 90 days following the rename.
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        className="block text-xs font-medium text-gray-700 dark:text-gray-300"
                       >
                         Name
                       </label>
@@ -217,14 +251,14 @@ Your original username will be unavailable for 90 days following the rename.
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="bio"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        className="block text-xs font-medium text-gray-700 dark:text-gray-300"
                       >
                         Bio
                       </label>
@@ -234,14 +268,14 @@ Your original username will be unavailable for 90 days following the rename.
                         rows={3}
                         value={formData.bio}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="company"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        className="block text-xs font-medium text-gray-700 dark:text-gray-300"
                       >
                         Company
                       </label>
@@ -251,14 +285,14 @@ Your original username will be unavailable for 90 days following the rename.
                         name="company"
                         value={formData.company}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="location"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        className="block text-xs font-medium text-gray-700 dark:text-gray-300"
                       >
                         Location
                       </label>
@@ -268,14 +302,14 @@ Your original username will be unavailable for 90 days following the rename.
                         name="location"
                         value={formData.location}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="website"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        className="block text-xs font-medium text-gray-700 dark:text-gray-300"
                       >
                         Website
                       </label>
@@ -285,7 +319,7 @@ Your original username will be unavailable for 90 days following the rename.
                         name="website"
                         value={formData.website}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                   </>
@@ -294,16 +328,6 @@ Your original username will be unavailable for 90 days following the rename.
 
               {!isLoading && <SubmitButton isFormDirty={isFormDirty} />}
             </form>
-
-            {message && (
-              <p
-                className={`mt-4 text-center ${
-                  message.type === "success" ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                {message.text}
-              </p>
-            )}
           </div>
 
           <div className="w-full md:w-80 order-1 md:order-2">
@@ -315,12 +339,13 @@ Your original username will be unavailable for 90 days following the rename.
                 </>
               ) : (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <p className="text-xs font-medium text-black dark:text-white text-left mb-2">
                     Profile picture
                   </p>
                   <AvatarUpload
                     clickableAvatar
-                    handleSave={handleSave}
+                    handleSave={handleSaveAvatar}
+                    handleDelete={handleDeleteAvatar}
                     align={isMobileView ? "start" : "center"}
                   />
                 </div>

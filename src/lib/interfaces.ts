@@ -40,8 +40,8 @@ export interface IUser {
   avatar?: {
     data: string;
     contentType: string;
+    fileId: string;
   };
-  avatarId?: string;
   reminders?: IReminder[];
 }
 

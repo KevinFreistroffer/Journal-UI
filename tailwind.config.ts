@@ -56,6 +56,10 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      spacing: {
+        tablessHeader: "64px",
+        header: "97px",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

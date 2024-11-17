@@ -20,6 +20,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import Avatar from "@/components/ui/Avatar/Avatar";
+import ChangePasswordModal from "./components/ChangePasswordModal";
 
 const SubmitButton = ({ isFormDirty }: { isFormDirty: boolean }) => {
   const { pending } = useFormStatus();
@@ -56,6 +58,8 @@ const Layout = ({
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFinalConfirmation, setShowFinalConfirmation] = useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
+    useState(false);
 
   const handleUsernameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,27 +123,30 @@ Your original username will be unavailable for 90 days following the rename.
 
   return (
     <div
-      id="profile-page"
-      className="min-h-screen bg-background dark:bg-background px-4 py-10 sm:px-8 sm:py-6 overflow-x-hidden"
+      id="settings"
+      className="min-h-[calc(100vh-theme(spacing.header))] bg-background dark:bg-background px-4 py-10 sm:px-8 sm:py-6 overflow-x-hidden"
     >
       <div className="flex-col">
         <div className="mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden">
-            {user?.avatar?.data && (
-              <Image
-                key={user?.avatar?.data}
-                src={user?.avatar?.data}
-                alt={user?.name || "User avatar"}
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+            {isLoading ? (
+              <div className="w-full h-full animate-pulse" />
+            ) : (
+              <Avatar
+                avatarUrl={user?.avatar?.data}
+                username={user?.username}
+                name={user?.name}
               />
             )}
           </div>
           <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            <span className="font-light">
-              {user?.name} {user?.username ? `(${user?.username})` : ""}
-            </span>
+            {isLoading ? (
+              <div className="w-32 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            ) : (
+              <span className="font-light">
+                {user?.name} {user?.username ? `(${user?.username})` : ""}
+              </span>
+            )}
           </span>
         </div>
         <div className="md:flex">
@@ -161,75 +168,87 @@ Your original username will be unavailable for 90 days following the rename.
                   <span className="font-medium dark:text-white">Settings</span>
                 </p> */}
                 <div className="mt-2 text-xs md:text-sm font-normal text-gray-600 dark:text-white space-y-2">
-                  <div
-                    className={`${
-                      pathname === "/settings/profile"
-                        ? "border-l-2 border-blue-500"
-                        : ""
-                    }`}
-                  >
-                    <Link
-                      href="/settings/profile"
-                      className={`block p-2 ${
-                        pathname === "/settings/profile"
-                          ? "bg-gray-100 dark:bg-gray-800"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Settings size={16} />
-                        <span>Profile</span>
+                  {isLoading ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="p-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className={`${
+                          pathname === "/settings/profile"
+                            ? "border-l-2 border-blue-500"
+                            : ""
+                        }`}
+                      >
+                        <Link
+                          href="/settings/profile"
+                          className={`block p-2 text-xs ${
+                            pathname === "/settings/profile"
+                              ? "bg-gray-100 dark:bg-gray-800"
+                              : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Settings size={16} />
+                            <span>Profile</span>
+                          </div>
+                        </Link>
                       </div>
-                    </Link>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsChangeUsernameModalOpen(true);
-                    }}
-                    className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-                  >
-                    <div className="flex items-center gap-2">
-                      <UserCog size={16} />
-                      <span>Change username</span>
-                    </div>
-                  </button>
-                  <Link
-                    href="/settings/password"
-                    className={`block p-2 ${
-                      pathname === "/settings/password"
-                        ? "bg-gray-100 dark:bg-gray-800"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                    } rounded-md`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <KeyRound size={16} />
-                      <span>Change password</span>
-                    </div>
-                  </Link>
-                  <Link
-                    href="/settings/notifications"
-                    className={`block p-2 ${
-                      pathname === "/settings/notifications"
-                        ? "bg-gray-100 dark:bg-gray-800"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                    } rounded-md`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Bell size={16} />
-                      <span>Notifications</span>
-                    </div>
-                  </Link>
-                  {!isMobileView && (
-                    <button
-                      onClick={() => setIsDeleteModalOpen(true)}
-                      className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md text-red-500"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Trash2 size={16} />
-                        <span>Delete account</span>
-                      </div>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsChangeUsernameModalOpen(true);
+                        }}
+                        className="w-full text-left p-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                      >
+                        <div className="flex items-center gap-2">
+                          <UserCog size={16} />
+                          <span>Change username</span>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsChangePasswordModalOpen(true)}
+                        className="w-full text-left p-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                      >
+                        <div className="flex items-center gap-2">
+                          <KeyRound size={16} />
+                          <span>Change password</span>
+                        </div>
+                      </button>
+                      <Link
+                        href="/settings/notifications"
+                        className={`block p-2 text-xs ${
+                          pathname === "/settings/notifications"
+                            ? "bg-gray-100 dark:bg-gray-800"
+                            : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                        } rounded-md`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Bell size={16} />
+                          <span>Notifications</span>
+                        </div>
+                      </Link>
+                      {!isMobileView && (
+                        <button
+                          onClick={() => setIsDeleteModalOpen(true)}
+                          className="w-full text-left p-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md text-red-500"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Trash2 size={16} />
+                            <span>Delete account</span>
+                          </div>
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -242,15 +261,17 @@ Your original username will be unavailable for 90 days following the rename.
           >
             {children}
             {isMobileView && (
-              <div className="mt-8 pt-8 border-t">
+              <div>
                 <div className="flex justify-center">
-                  <Link
-                    href="/settings/delete-account"
-                    className="inline-flex items-center gap-2 text-red-500 hover:text-red-600 border-2 border-red-500 rounded-md px-4 py-2"
+                  <button
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    className="text-left p-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md text-red-500"
                   >
-                    <Trash2 size={16} />
-                    <span>Delete account</span>
-                  </Link>
+                    <div className="flex items-center gap-2">
+                      <Trash2 size={16} />
+                      <span>Delete account</span>
+                    </div>
+                  </button>
                 </div>
               </div>
             )}
@@ -264,6 +285,10 @@ Your original username will be unavailable for 90 days following the rename.
         username={newUsername}
         onUsernameChange={(e) => setNewUsername(e.target.value)}
         error={usernameError}
+      />
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onOpenChange={setIsChangePasswordModalOpen}
       />
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <DialogContent className="sm:max-w-[425px] bg-white dark:bg-gray-800">
@@ -296,13 +321,13 @@ Your original username will be unavailable for 90 days following the rename.
                   deleteConfirmation !== "I confirm deletion of my account" ||
                   isDeleting
                 }
-                className="w-full mt-4 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-4 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 {isDeleting
                   ? "Deleting..."
                   : showFinalConfirmation
-                    ? "Yes, I'm absolutely sure - Delete Account"
-                    : "Delete Account"}
+                  ? "Yes, I'm absolutely sure - Delete Account"
+                  : "Delete Account"}
               </button>
             </DialogDescription>
           </DialogHeader>

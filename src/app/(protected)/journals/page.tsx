@@ -916,7 +916,7 @@ export default function JournalsPage() {
                 <Card
                   key={index}
                   className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
-                    selectedEntries.includes(journal._id) ? "bg-blue-100" : ""
+                    selectedEntries.includes(journal._id) ? "bg-blue-100 dark:bg-blue-900" : "dark:bg-gray-800"
                   } p-3 sm:p-4 md:p-6 relative`}
                 >
                   <div
@@ -938,7 +938,7 @@ export default function JournalsPage() {
                       {/* Removed top and horizontal padding */}
                       <div className="flex justify-between items-center">
                         <div className="flex flex-col">
-                          <CardTitle className="text-wrap break-words text-md text-blue-500 flex-1 break-all mr-1">
+                          <CardTitle className="text-wrap break-words text-md text-blue-500 dark:text-blue-400 flex-1 break-all mr-1">
                             <Link
                               href={`/journal/${journal._id}`}
                               className="hover:underline"
@@ -951,7 +951,7 @@ export default function JournalsPage() {
                             </Link>
                           </CardTitle>
                           {showCategory && (
-                            <p className="text-xs mt-2 text-gray-500 bg-gray-100 rounded-full px-2 py-0.5 w-fit mb-2">
+                            <p className="text-xs mt-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-0.5 w-fit mb-2">
                               {/* {journal.categories
                                 .map((c) => c.category)
                                 .join(", ")} */}
@@ -1007,21 +1007,21 @@ export default function JournalsPage() {
                               asChild
                               className="dark:bg-black dark:text-white"
                             >
-                              <button className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none">
-                                <ChevronDownIcon className="w-4 h-4" />
+                              <button className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 dark:bg-gray-700 dark:border-gray-600 rounded-tr rounded-br focus:outline-none">
+                                <ChevronDownIcon className="w-4 h-4 dark:text-gray-300" />
                               </button>
                             </Popover.Trigger>
                             <Popover.Portal>
                               <Popover.Content
-                                className="bg-white rounded-md shadow-lg border border-gray-200 w-[200px] z-50"
+                                className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 w-[200px] z-50"
                                 sideOffset={5}
                                 align="end"
                               >
-                                <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 flex justify-between items-center">
+                                <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200 flex justify-between items-center">
                                   Categories
                                   <button
                                     onClick={() => setSelectIsOpen(null)}
-                                    className="hover:bg-gray-100 p-1 rounded-sm "
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-sm"
                                   >
                                     <Cross1Icon className="w-3 h-3" />
                                   </button>
@@ -1031,13 +1031,13 @@ export default function JournalsPage() {
                                   .map((category) => (
                                     <button
                                       key={category}
-                                      className={`box-border overflow-wrap-anywhere w-full px-4 py-3 text-sm text-left hover:bg-gray-100 rounded-sm flex items-center justify-between ${
+                                      className={`box-border overflow-wrap-anywhere w-full px-4 py-3 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm flex items-center justify-between ${
                                         journal.categories
                                           .map((c) => c.category)
                                           .join(", ")
                                           .toLowerCase() === category
-                                          ? "text-blue-500"
-                                          : ""
+                                          ? "text-blue-500 dark:text-blue-400"
+                                          : "dark:text-gray-200"
                                       }`}
                                       onClick={() => {
                                         handleCategoryChange(
@@ -1061,7 +1061,7 @@ export default function JournalsPage() {
                                     setShowCreateCategoryModal(true);
                                     setSelectIsOpen(null);
                                   }}
-                                  className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 border-t border-gray-200 flex items-center text-blue-500"
+                                  className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-t border-gray-200 dark:border-gray-700 flex items-center text-blue-500 dark:text-blue-400"
                                 >
                                   <PlusIcon className="w-4 h-4 mr-2" />
                                   Create new
@@ -1085,7 +1085,7 @@ export default function JournalsPage() {
                                 analyzeSentiment(journal.entry).score
                               )}`}
                             ></div>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
                               {getSentimentWord(
                                 analyzeSentiment(journal.entry).score
                               )}
@@ -1094,7 +1094,7 @@ export default function JournalsPage() {
                         )}
 
                         {showUpdatedDate && journal.updatedAt ? (
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             Updated on{" "}
                             {formatDate(journal.updatedAt.toString())}
                           </p>
@@ -1117,8 +1117,8 @@ export default function JournalsPage() {
         >
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-            <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
-              <Dialog.Title className="text-lg font-semibold mb-4">
+            <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
+              <Dialog.Title className="text-lg font-semibold mb-4 dark:text-gray-200">
                 Create New Category
               </Dialog.Title>
               <input
@@ -1126,12 +1126,12 @@ export default function JournalsPage() {
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="Category name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={() => setShowCreateCategoryModal(false)}
-                  className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700"
+                  className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 >
                   Cancel
                 </button>

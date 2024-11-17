@@ -67,7 +67,6 @@ export const login: LoginFunction = async (
     });
 
     const data = await response.json();
-    console.log("login() data", data);
     if (!response.ok) {
       const errorData = await response.json();
       return {

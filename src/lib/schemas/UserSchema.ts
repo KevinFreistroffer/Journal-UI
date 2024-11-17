@@ -14,7 +14,7 @@ export const UserSchema = z.object({
     .object({
       data: z.string(),
       contentType: z.string(),
+      fileId: z.string(),
     })
     .nullable(),
-  avatarId: z.string().nullable(),
 });

@@ -46,6 +46,7 @@ import Image from "next/image"; // Add this import at the top of the file
 import { Button } from "@/components/ui/Button"; // Add this import if not already present
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { MdCategory } from "react-icons/md";
+import Avatar from "../Avatar/Avatar";
 export interface IMenuItem {
   href: string;
   label: string;
@@ -216,6 +217,10 @@ export default function Header() {
     (item) => !getVisibleMenuItems().includes(item)
   );
 
+  useEffect(() => {
+    console.log("user = ", user);
+  }, [user]);
+
   return (
     <>
       <header
@@ -235,7 +240,7 @@ export default function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="hover:bg-gray-200 border border-gray-600 p-1 w-auto h-auto bg-transparent dark:hover:bg-gray-800"
+                    className="hover:bg-gray-200 border border-gray-300 dark:border-gray-700 p-1 w-auto h-auto bg-transparent dark:hover:bg-gray-800"
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
@@ -321,25 +326,11 @@ export default function Header() {
                       className="focus:outline-none cursor-pointer bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200 border p-0"
                       aria-label="User menu"
                     >
-                      {user.avatar ? (
-                        <Image
-                          src={user.avatar.data}
-                          alt={`${user.username}'s avatar`}
-                          width={36}
-                          height={36}
-                          className={`rounded-full object-cover ${
-                            isExtraSmallScreen ? "w-7 h-7" : "w-9 h-9"
-                          }`}
-                        />
-                      ) : (
-                        <div
-                          className={`rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-medium ${
-                            isExtraSmallScreen ? "w-8 h-8" : "w-8 h-8"
-                          }`}
-                        >
-                          {getUserInitial(user.username)}
-                        </div>
-                      )}
+                      <Avatar
+                        avatarUrl={user?.avatar?.data}
+                        username={user?.username}
+                        name={user?.name}
+                      />
                     </button>
                   </DropdownMenu.Trigger>
 

@@ -25,6 +25,8 @@ determine if entry or journal
 
 lazy loading to fix maybe ssr issues?
 
+dark theme black is too dark. use githubs black. rgb(21,27,35)
+
 use colors in globals.css
 water ripple background animated
 

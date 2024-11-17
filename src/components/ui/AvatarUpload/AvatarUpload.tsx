@@ -3,20 +3,24 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
-import { Pencil2Icon } from "@radix-ui/react-icons";
+import { Pencil1Icon } from "@radix-ui/react-icons";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import Avatar from "../Avatar/Avatar";
 
 const AvatarUpload = ({
   clickableAvatar = false,
   handleSave,
+  handleDelete,
   size,
   align = "center",
 }: {
   clickableAvatar: boolean;
   handleSave: (avatar: { data: string; contentType: string }) => void;
+  handleDelete: () => void;
   size?: number;
   align?: "start" | "center" | "end";
 }) => {
@@ -29,6 +33,7 @@ const AvatarUpload = ({
   const imgRef = useRef<HTMLImageElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
 
   useEffect(() => {
     if (user?.avatar) {
@@ -46,6 +51,7 @@ const AvatarUpload = ({
         setShowCropModal(true);
       };
       reader.readAsDataURL(file);
+      event.target.value = '';
     }
   };
 
@@ -101,7 +107,7 @@ const AvatarUpload = ({
         setShowCropModal(false);
         setTempImage(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save avatar');
+        setError(err instanceof Error ? err.message : "Failed to save avatar");
       } finally {
         setIsSaving(false);
       }
@@ -109,7 +115,21 @@ const AvatarUpload = ({
   };
 
   const handleRemovePhoto = () => {
-    setAvatar(null);
+    setShowRemoveConfirm(true);
+  };
+
+  const confirmRemovePhoto = async () => {
+    setIsSaving(true);
+    setError(null);
+    try {
+      await handleDelete();
+      setAvatar(null);
+      setShowRemoveConfirm(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove avatar");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleUploadClick = () => {
@@ -124,81 +144,65 @@ const AvatarUpload = ({
 
   return (
     <div className={`flex flex-col items-${align}`}>
-      {avatar ? (
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <div
-              className="mb-4 cursor-pointer relative group"
-              title={clickableAvatar ? "Change avatar" : undefined}
-            >
-              <Image
-                src={avatar}
-                alt="User Avatar"
-                width={size || 200}
-                height={size || 200}
-                className={`rounded-full object-cover aspect-square ${
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <div className="mb-4 cursor-pointer relative group">
+            {avatar ? (
+              <Avatar
+                avatarUrl={avatar}
+                username={user?.username}
+                name={user?.name}
+                size={size || 200}
+              />
+            ) : (
+              <div
+                className={`aspect-square ${
                   size
                     ? `w-[${size}px] h-[${size}px]`
                     : "w-[clamp(120px,calc(120px_+_(100vw_-_768px)_*_0.1),200px)]"
-                }`}
-              />
-              {clickableAvatar && (
-                <>
-                  <div className="absolute bottom-5 left-5 bg-white rounded-full p-2 shadow-md cursor-pointer">
-                    <Pencil2Icon className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 15 15"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M4 6L7.5 9L11 6"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )}
-            </div>
-          </DropdownMenu.Trigger>
-          {clickableAvatar && (
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 p-2 min-w-[150px] text-sm">
-                <DropdownMenu.Item
-                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded text-gray-700"
-                  onSelect={handleUploadClick}
-                >
-                  Upload a photo
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-red-500 dark:text-red-400"
-                  onSelect={handleRemovePhoto}
-                >
-                  Remove photo
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          )}
-        </DropdownMenu.Root>
-      ) : (
-        <div
-          className={`aspect-square ${
-            size
-              ? `w-[${size}px] h-[${size}px]`
-              : "w-[clamp(120px,calc(120px_+_(100vw_-_768px)_*_0.1),200px)]"
-          } bg-gray-200 rounded-full flex items-center justify-center overflow-hidden`}
-          title={clickableAvatar && !avatar ? "Change avatar" : undefined}
-        >
-          <span className="text-gray-500">No Image</span>
-        </div>
-      )}
+                } bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden`}
+              >
+                <span className="text-gray-500 dark:text-gray-400">
+                  No Image
+                </span>
+              </div>
+            )}
+            {clickableAvatar && (
+              <div className="text-xs flex items-center gap-1 px-1 py-1 absolute bottom-[10%] left-0 bg-white dark:bg-gray-800 rounded-sm p-0 shadow-md dark:border dark:border-gray-700">
+                <Pencil1Icon
+                  className={`${
+                    size
+                      ? `h-[${Math.max(size * 0.1, 16)}px] w-[${Math.max(
+                          size * 0.1,
+                          16
+                        )}px]`
+                      : "h-3 w-3"
+                  } text-gray-600 dark:text-gray-300`}
+                />{" "}
+                Edit
+              </div>
+            )}
+          </div>
+        </DropdownMenu.Trigger>
+        {clickableAvatar && (
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content className="relative top-[-7px] pt-[.125rem] bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 min-w-[150px] text-sm outline-none before:content-[''] before:absolute before:top-[-5px] before:left-[10px] before:w-[10px] before:h-[10px] before:rotate-45 before:border-l before:border-t before:border-gray-200 dark:before:border-gray-700 before:bg-white dark:before:bg-gray-800">
+              <DropdownMenu.Item
+                className="text-xs px-4 pt-2 relative z-10 pb-1 outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded rounded-bl-none rounded-br-none text-gray-700"
+                onSelect={handleUploadClick}
+              >
+                Upload a photo
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className="text-xs px-4 pt-1 pb-2 outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded rounded-tl-none rounded-tr-none text-red-500 dark:text-red-400"
+                onSelect={handleRemovePhoto}
+              >
+                Remove photo
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        )}
+      </DropdownMenu.Root>
       <input
         type="file"
         ref={fileInputRef}
@@ -221,11 +225,7 @@ const AvatarUpload = ({
             <Dialog.Title className="text-lg font-bold mb-4">
               Crop Image
             </Dialog.Title>
-            {error && (
-              <div className="mb-4 text-red-500 text-sm">
-                {error}
-              </div>
-            )}
+            {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
             {tempImage && (
               <ReactCrop crop={crop} onChange={(c) => setCrop(c)} aspect={1}>
                 <Image
@@ -268,13 +268,56 @@ const AvatarUpload = ({
                     Saving...
                   </>
                 ) : (
-                  'Save'
+                  "Save"
                 )}
               </button>
             </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+      <AlertDialog.Root
+        open={showRemoveConfirm}
+        onOpenChange={setShowRemoveConfirm}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 bg-black/50" />
+          <AlertDialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full">
+            <AlertDialog.Title className="text-lg font-bold mb-4 dark:text-white">
+              Remove Avatar
+            </AlertDialog.Title>
+            <AlertDialog.Description className="text-gray-600 dark:text-gray-300 mb-6">
+              Are you sure you want to remove your avatar? This action cannot be
+              undone.
+            </AlertDialog.Description>
+            <div className="flex justify-end gap-3">
+              <AlertDialog.Cancel asChild>
+                <button
+                  className="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  disabled={isSaving}
+                >
+                  Cancel
+                </button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <button
+                  onClick={confirmRemovePhoto}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Removing...
+                    </>
+                  ) : (
+                    "Remove Avatar"
+                  )}
+                </button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </div>
   );
 };
