@@ -310,13 +310,13 @@ export default function Header() {
               {user && pathname !== "/journal/write" && (
                 <Button
                   onClick={() => router.push("/journal/write")}
-                  className={`bg-orange-500 text-white hover:bg-orange-600 dark:bg-purple-600 dark:hover:bg-purple-700 flex items-center gap-2 ${
+                  className={`bg-orange-500 text-white hover:bg-orange-600 dark:bg-purple-600 dark:hover:bg-purple-700 flex items-center gap-1  ${
                     isExtraSmallScreen ? "p-[5px] h-auto" : ""
                   }`}
                   size="sm"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">New Journal</span>
+                  <span className="text-xs hidden sm:inline">New Journal</span>
                 </Button>
               )}
               {user ? (
