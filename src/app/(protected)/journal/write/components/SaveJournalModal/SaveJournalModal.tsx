@@ -8,10 +8,11 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ICategory } from "@/lib/interfaces";
-import styles from "./SaveJournalModal.module.css";
+import "./SaveJournalModal.css";
 
 interface SaveJournalModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ interface SaveJournalModalProps {
   categories: ICategory[];
   selectedCategories: string[];
   onCategoriesChange: (categories: string[]) => void;
+  onCreateCategory: (inputValue: string) => void;
   favorite: boolean;
   onFavoriteChange: (favorite: boolean) => void;
   title: string;
@@ -36,6 +38,7 @@ export default function SaveJournalModal({
   categories,
   selectedCategories,
   onCategoriesChange,
+  onCreateCategory,
   favorite,
   onFavoriteChange,
   title,
@@ -46,9 +49,12 @@ export default function SaveJournalModal({
 }: SaveJournalModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[475px] px-8">
+      <DialogOverlay className="bg-white/10 backdrop-blur-sm dark:bg-white/20" />
+      <DialogContent className="sm:max-w-[475px] px-8 bg-white dark:bg-black">
         <DialogHeader>
-          <DialogTitle>Optional Settings</DialogTitle>
+          <DialogTitle className="text-gray-600 dark:text-white">
+            Optional Settings
+          </DialogTitle>
         </DialogHeader>
 
         <form
@@ -61,50 +67,30 @@ export default function SaveJournalModal({
           <div className="grid gap-4 py-4 mb-6">
             {/* Favorite Toggle */}
             <div className="flex items-center space-x-3">
-              <Label htmlFor="favorite" className="cursor-pointer">
-                Favorite this entry?
-              </Label>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="favorite-no"
-                    name="favorite"
-                    value="false"
-                    checked={!favorite}
-                    onChange={() => onFavoriteChange(false)}
-                    className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="favorite-no"
-                    className="ml-2 text-sm text-gray-600"
-                  >
-                    No
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="favorite-yes"
-                    name="favorite"
-                    value="true"
-                    checked={favorite}
-                    onChange={() => onFavoriteChange(true)}
-                    className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="favorite-yes"
-                    className="ml-2 text-sm text-gray-600"
-                  >
-                    Yes
-                  </label>
-                </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="favorite"
+                  name="favorite"
+                  checked={favorite}
+                  onChange={(e) => onFavoriteChange(e.target.checked)}
+                  className="w-4 h-4 text-blue-500 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="favorite"
+                  className="ml-2 text-xs  text-gray-600 dark:text-white cursor-pointer"
+                >
+                  Favorite this entry?
+                </label>
               </div>
             </div>
 
             {/* Category Selection */}
             <div className="space-y-2 mb-2">
-              <Label htmlFor="category" className="text-sm">
+              <Label
+                htmlFor="category"
+                className="text-xs text-gray-600 dark:text-white"
+              >
                 Categorize
               </Label>
               <MultiSelect
@@ -114,8 +100,15 @@ export default function SaveJournalModal({
                 }))}
                 selectedValues={selectedCategories}
                 onChange={onCategoriesChange}
+                onCreateOption={(inputValue) => {
+                  console.log(inputValue);
+                  onCreateCategory(inputValue);
+                }}
                 placeholder="Select categories..."
-                className="overflow-wrap-anywhere text-sm"
+                className="overflow-wrap-anywhere text-xs md:text-sm
+                  dark:bg-gray-900 dark:border-gray-700 dark:text-white
+                  bg-white border-gray-200 text-gray-900
+                  hover:border-gray-300 dark:hover:border-gray-600"
               />
             </div>
 
@@ -129,7 +122,7 @@ export default function SaveJournalModal({
               <Button
                 type="submit"
                 disabled={saveStatus === "loading"}
-                className={`relative bg-blue-500 hover:bg-blue-600 text-white cursor-pointer px-6 py-1`}
+                className="relative bg-blue-500 hover:bg-blue-600 text-white cursor-pointer px-6 py-1 dark:bg-blue-600 dark:hover:bg-blue-700 text-xs md:text-sm"
               >
                 {saveStatus === "loading" ? (
                   <div className="flex items-center justify-center">
@@ -149,7 +142,7 @@ export default function SaveJournalModal({
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className={`bg-gray-100 hover:bg-gray-200 cursor-pointer px-6 py-1 `}
+                className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-gray-600 cursor-pointer px-6 py-1 text-xs md:text-sm"
               >
                 Cancel
               </Button>
@@ -158,10 +151,10 @@ export default function SaveJournalModal({
 
           {/* Error message display */}
           {saveStatus === "error" && saveError && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <div className="flex items-center text-red-600">
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900 rounded-md">
+              <div className="flex items-center text-red-600 dark:text-red-400 text-xs md:text-sm">
                 <AlertCircle className="h-4 w-4 mr-2" />
-                <span className="text-sm">{saveError}</span>
+                <span>{saveError}</span>
               </div>
             </div>
           )}

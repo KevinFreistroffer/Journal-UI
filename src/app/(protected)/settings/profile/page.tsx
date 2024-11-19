@@ -251,7 +251,7 @@ Your original username will be unavailable for 90 days following the rename.
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
                       />
                     </div>
 
@@ -268,7 +268,7 @@ Your original username will be unavailable for 90 days following the rename.
                         rows={3}
                         value={formData.bio}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
                       />
                     </div>
 
@@ -285,7 +285,7 @@ Your original username will be unavailable for 90 days following the rename.
                         name="company"
                         value={formData.company}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
                       />
                     </div>
 
@@ -302,7 +302,7 @@ Your original username will be unavailable for 90 days following the rename.
                         name="location"
                         value={formData.location}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
                       />
                     </div>
 
@@ -319,7 +319,7 @@ Your original username will be unavailable for 90 days following the rename.
                         name="website"
                         value={formData.website}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
                       />
                     </div>
                   </>

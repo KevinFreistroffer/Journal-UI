@@ -1,5 +1,9 @@
-import React from "react";
-import Select, { MultiValue } from "react-select";
+"use client";
+
+import React, { useState } from "react";
+import CreatableSelect from "react-select/creatable";
+import { useTheme } from "next-themes";
+import { Plus } from "lucide-react";
 
 interface Option {
   value: string;
@@ -10,54 +14,89 @@ interface MultiSelectProps {
   options: Option[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
+  onCreateOption?: (inputValue: string) => void;
   placeholder?: string;
   className?: string;
 }
-
-// Add custom styles for the checkbox option
-const Option = (props: any) => {
-  return (
-    <div
-      {...props.innerProps}
-      className={`${props.className} flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer`}
-    >
-      <input
-        type="checkbox"
-        checked={props.isSelected}
-        onChange={() => {}}
-        className="mr-2"
-      />
-      <span>{props.label}</span>
-    </div>
-  );
-};
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
   options,
   selectedValues,
   onChange,
-  placeholder = "Select options...",
+  onCreateOption,
+  placeholder = "Search or select options...",
   className = "",
 }) => {
+  const { theme } = useTheme();
+
   const selectedOptions = options.filter((option) =>
     selectedValues.includes(option.value)
   );
 
-  const handleChange = (newValue: MultiValue<Option>) => {
-    onChange(newValue.map((option) => option.value));
+  const handleChange = (newValue: any) => {
+    onChange(newValue.map((option: Option) => option.value));
   };
 
   return (
-    <Select
-      isMulti
-      options={options}
-      value={selectedOptions}
-      onChange={handleChange}
-      placeholder={placeholder}
-      className={className}
-      classNamePrefix="react-select"
-      components={{ Option }}
-      closeMenuOnSelect={false}
-    />
+    <div className="relative">
+      <CreatableSelect
+        isMulti
+        options={options}
+        value={selectedOptions}
+        onChange={handleChange}
+        onCreateOption={onCreateOption}
+        placeholder={placeholder}
+        className={className}
+        classNamePrefix="react-select"
+        closeMenuOnSelect={false}
+        formatCreateLabel={(inputValue) => (
+          <div className="flex items-center gap-2 cursor-pointer transition-colors rounded-md p-1">
+            <Plus size={16} />
+            <span>Create &quot;{inputValue}&quot;</span>
+          </div>
+        )}
+        styles={{
+          control: (baseStyles) => ({
+            ...baseStyles,
+            backgroundColor:
+              theme === "dark" ? "hsl(var(--background))" : "transparent",
+            borderColor:
+              theme === "dark" ? "hsl(var(--border))" : baseStyles.borderColor,
+            color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
+          }),
+          menu: (baseStyles) => ({
+            ...baseStyles,
+            backgroundColor:
+              theme === "dark"
+                ? "hsl(var(--background))"
+                : baseStyles.backgroundColor,
+            borderColor:
+              theme === "dark" ? "hsl(var(--border))" : baseStyles.borderColor,
+          }),
+          option: (baseStyles, state) => ({
+            ...baseStyles,
+            backgroundColor: state.isFocused
+              ? theme === "dark"
+                ? "hsl(var(--accent))"
+                : "hsl(var(--accent-light))"
+              : "transparent",
+            color:
+              theme === "dark"
+                ? state.isFocused
+                  ? "hsl(var(--accent-foreground))"
+                  : "hsl(var(--foreground))"
+                : undefined,
+          }),
+          singleValue: (baseStyles) => ({
+            ...baseStyles,
+            color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
+          }),
+          multiValue: (baseStyles) => ({
+            ...baseStyles,
+            color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
+          }),
+        }}
+      />
+    </div>
   );
 };

@@ -21,6 +21,8 @@ redo the form action error messages
 create a logging system saving errors to a file. example: signup action returns { ..., adminMessage: "No body.data returned from the server".}
 - save this text, with timestamp, with user info username, email, etc.
 
+save journal modal multiselect figure out how to style it or use diff lib.
+
 determine if entry or journal
 
 lazy loading to fix maybe ssr issues?

@@ -169,16 +169,12 @@ Your original username will be unavailable for 90 days following the rename.
                 </p> */}
                 <div className="mt-2 text-xs md:text-sm font-normal text-gray-600 dark:text-white space-y-2">
                   {isLoading ? (
-                    <>
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="p-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                          </div>
-                        </div>
-                      ))}
-                    </>
+                    <div className="p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                      </div>
+                    </div>
                   ) : (
                     <>
                       <div

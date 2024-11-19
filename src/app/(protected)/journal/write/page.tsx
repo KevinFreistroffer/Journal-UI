@@ -73,7 +73,7 @@ import { Eye } from "lucide-react"; // Add this import
 import { ViewToggle } from "@/components/ui/ViewToggle/ViewToggle";
 import debounce from "lodash/debounce";
 import WordStatsModal from "./components/WordStatsModal";
-import SaveJournalModal from "./components/SaveJournalModal";
+import SaveJournalModal from "./components/SaveJournalModal/SaveJournalModal";
 import PreviewModal from "./components/PreviewModal";
 import StorageAccessWarningModal from "./components/StorageAccessWarningModal";
 import NoContentWarningModal from "./components/NoContentWarningModal";
@@ -81,6 +81,7 @@ import SettingsModal from "./components/SettingsModal";
 import { Switch } from "@/components/ui/Switch";
 import { useTheme } from "next-themes";
 import PublishButton from "./components/PublishButton";
+import { XIcon } from "@/components/icons/XIcon";
 interface IAutoSaveState {
   title: string;
   journal: string;
@@ -858,11 +859,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
                         </div>
                         <Button
                           onClick={handleTweet}
-                          className="mt-4 w-auto bg-blue-500 hover:bg-blue-600 text-white"
+                          className="mt-4 w-auto bg-black hover:bg-black/90 text-white dark:bg-white dark:hover:bg-white/90 dark:text-black"
                           size="sm"
                         >
                           <div className="flex items-center justify-center gap-2">
-                            Tweet
+                            <XIcon />
+                            Post
                           </div>
                         </Button>
                       </>
@@ -989,7 +991,18 @@ function WritePage({ children }: { children: React.ReactNode }) {
                     }
                   }}
                   autoSaveEnabled={autoSaveEnabled}
-                  onAutoSaveChange={setAutoSaveEnabled}
+                  onAutoSaveChange={(enabled) => {
+                    setAutoSaveEnabled(enabled);
+                    // If autosave is being turned ON and there's content, save immediately
+                    if (enabled && (journal.trim() || title.trim())) {
+                      saveToStorage({
+                        journal,
+                        title,
+                        categories: selectedCategories,
+                        lastSaved: new Date(),
+                      });
+                    }
+                  }}
                 />
                 <SettingsModal
                   open={isSettingsModalOpen}
@@ -1235,6 +1248,18 @@ function WritePage({ children }: { children: React.ReactNode }) {
           categories={categories}
           selectedCategories={selectedCategories}
           onCategoriesChange={setSelectedCategories}
+          onCreateCategory={(categoryName) => {
+            setCategories([
+              ...categories,
+              {
+                _id: "",
+                category: categoryName,
+                selected: false,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            ]);
+          }}
           favorite={favorite}
           onFavoriteChange={setFavorite}
           title={title}
