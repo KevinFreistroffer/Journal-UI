@@ -16,6 +16,7 @@ import { Settings } from "lucide-react";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
 
 export default function JournalPage() {
   const router = useRouter();
@@ -112,110 +113,115 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="p-6 min-h-screen flex">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        icon={<Settings />}
-        headerDisplaysTabs={false}
-        sections={[
-          {
-            title: "Settings",
-            content: (
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="show-category"
-                    className="text-sm font-medium"
-                  >
-                    Show Category
-                  </label>
-                  <input
-                    type="checkbox"
-                    id="show-category"
-                    checked={showCategory}
-                    onChange={(e) => setShowCategory(e.target.checked)}
-                  />
+    <PageContainer>
+      <div className="p-6 min-h-screen flex">
+        <Sidebar
+          isOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          icon={<Settings />}
+          headerDisplaysTabs={false}
+          sections={[
+            {
+              title: "Settings",
+              content: (
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="show-category"
+                      className="text-sm font-medium"
+                    >
+                      Show Category
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="show-category"
+                      checked={showCategory}
+                      onChange={(e) => setShowCategory(e.target.checked)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="show-last-updated"
+                      className="text-sm font-medium"
+                    >
+                      Show Last Updated
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="show-last-updated"
+                      checked={showLastUpdated}
+                      onChange={(e) => setShowLastUpdated(e.target.checked)}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="show-last-updated"
-                    className="text-sm font-medium"
-                  >
-                    Show Last Updated
-                  </label>
-                  <input
-                    type="checkbox"
-                    id="show-last-updated"
-                    checked={showLastUpdated}
-                    onChange={(e) => setShowLastUpdated(e.target.checked)}
-                  />
-                </div>
+              ),
+            },
+          ]}
+        />
+        <div
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isSidebarOpen ? "md:ml-56" : "md:ml-24"
+          }`}
+        >
+          <div className="max-w-4xl mx-auto ">
+            {isLoading ? (
+              <div className="min-h-screen flex justify-center items-center">
+                <Spinner />
               </div>
-            ),
-          },
-        ]}
-      />
-      <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "md:ml-56" : "md:ml-24"
-        }`}
-      >
-        <div className="max-w-4xl mx-auto ">
-          {isLoading ? (
-            <div className="min-h-screen flex justify-center items-center">
-              <Spinner />
-            </div>
-          ) : !selectedJournal ? (
-            <div className="text-center min-h-screen flex flex-col justify-center items-center">
-              <p className="mb-4">Could not find the requested journal.</p>
-              <Link href="/journals" className="text-blue-500 hover:underline">
-                Return to Journals Page
-              </Link>
-            </div>
-          ) : (
-            <Card className="min-h-[500px] flex flex-col p-8 relative">
-              <CardHeader className="text-center mb-6 relative">
-                <CardTitle>{selectedJournal.title}</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0"
-                  onClick={() => router.push(`/journal/edit/${params.id}`)}
+            ) : !selectedJournal ? (
+              <div className="text-center min-h-screen flex flex-col justify-center items-center">
+                <p className="mb-4">Could not find the requested journal.</p>
+                <Link
+                  href="/journals"
+                  className="text-blue-500 hover:underline"
                 >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent className="flex-grow flex flex-col">
-                <div
-                  className="mb-4 flex-grow"
-                  dangerouslySetInnerHTML={{
-                    __html: decodeHtmlEntities(selectedJournal.entry),
-                  }}
-                />
-                <div className="mt-auto">
-                  {showCategory && (
-                    <p className="text-sm text-gray-300">
-                      Category:{" "}
-                      {selectedJournal.categories
-                        .map((category) => category.category)
-                        .join(", ")}
-                    </p>
-                  )}
-                  {showLastUpdated && (
-                    <p className="text-sm text-gray-300">
-                      Last updated:{" "}
-                      {selectedJournal.updatedAt
-                        ? new Date(selectedJournal.updatedAt).toLocaleString()
-                        : "N/A"}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                  Return to Journals Page
+                </Link>
+              </div>
+            ) : (
+              <Card className="min-h-[500px] flex flex-col p-8 relative">
+                <CardHeader className="text-center mb-6 relative">
+                  <CardTitle>{selectedJournal.title}</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0"
+                    onClick={() => router.push(`/journal/edit/${params.id}`)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="flex-grow flex flex-col">
+                  <div
+                    className="mb-4 flex-grow"
+                    dangerouslySetInnerHTML={{
+                      __html: decodeHtmlEntities(selectedJournal.entry),
+                    }}
+                  />
+                  <div className="mt-auto">
+                    {showCategory && (
+                      <p className="text-sm text-gray-300">
+                        Category:{" "}
+                        {selectedJournal.categories
+                          .map((category) => category.category)
+                          .join(", ")}
+                      </p>
+                    )}
+                    {showLastUpdated && (
+                      <p className="text-sm text-gray-300">
+                        Last updated:{" "}
+                        {selectedJournal.updatedAt
+                          ? new Date(selectedJournal.updatedAt).toLocaleString()
+                          : "N/A"}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

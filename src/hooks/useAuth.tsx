@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/lib/interfaces";
 import { getUser } from "@/lib/data_access_layer";
 import { useSearch } from "@/context/SearchContext";
+import { initializeSession } from "@/lib/sessionManager";
 
 interface AuthStateType {
   user: IUser | null;
@@ -26,27 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleSetUser = (newUser: IUser | null) => {
     setUser(newUser);
-    setIsLoading(false);
   };
 
   useEffect(() => {
-    async function checkSession() {
-      try {
-        setIsLoading(true);
-        const sessionUser = await getUser();
-        if (!sessionUser) {
-          handleSetUser(null);
-        } else {
-          setFilteredEntries(sessionUser.journals);
-          handleSetUser(sessionUser);
-        }
-      } catch (error) {
-        console.error("Error verifying session:", error);
-        handleSetUser(null);
-      }
-    }
-
-    checkSession();
+    initializeSession(handleSetUser, setFilteredEntries).finally(() =>
+      setIsLoading(false)
+    );
   }, [setFilteredEntries]);
 
   return (

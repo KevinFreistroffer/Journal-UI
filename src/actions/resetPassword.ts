@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { State } from "@/app/(public)/reset-password/types";
-
+import { Config } from "@/lib/configs";
 const schema = z
   .object({
     token: z.string(),
@@ -36,7 +36,14 @@ export async function resetPassword(
   const { token, password } = validatedFields.data;
 
   try {
-    const response = await fetch(`${process.env.API_URL}/user/reset-password`, {
+    if (!Config.API_URL) {
+      return {
+        errors: {},
+        message: "Server Error: Failed to reset password.",
+        success: false,
+      };
+    }
+    const response = await fetch(`${Config.API_URL}/user/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -32,6 +32,8 @@ dark theme black is too dark. use githubs black. rgb(21,27,35)
 use colors in globals.css
 water ripple background animated
 
+enable mfa
+
 replace the keyword freq select with another component. too slow.
 
 when first starting the app, it shows the login signup links, tho can't redirect to them. is stuck on "is auth'd" yet not showing auth'd content. fix auth.

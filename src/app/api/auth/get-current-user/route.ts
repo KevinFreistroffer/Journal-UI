@@ -3,7 +3,7 @@ import { logout } from "@/actions/auth";
 import { CLIENT_SESSION } from "@/lib/constants";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
-
+import { Config } from "@/lib/configs";
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -21,8 +21,15 @@ export async function GET(request: Request) {
       );
     }
 
+    if (!Config.API_URL) {
+      return NextResponse.json(
+        { error: "Server Error. Please try again later." },
+        { status: 500 }
+      );
+    }
+
     const userResponse = await fetch(
-      `${process.env.API_URL}/user/${session.userId}`
+      `${Config.API_URL}/user/${session.userId}`
     );
 
     if (!userResponse.ok) {

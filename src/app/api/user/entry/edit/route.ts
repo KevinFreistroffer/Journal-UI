@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
+import { Config } from "@/lib/configs";
 export async function PUT(req: Request) {
   try {
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       return NextResponse.json(
         { error: "Server Error. Please try again later." },
         { status: 500 }
@@ -24,7 +24,7 @@ export async function PUT(req: Request) {
       journalId,
       favorite: favorite,
     });
-    const response = await fetch(`${process.env.API_URL}/user/journal/edit`, {
+    const response = await fetch(`${Config.API_URL}/user/journal/edit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { useState } from "react";
+import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
 
 interface ModalProps {
   isOpen: boolean;
@@ -41,7 +42,20 @@ const mockReminders: IReminder[] = [
 ];
 
 const RemindersPage = () => {
-  const [newReminder, setNewReminder] = useState({
+  const [newReminder, setNewReminder] = useState<{
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    recurring: boolean;
+    recurrenceType: string;
+    customFrequency: number;
+    customUnit: string;
+    repeatOn: string[];
+    ends: string;
+    endDate: string;
+    occurrences: number;
+  }>({
     title: "",
     description: "",
     date: "",
@@ -100,203 +114,213 @@ const RemindersPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 flex flex-row min-h-screen">
-      <div className="flex-1 p-4">
-        {" "}
-        {/* Left column for reminders */}
-        <h1 className="text-2xl font-bold mb-4">Reminders</h1>
-        {mockReminders.map((reminder) => (
-          <Card key={reminder.id} className="mb-4 p-4">
-            <h2 className="text-xl font-semibold">{reminder.title}</h2>
-            <p>
-              {reminder.date} at {reminder.time}
-            </p>
-            <Button
-              onClick={() => handleDelete(reminder.id)}
-              className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
-            >
-              Delete
-            </Button>
-          </Card>
-        ))}
-      </div>
-
-      <div className="w-1/3 p-4">
-        {" "}
-        {/* Right column for adding new reminders */}
-        <h2 className="text-xl font-bold mb-4">Add New Reminder</h2>
-        <form onSubmit={handleAddReminder} className="mb-4 flex flex-col">
-          <input
-            type="text"
-            placeholder="Title"
-            value={newReminder.title}
-            onChange={(e) =>
-              setNewReminder({ ...newReminder, title: e.target.value })
-            }
-            required
-            className="border p-2 mb-2"
-          />
-          <textarea
-            placeholder="Description"
-            value={newReminder.description}
-            onChange={(e) =>
-              setNewReminder({ ...newReminder, description: e.target.value })
-            }
-            className="border p-2 mb-2"
-          />
-          <input
-            type="date"
-            value={newReminder.date}
-            onChange={(e) =>
-              setNewReminder({ ...newReminder, date: e.target.value })
-            }
-            required
-            className="border p-2 mb-2"
-          />
-          <input
-            type="time"
-            value={newReminder.time}
-            onChange={(e) =>
-              setNewReminder({ ...newReminder, time: e.target.value })
-            }
-            required
-            className="border p-2 mb-2"
-          />
-          <label className="flex items-center mb-2">
-            <input
-              type="checkbox"
-              checked={newReminder.recurring}
-              onChange={(e) => {
-                setNewReminder({ ...newReminder, recurring: e.target.checked });
-                if (e.target.checked) handleCustomRecurrence(); // Open modal if recurring is checked
-              }}
-              className="mr-2"
-            />
-            Recurring
-          </label>
-
-          <Button
-            type="submit"
-            className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Add Reminder
-          </Button>
-        </form>
-      </div>
-
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <h2 className="text-lg font-bold mb-2">Custom Recurrence</h2>
-        <div className="mb-4">
-          <label>React every:</label>
-          <input
-            type="number"
-            value={newReminder.customFrequency}
-            onChange={(e) =>
-              setNewReminder({
-                ...newReminder,
-                customFrequency: Number(e.target.value),
-              })
-            }
-            className="border p-2 mb-2"
-            min="1"
-          />
-          <select
-            value={newReminder.customUnit}
-            onChange={(e) =>
-              setNewReminder({ ...newReminder, customUnit: e.target.value })
-            }
-            className="border p-2 mb-2"
-          >
-            <option value="day">Day</option>
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-            <option value="year">Year</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label>Repeat on:</label>
-          <div className="flex">
-            {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
-              <button
-                key={index}
-                className={`rounded-full border p-2 m-1 ${
-                  newReminder.repeatOn.includes(day)
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => {
-                  const updatedDays = newReminder.repeatOn.includes(day)
-                    ? newReminder.repeatOn.filter((d) => d !== day)
-                    : [...newReminder.repeatOn, day];
-                  setNewReminder({ ...newReminder, repeatOn: updatedDays });
-                }}
+    <PageContainer>
+      <div className="container mx-auto p-4 flex flex-row min-h-screen">
+        <div className="flex-1 p-4">
+          {" "}
+          {/* Left column for reminders */}
+          <h1 className="text-2xl font-bold mb-4">Reminders</h1>
+          {mockReminders.map((reminder) => (
+            <Card key={reminder.id} className="mb-4 p-4">
+              <h2 className="text-xl font-semibold">{reminder.title}</h2>
+              <p>
+                {reminder.date} at {reminder.time}
+              </p>
+              <Button
+                onClick={() => handleDelete(reminder.id)}
+                className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
               >
-                {day}
-              </button>
-            ))}
-          </div>
+                Delete
+              </Button>
+            </Card>
+          ))}
         </div>
-        <div className="mb-4">
-          <label>Ends:</label>
-          <div>
-            <label>
+
+        <div className="w-1/3 p-4">
+          {" "}
+          {/* Right column for adding new reminders */}
+          <h2 className="text-xl font-bold mb-4">Add New Reminder</h2>
+          <form onSubmit={handleAddReminder} className="mb-4 flex flex-col">
+            <input
+              type="text"
+              placeholder="Title"
+              value={newReminder.title}
+              onChange={(e) =>
+                setNewReminder({ ...newReminder, title: e.target.value })
+              }
+              required
+              className="border p-2 mb-2"
+            />
+            <textarea
+              placeholder="Description"
+              value={newReminder.description}
+              onChange={(e) =>
+                setNewReminder({ ...newReminder, description: e.target.value })
+              }
+              className="border p-2 mb-2"
+            />
+            <input
+              type="date"
+              value={newReminder.date}
+              onChange={(e) =>
+                setNewReminder({ ...newReminder, date: e.target.value })
+              }
+              required
+              className="border p-2 mb-2"
+            />
+            <input
+              type="time"
+              value={newReminder.time}
+              onChange={(e) =>
+                setNewReminder({ ...newReminder, time: e.target.value })
+              }
+              required
+              className="border p-2 mb-2"
+            />
+            <label className="flex items-center mb-2">
               <input
-                type="radio"
-                value="never"
-                checked={newReminder.ends === "never"}
-                onChange={() =>
-                  setNewReminder({ ...newReminder, ends: "never" })
-                }
-              />
-              Never
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="on"
-                checked={newReminder.ends === "on"}
-                onChange={() => setNewReminder({ ...newReminder, ends: "on" })}
-              />
-              On
-              <input
-                type="date"
-                value={newReminder.ends === "on" ? newReminder.endDate : ""}
-                onChange={(e) =>
-                  setNewReminder({ ...newReminder, endDate: e.target.value })
-                }
-                className="border p-2 ml-2"
-                disabled={newReminder.ends !== "on"}
-              />
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="after"
-                checked={newReminder.ends === "after"}
-                onChange={() =>
-                  setNewReminder({ ...newReminder, ends: "after" })
-                }
-              />
-              After
-              <input
-                type="number"
-                value={newReminder.occurrences}
-                onChange={(e) =>
+                type="checkbox"
+                checked={newReminder.recurring}
+                onChange={(e) => {
                   setNewReminder({
                     ...newReminder,
-                    occurrences: Number(e.target.value),
-                  })
-                }
-                className="border p-2 ml-2"
-                min="1"
-                disabled={newReminder.ends !== "after"}
+                    recurring: e.target.checked,
+                  });
+                  if (e.target.checked) handleCustomRecurrence(); // Open modal if recurring is checked
+                }}
+                className="mr-2"
               />
-              occurrences
+              Recurring
             </label>
-          </div>
+
+            <Button
+              type="submit"
+              className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Add Reminder
+            </Button>
+          </form>
         </div>
-      </Modal>
-    </div>
+
+        <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+          <h2 className="text-lg font-bold mb-2">Custom Recurrence</h2>
+          <div className="mb-4">
+            <label>React every:</label>
+            <input
+              type="number"
+              value={newReminder.customFrequency}
+              onChange={(e) =>
+                setNewReminder({
+                  ...newReminder,
+                  customFrequency: Number(e.target.value),
+                })
+              }
+              className="border p-2 mb-2"
+              min="1"
+            />
+            <select
+              value={newReminder.customUnit}
+              onChange={(e) =>
+                setNewReminder({ ...newReminder, customUnit: e.target.value })
+              }
+              className="border p-2 mb-2"
+            >
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label>Repeat on:</label>
+            <div className="flex">
+              {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
+                <button
+                  key={index}
+                  className={`rounded-full border p-2 m-1 ${
+                    newReminder.repeatOn.includes(day)
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200"
+                  }`}
+                  onClick={() => {
+                    const updatedDays = newReminder.repeatOn.includes(day)
+                      ? newReminder.repeatOn.filter((d) => d !== day)
+                      : [...newReminder.repeatOn, day];
+                    setNewReminder({
+                      ...newReminder,
+                      repeatOn: updatedDays as string[],
+                    });
+                  }}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mb-4">
+            <label>Ends:</label>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  value="never"
+                  checked={newReminder.ends === "never"}
+                  onChange={() =>
+                    setNewReminder({ ...newReminder, ends: "never" })
+                  }
+                />
+                Never
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="on"
+                  checked={newReminder.ends === "on"}
+                  onChange={() =>
+                    setNewReminder({ ...newReminder, ends: "on" })
+                  }
+                />
+                On
+                <input
+                  type="date"
+                  value={newReminder.ends === "on" ? newReminder.endDate : ""}
+                  onChange={(e) =>
+                    setNewReminder({ ...newReminder, endDate: e.target.value })
+                  }
+                  className="border p-2 ml-2"
+                  disabled={newReminder.ends !== "on"}
+                />
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="after"
+                  checked={newReminder.ends === "after"}
+                  onChange={() =>
+                    setNewReminder({ ...newReminder, ends: "after" })
+                  }
+                />
+                After
+                <input
+                  type="number"
+                  value={newReminder.occurrences}
+                  onChange={(e) =>
+                    setNewReminder({
+                      ...newReminder,
+                      occurrences: Number(e.target.value),
+                    })
+                  }
+                  className="border p-2 ml-2"
+                  min="1"
+                  disabled={newReminder.ends !== "after"}
+                />
+                occurrences
+              </label>
+            </div>
+          </div>
+        </Modal>
+      </div>
+    </PageContainer>
   );
 };
 

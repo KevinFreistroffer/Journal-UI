@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { State } from "@/app/(public)/recover-password/types";
-
+import { Config } from "@/lib/configs";
 const schema = z.object({
   email: z.string().email("Invalid email address"),
 });
@@ -27,9 +27,16 @@ export async function sendResetPasswordEmailFunction(
   const { email } = validatedFields.data;
 
   try {
-    const redirectURL = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`;
+    if (!Config.API_URL) {
+      return {
+        errors: {},
+        message: "Server Error: Failed to send reset password email.",
+        success: false,
+      };
+    }
+    const redirectURL = `${Config.API_URL}/reset-password`;
     const response = await fetch(
-      `${process.env.API_URL}/user/send-reset-password-email`,
+      `${Config.API_URL}/user/send-reset-password-email`,
       {
         method: "POST",
         headers: {

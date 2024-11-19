@@ -13,21 +13,19 @@ export const Spinner: React.FC<SpinnerProps> = ({
   return (
     <div
       className={cn(
-        "flex justify-center items-center animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]",
+        "animate-spin rounded-full border-t-2 border-b-2 border-blue-500",
         {
-          "h-4 w-4 border-2": size === "xs",
-          "h-6 w-6 border-3": size === "sm",
-          "h-8 w-8 border-4": size === "md",
-          "h-12 w-12 border-6": size === "lg",
+          "h-4 w-4 border-t border-b": size === "xs",
+          "h-6 w-6 border-t-[1.5px] border-b-[1.5px]": size === "sm",
+          "h-8 w-8 border-t-2 border-b-2": size === "md",
+          "h-12 w-12 border-t-3 border-b-3": size === "lg",
         },
         className
       )}
       role="status"
       {...props}
     >
-      <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-        Loading...
-      </span>
+      <span className="sr-only">Loading...</span>
     </div>
   );
 };

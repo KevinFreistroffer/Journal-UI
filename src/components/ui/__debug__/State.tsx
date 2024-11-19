@@ -6,7 +6,7 @@ interface StateProps {
   position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
-const State: React.FC<StateProps> = ({ state, position }) => {
+const DebugState: React.FC<StateProps> = ({ state, position }) => {
   return (
     <div className={`${styles.debugContainer} ${styles[position]}`}>
       <div className={styles.main}>
@@ -23,4 +23,4 @@ const State: React.FC<StateProps> = ({ state, position }) => {
   );
 };
 
-export default State;
+export default DebugState;

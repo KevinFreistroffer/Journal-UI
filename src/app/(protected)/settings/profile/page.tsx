@@ -7,7 +7,7 @@ import ChangePassword from "@/components/ui/ChangePassword";
 import { Settings, UserCog, KeyRound, Bell, Trash2 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
-import DashboardContainer from "@/components/ui/layout/DashboardContainer/DashboardContainer";
+import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
 import Link from "next/link";
 import ChangeUsernameModal from "../components/ChangeUsernameModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -216,7 +216,7 @@ Your original username will be unavailable for 90 days following the rename.
     >
       <div className="max-w-6xl mx-auto">
         {isLoading ? (
-          <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4 border-b border-gray-700 pb-2" />
+          <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4 pb-2" />
         ) : (
           <h1 className="text-2xl font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2 text-gray-900 dark:text-white">
             Profile

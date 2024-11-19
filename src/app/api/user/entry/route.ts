@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
+import { Config } from "@/lib/configs";
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
   const id = searchParams.get("id");
 
   try {
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       return NextResponse.json(
         { error: "Server Error. Please try again later." },
         { status: 500 }
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     const cookieStore = await cookies();
     const cookie = cookieStore.get("session_token")?.value;
 
-    const response = await fetch(`${process.env.API_URL}/user/journal/${id}`, {
+    const response = await fetch(`${Config.API_URL}/user/journal/${id}`, {
       headers: {
         //     "Content-Type": "application/json",
         //     Accept: "application/json",

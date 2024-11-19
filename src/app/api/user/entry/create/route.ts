@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
+import { Config } from "@/lib/configs";
 export async function POST(req: Request) {
   try {
-    if (!process.env.API_URL) {
-      return NextResponse.json(
-        { error: "Server Error. Please try again later." },
-        { status: 500 }
-      );
-    }
+    // if (!Config.API_URL) {
+    //   return NextResponse.json(
+    //     { error: "Server Error. Please try again later." },
+    //     { status: 500 }
+    //   );
+    // }
 
     const body = await req.json();
     const { userId, title, entry, category, favorite } = body;
+    console.log(body);
 
-    const response = await fetch(`${process.env.API_URL}/user/journal/create`, {
+    const response = await fetch(`${Config.API_URL}/user/journal/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
     //   );
     // }
 
-    // const response = await fetch(`${process.env.API_URL}/user/journal/delete`, {
+    // const response = await fetch(`${Config.API_URL}/user/journal/delete`, {
     //   method: "DELETE",
     //   headers: {
     //     "Content-Type": "application/json",

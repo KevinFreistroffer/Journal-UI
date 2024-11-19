@@ -53,7 +53,7 @@ export default function SaveJournalModal({
       <DialogContent className="sm:max-w-[475px] px-8 bg-white dark:bg-black">
         <DialogHeader>
           <DialogTitle className="text-gray-600 dark:text-white">
-            Optional Settings
+            Save
           </DialogTitle>
         </DialogHeader>
 

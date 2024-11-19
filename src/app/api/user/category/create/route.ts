@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { NextApiResponse } from "next";
 import { IUser } from "@/lib/interfaces";
-
+import { Config } from "@/lib/configs";
 export async function POST(
   request: Request,
   response: NextApiResponse<{ message: string; success: boolean; data?: IUser }>
@@ -23,8 +23,15 @@ export async function POST(
       );
     }
 
+    if (!Config.API_URL) {
+      return NextResponse.json(
+        { error: "Server Error. Please try again later." },
+        { status: 500 }
+      );
+    }
+
     const response = await fetch(
-      `${process.env.API_URL}/user/journal/category/create?${
+      `${Config.API_URL}/user/journal/category/create?${
         returnUser &&
         typeof returnUser === "string" &&
         ["true", "false"].includes(returnUser.toLowerCase())

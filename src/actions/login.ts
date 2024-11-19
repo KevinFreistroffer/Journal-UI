@@ -6,6 +6,7 @@ import { State, LoginFunction } from "@/app/(public)/login/types";
 import { UserSchema } from "@/lib/schemas/UserSchema";
 import { createClientSession } from "@/lib/session";
 import { IUser } from "@/lib/interfaces";
+import { Config } from "@/lib/configs";
 
 const LoginSchema = z.object({
   usernameOrEmail: z.string(),
@@ -17,7 +18,7 @@ export const login: LoginFunction = async (
   prevState: State,
   formData: FormData
 ) => {
-  if (!process.env.API_URL) {
+  if (!Config.API_URL) {
     return {
       errors: {},
       redirect: null,
@@ -37,6 +38,8 @@ export const login: LoginFunction = async (
       : false,
   });
 
+  console.log("validatedFields", validatedFields, validatedFields.error);
+
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
@@ -52,7 +55,7 @@ export const login: LoginFunction = async (
   const { usernameOrEmail, password, staySignedIn } = validatedFields.data;
 
   try {
-    const response = await fetch(`${process.env.API_URL}/user/login`, {
+    const response = await fetch(`${Config.API_URL}/user/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,6 +70,7 @@ export const login: LoginFunction = async (
     });
 
     const data = await response.json();
+    // console.log("login data", data);
     if (!response.ok) {
       const errorData = await response.json();
       return {
@@ -80,6 +84,7 @@ export const login: LoginFunction = async (
     }
 
     const userDataResult = UserSchema.safeParse(data.data);
+    console.log("userDataResult", userDataResult);
     if (!userDataResult.success) {
       console.error(
         "Invalid user data. Did the API have an update to the user schema?",

@@ -7,7 +7,7 @@ import { deleteSessions } from "@/lib/session";
 import { experimental_jwksCache } from "jose";
 import { FaSeedling } from "react-icons/fa";
 import { Terminal, Waypoints } from "lucide-react";
-
+import { Config } from "@/lib/configs";
 const protectedRoutes = [
   "/dashboard",
   "/categories",
@@ -128,7 +128,7 @@ export const config = {
 //     }
 
 //     // Send a request to the /auth/authenticate endpoint
-//     const response = await fetch(`${process.env.API_URL}/auth/authenticate`, {
+//     const response = await fetch(`${Config.API_URL}/auth/authenticate`, {
 //       method: "GET",
 //       headers: {
 //         "Content-Type": "application/json",

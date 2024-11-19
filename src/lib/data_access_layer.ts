@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 // import { redirect } from "next/navigation";
 import { decrypt } from "@/lib/session";
 import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
+import { Config } from "./configs";
 
 export const verifyClientSession = cache(
   async (): Promise<{
@@ -46,7 +47,7 @@ export const verifyServerSession = cache(async (): Promise<boolean> => {
 
 export const getUser = cache(async () => {
   try {
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       return null;
     }
 
@@ -56,17 +57,14 @@ export const getUser = cache(async () => {
       return null;
     }
 
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       console.error("API_URL is not set");
       return null;
     }
 
-    const response = await fetch(
-      `${process.env.API_URL}/user/${session.userId}`,
-      {
-        headers: { Cookie: cookies().toString() },
-      }
-    );
+    const response = await fetch(`${Config.API_URL}/user/${session.userId}`, {
+      headers: { Cookie: cookies().toString() },
+    });
 
     if (!response.ok) {
       console.error("Failed to fetch user");
@@ -84,12 +82,12 @@ export const getUser = cache(async () => {
 
 export const getUserById = cache(async (userId: string) => {
   try {
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       console.error("API_URL is not set");
       return null;
     }
 
-    const response = await fetch(`${process.env.API_URL}/user/${userId}`, {
+    const response = await fetch(`${Config.API_URL}/user/${userId}`, {
       headers: { Cookie: cookies().toString() },
     });
 

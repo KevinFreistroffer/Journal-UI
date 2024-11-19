@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { Config } from "@/lib/configs";
 export async function GET() {
   return NextResponse.json({ helperText: "Hello World" });
 }
@@ -12,7 +13,7 @@ export interface ISuccessResponse {
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       return NextResponse.json(
         { error: "Server Error. Please try again later." },
         { status: 500 }
@@ -46,9 +47,9 @@ export async function POST(request: Request) {
     // Send the API request to /user/update
     console.log(
       "Sending update request to",
-      `${process.env.API_URL}/user/avatar/upload`
+      `${Config.API_URL}/user/avatar/upload`
     );
-    const response = await fetch(`${process.env.API_URL}/user/avatar/upload`, {
+    const response = await fetch(`${Config.API_URL}/user/avatar/upload`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

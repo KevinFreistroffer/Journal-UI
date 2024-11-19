@@ -53,9 +53,9 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${monaSans.variable} antialiased`}>
-        <div className="flex flex-col min-h-screen">
-          <SearchProvider>
-            <AuthProvider>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
+            <SearchProvider>
               <NotificationProvider>
                 <JournalProvider>
                   <ViewportProvider>
@@ -79,9 +79,9 @@ export default async function RootLayout({
                   </ViewportProvider>
                 </JournalProvider>
               </NotificationProvider>
-            </AuthProvider>
-          </SearchProvider>
-        </div>
+            </SearchProvider>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -17,6 +17,7 @@ const CreateJournalSchema = z.object({
   favorite: z.boolean().optional(),
   sentimentScore: z.number(),
 });
+import { Config } from "@/lib/configs";
 
 export const createJournal: CreateJournalFunction = async (
   userId: string,
@@ -48,7 +49,15 @@ export const createJournal: CreateJournalFunction = async (
     validatedFields.data;
 
   try {
-    const response = await fetch("http://localhost:3001/user/journal/create", {
+    if (!Config.API_URL) {
+      return {
+        errors: {},
+        message: "Server Error: Failed to create journal.",
+        success: false,
+        user: null,
+      };
+    }
+    const response = await fetch(`${Config.API_URL}/user/journal/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

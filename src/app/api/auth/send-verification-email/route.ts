@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { CLIENT_SESSION } from "@/lib/constants";
 import { decrypt } from "@/lib/session";
+import { Config } from "@/lib/configs";
 
 interface Session {
   userId: string;
@@ -38,8 +39,15 @@ export async function GET(req: Request) {
       }
     }
 
+    if (!Config.API_URL) {
+      return NextResponse.json(
+        { error: "Server Error. Please try again later." },
+        { status: 500 }
+      );
+    }
+
     const response = await fetch(
-      `${process.env.API_URL}/auth/send-verification-email/${userId}`,
+      `${Config.API_URL}/auth/send-verification-email/${userId}`,
       {
         headers: {
           "Content-Type": "application/json",

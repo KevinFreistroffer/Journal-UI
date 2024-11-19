@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { Config } from "@/lib/configs";
 export async function GET() {
   return NextResponse.json({ helperText: "Hello World" });
 }
@@ -10,7 +11,7 @@ export interface ISuccessResponse {
 
 export async function DELETE(request: Request) {
   try {
-    if (!process.env.API_URL) {
+    if (!Config.API_URL) {
       return NextResponse.json(
         { error: "Server Error. Please try again later." },
         { status: 500 }
@@ -26,7 +27,7 @@ export async function DELETE(request: Request) {
     }
 
     // Send the DELETE request to /user/avatar/delete
-    const response = await fetch(`${process.env.API_URL}/user/avatar/delete`, {
+    const response = await fetch(`${Config.API_URL}/user/avatar/delete`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
