@@ -13,6 +13,8 @@ import ChangeUsernameModal from "../components/ChangeUsernameModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Image from "next/image";
 import { useNotification } from "@/context/NotificationContext";
+import { IUser } from "@/lib/interfaces";
+import { isValidUser } from "@/lib/utils";
 
 const SubmitButton = ({ isFormDirty }: { isFormDirty: boolean }) => {
   const { pending } = useFormStatus();
@@ -157,7 +159,18 @@ const ProfilePage = () => {
         throw new Error(response.statusText);
       }
 
+      const result = await response.json();
+      console.log("result = ", result);
+
       showSuccess("Profile updated successfully");
+
+      if (result.code === 200) {
+        if (result.user && isValidUser(result.user)) {
+          setUser(result.user);
+        } else {
+          showError("Invalid user data received from server");
+        }
+      }
     } catch (error) {
       showError(`Error updating profile: ${error}`);
     }

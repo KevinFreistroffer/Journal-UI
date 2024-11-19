@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import nlp from "compromise";
 import crypto from "crypto";
 // import { SentimentAnalyzer, WordTokenizer, PorterStemmer } from "natural";
-import { ISentimentResult } from "./interfaces";
+import { ISentimentResult, IUser } from "./interfaces";
 import Sentiment from "sentiment";
 import sanitizeHTML from "sanitize-html";
 import { parse } from "node-html-parser";
@@ -271,4 +271,56 @@ export const formatDate = (dateString: string) => {
 export const getPlainTextFromHtml = (html: string) => {
   const root = parse(html);
   return root.textContent;
+};
+
+export const isValidUser = (user: any): user is IUser => {
+  // Check if user is an object and not null
+  if (typeof user !== "object" || user === null) {
+    console.log("Invalid: user is not an object or is null");
+    return false;
+  }
+
+  // Check required fields
+  const requiredFields = {
+    _id: "string",
+    username: "string",
+    name: "string",
+  };
+
+  for (const [field, type] of Object.entries(requiredFields)) {
+    if (typeof user[field] !== type) {
+      console.log(`Invalid: ${field} is not a ${type}`);
+      return false;
+    }
+  }
+
+  // Check optional string fields
+  const optionalStringFields = ["bio", "company", "location", "website"];
+  for (const field of optionalStringFields) {
+    if (user[field] !== undefined && typeof user[field] !== "string") {
+      console.log(`Invalid: ${field} is defined but not a string`);
+      return false;
+    }
+  }
+
+  // Check avatar object if it exists
+  if (user.avatar) {
+    if (typeof user.avatar !== "object" || user.avatar === null) {
+      console.log("Invalid: avatar is defined but not an object or is null");
+      return false;
+    }
+
+    const avatarFields = ["data", "contentType", "fileId"];
+    for (const field of avatarFields) {
+      if (
+        user.avatar[field] !== undefined &&
+        typeof user.avatar[field] !== "string"
+      ) {
+        console.log(`Invalid: avatar.${field} is defined but not a string`);
+        return false;
+      }
+    }
+  }
+
+  return true;
 };

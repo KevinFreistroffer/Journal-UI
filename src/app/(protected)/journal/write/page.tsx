@@ -1036,8 +1036,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
                               Restore Previous Content?
                             </h4>
                             <p className="text-sm text-gray-600 mt-1">
-                              We found some previously saved content. Would you
-                              like to restore it?
+                              Would you like to restore your previously saved
+                              content?
                               <span className="block mt-1 text-xs text-gray-500">
                                 You can manage auto-save settings in your
                                 preferences.

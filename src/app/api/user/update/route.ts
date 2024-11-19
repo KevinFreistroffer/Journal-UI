@@ -99,6 +99,7 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json();
+    console.log("result = ", result);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error updating user:", error);
