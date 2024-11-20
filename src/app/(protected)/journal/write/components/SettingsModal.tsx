@@ -19,6 +19,8 @@ interface SettingsDialogProps {
   onOpenChange: (open: boolean) => void;
   showLastSaved: boolean;
   onShowLastSavedChange: (checked: boolean) => void;
+  autoRestore: boolean;
+  onAutoRestoreChange: (checked: boolean) => void;
 }
 
 export default function SettingsDialog({
@@ -26,6 +28,8 @@ export default function SettingsDialog({
   onOpenChange,
   showLastSaved,
   onShowLastSavedChange,
+  autoRestore,
+  onAutoRestoreChange,
 }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -40,7 +44,7 @@ export default function SettingsDialog({
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
-        <div className="flex items-center justify-between py-4">
+        <div className="flex items-center justify-between py-1">
           <div className="flex items-center gap-2">
             <label
               htmlFor="show-last-saved"
@@ -72,7 +76,41 @@ export default function SettingsDialog({
               onShowLastSavedChange(checked);
               localStorage.setItem("showLastSaved", JSON.stringify(checked));
             }}
-            className="dark:bg-white"
+            className="dark:data-[state=unchecked]:bg-gray-600 dark:data-[state=checked]:bg-blue-600"
+          />
+        </div>
+        <div className="flex items-center justify-between py-1">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="auto-restore"
+              className="text-sm text-gray-700 dark:text-white"
+            >
+              Auto restore saved content
+            </label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  className="max-w-[250px] dark:bg-gray-800 dark:border-gray-700"
+                >
+                  <p className="dark:text-white">
+                    When enabled, your last saved journal content will be automatically restored when you return.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Switch
+            id="auto-restore"
+            checked={autoRestore}
+            onCheckedChange={(checked) => {
+              onAutoRestoreChange(checked);
+              localStorage.setItem("autoRestore", JSON.stringify(checked));
+            }}
+            className="dark:data-[state=unchecked]:bg-gray-600 dark:data-[state=checked]:bg-blue-600"
           />
         </div>
       </DialogContent>

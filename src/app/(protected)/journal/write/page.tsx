@@ -83,6 +83,7 @@ import { useTheme } from "next-themes";
 import PublishButton from "./components/PublishButton";
 import { XIcon } from "@/components/icons/XIcon";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
+import DebugState from "@/components/ui/__debug__/State";
 interface IAutoSaveState {
   title: string;
   journal: string;
@@ -133,6 +134,13 @@ function WritePage({ children }: { children: React.ReactNode }) {
     createJournal.bind(null, user?._id || ""),
     createJournalInitialState
   );
+  const [autoRestore, setAutoRestore] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("autoRestore");
+      return saved === null ? true : JSON.parse(saved);
+    }
+    return true;
+  });
   const [showWordStats, setShowWordStats] = useState(false);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null); // New error state
@@ -233,9 +241,89 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
+  // Effect for initial data restoration (title and preference check)
+  useEffect(() => {
+    const autoSavePreference = localStorageService.getItem<{
+      hasResponded: boolean;
+      shouldRestore: boolean;
+      timestamp: string;
+    }>("autoSavePreference");
+
+    const savedData =
+      localStorageService.getItem<IAutoSaveState>("journalAutoSave");
+
+    if (
+      !autoSavePreference &&
+      savedData &&
+      (savedData.title || savedData.journal)
+    ) {
+      // Show prompt if user hasn't made a choice yet
+      setShowAutoSavePrompt(true);
+    } else if (
+      (autoSavePreference?.shouldRestore || autoRestore) &&
+      savedData
+    ) {
+      // Restore content if either the user previously chose to restore or autoRestore is enabled
+      setTitle(savedData.title);
+      setLastSavedTime(new Date(savedData.lastSaved));
+      if (savedData.journal) {
+        setJournal(savedData.journal);
+      }
+    }
+  }, [autoRestore]); // Add autoRestore to dependencies
+
+  // Separate effect for Quill content restoration
+  useEffect(() => {
+    if (!quill) return;
+
+    // Add a small delay to ensure Quill is fully initialized
+    const timer = setTimeout(() => {
+      const autoSavePreference = localStorageService.getItem<{
+        hasResponded: boolean;
+        shouldRestore: boolean;
+        timestamp: string;
+      }>("autoSavePreference");
+
+      if (autoSavePreference?.shouldRestore) {
+        const savedData =
+          localStorageService.getItem<IAutoSaveState>("journalAutoSave");
+        if (savedData?.journal) {
+          quill.root.innerHTML = savedData.journal;
+          quill.setSelection(quill.getLength(), 0);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [quill]); // Run when Quill is initialized
+
+  // Also update the text-change effect to properly handle content changes
+  useEffect(() => {
+    if (!quill) return;
+
+    const handleChange = () => {
+      const content = quill.root.innerHTML;
+      setJournal(content);
+    };
+
+    quill.on("text-change", handleChange);
+
+    return () => {
+      quill.off("text-change", handleChange);
+    };
+  }, [quill]);
+
+  // Update handleAutoSaveResponse
   const handleAutoSaveResponse = (shouldRestore: boolean) => {
     setHasUserRespondedToAutoSave(true);
     setShowAutoSavePrompt(false);
+
+    // Save user preference with timestamp
+    localStorageService.setItem("autoSavePreference", {
+      hasResponded: true,
+      shouldRestore,
+      timestamp: new Date().toISOString(),
+    });
 
     if (shouldRestore) {
       const savedData =
@@ -243,17 +331,17 @@ function WritePage({ children }: { children: React.ReactNode }) {
       if (savedData) {
         setTitle(savedData.title);
         if (quill) {
-          quill.clipboard.dangerouslyPasteHTML(savedData.journal);
+          setTimeout(() => {
+            quill.root.innerHTML = savedData.journal;
+            quill.setSelection(quill.getLength(), 0);
+            setJournal(savedData.journal);
+          }, 100);
         }
         setLastSavedTime(new Date(savedData.lastSaved));
       }
     } else {
-      // Clear autosaved content if user declines
       localStorageService.removeItem("journalAutoSave");
     }
-
-    // Save user preference
-    localStorageService.setItem("hasRespondedToAutoSave", "true");
   };
 
   useEffect(() => {
@@ -356,6 +444,11 @@ function WritePage({ children }: { children: React.ReactNode }) {
   //     setIsTextVisible(false); // Hide text when sidebar is closed
   //   }
   // }, [isSidebarOpen]);
+
+  // Add effect to persist autoRestore setting
+  useEffect(() => {
+    localStorage.setItem("autoRestore", JSON.stringify(autoRestore));
+  }, [autoRestore]);
 
   useEffect(() => {
     const savedJournal =
@@ -730,19 +823,28 @@ function WritePage({ children }: { children: React.ReactNode }) {
     saveToDatabase,
   ]); // Only include necessary dependencies
 
-  // Modify the autosave effect to directly load saved content without showing modal
+  // Modify the autosave effect to handle content restoration
   useEffect(() => {
-    const hasResponded = localStorageService.getItem<string>(
-      "hasRespondedToAutoSave"
-    );
-    if (!hasResponded) {
-      const savedData =
-        localStorageService.getItem<IAutoSaveState>("journalAutoSave");
-      if (savedData && (savedData.title || savedData.journal)) {
-        setShowAutoSavePrompt(true);
-      }
+    if (!quill) return; // Exit if quill isn't initialized yet
+
+    const autoSavePreference = localStorageService.getItem<{
+      hasResponded: boolean;
+      shouldRestore: boolean;
+      timestamp: string;
+    }>("autoSavePreference");
+
+    const savedData =
+      localStorageService.getItem<IAutoSaveState>("journalAutoSave");
+
+    if (autoSavePreference?.shouldRestore && savedData?.journal) {
+      // Set the content and cursor to the end
+      quill.root.innerHTML = savedData.journal;
+      quill.setSelection(quill.getLength(), 0);
+
+      // Also update the journal state
+      setJournal(savedData.journal);
     }
-  }, []);
+  }, [quill]); // Only run when quill is initialized
 
   // Add this helper function
   const toggleCategory = (category: string) => {
@@ -916,6 +1018,14 @@ function WritePage({ children }: { children: React.ReactNode }) {
               isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
             )}
           >
+            <DebugState
+              position="bottom-right"
+              state={{
+                sentenceCount: journal
+                  .split(/[.!?]+/)
+                  .filter((sentence) => sentence.trim().length > 0).length,
+              }}
+            />
             <div
               className={cn(
                 "flex justify-end p-4",
@@ -1009,6 +1119,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
                       onOpenChange={setIsSettingsModalOpen}
                       showLastSaved={showLastSaved}
                       onShowLastSavedChange={setShowLastSaved}
+                      autoRestore={autoRestore}
+                      onAutoRestoreChange={setAutoRestore}
                     />
                   </div>
                 </div>

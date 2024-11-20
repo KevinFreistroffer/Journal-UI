@@ -491,7 +491,9 @@ function UserDashboard() {
               You haven&apos;t created any journals yet.
             </p>
             <Link href="/journal/write">
-              <Button>Create Your First Journal</Button>
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors">
+                Create Your First Journal
+              </Button>
             </Link>
           </div>
         ) : (

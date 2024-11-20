@@ -54,10 +54,12 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute) {
     // If there's no server session, than data can't be fetched, so sign in again.
     if (!clientSession || !serverSessionCookie) {
+      console.log("Redirecting to /login");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     if (clientSession?.userId && !clientSession.isVerified) {
+      console.log("Redirecting to /login?isVerified=false");
       return NextResponse.redirect(
         new URL("/login?isVerified=false", request.url)
       );
@@ -89,6 +91,7 @@ export async function middleware(request: NextRequest) {
     serverSessionCookie &&
     !request.nextUrl.pathname.startsWith("/journal/write")
   ) {
+    console.log("Redirecting to /journal/write");
     return NextResponse.redirect(new URL("/journal/write", request.url));
   }
 

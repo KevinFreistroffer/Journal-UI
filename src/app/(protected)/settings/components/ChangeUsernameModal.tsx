@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { useState, useEffect } from "react";
 
 interface IProps {
   isOpen: boolean;
@@ -27,6 +28,27 @@ const ChangeUsernameModal = ({
   onUsernameChange,
   error,
 }: IProps) => {
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isConfirming) {
+      setIsConfirming(true);
+      return;
+    }
+
+    await onSubmit(e);
+    setIsConfirming(false);
+  };
+
+  // Reset confirmation state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsConfirming(false);
+    }
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogOverlay className="dark:bg-neutral-900/50" />
@@ -35,7 +57,7 @@ const ChangeUsernameModal = ({
           <DialogTitle>Change Username</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="newUsername" className="text-xs">
               New Username
@@ -65,13 +87,20 @@ const ChangeUsernameModal = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                setIsConfirming(false);
+                onOpenChange(false);
+              }}
               className="text-xs"
             >
               Cancel
             </Button>
-            <Button type="submit" className="text-xs">
-              Update Username
+            <Button
+              type="submit"
+              className="text-xs"
+              variant={isConfirming ? "warning" : "default"}
+            >
+              {isConfirming ? "Are you sure? Click to confirm" : "Update Username"}
             </Button>
           </DialogFooter>
         </form>

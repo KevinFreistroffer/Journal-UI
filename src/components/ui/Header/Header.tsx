@@ -79,7 +79,6 @@ export default function Header() {
     setMounted(true);
   }, []);
 
-  console.log("Header useTheme() theme = ", theme);
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||
     pathname.startsWith("/journal/edit") ||
@@ -330,6 +329,7 @@ export default function Header() {
                         avatarUrl={user?.avatar?.data}
                         username={user?.username}
                         name={user?.name}
+                        className="bg-gray-200 dark:bg-gray-800"
                       />
                     </button>
                   </DropdownMenu.Trigger>

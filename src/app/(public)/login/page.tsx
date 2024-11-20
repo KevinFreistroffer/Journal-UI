@@ -109,12 +109,6 @@ export default function LoginPage() {
   }, [state, router, setUser, setIsLoading, isLoading, showVerificationModal]);
 
   useEffect(() => {
-    console.log("setting isLoading to false");
-    console.log("setting isLoading to false");
-    console.log("setting isLoading to false");
-    console.log("setting isLoading to false");
-    console.log("setting isLoading to false");
-    console.log("setting isLoading to false");
     setIsLoading(false);
   }, [setIsLoading]);
 

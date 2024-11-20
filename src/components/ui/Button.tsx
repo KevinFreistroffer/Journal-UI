@@ -1,6 +1,9 @@
+"use client";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useTheme } from "next-themes"
 
 import { cn } from "@/lib/utils";
 
@@ -9,15 +12,34 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: [
+          "dark:bg-primary-dark dark:text-primary-dark-foreground dark:hover:bg-primary-dark/90",
+          "bg-primary-light text-primary-light-foreground hover:bg-primary-light/90",
+        ].join(" "),
+        destructive: [
+          "dark:bg-destructive-dark dark:text-destructive-dark-foreground dark:hover:bg-destructive-dark/90",
+          "bg-destructive-light text-destructive-light-foreground hover:bg-destructive-light/90",
+        ].join(" "),
+        outline: [
+          "dark:border-input-dark dark:bg-background-dark dark:hover:bg-accent-dark dark:hover:text-accent-dark-foreground",
+          "border border-input-light bg-background-light hover:bg-accent-light hover:text-accent-light-foreground",
+        ].join(" "),
+        secondary: [
+          "dark:bg-secondary-dark dark:text-secondary-dark-foreground dark:hover:bg-secondary-dark/80",
+          "bg-secondary-light text-secondary-light-foreground hover:bg-secondary-light/80",
+        ].join(" "),
+        ghost: [
+          "dark:hover:bg-accent-dark dark:hover:text-accent-dark-foreground",
+          "hover:bg-accent-light hover:text-accent-light-foreground",
+        ].join(" "),
+        link: [
+          "dark:text-primary-dark dark:hover:underline",
+          "text-primary-light underline-offset-4 hover:underline",
+        ].join(" "),
+        warning: [
+          "dark:bg-yellow-500 dark:text-black dark:hover:bg-yellow-600",
+          "bg-yellow-400 text-black hover:bg-yellow-500",
+        ].join(" "),
       },
       size: {
         default: "h-10 px-4 py-2",
