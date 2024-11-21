@@ -70,14 +70,24 @@ export const login: LoginFunction = async (
     });
 
     const data = await response.json();
-    // console.log("login data", data);
+    console.log("login data", data);
     if (!response.ok) {
       const errorData = await response.json();
+      console.log("errorData", errorData);
+
+      let errorMessage = "Failed to login.";
+      if (errorData.description === "User not found.") {
+        errorMessage = "No account found with these credentials.";
+      } else {
+        errorMessage =
+          errorData.message || errorData.description || errorMessage;
+      }
+
       return {
         errors: {},
         redirect: null,
         user: null,
-        message: errorData.message || "Failed to login.",
+        message: errorMessage,
         success: false,
         isVerified: false,
       };

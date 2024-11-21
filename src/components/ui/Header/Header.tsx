@@ -82,6 +82,7 @@ export default function Header() {
   const excludeTabsRoute =
     pathname.startsWith("/journal/write") ||
     pathname.startsWith("/journal/edit") ||
+    pathname.startsWith("/journal") ||
     pathname.startsWith("/settings");
 
   const handleScroll = () => {
@@ -322,14 +323,14 @@ export default function Header() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="focus:outline-none cursor-pointer bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200 border p-0"
+                      className="focus:outline-none cursor-pointer bg-gray-300 dark:bg-gray-800 rounded-full hover:bg-gray-400 dark:hover:bg-gray-700 transition-colors duration-200 border p-0"
                       aria-label="User menu"
                     >
                       <Avatar
                         avatarUrl={user?.avatar?.data}
                         username={user?.username}
                         name={user?.name}
-                        className="bg-gray-200 dark:bg-gray-800"
+                        className="bg-gray-300 dark:bg-gray-800"
                       />
                     </button>
                   </DropdownMenu.Trigger>

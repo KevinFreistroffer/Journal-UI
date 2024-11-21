@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       company,
       location,
       website,
+      sex,
     } = await request.json();
 
     // Validate the input
@@ -36,7 +37,8 @@ export async function POST(request: Request) {
       (bio !== undefined && typeof bio !== "string") ||
       (company !== undefined && typeof company !== "string") ||
       (location !== undefined && typeof location !== "string") ||
-      (website !== undefined && typeof website !== "string")
+      (website !== undefined && typeof website !== "string") ||
+      (sex !== undefined && typeof sex !== "string")
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
@@ -51,6 +53,7 @@ export async function POST(request: Request) {
       company?: string;
       location?: string;
       website?: string;
+      sex?: string;
     } = { userId };
 
     if (hasAcknowledgedHelperText !== undefined) {
@@ -79,6 +82,10 @@ export async function POST(request: Request) {
 
     if (website !== undefined) {
       updateData.website = website;
+    }
+
+    if (sex !== undefined) {
+      updateData.sex = sex;
     }
 
     console.log(updateData);

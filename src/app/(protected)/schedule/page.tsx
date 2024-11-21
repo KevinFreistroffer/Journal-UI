@@ -23,7 +23,7 @@ const SchedulePage: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <DashboardContainer isSidebarOpen={isSidebarOpen}>
       <div className="container mx-auto p-4 min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Schedule Journal Writing</h1>
         {scheduleConfirmed ? (
@@ -89,7 +89,7 @@ const SchedulePage: React.FC = () => {
           </form>
         )}
       </div>
-    </PageContainer>
+    </DashboardContainer>
   );
 };
 

@@ -11,12 +11,21 @@ import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { IJournal } from "@/lib/interfaces";
 import Link from "next/link";
-import Sidebar from "@/components/ui/Sidebar/Sidebar"; // Import Sidebar component
 import { Settings } from "lucide-react";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ViewToggle } from "@/components/ui/ViewToggle/ViewToggle";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { cn } from "@/lib/utils";
+import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
 
 export default function JournalPage() {
   const router = useRouter();
@@ -27,7 +36,17 @@ export default function JournalPage() {
   const [isLoading, setIsLoading] = useState(true); // Add this line
   const [showCategory, setShowCategory] = useState(true);
   const [showLastUpdated, setShowLastUpdated] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [contentWidth, setContentWidth] = useState<"default" | "full">(
+    "default"
+  );
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [previousWidth, setPreviousWidth] = useState<"default" | "full">(
+    "default"
+  );
+
+  // Add this media query hook
+  const isLargeScreen = useMediaQuery("(min-width: 1245px)");
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -113,18 +132,64 @@ export default function JournalPage() {
   };
 
   return (
-    <PageContainer>
-      <div className="p-6 min-h-screen flex">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          icon={<Settings />}
-          headerDisplaysTabs={false}
-          sections={[
-            {
-              title: "Settings",
-              content: (
-                <div className="flex flex-col">
+    <DashboardContainer isSidebarOpen={false}>
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
+          isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
+        )}
+      >
+        <div
+          className={cn(
+            "flex justify-end p-4 sticky top-0 z-10 bg-white dark:bg-black",
+            !isFullscreen ? "pt-0 pr-0" : ""
+          )}
+        >
+          <div className="hidden sm:block">
+            <ViewToggle
+              isFullscreen={isFullscreen}
+              contentWidth={contentWidth}
+              showDefaultWidth={isLargeScreen}
+              showFullWidth={isLargeScreen}
+              onToggle={(value) => {
+                if (isFullscreen) {
+                  setIsFullscreen(false);
+                  setContentWidth(previousWidth);
+                } else if (value === "fullscreen") {
+                  setPreviousWidth(contentWidth);
+                  setIsFullscreen(true);
+                } else {
+                  setContentWidth(value as "default" | "full");
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "flex-1 flex justify-center w-full transition-all duration-300",
+            contentWidth === "default"
+              ? "max-w-6xl mx-auto"
+              : "max-w-[95%] mx-auto",
+            isFullscreen ? "overflow-y-auto" : "",
+            "pb-20"
+          )}
+        >
+          <div
+            className={cn(
+              "w-full transition-all duration-300 relative",
+              contentWidth === "default"
+                ? "md:max-w-[51.0625rem]"
+                : "md:max-w-full"
+            )}
+          >
+            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Journal Settings</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col space-y-4">
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor="show-category"
@@ -154,16 +219,9 @@ export default function JournalPage() {
                     />
                   </div>
                 </div>
-              ),
-            },
-          ]}
-        />
-        <div
-          className={`flex-1 transition-all duration-300 ease-in-out ${
-            isSidebarOpen ? "md:ml-56" : "md:ml-24"
-          }`}
-        >
-          <div className="max-w-4xl mx-auto ">
+              </DialogContent>
+            </Dialog>
+
             {isLoading ? (
               <div className="min-h-screen flex justify-center items-center">
                 <Spinner />
@@ -179,17 +237,30 @@ export default function JournalPage() {
                 </Link>
               </div>
             ) : (
-              <Card className="min-h-[500px] flex flex-col p-8 relative">
+              <Card
+                className={cn(
+                  "min-h-[500px] flex flex-col p-8 relative",
+                  isFullscreen ? "h-[calc(100vh-8rem)]" : ""
+                )}
+              >
                 <CardHeader className="text-center mb-6 relative">
                   <CardTitle>{selectedJournal.title}</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0"
-                    onClick={() => router.push(`/journal/edit/${params.id}`)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+                  <div className="absolute right-0 top-0 flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsSettingsOpen(true)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => router.push(`/journal/edit/${params.id}`)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex flex-col">
                   <div
@@ -222,6 +293,6 @@ export default function JournalPage() {
           </div>
         </div>
       </div>
-    </PageContainer>
+    </DashboardContainer>
   );
 }

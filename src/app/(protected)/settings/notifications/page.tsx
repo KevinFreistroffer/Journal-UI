@@ -24,6 +24,7 @@ export default function NotificationsSettings() {
           <Switch
             checked={emailNotifications}
             onCheckedChange={setEmailNotifications}
+            className="dark:data-[state=unchecked]:bg-gray-600 dark:data-[state=checked]:bg-blue-600"
           />
         </div>
 
@@ -37,6 +38,7 @@ export default function NotificationsSettings() {
           <Switch
             checked={pushNotifications}
             onCheckedChange={setPushNotifications}
+            className="dark:data-[state=unchecked]:bg-gray-600 dark:data-[state=checked]:bg-blue-600"
           />
         </div>
 
@@ -50,6 +52,7 @@ export default function NotificationsSettings() {
           <Switch
             checked={marketingEmails}
             onCheckedChange={setMarketingEmails}
+            className="dark:data-[state=unchecked]:bg-gray-600 dark:data-[state=checked]:bg-blue-600"
           />
         </div>
       </Card>

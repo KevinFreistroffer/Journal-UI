@@ -72,7 +72,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="currentPassword"
-              className="dark:bg-gray-800 dark:text-white text-xs"
+              className="dark:bg-neutral-900 dark:text-white text-xs"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
@@ -85,7 +85,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="newPassword"
-              className="dark:bg-gray-800 dark:text-white text-xs"
+              className="dark:bg-neutral-900 dark:text-white text-xs"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
@@ -98,7 +98,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="confirmPassword"
-              className="dark:bg-gray-800 dark:text-white text-xs"
+              className="dark:bg-neutral-900 dark:text-white text-xs"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -111,11 +111,15 @@ const ChangePasswordModal = ({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              className="text-xs"
+              className="text-xs dark:bg-neutral-900 dark:hover:bg-neutral-800"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading} className="text-xs">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="text-xs dark:bg-neutral-800 dark:hover:bg-neutral-700"
+            >
               {isLoading ? "Changing Password..." : "Change Password"}
             </Button>
           </DialogFooter>

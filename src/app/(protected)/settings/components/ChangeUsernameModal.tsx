@@ -65,7 +65,7 @@ const ChangeUsernameModal = ({
             <Input
               type="text"
               id="newUsername"
-              className="dark:bg-gray-800 dark:text-white"
+              className="dark:bg-neutral-900 dark:text-white"
               value={username}
               onChange={onUsernameChange}
             />
@@ -91,13 +91,13 @@ const ChangeUsernameModal = ({
                 setIsConfirming(false);
                 onOpenChange(false);
               }}
-              className="text-xs"
+              className="text-xs dark:bg-neutral-800"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="text-xs"
+              className="text-xs dark:bg-neutral-800"
               variant={isConfirming ? "warning" : "default"}
             >
               {isConfirming ? "Are you sure? Click to confirm" : "Update Username"}

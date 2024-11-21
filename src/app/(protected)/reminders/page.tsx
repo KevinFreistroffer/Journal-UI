@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { useState } from "react";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
+import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
 
 interface ModalProps {
   isOpen: boolean;
@@ -114,7 +115,7 @@ const RemindersPage = () => {
   };
 
   return (
-    <PageContainer>
+    <DashboardContainer isSidebarOpen={isSidebarOpen}>
       <div className="container mx-auto p-4 flex flex-row min-h-screen">
         <div className="flex-1 p-4">
           {" "}
@@ -320,7 +321,7 @@ const RemindersPage = () => {
           </div>
         </Modal>
       </div>
-    </PageContainer>
+    </DashboardContainer>
   );
 };
 

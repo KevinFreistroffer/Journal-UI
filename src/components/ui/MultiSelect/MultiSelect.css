@@ -1,0 +1,17 @@
+.react-select__menu {
+  border: 1px solid red;
+}
+
+/* Light theme styles */
+[data-theme="light"] .react-select__menu {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme styles */
+[data-theme="dark"] .react-select__menu {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}

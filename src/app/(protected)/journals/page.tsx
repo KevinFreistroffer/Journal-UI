@@ -564,9 +564,7 @@ export default function JournalsPage() {
   };
 
   return (
-    <PageContainer>
-      <DashboardContainer
-        isSidebarOpen={isSidebarOpen}
+    <DashboardContainer isSidebarOpen={isSidebarOpen}>
         sidebar={
           <Sidebar
             isOpen={isSidebarOpen}
@@ -758,18 +756,18 @@ export default function JournalsPage() {
                       open={categoryFilterDisplayed}
                       onOpenChange={setCategoryFilterDisplayed}
                     >
-                      <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
+                      <SelectTrigger className="h-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:text-gray-200 [&>span]:text-sm">
                         <SelectValue
                           placeholder="Category"
-                          className="font-bold placeholder:font-bold"
+                          className="font-bold placeholder:font-bold dark:text-gray-200"
                         />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className="bg-white dark:bg-gray-800 border dark:border-gray-700">
                         {categories.map((category) => (
                           <SelectItem
                             key={category}
                             value={category}
-                            className="font-normal"
+                            className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
                           >
                             {category}
                           </SelectItem>
@@ -784,23 +782,29 @@ export default function JournalsPage() {
                         setIsModalOpen(false);
                       }}
                     >
-                      <SelectTrigger className="h-9 bg-white border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 [&>span]:text-sm">
+                      <SelectTrigger className="h-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:text-gray-200 [&>span]:text-sm">
                         <SelectValue
                           placeholder="Filter"
-                          className="font-bold placeholder:font-bold"
+                          className="font-bold placeholder:font-bold dark:text-gray-200"
                         />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className="bg-white dark:bg-gray-800 border dark:border-gray-700">
                         <SelectItem
                           value="Last updated date"
-                          className="font-normal"
+                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
                         >
                           Last updated date
                         </SelectItem>
-                        <SelectItem value="Name" className="font-normal">
+                        <SelectItem
+                          value="Name"
+                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                        >
                           Name
                         </SelectItem>
-                        <SelectItem value="Favorited" className="font-normal">
+                        <SelectItem
+                          value="Favorited"
+                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                        >
                           Favorited
                         </SelectItem>
                       </SelectContent>
@@ -822,21 +826,23 @@ export default function JournalsPage() {
                 value={ViewMode.Rows}
                 aria-label="Rows View"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
-                  viewMode === ViewMode.Rows ? "bg-blue-100" : "bg-gray-100"
+                  viewMode === ViewMode.Rows
+                    ? "bg-gray-100 dark:bg-gray-800"
+                    : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
                 }`}
               >
-                <ViewHorizontalIcon />
+                <ViewHorizontalIcon className={viewMode === ViewMode.Rows ? "" : "dark:text-gray-300"} />
               </ToggleGroup.Item>
               <ToggleGroup.Item
                 value={ViewMode.TwoColumn}
                 aria-label="2-Column View"
                 className={`flex items-center space-x-2 px-3 py-2 ${
                   viewMode === ViewMode.TwoColumn
-                    ? "bg-blue-100"
-                    : "bg-gray-100"
+                    ? "bg-gray-100 dark:bg-gray-800"
+                    : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
                 } ${!isExtraLargeScreen ? "rounded-r" : ""}`}
               >
-                <ViewVerticalIcon />
+                <ViewVerticalIcon className={viewMode === ViewMode.TwoColumn ? "" : "dark:text-gray-300"} />
               </ToggleGroup.Item>
               {isExtraLargeScreen && (
                 <ToggleGroup.Item
@@ -844,11 +850,11 @@ export default function JournalsPage() {
                   aria-label="3-Column View"
                   className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
                     viewMode === ViewMode.ThreeColumn
-                      ? "bg-blue-100"
-                      : "bg-gray-100"
+                      ? "bg-gray-100 dark:bg-gray-800"
+                      : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
-                  <ViewGridIcon />
+                  <ViewGridIcon className={viewMode === ViewMode.ThreeColumn ? "" : "dark:text-gray-300"} />
                 </ToggleGroup.Item>
               )}
             </ToggleGroup.Root>
@@ -1151,6 +1157,5 @@ export default function JournalsPage() {
           </Dialog.Root>
         </>
       </DashboardContainer>
-    </PageContainer>
   );
 }

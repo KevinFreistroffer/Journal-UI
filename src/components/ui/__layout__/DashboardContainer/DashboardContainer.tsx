@@ -1,19 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Spinner } from "@/components/ui/Spinner";
+import { useAuth } from "@/hooks/useAuth";
 
 type DashboardContainerProps = {
   children: React.ReactNode;
   className?: string;
   bottomBar?: React.ReactNode;
+  showLoadingIndicator?: boolean;
 } & (
   | {
-      sidebar: React.ReactNode; // When sidebar is provided
-      isSidebarOpen: boolean; // isSidebarOpen must be provided
+      sidebar: React.ReactNode;
+      isSidebarOpen: boolean;
     }
   | {
-      sidebar?: undefined; // When sidebar is not provided
-      isSidebarOpen?: boolean; // isSidebarOpen is optional
+      sidebar?: undefined;
+      isSidebarOpen?: boolean;
     }
 );
 
@@ -23,9 +26,19 @@ const DashboardContainer = ({
   className = "",
   isSidebarOpen = true,
   bottomBar,
+  showLoadingIndicator = true,
 }: DashboardContainerProps) => {
   const isMobileView = useMediaQuery("(max-width: 639px)");
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
+  const { isLoading } = useAuth();
+
+  if (isLoading && showLoadingIndicator) {
+    return (
+      <div className="p-6 w-full h-full min-h-screen flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div

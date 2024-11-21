@@ -568,7 +568,7 @@ function WritePage({ params }: { params?: { id: string } }) {
   }, [params?.id, user?.journals, quill]);
 
   return (
-    <PageContainer>
+    <DashboardContainer isSidebarOpen={isSidebarOpen}>
       {user && !user.isVerified ? (
         <div className="flex h-screen items-center justify-center">
           <div className="text-center">
@@ -1163,7 +1163,7 @@ function WritePage({ params }: { params?: { id: string } }) {
           </Dialog>
         </div>
       )}
-    </PageContainer>
+    </DashboardContainer>
   );
 }
 

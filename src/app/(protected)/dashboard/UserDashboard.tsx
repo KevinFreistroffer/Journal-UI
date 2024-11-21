@@ -445,77 +445,76 @@ function UserDashboard() {
   }, [user, setIsLoading]);
 
   return (
-    <PageContainer>
-      <DashboardContainer
-        isSidebarOpen={!isExtraSmallScreen && isSidebarOpen}
-        sidebar={
-          !isExtraSmallScreen && (
-            <Sidebar
-              isOpen={isSidebarOpen}
-              setIsSidebarOpen={setIsSidebarOpen}
-              icon={<Settings size={20} />}
-              headerDisplaysTabs={true}
-              sections={[
-                {
-                  title: "Toggle Cards",
-                  content: sidebarContent,
-                },
-              ]}
-            />
-          )
-        }
-        bottomBar={
-          isExtraSmallScreen ? (
-            <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10">
-                    {/* <Settings className="h-5 w-5" /> */}
-                    <ChevronUpIcon className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-auto m-4 mb-0">
-                  <div className="pt-6">
-                    <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3>
-                    {sidebarContent}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          ) : undefined
-        }
-      >
-        {!journals?.length ? (
-          <div className="p-6 min-h-screen flex flex-col gap-4 justify-center items-center">
-            <p className="text-gray-500 text-lg text-center">
-              You haven&apos;t created any journals yet.
-            </p>
-            <Link href="/journal/write">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors">
-                Create Your First Journal
-              </Button>
-            </Link>
+    <DashboardContainer
+      isSidebarOpen={!isExtraSmallScreen && isSidebarOpen}
+      sidebar={
+        !isExtraSmallScreen && (
+          <Sidebar
+            isOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+            icon={<Settings size={20} />}
+            headerDisplaysTabs={true}
+            sections={[
+              {
+                title: "Toggle Cards",
+                content: sidebarContent,
+              },
+            ]}
+          />
+        )
+      }
+      bottomBar={
+        isExtraSmallScreen ? (
+          <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10">
+                  {/* <Settings className="h-5 w-5" /> */}
+                  <ChevronUpIcon className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-auto m-4 mb-0">
+                <div className="pt-6">
+                  <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3>
+                  {sidebarContent}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-        ) : (
-          <div
-            className={`flex flex-col md:flex-row mb-6 ${
-              isExtraSmallScreen ? "p-2" : ""
-            }`}
-          >
-            {/* Main Content Area */}
-            <div className="flex flex-col md:flex-row md:flex-wrap w-full">
-              {areAnyCardsVisible() ? (
-                <div
-                  className={`flex w-full flex-col md:flex-row md:flex-wrap ${
-                    cardLayout === "single-column"
-                      ? "md:flex-col"
-                      : cardLayout === "two-column"
-                      ? "md:flex-row"
-                      : "md:flex-row md:flex-wrap"
-                  }`}
-                >
-                  {/* Total Number of Entries */}
-                  {/* {!localStorageValuesFetched.totalJournalsCard ? (
+        ) : undefined
+      }
+    >
+      {!journals?.length ? (
+        <div className="p-6 min-h-screen flex flex-col gap-4 justify-center items-center">
+          <p className="text-gray-500 text-lg text-center">
+            You haven&apos;t created any journals yet.
+          </p>
+          <Link href="/journal/write">
+            <Button className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors">
+              Create Your First Journal
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div
+          className={`flex flex-col md:flex-row mb-6 ${
+            isExtraSmallScreen ? "p-2" : ""
+          }`}
+        >
+          {/* Main Content Area */}
+          <div className="flex flex-col md:flex-row md:flex-wrap w-full">
+            {areAnyCardsVisible() ? (
+              <div
+                className={`flex w-full flex-col md:flex-row md:flex-wrap ${
+                  cardLayout === "single-column"
+                    ? "md:flex-col"
+                    : cardLayout === "two-column"
+                    ? "md:flex-row"
+                    : "md:flex-row md:flex-wrap"
+                }`}
+              >
+                {/* Total Number of Entries */}
+                {/* {!localStorageValuesFetched.totalJournalsCard ? (
                   <PlaceholderCard cardLayout={cardLayout} />
                 ) : (
                   showTotalJournalsCard && (
@@ -535,429 +534,425 @@ function UserDashboard() {
                   )
                 )} */}
 
-                  {/* Category Breakdown */}
-                  {!localStorageValuesFetched.categoryBreakdownCard ? (
-                    <PlaceholderCard cardLayout={cardLayout} />
-                  ) : (
-                    showCategoryBreakdownCard && (
-                      <div
-                        id={`${styles["categoryBreakdown"]}`}
-                        className={`w-full mb-2 p-2 h-auto min-h-[auto] sm:min-h-96 ${
-                          cardLayout === "single-column"
-                            ? "md:w-full"
-                            : cardLayout === "two-column"
-                            ? "md:w-1/2"
-                            : "md:w-full lg:w-1/2 xl:w-1/3"
-                        }`}
-                      >
-                        <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50 dark:bg-blue-950/30">
-                          <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold ">
-                              Category Breakdown
-                            </h2>
-                            <Link
-                              href="/categories"
-                              className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal dark:text-gray-200"
-                            >
-                              Manage
-                            </Link>
-                          </div>
-                          <div className="w-full h-full overflow-hidden">
-                            {data.length === 0 ? (
-                              <div className="flex items-center justify-center h-full">
-                                <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
-                                  No categories
-                                </p>
-                              </div>
-                            ) : isMobileView ? (
-                              <div className="space-y-2 max-h-72 overflow-y-auto">
-                                {data.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="flex items-start gap-2 p-2 hover:bg-white/50 rounded-lg transition-colors min-w-0"
-                                  >
-                                    <span className="text-xs sm:text-sm md:text-xs lg:text-sm flex-1 break-words overflow-wrap-anywhere pr-2">
-                                      {item.label}
-                                    </span>
-                                    <span
-                                      className="inline-flex items-center justify-center w-8 h-8 text-xs sm:text-sm md:text-xs lg:text-sm font-medium rounded-full flex-shrink-0"
-                                      style={{
-                                        backgroundColor: `${item.color}40`,
-                                      }}
-                                    >
-                                      {item.value}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <CategoryBreakdown
-                                data={data}
-                                theme={theme as "light" | "dark"}
-                              />
-                            )}
-                          </div>
-                        </Card>
-                      </div>
-                    )
-                  )}
-
-                  {/* Recent Activity */}
-                  {!localStorageValuesFetched.recentEntriesCard ? (
-                    <PlaceholderCard cardLayout={cardLayout} />
-                  ) : (
-                    showRecentEntriesCard && (
-                      <div
-                        className={`w-full mb-2 p-2 h-auto min-h-[auto]  ${
-                          cardLayout === "single-column"
-                            ? "md:w-full"
-                            : cardLayout === "two-column"
-                            ? "md:w-1/2"
-                            : "md:w-full lg:w-1/2 xl:w-1/3"
-                        }`}
-                      >
-                        <Card className="h-full p-4 bg-green-50 dark:bg-green-950/30">
-                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
-                            Recent Activity
+                {/* Category Breakdown */}
+                {!localStorageValuesFetched.categoryBreakdownCard ? (
+                  <PlaceholderCard cardLayout={cardLayout} />
+                ) : (
+                  showCategoryBreakdownCard && (
+                    <div
+                      id={`${styles["categoryBreakdown"]}`}
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] sm:min-h-96 ${
+                        cardLayout === "single-column"
+                          ? "md:w-full"
+                          : cardLayout === "two-column"
+                          ? "md:w-1/2"
+                          : "md:w-full lg:w-1/2 xl:w-1/3"
+                      }`}
+                    >
+                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50 dark:bg-blue-950/30">
+                        <div className="flex justify-between items-center mb-6">
+                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold ">
+                            Category Breakdown
                           </h2>
-                          {recentEntries.length > 0 ? (
-                            <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 dark:bg-black dark:shadow-none">
-                              <ul className="max-h-72 overflow-y-auto p-4">
-                                {recentEntries.map((journal, index) => (
-                                  <li
-                                    key={index}
-                                    className="border-b py-2 last:border-b-0"
-                                  >
-                                    <JournalLink
-                                      id={journal._id}
-                                      title={journal.title}
-                                      date={journal.updatedAt}
-                                      className="hover:underline flex flex-col"
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center h-[calc(100%-2rem)]">
-                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                No recent activity
+                          <Link
+                            href="/categories"
+                            className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal dark:text-gray-200"
+                          >
+                            Manage
+                          </Link>
+                        </div>
+                        <div className="w-full h-full overflow-hidden">
+                          {data.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
+                                No categories
                               </p>
                             </div>
-                          )}
-                        </Card>
-                      </div>
-                    )
-                  )}
-
-                  {/* Upcoming Journals/Reminders */}
-                  {!localStorageValuesFetched.upcomingEntriesCard ? (
-                    <PlaceholderCard cardLayout={cardLayout} />
-                  ) : (
-                    showUpcomingEntriesCard && (
-                      <div
-                        className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
-                          cardLayout === "single-column"
-                            ? "md:w-full"
-                            : cardLayout === "two-column"
-                            ? "md:w-1/2"
-                            : "md:w-full lg:w-1/2 xl:w-1/3"
-                        }`}
-                      >
-                        <Card className="h-full p-4 bg-purple-50 dark:bg-purple-950/30">
-                          <div className="flex justify-between items-start mb-4">
-                            <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
-                              Reminders
-                            </h2>
-                            <Link
-                              href="/reminders"
-                              className="text-xs sm:text-sm md:text-xs lg:text-sm text-blue-500 font-normal dark:text-gray-200"
-                            >
-                              Manage
-                            </Link>
-                          </div>
-                          {upcomingEntries.length > 0 ? (
-                            <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 dark:shadow-none">
-                              {upcomingEntries.map((reminder, index) => (
-                                <li
-                                  key={reminder._id}
-                                  className="border-b py-2"
+                          ) : isMobileView ? (
+                            <div className="space-y-2 max-h-72 overflow-y-auto">
+                              {data.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="flex items-start gap-2 p-2 hover:bg-white/50 rounded-lg transition-colors min-w-0"
                                 >
-                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
-                                    {reminder.title}
+                                  <span className="text-xs sm:text-sm md:text-xs lg:text-sm flex-1 break-words overflow-wrap-anywhere pr-2">
+                                    {item.label}
                                   </span>
-                                  <div className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-600">
-                                    {formatDate(
-                                      `${reminder.date}T${reminder.time}`
-                                    )}
-                                    {reminder.recurring && (
-                                      <span className="ml-2 text-blue-500">
-                                        ({reminder.recurrenceType})
-                                      </span>
-                                    )}
-                                  </div>
-                                  {reminder.description && (
-                                    <p className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 mt-1">
-                                      {reminder.description}
-                                    </p>
-                                  )}
+                                  <span
+                                    className="inline-flex items-center justify-center w-8 h-8 text-xs sm:text-sm md:text-xs lg:text-sm font-medium rounded-full flex-shrink-0"
+                                    style={{
+                                      backgroundColor: `${item.color}40`,
+                                    }}
+                                  >
+                                    {item.value}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <CategoryBreakdown
+                              data={data}
+                              theme={theme as "light" | "dark"}
+                            />
+                          )}
+                        </div>
+                      </Card>
+                    </div>
+                  )
+                )}
+
+                {/* Recent Activity */}
+                {!localStorageValuesFetched.recentEntriesCard ? (
+                  <PlaceholderCard cardLayout={cardLayout} />
+                ) : (
+                  showRecentEntriesCard && (
+                    <div
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto]  ${
+                        cardLayout === "single-column"
+                          ? "md:w-full"
+                          : cardLayout === "two-column"
+                          ? "md:w-1/2"
+                          : "md:w-full lg:w-1/2 xl:w-1/3"
+                      }`}
+                    >
+                      <Card className="h-full p-4 bg-green-50 dark:bg-green-950/30">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
+                          Recent Activity
+                        </h2>
+                        {recentEntries.length > 0 ? (
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 dark:bg-black dark:shadow-none">
+                            <ul className="max-h-72 overflow-y-auto p-4">
+                              {recentEntries.map((journal, index) => (
+                                <li
+                                  key={index}
+                                  className="border-b py-2 last:border-b-0"
+                                >
+                                  <JournalLink
+                                    id={journal._id}
+                                    title={journal.title}
+                                    date={journal.updatedAt}
+                                    className="hover:underline flex flex-col"
+                                  />
                                 </li>
                               ))}
                             </ul>
-                          ) : (
-                            <div className="flex items-center justify-center h-[calc(100%-3rem)]">
-                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                No upcoming reminders
-                              </p>
-                            </div>
-                          )}
-                        </Card>
-                      </div>
-                    )
-                  )}
-
-                  {/* Favorite Journals */}
-                  {!localStorageValuesFetched.favoriteJournalsCard ? (
-                    <PlaceholderCard cardLayout={cardLayout} />
-                  ) : (
-                    showFavoriteJournalsCard && (
-                      <div
-                        className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
-                          cardLayout === "single-column"
-                            ? "md:w-full"
-                            : cardLayout === "two-column"
-                            ? "md:w-1/2"
-                            : "md:w-full lg:w-1/2 xl:w-1/3"
-                        }`}
-                      >
-                        <Card className="h-full p-4 bg-yellow-50 dark:bg-yellow-950/30">
-                          {" "}
-                          {/* Added min-h-96 */}
-                          <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
-                              Favorite Journals
-                            </h2>
-                            <Link
-                              href="/journals/favorites"
-                              className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal dark:text-gray-200"
-                            >
-                              Manage
-                            </Link>
                           </div>
-                          {favoriteEntries.length > 0 ? (
-                            <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
-                              <ul className="max-h-72 overflow-y-auto p-4 space-y-2">
-                                {favoriteEntries.map((journal, index) => (
-                                  <li
-                                    key={index}
-                                    className={`flex items-center space-x-2 py-2 ${
-                                      favoriteEntries.length > 1 &&
-                                      index !== favoriteEntries.length - 1
-                                        ? "border-b"
-                                        : ""
-                                    }`}
-                                  >
-                                    <JournalLink
-                                      id={journal._id}
-                                      title={journal.title}
-                                      date={journal.updatedAt}
-                                      handleOnClick={() => {
-                                        localStorageService.setItem(
-                                          "selectedJournal",
-                                          journal
-                                        );
-                                      }}
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center h-[calc(100%-3rem)]">
-                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                No favorite journals yet
-                              </p>
-                            </div>
-                          )}
-                        </Card>
-                      </div>
-                    )
-                  )}
-
-                  {/* Keyword Frequency Card */}
-                  {!localStorageValuesFetched.keywordFrequencyCard ? (
-                    <PlaceholderCard cardLayout={cardLayout} />
-                  ) : (
-                    showKeywordFrequencyCard && (
-                      <div
-                        className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
-                          cardLayout === "single-column"
-                            ? "md:w-full"
-                            : cardLayout === "two-column"
-                            ? "md:w-1/2"
-                            : "md:w-full lg:w-1/2 xl:w-1/3"
-                        }`}
-                      >
-                        <Card className="h-full p-4 bg-red-50 dark:bg-red-950/30">
-                          <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
-                              Keyword Frequency
-                            </h2>
-                            {keywordFrequency.length > 0 && (
-                              <Button
-                                onClick={exportToCSV}
-                                variant="outline"
-                                size="sm"
-                                className="flex w-auto items-center text-xs sm:text-sm md:text-xs lg:text-sm"
-                                disabled={!journals?.length}
-                              >
-                                <Download className="w-4 h-4 mr-2" />
-                                Export CSV
-                              </Button>
-                            )}
+                        ) : (
+                          <div className="flex items-center justify-center h-[calc(100%-2rem)]">
+                            <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              No recent activity
+                            </p>
                           </div>
-                          {isLoadingKeywordFrequency ? (
-                            <div className="flex justify-center h-full items-center max-h-60 p-6 mt-3">
-                              <Spinner />
-                            </div>
-                          ) : !journals?.length ? (
-                            <div className="flex items-center justify-center h-[calc(100%-3rem)]">
-                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                No keyword data available
-                              </p>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="flex flex-col mb-4">
-                                <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
-                                  Keyword type
-                                </Label.Root>
-                                <Select
-                                  onValueChange={handleValueChange}
-                                  value={selectedKeywordType}
-                                  className="border border-gray-300"
-                                >
-                                  <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200 dark:bg-black">
-                                    <SelectValue placeholder="Select keyword type" />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-white">
-                                    <SelectItem value="nouns">Nouns</SelectItem>
-                                    <SelectItem value="verbs">Verbs</SelectItem>
-                                    <SelectItem value="adjectives">
-                                      Adjectives
-                                    </SelectItem>
-                                    <SelectItem value="terms">Terms</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              {keywordFrequency.length > 0 ? (
-                                <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
-                                  <ul className="max-h-60 overflow-y-auto p-4">
-                                    {keywordFrequency.map(
-                                      ({ normal, count }, index) => (
-                                        <li
-                                          key={index}
-                                          className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
-                                        >
-                                          <span>{normal}:</span> {count}
-                                        </li>
-                                      )
-                                    )}
-                                  </ul>
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-center h-[calc(100%-6rem)]">
-                                  <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                    No keyword data available
-                                  </p>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </Card>
-                      </div>
-                    )
-                  )}
+                        )}
+                      </Card>
+                    </div>
+                  )
+                )}
 
-                  {/* Journal Time Card */}
-                  {!localStorageValuesFetched.journalTimeCard ? (
-                    <PlaceholderCard cardLayout={cardLayout} />
-                  ) : (
-                    showJournalTimeCard && (
-                      <div
-                        className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
-                          cardLayout === "single-column"
-                            ? "md:w-full"
-                            : cardLayout === "two-column"
-                            ? "md:w-1/2"
-                            : "md:w-full lg:w-1/2 xl:w-1/3"
-                        }`}
-                      >
-                        <Card className="h-full p-4 bg-orange-50 dark:bg-orange-950/30">
-                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
-                            Journal Time Distribution
+                {/* Upcoming Journals/Reminders */}
+                {!localStorageValuesFetched.upcomingEntriesCard ? (
+                  <PlaceholderCard cardLayout={cardLayout} />
+                ) : (
+                  showUpcomingEntriesCard && (
+                    <div
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
+                        cardLayout === "single-column"
+                          ? "md:w-full"
+                          : cardLayout === "two-column"
+                          ? "md:w-1/2"
+                          : "md:w-full lg:w-1/2 xl:w-1/3"
+                      }`}
+                    >
+                      <Card className="h-full p-4 bg-purple-50 dark:bg-purple-950/30">
+                        <div className="flex justify-between items-start mb-4">
+                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
+                            Reminders
                           </h2>
-                          {Object.keys(journalTimeData).length > 0 ? (
-                            <Bar
-                              data={{
-                                labels: Object.keys(journalTimeData)
-                                  .sort((a, b) => parseInt(a) - parseInt(b))
-                                  .map((hour) => formatTime(hour)),
-                                datasets: [
-                                  {
-                                    label: "Number of Entries",
-                                    data: Object.values(journalTimeData),
-                                    backgroundColor: "rgba(75, 192, 192, 0.6)",
-                                  },
-                                ],
-                              }}
-                              options={{
-                                scales: {
-                                  y: {
-                                    beginAtZero: true,
-                                    title: {
-                                      display: true,
-                                      text: "Number of Entries",
-                                    },
-                                  },
-                                  x: {
-                                    title: {
-                                      display: true,
-                                      text: "Time of Day",
-                                    },
-                                  },
-                                },
-                                plugins: {
-                                  legend: {
-                                    display: false,
-                                  },
-                                },
-                              }}
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-[calc(100%-3rem)]">
-                              <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
-                                No time distribution data available
-                              </p>
-                            </div>
+                          <Link
+                            href="/reminders"
+                            className="text-xs sm:text-sm md:text-xs lg:text-sm text-blue-500 font-normal dark:text-gray-200"
+                          >
+                            Manage
+                          </Link>
+                        </div>
+                        {upcomingEntries.length > 0 ? (
+                          <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 dark:shadow-none">
+                            {upcomingEntries.map((reminder, index) => (
+                              <li key={reminder._id} className="border-b py-2">
+                                <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
+                                  {reminder.title}
+                                </span>
+                                <div className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-600">
+                                  {formatDate(
+                                    `${reminder.date}T${reminder.time}`
+                                  )}
+                                  {reminder.recurring && (
+                                    <span className="ml-2 text-blue-500">
+                                      ({reminder.recurrenceType})
+                                    </span>
+                                  )}
+                                </div>
+                                {reminder.description && (
+                                  <p className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-500 mt-1">
+                                    {reminder.description}
+                                  </p>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                            <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              No upcoming reminders
+                            </p>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                )}
+
+                {/* Favorite Journals */}
+                {!localStorageValuesFetched.favoriteJournalsCard ? (
+                  <PlaceholderCard cardLayout={cardLayout} />
+                ) : (
+                  showFavoriteJournalsCard && (
+                    <div
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
+                        cardLayout === "single-column"
+                          ? "md:w-full"
+                          : cardLayout === "two-column"
+                          ? "md:w-1/2"
+                          : "md:w-full lg:w-1/2 xl:w-1/3"
+                      }`}
+                    >
+                      <Card className="h-full p-4 bg-yellow-50 dark:bg-yellow-950/30">
+                        {" "}
+                        {/* Added min-h-96 */}
+                        <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
+                            Favorite Journals
+                          </h2>
+                          <Link
+                            href="/journals/favorites"
+                            className="text-xs sm:text-sm md:text-xs lg:text-sm self-center text-blue-500 font-normal dark:text-gray-200"
+                          >
+                            Manage
+                          </Link>
+                        </div>
+                        {favoriteEntries.length > 0 ? (
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
+                            <ul className="max-h-72 overflow-y-auto p-4 space-y-2">
+                              {favoriteEntries.map((journal, index) => (
+                                <li
+                                  key={index}
+                                  className={`flex items-center space-x-2 py-2 ${
+                                    favoriteEntries.length > 1 &&
+                                    index !== favoriteEntries.length - 1
+                                      ? "border-b"
+                                      : ""
+                                  }`}
+                                >
+                                  <JournalLink
+                                    id={journal._id}
+                                    title={journal.title}
+                                    date={journal.updatedAt}
+                                    handleOnClick={() => {
+                                      localStorageService.setItem(
+                                        "selectedJournal",
+                                        journal
+                                      );
+                                    }}
+                                  />
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                            <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              No favorite journals yet
+                            </p>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                )}
+
+                {/* Keyword Frequency Card */}
+                {!localStorageValuesFetched.keywordFrequencyCard ? (
+                  <PlaceholderCard cardLayout={cardLayout} />
+                ) : (
+                  showKeywordFrequencyCard && (
+                    <div
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
+                        cardLayout === "single-column"
+                          ? "md:w-full"
+                          : cardLayout === "two-column"
+                          ? "md:w-1/2"
+                          : "md:w-full lg:w-1/2 xl:w-1/3"
+                      }`}
+                    >
+                      <Card className="h-full p-4 bg-red-50 dark:bg-red-950/30">
+                        <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
+                            Keyword Frequency
+                          </h2>
+                          {keywordFrequency.length > 0 && (
+                            <Button
+                              onClick={exportToCSV}
+                              variant="outline"
+                              size="sm"
+                              className="flex w-auto items-center text-xs sm:text-sm md:text-xs lg:text-sm"
+                              disabled={!journals?.length}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Export CSV
+                            </Button>
                           )}
-                        </Card>
-                      </div>
-                    )
-                  )}
-                </div>
-              ) : (
-                <div className="w-full h-[calc(100vh-8rem)] flex items-center justify-center">
-                  <p className="text-gray-500 text-lg">
-                    Toggle cards in the sidebar to show data.
-                  </p>
-                </div>
-              )}
-            </div>
+                        </div>
+                        {isLoadingKeywordFrequency ? (
+                          <div className="flex justify-center h-full items-center max-h-60 p-6 mt-3">
+                            <Spinner />
+                          </div>
+                        ) : !journals?.length ? (
+                          <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                            <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              No keyword data available
+                            </p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex flex-col mb-4">
+                              <Label.Root className="LabelRoot mb-2 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
+                                Keyword type
+                              </Label.Root>
+                              <Select
+                                onValueChange={handleValueChange}
+                                value={selectedKeywordType}
+                                className="border border-gray-300"
+                              >
+                                <SelectTrigger className="w-full text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200 dark:bg-black">
+                                  <SelectValue placeholder="Select keyword type" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                  <SelectItem value="nouns">Nouns</SelectItem>
+                                  <SelectItem value="verbs">Verbs</SelectItem>
+                                  <SelectItem value="adjectives">
+                                    Adjectives
+                                  </SelectItem>
+                                  <SelectItem value="terms">Terms</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {keywordFrequency.length > 0 ? (
+                              <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
+                                <ul className="max-h-60 overflow-y-auto p-4">
+                                  {keywordFrequency.map(
+                                    ({ normal, count }, index) => (
+                                      <li
+                                        key={index}
+                                        className="py-2 flex justify-between text-xs sm:text-sm md:text-xs lg:text-sm border-b last:border-b-0"
+                                      >
+                                        <span>{normal}:</span> {count}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center h-[calc(100%-6rem)]">
+                                <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                                  No keyword data available
+                                </p>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                )}
+
+                {/* Journal Time Card */}
+                {!localStorageValuesFetched.journalTimeCard ? (
+                  <PlaceholderCard cardLayout={cardLayout} />
+                ) : (
+                  showJournalTimeCard && (
+                    <div
+                      className={`w-full mb-2 p-2 h-auto min-h-[auto] ${
+                        cardLayout === "single-column"
+                          ? "md:w-full"
+                          : cardLayout === "two-column"
+                          ? "md:w-1/2"
+                          : "md:w-full lg:w-1/2 xl:w-1/3"
+                      }`}
+                    >
+                      <Card className="h-full p-4 bg-orange-50 dark:bg-orange-950/30">
+                        <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
+                          Journal Time Distribution
+                        </h2>
+                        {Object.keys(journalTimeData).length > 0 ? (
+                          <Bar
+                            data={{
+                              labels: Object.keys(journalTimeData)
+                                .sort((a, b) => parseInt(a) - parseInt(b))
+                                .map((hour) => formatTime(hour)),
+                              datasets: [
+                                {
+                                  label: "Number of Entries",
+                                  data: Object.values(journalTimeData),
+                                  backgroundColor: "rgba(75, 192, 192, 0.6)",
+                                },
+                              ],
+                            }}
+                            options={{
+                              scales: {
+                                y: {
+                                  beginAtZero: true,
+                                  title: {
+                                    display: true,
+                                    text: "Number of Entries",
+                                  },
+                                },
+                                x: {
+                                  title: {
+                                    display: true,
+                                    text: "Time of Day",
+                                  },
+                                },
+                              },
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                              },
+                            }}
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-[calc(100%-3rem)]">
+                            <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm">
+                              No time distribution data available
+                            </p>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="w-full h-[calc(100vh-8rem)] flex items-center justify-center">
+                <p className="text-gray-500 text-lg">
+                  Toggle cards in the sidebar to show data.
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </DashboardContainer>
-    </PageContainer>
+        </div>
+      )}
+    </DashboardContainer>
   );
 }
 // Placeholder component

@@ -1,5 +1,6 @@
 "use client";
 
+import "./MultiSelect.css";
 import React, { useState } from "react";
 import CreatableSelect from "react-select/creatable";
 import { useTheme } from "next-themes";
@@ -58,21 +59,20 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         styles={{
           control: (baseStyles) => ({
             ...baseStyles,
-            backgroundColor:
-              theme === "dark" ? "hsl(var(--background))" : "transparent",
+            backgroundColor: theme === "dark" ? "black" : "white",
             borderColor:
-              theme === "dark" ? "hsl(var(--border))" : baseStyles.borderColor,
+              theme === "dark" ? "rgb(209, 213, 219)" : baseStyles.borderColor,
             color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
           }),
-          menu: (baseStyles) => ({
-            ...baseStyles,
-            backgroundColor:
-              theme === "dark"
-                ? "hsl(var(--background))"
-                : baseStyles.backgroundColor,
-            borderColor:
-              theme === "dark" ? "hsl(var(--border))" : baseStyles.borderColor,
-          }),
+          menu: (baseStyles, state) => {
+            console.log(baseStyles);
+            console.log(state);
+            return {
+              ...baseStyles,
+              backgroundColor: theme === "dark" ? "black" : "white",
+              borderColor: theme === "dark" ? "red" : "blue",
+            };
+          },
           option: (baseStyles, state) => ({
             ...baseStyles,
             backgroundColor: state.isFocused

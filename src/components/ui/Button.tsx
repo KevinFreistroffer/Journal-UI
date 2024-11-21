@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { useTheme } from "next-themes"
+import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
 

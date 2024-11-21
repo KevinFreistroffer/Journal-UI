@@ -22,6 +22,10 @@ import {
   AlertCircle,
   Settings,
   ChevronRightIcon,
+  Volume2,
+  XCircle,
+  Copy,
+  ChevronDown,
 } from "lucide-react";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -84,6 +88,22 @@ import PublishButton from "./components/PublishButton";
 import { XIcon } from "@/components/icons/XIcon";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
 import DebugState from "@/components/ui/__debug__/State";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { updateUserPreferences } from "@/actions/updateUserPreferences"; // You'll need to create this
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 interface IAutoSaveState {
   title: string;
   journal: string;
@@ -96,6 +116,14 @@ const createJournalInitialState: ICreateJournalState = {
   errors: {},
   success: false,
   user: null,
+};
+
+// Add these types
+type VoiceOption = {
+  voice: SpeechSynthesisVoice;
+  name: string;
+  lang: string;
+  gender: string;
 };
 
 function WritePage({ children }: { children: React.ReactNode }) {
@@ -212,6 +240,12 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [hasUserRespondedToAutoSave, setHasUserRespondedToAutoSave] =
     useState(false);
   const [showSavedMessage, setShowSavedMessage] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isJournalSpeaking, setIsJournalSpeaking] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<string>("");
+  const [showStorageDisabledWarning, setShowStorageDisabledWarning] =
+    useState(false);
 
   // Add this media query hook
   const isLargeScreen = useMediaQuery("(min-width: 1245px)");
@@ -906,9 +940,290 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Add this effect to load voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const synth = window.speechSynthesis;
+      const voices = synth.getVoices().map((voice) => ({
+        voice: voice,
+        name: voice.name,
+        lang: voice.lang,
+        gender: voice.name.toLowerCase().includes("female") ? "Female" : "Male",
+      }));
+      setAvailableVoices(voices);
+      // Set default voice
+      if (voices.length > 0 && !selectedVoice) {
+        setSelectedVoice(voices[0].name);
+      }
+    };
+
+    loadVoices();
+    // Some browsers need a little time to load voices
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, [selectedVoice]);
+
+  // Update your speakSummary function
+  const speakSummary = useCallback(() => {
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(summary.join(". "));
+
+    const selectedVoiceOption = availableVoices.find(
+      (v) => v.name === selectedVoice
+    );
+    if (selectedVoiceOption) {
+      utterance.voice = selectedVoiceOption.voice;
+    }
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    setIsSpeaking(true);
+    synth.speak(utterance);
+  }, [summary, selectedVoice, availableVoices]);
+
+  const cancelSpeech = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  const speakJournal = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+
+      // Get plain text from the journal HTML content
+      const plainText = getPlainTextFromHtml(journal);
+
+      const utterance = new SpeechSynthesisUtterance(plainText);
+      utterance.lang = "en-US";
+
+      utterance.onstart = () => setIsJournalSpeaking(true);
+      utterance.onend = () => setIsJournalSpeaking(false);
+      utterance.onerror = () => setIsJournalSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const cancelJournalSpeech = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsJournalSpeaking(false);
+    }
+  };
+
+  // Add this cleanup effect
+  useEffect(() => {
+    return () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Find the grid of action buttons and add this new button:
+
   // Add to your JSX, perhaps near the save button
+
+  // Add this function to check storage availability
+  const isStorageAvailable = (
+    type: "localStorage" | "sessionStorage"
+  ): boolean => {
+    try {
+      const storage = window[type];
+      const x = "__storage_test__";
+      storage.setItem(x, x);
+      storage.removeItem(x);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Add this effect to check storage and user preferences
+  useEffect(() => {
+    if (!user) return;
+
+    const hasStorage =
+      isStorageAvailable("localStorage") &&
+      isStorageAvailable("sessionStorage");
+
+    if (!hasStorage && !user.hasAcknowledgedStorageWarning) {
+      setShowStorageDisabledWarning(true);
+    }
+  }, [user]);
+
+  // Add this handler
+  const handleAcknowledgeStorageWarning = async () => {
+    try {
+      const response = await fetch("/api/user/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user?._id,
+          hasAcknowledgedStorageWarning: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update preferences");
+      }
+
+      setShowStorageDisabledWarning(false);
+    } catch (error) {
+      console.error("Error updating user preferences:", error);
+    }
+  };
+
   return (
-    <PageContainer>
+    <DashboardContainer
+      isSidebarOpen={
+        user && user.isVerified ? isSidebarOpen && showSidebar : false
+      }
+      sidebar={
+        user && user.isVerified && showSidebar ? (
+          <Sidebar
+            isOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+            icon={<ChevronRightIcon size={20} />}
+            headerDisplaysTabs={false}
+            sections={[
+              {
+                title: "Summary",
+                content: (
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-100">
+                    {isSummarizing ? (
+                      <div className="flex items-center space-x-2">
+                        <Spinner className="w-4 h-4" />
+                        <span>Generating summary...</span>
+                      </div>
+                    ) : summary.length > 0 ? (
+                      <>
+                        <div className="text-gray-500 dark:text-gray-400 space-y-2 dark:bg-gray-800/50 rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-grow">
+                              {summary.map((paragraph, index) => (
+                                <p key={index} className="leading-relaxed">
+                                  {paragraph}
+                                </p>
+                              ))}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  clipboard.copy(summary.join("\n\n"));
+                                }}
+                                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                title="Copy summary"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+
+                              <div className="flex items-center gap-2">
+                                {availableVoices.length > 0 && (
+                                  <Select
+                                    value={selectedVoice}
+                                    onValueChange={setSelectedVoice}
+                                  >
+                                    <SelectTrigger className="h-8 w-[180px]">
+                                      <SelectValue placeholder="Select voice" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <div className="max-h-[300px] overflow-y-auto">
+                                        {availableVoices.map((voice) => (
+                                          <SelectItem
+                                            key={voice.name}
+                                            value={voice.name}
+                                          >
+                                            {voice.name} ({voice.gender})
+                                          </SelectItem>
+                                        ))}
+                                      </div>
+                                    </SelectContent>
+                                  </Select>
+                                )}
+
+                                {isSpeaking ? (
+                                  <button
+                                    onClick={cancelSpeech}
+                                    className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-red-500 hover:text-red-600"
+                                    title="Stop speaking"
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={speakSummary}
+                                    className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                    title="Read summary aloud"
+                                    disabled={!selectedVoice}
+                                  >
+                                    <Volume2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleTweet}
+                          className="mt-4 w-auto bg-black hover:bg-black/90 text-white dark:bg-white dark:hover:bg-white/90 dark:text-black"
+                          size="sm"
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            <XIcon />
+                            Post
+                          </div>
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400">
+                        No summary generated yet.
+                      </p>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+          />
+        ) : undefined
+      }
+      bottomBar={
+        user && user.isVerified && isExtraSmallScreen ? (
+          <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10">
+                  {/* <Settings className="h-5 w-5" /> */}
+                  <ChevronUpIcon className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-auto m-4 mb-0">
+                <div className="pt-6 min-h-[15rem]">
+                  <h3 className="text-lg font-semibold mb-4">Data</h3>
+                  <div className="mt-2 text-sm  text-gray-600">
+                    <p>
+                      <span className="font-medium">Total Words:</span>{" "}
+                      {totalWords}
+                    </p>
+                    <p>
+                      <span className="font-medium ">
+                        Average Words Across All Journals:
+                      </span>{" "}
+                      {averageWords}
+                    </p>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        ) : undefined
+      }
+    >
       {user && !user.isVerified ? (
         <div className="flex  h-screen items-center justify-center">
           <div className="text-center">
@@ -926,151 +1241,65 @@ function WritePage({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       ) : (
-        <DashboardContainer
-          isSidebarOpen={isSidebarOpen && showSidebar}
-          sidebar={
-            showSidebar ? (
-              <Sidebar
-                isOpen={isSidebarOpen}
-                setIsSidebarOpen={setIsSidebarOpen}
-                icon={<ChevronRightIcon size={20} />}
-                headerDisplaysTabs={false}
-                sections={[
-                  {
-                    title: "Summary",
-                    content: (
-                      <div className="mt-2 text-sm text-gray-600 dark:text-gray-100">
-                        {isSummarizing ? (
-                          <div className="flex items-center space-x-2">
-                            <Spinner className="w-4 h-4" />
-                            <span>Generating summary...</span>
-                          </div>
-                        ) : summary.length > 0 ? (
-                          <>
-                            {/* <div className="mt-4 mb-2 font-medium">
-                          Generated Summary:
-                        </div> */}
-                            <div className="text-gray-500 dark:text-gray-400 space-y-2 dark:bg-gray-800/50 rounded-lg p-4">
-                              {summary.map((paragraph, index) => (
-                                <p key={index} className="leading-relaxed">
-                                  {paragraph}
-                                </p>
-                              ))}
-                            </div>
-                            <Button
-                              onClick={handleTweet}
-                              className="mt-4 w-auto bg-black hover:bg-black/90 text-white dark:bg-white dark:hover:bg-white/90 dark:text-black"
-                              size="sm"
-                            >
-                              <div className="flex items-center justify-center gap-2">
-                                <XIcon />
-                                Post
-                              </div>
-                            </Button>
-                          </>
-                        ) : (
-                          <p className="text-gray-500 dark:text-gray-400">
-                            No summary generated yet.
-                          </p>
-                        )}
-                      </div>
-                    ),
-                  },
-                ]}
-              />
-            ) : undefined
-          }
-          bottomBar={
-            isExtraSmallScreen ? (
-              <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-10 w-10">
-                      {/* <Settings className="h-5 w-5" /> */}
-                      <ChevronUpIcon className="h-5 w-5" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="bottom" className="h-auto m-4 mb-0">
-                    <div className="pt-6 min-h-[15rem]">
-                      <h3 className="text-lg font-semibold mb-4">Data</h3>
-                      <div className="mt-2 text-sm  text-gray-600">
-                        <p>
-                          <span className="font-medium">Total Words:</span>{" "}
-                          {totalWords}
-                        </p>
-                        <p>
-                          <span className="font-medium ">
-                            Average Words Across All Journals:
-                          </span>{" "}
-                          {averageWords}
-                        </p>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            ) : undefined
-          }
+        <div
+          className={cn(
+            "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
+            isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
+          )}
         >
+          <DebugState
+            position="bottom-right"
+            state={{
+              sentenceCount: journal
+                .split(/[.!?]+/)
+                .filter((sentence) => sentence.trim().length > 0).length,
+            }}
+          />
           <div
             className={cn(
-              "fdsafdsafdsafas flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
-              isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
+              "flex justify-end p-4",
+              !isFullscreen ? "pt-0 pr-0" : ""
             )}
           >
-            <DebugState
-              position="bottom-right"
-              state={{
-                sentenceCount: journal
-                  .split(/[.!?]+/)
-                  .filter((sentence) => sentence.trim().length > 0).length,
-              }}
-            />
-            <div
-              className={cn(
-                "flex justify-end p-4",
-                !isFullscreen ? "pt-0 pr-0" : ""
+            <div className="flex items-center mr-4">
+              {showLastSaved && lastSavedTime && (
+                <div className="text-xs text-gray-500">
+                  {isAutosaving && <span>Saving...</span>}
+                  {!isAutosaving && (
+                    <span>Last saved {lastSavedTime.toLocaleTimeString()}</span>
+                  )}
+                </div>
               )}
-            >
-              <div className="flex items-center mr-4">
-                {showLastSaved && lastSavedTime && (
-                  <div className="text-xs text-gray-500">
-                    {isAutosaving && <span>Saving...</span>}
-                    {!isAutosaving && (
-                      <span>
-                        Last saved {lastSavedTime.toLocaleTimeString()}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="hidden sm:block">
-                <ViewToggle
-                  isFullscreen={isFullscreen}
-                  contentWidth={contentWidth}
-                  showDefaultWidth={isLargeScreen}
-                  showFullWidth={isLargeScreen}
-                  onToggle={(value) => {
-                    if (isFullscreen) {
-                      // If currently fullscreen, exit fullscreen and restore previous width
-                      setIsFullscreen(false);
-                      setContentWidth(previousWidth);
-                    } else if (value === "fullscreen") {
-                      // If not fullscreen and fullscreen is requested, enter fullscreen
-                      setPreviousWidth(contentWidth);
-                      setIsFullscreen(true);
-                    } else {
-                      // Handle regular width toggles when not in fullscreen mode
-                      setContentWidth(value as "default" | "full");
-                    }
-                  }}
-                />
-              </div>
             </div>
+            <div className="hidden sm:block">
+              <ViewToggle
+                isFullscreen={isFullscreen}
+                contentWidth={contentWidth}
+                showDefaultWidth={isLargeScreen}
+                showFullWidth={isLargeScreen}
+                onToggle={(value) => {
+                  if (isFullscreen) {
+                    // If currently fullscreen, exit fullscreen and restore previous width
+                    setIsFullscreen(false);
+                    setContentWidth(previousWidth);
+                  } else if (value === "fullscreen") {
+                    // If not fullscreen and fullscreen is requested, enter fullscreen
+                    setPreviousWidth(contentWidth);
+                    setIsFullscreen(true);
+                  } else {
+                    // Handle regular width toggles when not in fullscreen mode
+                    setContentWidth(value as "default" | "full");
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center">
             <div
               className={cn(
-                "flex justify-center w-full ml-auto mr-auto transition-all duration-300",
+                "flex justify-center w-full transition-all duration-300",
                 contentWidth === "default" ? "max-w-6xl" : "max-w-[95%]",
+                isSidebarOpen ? "" : "md:ml-0 lg:-ml-16",
                 "pb-20"
               )}
             >
@@ -1256,9 +1485,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             disabled={!(journal.trim() || title.trim())}
                           >
                             <Eye className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">
-                              Preview
-                            </span>
+                            <span className="truncate sm:text-clip">Preview</span>
                           </button>
 
                           <button
@@ -1270,6 +1497,40 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             <span className="truncate sm:text-clip">
                               Word Stats
                             </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={
+                              isJournalSpeaking
+                                ? cancelJournalSpeech
+                                : speakJournal
+                            }
+                            className={cn(
+                              "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                              !journal.trim()
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                                : isJournalSpeaking
+                                ? "text-red-500 hover:text-red-600 bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700"
+                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                            )}
+                            disabled={!journal.trim()}
+                          >
+                            {isJournalSpeaking ? (
+                              <>
+                                <XCircle className="w-3 h-3 mr-1" />
+                                <span className="truncate sm:text-clip">
+                                  Stop
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <Volume2 className="w-3 h-3 mr-1" />
+                                <span className="truncate sm:text-clip">
+                                  Listen
+                                </span>
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
@@ -1317,8 +1578,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
                                       sentences.
                                     </p>
                                     {/* <p className="text-xs leading-relaxed text-gray-600">
-                                  You can also tweet the summary directly!
-                                </p> */}
+                                    You can also tweet the summary directly!
+                                  </p> */}
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
@@ -1346,62 +1607,85 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 </form>
               </div>
             </div>
-            {/* Summary Dialog */}
-            <SummaryModal
-              isOpen={isSummaryModalOpen}
-              onOpenChange={setIsSummaryModalOpen}
-              summary={summary}
-              onTweet={handleTweet}
-              error={summaryError} // Pass the error to the dialog
-            />
-            {/* Save Modal */}
-            <SaveJournalModal
-              isOpen={showSaveModal}
-              onOpenChange={setShowSaveModal}
-              onSubmit={saveToDatabase}
-              categories={categories}
-              selectedCategories={selectedCategories}
-              onCategoriesChange={setSelectedCategories}
-              onCreateCategory={(categoryName) => {
-                setCategories([
-                  ...categories,
-                  {
-                    _id: "",
-                    category: categoryName,
-                    selected: false,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                  },
-                ]);
-              }}
-              favorite={favorite}
-              onFavoriteChange={setFavorite}
-              title={title}
-              journal={journal}
-              saveStatus={saveStatus}
-              saveError={saveError}
-              onClose={() => setShowSaveModal(false)}
-            />
-            {/*Preview Dialog  */}
-            <PreviewModal
-              isOpen={isPreviewOpen}
-              onOpenChange={setIsPreviewOpen}
-              title={title}
-              journal={journal}
-            />
-            <StorageAccessWarningModal
-              open={showStorageWarning}
-              onOpenChange={setShowStorageWarning}
-            />
-            {/* Update the autosave indicator */}
-            <NoContentWarningModal
-              isOpen={showNoContentWarning}
-              onOpenChange={setShowNoContentWarning}
-            />
           </div>
-        </DashboardContainer>
+          {/* Summary Dialog */}
+          <SummaryModal
+            isOpen={isSummaryModalOpen}
+            onOpenChange={setIsSummaryModalOpen}
+            summary={summary}
+            onTweet={handleTweet}
+            error={summaryError} // Pass the error to the dialog
+          />
+          {/* Save Modal */}
+          <SaveJournalModal
+            isOpen={showSaveModal}
+            onOpenChange={setShowSaveModal}
+            onSubmit={saveToDatabase}
+            categories={categories}
+            selectedCategories={selectedCategories}
+            onCategoriesChange={setSelectedCategories}
+            onCreateCategory={(categoryName) => {
+              setCategories([
+                ...categories,
+                {
+                  _id: "",
+                  category: categoryName,
+                  selected: false,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                },
+              ]);
+            }}
+            favorite={favorite}
+            onFavoriteChange={setFavorite}
+            title={title}
+            journal={journal}
+            saveStatus={saveStatus}
+            saveError={saveError}
+            onClose={() => setShowSaveModal(false)}
+          />
+          {/*Preview Dialog  */}
+          <PreviewModal
+            isOpen={isPreviewOpen}
+            onOpenChange={setIsPreviewOpen}
+            title={title}
+            journal={journal}
+          />
+          <StorageAccessWarningModal
+            open={showStorageWarning}
+            onOpenChange={setShowStorageWarning}
+          />
+          {/* Update the autosave indicator */}
+          <NoContentWarningModal
+            isOpen={showNoContentWarning}
+            onOpenChange={setShowNoContentWarning}
+          />
+          <Dialog
+            open={showStorageDisabledWarning}
+            onOpenChange={setShowStorageDisabledWarning}
+          >
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Storage Access Required</DialogTitle>
+                <DialogDescription>
+                  Your browser has storage access disabled. Without this, your
+                  content cannot be automatically saved. You must manually
+                  publish your entries to save them.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  onClick={handleAcknowledgeStorageWarning}
+                  variant="default"
+                >
+                  I Understand
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       )}
-    </PageContainer>
+    </DashboardContainer>
   );
 }
 

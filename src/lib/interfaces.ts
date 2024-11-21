@@ -26,6 +26,7 @@ export interface IUser {
   company?: string;
   location?: string;
   website?: string;
+  sex?: "male" | "female" | "non-binary";
   email: string;
   resetPasswordToken: string;
   resetPasswordTokenExpires?: Date;
@@ -33,6 +34,7 @@ export interface IUser {
   // jwtToken: string; // TODO: I don't think this is needed. The token would get generated and sent to the client. Client sends the token, server parses it, and compares it to the found users
   // password and
   hasAcknowledgedHelperText: boolean;
+  hasAcknowledgedStorageWarning?: boolean;
   journals: IJournal[];
   journalCategories: ICategory[];
   createdAt: Date;

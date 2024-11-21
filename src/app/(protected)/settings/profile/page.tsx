@@ -42,6 +42,7 @@ const ProfilePage = () => {
     company: "",
     location: "",
     website: "",
+    sex: "",
   });
 
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -59,6 +60,7 @@ const ProfilePage = () => {
         company: user.company || "",
         location: user.location || "",
         website: user.website || "",
+        sex: user.sex || "",
       });
       setIsFormDirty(false);
     }
@@ -181,7 +183,9 @@ const ProfilePage = () => {
   ) => {
     const newFormData = {
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.type === 'checkbox'
+        ? (formData[e.target.name as keyof typeof formData] === e.target.value ? '' : e.target.value)
+        : e.target.value,
     };
     setFormData(newFormData);
 
@@ -334,6 +338,47 @@ Your original username will be unavailable for 90 days following the rename.
                         onChange={handleInputChange}
                         className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Sex
+                      </label>
+                      <div className="flex gap-4">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            name="sex"
+                            value="male"
+                            checked={formData.sex === "male"}
+                            onChange={handleInputChange}
+                            className="form-checkbox text-blue-600 rounded"
+                          />
+                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">Male</span>
+                        </label>
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            name="sex"
+                            value="female"
+                            checked={formData.sex === "female"}
+                            onChange={handleInputChange}
+                            className="form-checkbox text-blue-600 rounded"
+                          />
+                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">Female</span>
+                        </label>
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            name="sex"
+                            value="other"
+                            checked={formData.sex === "other"}
+                            onChange={handleInputChange}
+                            className="form-checkbox text-blue-600 rounded"
+                          />
+                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">Other</span>
+                        </label>
+                      </div>
                     </div>
                   </>
                 )}

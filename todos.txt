@@ -34,6 +34,8 @@ water ripple background animated
 
 enable mfa
 
+the /api/update api route, shouldn't require a userId, since it can get it from a server function?
+
 replace the keyword freq select with another component. too slow.
 
 when first starting the app, it shows the login signup links, tho can't redirect to them. is stuck on "is auth'd" yet not showing auth'd content. fix auth.

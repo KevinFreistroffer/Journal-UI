@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
 import styles from "./styles.module.css";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
+import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
 
 const initialState: State = {
   message: "",
@@ -113,7 +114,7 @@ export default function LoginPage() {
   }, [setIsLoading]);
 
   return (
-    <PageContainer>
+    <DashboardContainer isSidebarOpen={false}>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <div className="bg-white p-8 rounded-lg shadow-md w-96 dark:bg-gray-800">
           <h1 className="text-2xl font-bold mb-6 text-center dark:text-gray-300">
@@ -211,7 +212,27 @@ export default function LoginPage() {
             id={styles["verification-modal"]}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "
           >
-            <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
+            <div className="bg-white p-8 rounded-lg shadow-md max-w-md relative">
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                aria-label="Close modal"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
               <h2 className="text-xl font-bold mb-4">
                 Account Verification Required
               </h2>
@@ -219,45 +240,41 @@ export default function LoginPage() {
                 Login successful, but the account is not verified. Please check
                 your email for verification.
               </p>
-              {emailResendSuccess ? (
-                <div className="text-green-500 text-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 mx-auto"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+              <div className="px-8 pb-8">
+                {emailResendSuccess ? (
+                  <div className="text-green-500 text-center w-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 mx-auto"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <p>Email sent successfully!</p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleResendVerification}
+                    disabled={isResendingEmail}
+                    className="w-full px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <p>Email sent successfully!</p>
-                </div>
-              ) : (
-                <button
-                  onClick={handleResendVerification}
-                  disabled={isResendingEmail}
-                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-2"
-                >
-                  {isResendingEmail
-                    ? "Resending..."
-                    : "Resend Verification Email"}
-                </button>
-              )}
-              <button
-                onClick={closeModal}
-                className="w-full bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
-              >
-                Close
-              </button>
+                    {isResendingEmail
+                      ? "Resending..."
+                      : "Resend Verification Email"}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}
       </div>
-    </PageContainer>
+    </DashboardContainer>
   );
 }
