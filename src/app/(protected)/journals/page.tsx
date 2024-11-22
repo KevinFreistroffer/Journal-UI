@@ -564,303 +564,313 @@ export default function JournalsPage() {
   };
 
   return (
-    <DashboardContainer isSidebarOpen={isSidebarOpen}>
-        sidebar={
-          <Sidebar
-            isOpen={isSidebarOpen}
-            headerDisplaysTabs={true}
-            sections={SidebarContent({
-              showFavoritesOnly,
-              setShowFavoritesOnly,
-              selectedFilterDate,
-              setSelectedFilterDate,
-              showSentiment,
-              setShowSentiment,
-              showCategory,
-              setShowCategory,
-              showUpdatedDate,
-              setShowUpdatedDate,
-              journalCount: user?.journals.length,
-              favoritedJournalCount: user?.journals.filter(
-                (journal) => journal.favorite
-              ).length,
-            })}
-            setIsSidebarOpen={setIsSidebarOpen}
-            icon={<ChevronRightIcon size={20} />}
-          />
-        }
-        bottomBar={
-          isExtraSmallScreen ? (
-            <div className="fixed m-1 bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10">
-                    {/* <Settings className="h-5 w-5" /> */}
-                    <ChevronUpIcon className="h-5 w-5" />
-                    {/* <Menu className="h-5 w-5" /> */}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="bottom"
-                  className="h-auto m-4 mb-0 max-w-md "
-                >
-                  <div className="pt-6">
-                    {/* <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3> */}
-                    <div className="space-y-4">
-                      {SidebarContent({
-                        showFavoritesOnly,
-                        setShowFavoritesOnly,
-                        selectedFilterDate,
-                        setSelectedFilterDate,
-                        showSentiment,
-                        setShowSentiment,
-                        showCategory,
-                        setShowCategory,
-                        showUpdatedDate,
-                        setShowUpdatedDate,
-                        journalCount: user?.journals.length,
-                        favoritedJournalCount: user?.journals.filter(
-                          (journal) => journal.favorite
-                        ).length,
-                      }).map((section) => (
-                        <div key={section.title}>
-                          <h4 className="font-medium mb-2">{section.title}</h4>
-                          {section.content}
-                        </div>
-                      ))}
-                    </div>
+    <DashboardContainer
+      isSidebarOpen={isSidebarOpen}
+      sidebar={
+        <Sidebar
+          isOpen={isSidebarOpen}
+          headerDisplaysTabs={true}
+          sections={SidebarContent({
+            showFavoritesOnly,
+            setShowFavoritesOnly,
+            selectedFilterDate,
+            setSelectedFilterDate,
+            showSentiment,
+            setShowSentiment,
+            showCategory,
+            setShowCategory,
+            showUpdatedDate,
+            setShowUpdatedDate,
+            journalCount: user?.journals.length,
+            favoritedJournalCount: user?.journals.filter(
+              (journal) => journal.favorite
+            ).length,
+          })}
+          setIsSidebarOpen={setIsSidebarOpen}
+          icon={<ChevronRightIcon size={20} />}
+        />
+      }
+      bottomBar={
+        isExtraSmallScreen ? (
+          <div className="fixed m-1 bottom-0 left-0 right-0 h-14 bg-white border-t border-gray-200 flex items-center justify-center z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10">
+                  {/* <Settings className="h-5 w-5" /> */}
+                  <ChevronUpIcon className="h-5 w-5" />
+                  {/* <Menu className="h-5 w-5" /> */}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-auto m-4 mb-0 max-w-md ">
+                <div className="pt-6">
+                  {/* <h3 className="text-lg font-semibold mb-4">Toggle Cards</h3> */}
+                  <div className="space-y-4">
+                    {SidebarContent({
+                      showFavoritesOnly,
+                      setShowFavoritesOnly,
+                      selectedFilterDate,
+                      setSelectedFilterDate,
+                      showSentiment,
+                      setShowSentiment,
+                      showCategory,
+                      setShowCategory,
+                      showUpdatedDate,
+                      setShowUpdatedDate,
+                      journalCount: user?.journals.length,
+                      favoritedJournalCount: user?.journals.filter(
+                        (journal) => journal.favorite
+                      ).length,
+                    }).map((section) => (
+                      <div key={section.title}>
+                        <h4 className="font-medium mb-2">{section.title}</h4>
+                        {section.content}
+                      </div>
+                    ))}
                   </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          ) : undefined
-        }
-      >
-        <>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
-            <h1 className="text-3xl font-bold hidden md:block">
-              Your Journals
-            </h1>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
+        ) : undefined
+      }
+    >
+      <>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 space-y-4 md:space-y-0">
+          <h1 className="text-3xl font-bold hidden md:block">Your Journals</h1>
+        </div>
 
-          <div className="flex flex-col mb-4 space-y-4">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-              {/* Search bar - moved to the top for xs and sm viewports */}
-              <div className="w-full lg:w-1/3 order-first lg:order-last">
-                <SearchInput
-                  id="search-journals"
-                  query={query}
-                  handleSearch={handleSearch}
-                  userEntries={user?.journals || []}
-                  containerClassName="w-full"
-                  inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300"
-                  placeholder="Find a journal..."
-                />
-              </div>
+        <div className="flex flex-col mb-4 space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            {/* Search bar - moved to the top for xs and sm viewports */}
+            <div className="w-full lg:w-1/3 order-first lg:order-last">
+              <SearchInput
+                id="search-journals"
+                query={query}
+                handleSearch={handleSearch}
+                userEntries={user?.journals || []}
+                containerClassName="w-full"
+                inputClassName="w-full h-9 border border-gray-300 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300"
+                placeholder="Find a journal..."
+              />
+            </div>
 
-              {/* Category and Sort selects */}
-              <div className="flex flex-row items-center space-x-4">
-                {isMobileView ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="h-9 px-3"
-                      onClick={() => handleFilterClick("category")}
-                    >
-                      <span>{displayedCategoryFilter}</span>
-                      <ChevronDownIcon className="ml-2 h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-9 px-3"
-                      onClick={() => handleFilterClick("sort")}
-                    >
-                      <span>{displayedSortFilter}</span>
-                      <ChevronDownIcon className="ml-2 h-4 w-4" />
-                    </Button>
-                    <Dialog.Root
-                      open={categoryFilterDisplayed}
-                      onOpenChange={handleDialogOpenChange}
-                    >
-                      <Dialog.Portal>
-                        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
-                        <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-xl">
-                          <div className="flex justify-between items-center border-b border-gray-200">
-                            <Dialog.Title className="text-sm font-semibold py-5 px-6">
-                              {activeFilter === "category"
-                                ? "Select category"
-                                : "Select filter"}
-                            </Dialog.Title>
-                            <button onClick={handleCloseModal} className="p-3">
-                              <Cross1Icon className="h-3 w-3" />
-                            </button>
-                          </div>
-                          <div className="flex flex-col overflow-y-auto max-h-[60vh]">
+            {/* Category and Sort selects */}
+            <div className="flex flex-row items-center space-x-4">
+              {isMobileView ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className="h-9 px-3"
+                    onClick={() => handleFilterClick("category")}
+                  >
+                    <span>{displayedCategoryFilter}</span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-9 px-3"
+                    onClick={() => handleFilterClick("sort")}
+                  >
+                    <span>{displayedSortFilter}</span>
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Dialog.Root
+                    open={categoryFilterDisplayed}
+                    onOpenChange={handleDialogOpenChange}
+                  >
+                    <Dialog.Portal>
+                      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-40" />
+                      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg border border-gray-200 w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-xl">
+                        <div className="flex justify-between items-center border-b border-gray-200">
+                          <Dialog.Title className="text-sm font-semibold py-5 px-6">
                             {activeFilter === "category"
-                              ? categories.map((category) => (
+                              ? "Select category"
+                              : "Select filter"}
+                          </Dialog.Title>
+                          <button onClick={handleCloseModal} className="p-3">
+                            <Cross1Icon className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <div className="flex flex-col overflow-y-auto max-h-[60vh]">
+                          {activeFilter === "category"
+                            ? categories.map((category) => (
+                                <Button
+                                  key={category}
+                                  variant="ghost"
+                                  className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
+                                  onClick={() => {
+                                    handleOptionSelect(category);
+                                    handleCloseModal();
+                                  }}
+                                >
+                                  <div className="flex items-center w-full">
+                                    <span className="w-6">
+                                      {categoryFilter === category && (
+                                        <CheckIcon className="h-4 w-4" />
+                                      )}
+                                    </span>
+                                    <span className="ml-2">{category}</span>
+                                  </div>
+                                </Button>
+                              ))
+                            : ["Last updated date", "Name", "Favorited"].map(
+                                (option) => (
                                   <Button
-                                    key={category}
+                                    key={option}
                                     variant="ghost"
                                     className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
                                     onClick={() => {
-                                      handleOptionSelect(category);
+                                      handleOptionSelect(option);
                                       handleCloseModal();
                                     }}
                                   >
                                     <div className="flex items-center w-full">
                                       <span className="w-6">
-                                        {categoryFilter === category && (
+                                        {sortFilter === option && (
                                           <CheckIcon className="h-4 w-4" />
                                         )}
                                       </span>
-                                      <span className="ml-2">{category}</span>
+                                      <span className="ml-2">{option}</span>
                                     </div>
                                   </Button>
-                                ))
-                              : ["Last updated date", "Name", "Favorited"].map(
-                                  (option) => (
-                                    <Button
-                                      key={option}
-                                      variant="ghost"
-                                      className="justify-start font-normal py-6 px-6 border-b border-gray-200 text-left text-sm rounded-none hover:bg-gray-200 transition-colors duration-150"
-                                      onClick={() => {
-                                        handleOptionSelect(option);
-                                        handleCloseModal();
-                                      }}
-                                    >
-                                      <div className="flex items-center w-full">
-                                        <span className="w-6">
-                                          {sortFilter === option && (
-                                            <CheckIcon className="h-4 w-4" />
-                                          )}
-                                        </span>
-                                        <span className="ml-2">{option}</span>
-                                      </div>
-                                    </Button>
-                                  )
-                                )}
-                          </div>
-                        </Dialog.Content>
-                      </Dialog.Portal>
-                    </Dialog.Root>
-                  </>
-                ) : (
-                  <>
-                    <Select
-                      value={selectedCategory}
-                      onValueChange={(value) => {
-                        setSelectedCategory(value);
-                        setIsModalOpen(false);
-                        setCategoryFilterDisplayed(false);
-                      }}
-                      open={categoryFilterDisplayed}
-                      onOpenChange={setCategoryFilterDisplayed}
-                    >
-                      <SelectTrigger className="h-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:text-gray-200 [&>span]:text-sm">
-                        <SelectValue
-                          placeholder="Category"
-                          className="font-bold placeholder:font-bold dark:text-gray-200"
-                        />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-800 border dark:border-gray-700">
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category}
-                            value={category}
-                            className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
-                          >
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                                )
+                              )}
+                        </div>
+                      </Dialog.Content>
+                    </Dialog.Portal>
+                  </Dialog.Root>
+                </>
+              ) : (
+                <>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={(value) => {
+                      setSelectedCategory(value);
+                      setIsModalOpen(false);
+                      setCategoryFilterDisplayed(false);
+                    }}
+                    open={categoryFilterDisplayed}
+                    onOpenChange={setCategoryFilterDisplayed}
+                  >
+                    <SelectTrigger className="h-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:text-gray-200 [&>span]:text-sm">
+                      <SelectValue
+                        placeholder="Category"
+                        className="font-bold placeholder:font-bold dark:text-gray-200"
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-gray-800 border dark:border-gray-700">
+                      {categories.map((category) => (
+                        <SelectItem
+                          key={category}
+                          value={category}
+                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                        >
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                    <Select
-                      value={sortBy}
-                      onValueChange={(value) => {
-                        setSortBy(value);
-                        setIsModalOpen(false);
-                      }}
-                    >
-                      <SelectTrigger className="h-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:text-gray-200 [&>span]:text-sm">
-                        <SelectValue
-                          placeholder="Filter"
-                          className="font-bold placeholder:font-bold dark:text-gray-200"
-                        />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-800 border dark:border-gray-700">
-                        <SelectItem
-                          value="Last updated date"
-                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
-                        >
-                          Last updated date
-                        </SelectItem>
-                        <SelectItem
-                          value="Name"
-                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
-                        >
-                          Name
-                        </SelectItem>
-                        <SelectItem
-                          value="Favorited"
-                          className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
-                        >
-                          Favorited
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </>
-                )}
-              </div>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value) => {
+                      setSortBy(value);
+                      setIsModalOpen(false);
+                    }}
+                  >
+                    <SelectTrigger className="h-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded py-1.5 px-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 dark:text-gray-200 [&>span]:text-sm">
+                      <SelectValue
+                        placeholder="Filter"
+                        className="font-bold placeholder:font-bold dark:text-gray-200"
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-gray-800 border dark:border-gray-700">
+                      <SelectItem
+                        value="Last updated date"
+                        className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                      >
+                        Last updated date
+                      </SelectItem>
+                      <SelectItem
+                        value="Name"
+                        className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                      >
+                        Name
+                      </SelectItem>
+                      <SelectItem
+                        value="Favorited"
+                        className="font-normal dark:text-gray-200 dark:focus:bg-gray-700 dark:hover:bg-gray-700"
+                      >
+                        Favorited
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
           </div>
+        </div>
 
-          <div className="flex justify-between items-center mb-4">
-            <ToggleGroup.Root
-              type="single"
-              value={viewMode}
-              onValueChange={(value) => value && setViewMode(value as ViewMode)}
-              className={`items-center ${isLargeScreen ? "flex" : "hidden"}`}
+        <div className="flex justify-between items-center mb-4">
+          <ToggleGroup.Root
+            type="single"
+            value={viewMode}
+            onValueChange={(value) => value && setViewMode(value as ViewMode)}
+            className={`items-center ${isLargeScreen ? "flex" : "hidden"}`}
+          >
+            <ToggleGroup.Item
+              value={ViewMode.Rows}
+              aria-label="Rows View"
+              className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
+                viewMode === ViewMode.Rows
+                  ? "bg-gray-100 dark:bg-gray-800"
+                  : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
+              }`}
             >
+              <ViewHorizontalIcon
+                className={
+                  viewMode === ViewMode.Rows ? "" : "dark:text-gray-300"
+                }
+              />
+            </ToggleGroup.Item>
+            <ToggleGroup.Item
+              value={ViewMode.TwoColumn}
+              aria-label="2-Column View"
+              className={`flex items-center space-x-2 px-3 py-2 ${
+                viewMode === ViewMode.TwoColumn
+                  ? "bg-gray-100 dark:bg-gray-800"
+                  : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
+              } ${!isExtraLargeScreen ? "rounded-r" : ""}`}
+            >
+              <ViewVerticalIcon
+                className={
+                  viewMode === ViewMode.TwoColumn ? "" : "dark:text-gray-300"
+                }
+              />
+            </ToggleGroup.Item>
+            {isExtraLargeScreen && (
               <ToggleGroup.Item
-                value={ViewMode.Rows}
-                aria-label="Rows View"
-                className={`flex items-center space-x-2 px-3 py-2 rounded-l ${
-                  viewMode === ViewMode.Rows
+                value={ViewMode.ThreeColumn}
+                aria-label="3-Column View"
+                className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
+                  viewMode === ViewMode.ThreeColumn
                     ? "bg-gray-100 dark:bg-gray-800"
                     : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
                 }`}
               >
-                <ViewHorizontalIcon className={viewMode === ViewMode.Rows ? "" : "dark:text-gray-300"} />
-              </ToggleGroup.Item>
-              <ToggleGroup.Item
-                value={ViewMode.TwoColumn}
-                aria-label="2-Column View"
-                className={`flex items-center space-x-2 px-3 py-2 ${
-                  viewMode === ViewMode.TwoColumn
-                    ? "bg-gray-100 dark:bg-gray-800"
-                    : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
-                } ${!isExtraLargeScreen ? "rounded-r" : ""}`}
-              >
-                <ViewVerticalIcon className={viewMode === ViewMode.TwoColumn ? "" : "dark:text-gray-300"} />
-              </ToggleGroup.Item>
-              {isExtraLargeScreen && (
-                <ToggleGroup.Item
-                  value={ViewMode.ThreeColumn}
-                  aria-label="3-Column View"
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-r ${
+                <ViewGridIcon
+                  className={
                     viewMode === ViewMode.ThreeColumn
-                      ? "bg-gray-100 dark:bg-gray-800"
-                      : "bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  <ViewGridIcon className={viewMode === ViewMode.ThreeColumn ? "" : "dark:text-gray-300"} />
-                </ToggleGroup.Item>
-              )}
-            </ToggleGroup.Root>
+                      ? ""
+                      : "dark:text-gray-300"
+                  }
+                />
+              </ToggleGroup.Item>
+            )}
+          </ToggleGroup.Root>
 
-            {/* Select all and delete all functionality */}
-            {/* <div className="flex items-center space-x-4">
+          {/* Select all and delete all functionality */}
+          {/* <div className="flex items-center space-x-4">
             {showCheckboxes && selectedEntries.length > 0 && (
               <div className="flex items-center space-x-2 border border-gray-200 rounded-md px-2 py-1">
                 <button
@@ -888,274 +898,274 @@ export default function JournalsPage() {
               </label>
             </div>
           </div> */}
-          </div>
-          <div
-            className={`grid gap-6 ${
-              {
-                [ViewMode.Rows]: "grid-cols-1",
-                [ViewMode.TwoColumn]: "grid-cols-1 md:grid-cols-2",
-                [ViewMode.ThreeColumn]:
-                  "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
-              }[viewMode]
-            }`}
-          >
-            {filteredAndSortedEntries?.length === 0 ? (
-              <div className="col-span-full flex flex-col items-center justify-center text-center">
-                <p>
-                  {showFavoritesOnly
-                    ? "No journals favorited."
-                    : "No journals found."}
-                </p>
-                {!showFavoritesOnly && (
-                  <Link
-                    href="/journal/write"
-                    className="text-blue-500 hover:underline mt-2"
-                  >
-                    Create a journal
-                  </Link>
-                )}
-              </div>
-            ) : (
-              filteredAndSortedEntries?.map((journal, index) => {
-                const displayTitle = journal.title.trim() || "Untitled";
+        </div>
+        <div
+          className={`grid gap-6 ${
+            {
+              [ViewMode.Rows]: "grid-cols-1",
+              [ViewMode.TwoColumn]: "grid-cols-1 md:grid-cols-2",
+              [ViewMode.ThreeColumn]:
+                "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
+            }[viewMode]
+          }`}
+        >
+          {filteredAndSortedEntries?.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center text-center">
+              <p>
+                {showFavoritesOnly
+                  ? "No journals favorited."
+                  : "No journals found."}
+              </p>
+              {!showFavoritesOnly && (
+                <Link
+                  href="/journal/write"
+                  className="text-blue-500 hover:underline mt-2"
+                >
+                  Create a journal
+                </Link>
+              )}
+            </div>
+          ) : (
+            filteredAndSortedEntries?.map((journal, index) => {
+              const displayTitle = journal.title.trim() || "Untitled";
 
-                return (
-                  <Card
-                    key={index}
-                    className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
-                      selectedEntries.includes(journal._id)
-                        ? "bg-blue-100 dark:bg-blue-900"
-                        : "dark:bg-gray-800"
-                    } p-3 sm:p-4 md:p-6 relative`}
+              return (
+                <Card
+                  key={index}
+                  className={`hover:shadow-lg transition-shadow duration-200 flex flex-col ${
+                    selectedEntries.includes(journal._id)
+                      ? "bg-blue-100 dark:bg-blue-900"
+                      : "dark:bg-gray-800"
+                  } p-3 sm:p-4 md:p-6 relative`}
+                >
+                  <div
+                    className={`absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 transition-opacity duration-200 ${
+                      showCheckboxes ? "opacity-100" : "opacity-0"
+                    }`}
                   >
-                    <div
-                      className={`absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 transition-opacity duration-200 ${
-                        showCheckboxes ? "opacity-100" : "opacity-0"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={selectedEntries.includes(journal._id)}
-                        onCheckedChange={(checked) =>
-                          handleSelectJournal(journal._id, checked as boolean)
-                        }
-                        className="bg-white border-gray-300"
-                      />
-                    </div>
-                    <div className="flex flex-col flex-grow">
-                      <CardHeader className="pb-4 pt-0 px-0">
-                        {" "}
-                        {/* Removed top and horizontal padding */}
-                        <div className="flex justify-between items-center">
-                          <div className="flex flex-col">
-                            <CardTitle className="text-wrap break-words text-md text-blue-500 dark:text-blue-400 flex-1 break-all mr-1">
-                              <Link
-                                href={`/journal/${journal._id}`}
-                                className="hover:underline"
-                              >
-                                {shouldTruncate
-                                  ? `${displayTitle.substring(0, 15)}${
-                                      displayTitle.length > 15 ? "..." : ""
-                                    }`
-                                  : displayTitle}
-                              </Link>
-                            </CardTitle>
-                            {showCategory && (
-                              <p className="text-xs mt-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-0.5 w-fit mb-2">
-                                {/* {journal.categories
+                    <Checkbox
+                      checked={selectedEntries.includes(journal._id)}
+                      onCheckedChange={(checked) =>
+                        handleSelectJournal(journal._id, checked as boolean)
+                      }
+                      className="bg-white border-gray-300"
+                    />
+                  </div>
+                  <div className="flex flex-col flex-grow">
+                    <CardHeader className="pb-4 pt-0 px-0">
+                      {" "}
+                      {/* Removed top and horizontal padding */}
+                      <div className="flex justify-between items-center">
+                        <div className="flex flex-col">
+                          <CardTitle className="text-wrap break-words text-md text-blue-500 dark:text-blue-400 flex-1 break-all mr-1">
+                            <Link
+                              href={`/journal/${journal._id}`}
+                              className="hover:underline"
+                            >
+                              {shouldTruncate
+                                ? `${displayTitle.substring(0, 15)}${
+                                    displayTitle.length > 15 ? "..." : ""
+                                  }`
+                                : displayTitle}
+                            </Link>
+                          </CardTitle>
+                          {showCategory && (
+                            <p className="text-xs mt-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-0.5 w-fit mb-2">
+                              {/* {journal.categories
                                 .map((c) => c.category)
                                 .join(", ")} */}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex items-center">
-                            <Tooltip.Provider delayDuration={100}>
-                              <Tooltip.Root>
-                                <Tooltip.Trigger
-                                  asChild
-                                  className="border p-1 w-7 h-7 bg-gray-100 rounded-tl rounded-bl cursor-pointer dark:bg-black "
-                                >
-                                  {loadingJournalId === journal._id ? (
-                                    <div className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none dark:text-white">
-                                      <SpinnerIcon />
-                                    </div>
-                                  ) : journal.favorite ? (
-                                    <StarFilledIcon
-                                      onClick={() =>
-                                        handleFavorite(journal._id, false)
-                                      }
-                                      className="w-4 h-4"
-                                    />
-                                  ) : (
-                                    <StarIcon
-                                      onClick={() =>
-                                        handleFavorite(journal._id, true)
-                                      }
-                                      className="w-4 h-4"
-                                    />
-                                  )}
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                  <Tooltip.Content
-                                    className="bg-gray-800 text-white px-2 py-1 rounded text-sm "
-                                    sideOffset={4}
-                                  >
-                                    Favorite
-                                    <Tooltip.Arrow className="fill-gray-800" />
-                                  </Tooltip.Content>
-                                </Tooltip.Portal>
-                              </Tooltip.Root>
-                            </Tooltip.Provider>
-
-                            <Popover.Root
-                              open={selectIsOpen === journal._id}
-                              onOpenChange={() =>
-                                handleSelectOpenChange(journal._id)
-                              }
-                            >
-                              <Popover.Trigger
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center">
+                          <Tooltip.Provider delayDuration={100}>
+                            <Tooltip.Root>
+                              <Tooltip.Trigger
                                 asChild
-                                className="dark:bg-black dark:text-white"
+                                className="border p-1 w-7 h-7 bg-gray-100 rounded-tl rounded-bl cursor-pointer dark:bg-black "
                               >
-                                <button className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 dark:bg-gray-700 dark:border-gray-600 rounded-tr rounded-br focus:outline-none">
-                                  <ChevronDownIcon className="w-4 h-4 dark:text-gray-300" />
-                                </button>
-                              </Popover.Trigger>
-                              <Popover.Portal>
-                                <Popover.Content
-                                  className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 w-[200px] z-50"
-                                  sideOffset={5}
-                                  align="end"
-                                >
-                                  <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200 flex justify-between items-center">
-                                    Categories
-                                    <button
-                                      onClick={() => setSelectIsOpen(null)}
-                                      className="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-sm"
-                                    >
-                                      <Cross1Icon className="w-3 h-3" />
-                                    </button>
+                                {loadingJournalId === journal._id ? (
+                                  <div className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 rounded-tr rounded-br focus:outline-none dark:text-white">
+                                    <SpinnerIcon />
                                   </div>
-                                  {categories
-                                    .filter((cat) => cat !== "All")
-                                    .map((category) => (
-                                      <button
-                                        key={category}
-                                        className={`box-border overflow-wrap-anywhere w-full px-4 py-3 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm flex items-center justify-between ${
-                                          journal.categories
-                                            .map((c) => c.category)
-                                            .join(", ")
-                                            .toLowerCase() === category
-                                            ? "text-blue-500 dark:text-blue-400"
-                                            : "dark:text-gray-200"
-                                        }`}
-                                        onClick={() => {
-                                          handleCategoryChange(
-                                            journal._id,
-                                            category
-                                          );
-                                          setSelectIsOpen(null);
-                                        }}
-                                      >
-                                        {category}
-                                        {journal.categories
+                                ) : journal.favorite ? (
+                                  <StarFilledIcon
+                                    onClick={() =>
+                                      handleFavorite(journal._id, false)
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                ) : (
+                                  <StarIcon
+                                    onClick={() =>
+                                      handleFavorite(journal._id, true)
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                )}
+                              </Tooltip.Trigger>
+                              <Tooltip.Portal>
+                                <Tooltip.Content
+                                  className="bg-gray-800 text-white px-2 py-1 rounded text-sm "
+                                  sideOffset={4}
+                                >
+                                  Favorite
+                                  <Tooltip.Arrow className="fill-gray-800" />
+                                </Tooltip.Content>
+                              </Tooltip.Portal>
+                            </Tooltip.Root>
+                          </Tooltip.Provider>
+
+                          <Popover.Root
+                            open={selectIsOpen === journal._id}
+                            onOpenChange={() =>
+                              handleSelectOpenChange(journal._id)
+                            }
+                          >
+                            <Popover.Trigger
+                              asChild
+                              className="dark:bg-black dark:text-white"
+                            >
+                              <button className="flex items-center justify-center w-7 h-7 border border-l-0 bg-gray-100 dark:bg-gray-700 dark:border-gray-600 rounded-tr rounded-br focus:outline-none">
+                                <ChevronDownIcon className="w-4 h-4 dark:text-gray-300" />
+                              </button>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                              <Popover.Content
+                                className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 w-[200px] z-50"
+                                sideOffset={5}
+                                align="end"
+                              >
+                                <div className="font-bold px-4 py-3 text-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200 flex justify-between items-center">
+                                  Categories
+                                  <button
+                                    onClick={() => setSelectIsOpen(null)}
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-sm"
+                                  >
+                                    <Cross1Icon className="w-3 h-3" />
+                                  </button>
+                                </div>
+                                {categories
+                                  .filter((cat) => cat !== "All")
+                                  .map((category) => (
+                                    <button
+                                      key={category}
+                                      className={`box-border overflow-wrap-anywhere w-full px-4 py-3 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm flex items-center justify-between ${
+                                        journal.categories
                                           .map((c) => c.category)
                                           .join(", ")
-                                          .toLowerCase() === category && (
-                                          <CheckIcon className="w-4 h-4" />
-                                        )}
-                                      </button>
-                                    ))}
-                                  <button
-                                    onClick={() => {
-                                      setShowCreateCategoryModal(true);
-                                      setSelectIsOpen(null);
-                                    }}
-                                    className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-t border-gray-200 dark:border-gray-700 flex items-center text-blue-500 dark:text-blue-400"
-                                  >
-                                    <PlusIcon className="w-4 h-4 mr-2" />
-                                    Create new
-                                  </button>
-                                </Popover.Content>
-                              </Popover.Portal>
-                            </Popover.Root>
-                          </div>
+                                          .toLowerCase() === category
+                                          ? "text-blue-500 dark:text-blue-400"
+                                          : "dark:text-gray-200"
+                                      }`}
+                                      onClick={() => {
+                                        handleCategoryChange(
+                                          journal._id,
+                                          category
+                                        );
+                                        setSelectIsOpen(null);
+                                      }}
+                                    >
+                                      {category}
+                                      {journal.categories
+                                        .map((c) => c.category)
+                                        .join(", ")
+                                        .toLowerCase() === category && (
+                                        <CheckIcon className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                  ))}
+                                <button
+                                  onClick={() => {
+                                    setShowCreateCategoryModal(true);
+                                    setSelectIsOpen(null);
+                                  }}
+                                  className="w-full px-4 py-3 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-t border-gray-200 dark:border-gray-700 flex items-center text-blue-500 dark:text-blue-400"
+                                >
+                                  <PlusIcon className="w-4 h-4 mr-2" />
+                                  Create new
+                                </button>
+                              </Popover.Content>
+                            </Popover.Portal>
+                          </Popover.Root>
                         </div>
-                      </CardHeader>
-                      <CardFooter className="mt-auto flex flex-col pt-3 p-0 items-start">
-                        <div className="flex justify-between items-center">
-                          {showSentiment && (
+                      </div>
+                    </CardHeader>
+                    <CardFooter className="mt-auto flex flex-col pt-3 p-0 items-start">
+                      <div className="flex justify-between items-center">
+                        {showSentiment && (
+                          <div
+                            className={`flex items-center text-xs ${
+                              showUpdatedDate ? "mr-3" : ""
+                            }`}
+                          >
                             <div
-                              className={`flex items-center text-xs ${
-                                showUpdatedDate ? "mr-3" : ""
-                              }`}
-                            >
-                              <div
-                                className={`rounded-full mr-1 w-2 h-2 ${getSentimentColor(
-                                  analyzeSentiment(journal.entry).score
-                                )}`}
-                              ></div>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {getSentimentWord(
-                                  analyzeSentiment(journal.entry).score
-                                )}
-                              </span>
-                            </div>
-                          )}
+                              className={`rounded-full mr-1 w-2 h-2 ${getSentimentColor(
+                                analyzeSentiment(journal.entry).score
+                              )}`}
+                            ></div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {getSentimentWord(
+                                analyzeSentiment(journal.entry).score
+                              )}
+                            </span>
+                          </div>
+                        )}
 
-                          {showUpdatedDate && journal.updatedAt ? (
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Updated on{" "}
-                              {formatDate(journal.updatedAt.toString())}
-                            </p>
-                          ) : null}
-                        </div>
-                      </CardFooter>
-                    </div>
-                  </Card>
-                );
-              })
-            )}
-          </div>
-          <GlobalModal />
-          {/* Add this at the end of the component, just before the closing div */}
-          {/* <DebugState state={{ categoryFilterDisplayed }} position="bottom-right" /> */}
-          {/* Add the create category modal */}
-          <Dialog.Root
-            open={showCreateCategoryModal}
-            onOpenChange={setShowCreateCategoryModal}
-          >
-            <Dialog.Portal>
-              <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-              <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
-                <Dialog.Title className="text-lg font-semibold mb-4 dark:text-gray-200">
-                  Create New Category
-                </Dialog.Title>
-                <input
-                  type="text"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="Category name"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => setShowCreateCategoryModal(false)}
-                    className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateCategory}
-                    disabled={!newCategoryName.trim()}
-                    className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Create
-                  </button>
-                </div>
-              </Dialog.Content>
-            </Dialog.Portal>
-          </Dialog.Root>
-        </>
-      </DashboardContainer>
+                        {showUpdatedDate && journal.updatedAt ? (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Updated on{" "}
+                            {formatDate(journal.updatedAt.toString())}
+                          </p>
+                        ) : null}
+                      </div>
+                    </CardFooter>
+                  </div>
+                </Card>
+              );
+            })
+          )}
+        </div>
+        <GlobalModal />
+        {/* Add this at the end of the component, just before the closing div */}
+        {/* <DebugState state={{ categoryFilterDisplayed }} position="bottom-right" /> */}
+        {/* Add the create category modal */}
+        <Dialog.Root
+          open={showCreateCategoryModal}
+          onOpenChange={setShowCreateCategoryModal}
+        >
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/40" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-[90vw] max-w-[400px] focus:outline-none">
+              <Dialog.Title className="text-lg font-semibold mb-4 dark:text-gray-200">
+                Create New Category
+              </Dialog.Title>
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Category name"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setShowCreateCategoryModal(false)}
+                  className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateCategory}
+                  disabled={!newCategoryName.trim()}
+                  className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create
+                </button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </>
+    </DashboardContainer>
   );
 }

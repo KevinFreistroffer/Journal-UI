@@ -604,7 +604,16 @@ function WritePage({ children }: { children: React.ReactNode }) {
   // Update the saveToStorage function
   const saveToStorage = useCallback((data: IAutoSaveState) => {
     try {
-      localStorageService.setItem("journalAutoSave", data);
+      // Clean the journal content before saving
+      const cleanData = {
+        ...data,
+        journal: data.journal
+          .replace(/\\'/g, "'")
+          .replace(/\\"/g, '"')
+          .replace(/\\\\/g, "\\"),
+      };
+
+      localStorageService.setItem("journalAutoSave", cleanData);
       setLastSavedTime(new Date());
       setIsAutosaving(false);
 
@@ -634,6 +643,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
   );
 
   // Add this effect to handle sidebar and viewport changes
+  // TODO this doesn't seem to be running at all. Resizing doesn't trigger it.
   useEffect(() => {
     if (!showSidebar && isSidebarOpen && summary.length > 0) {
       // When viewport becomes small and sidebar is open
@@ -857,9 +867,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
     saveToDatabase,
   ]); // Only include necessary dependencies
 
-  // Modify the autosave effect to handle content restoration
+  // Update the autosave effect to handle content restoration
   useEffect(() => {
-    if (!quill) return; // Exit if quill isn't initialized yet
+    if (!quill) return;
 
     const autoSavePreference = localStorageService.getItem<{
       hasResponded: boolean;
@@ -871,14 +881,38 @@ function WritePage({ children }: { children: React.ReactNode }) {
       localStorageService.getItem<IAutoSaveState>("journalAutoSave");
 
     if (autoSavePreference?.shouldRestore && savedData?.journal) {
-      // Set the content and cursor to the end
-      quill.root.innerHTML = savedData.journal;
-      quill.setSelection(quill.getLength(), 0);
+      // Clean the content before restoring
+      const cleanContent = savedData.journal
+        .replace(/\\'/g, "'")
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, "\\");
 
-      // Also update the journal state
-      setJournal(savedData.journal);
+      console.log("Restored content:", cleanContent); // Debug log
+
+      quill.root.innerHTML = cleanContent;
+      quill.setSelection(quill.getLength(), 0);
+      setJournal(cleanContent);
     }
-  }, [quill]); // Only run when quill is initialized
+  }, [quill]);
+
+  // Also update the text-change effect
+  useEffect(() => {
+    if (!quill) return;
+
+    const handleChange = () => {
+      const content = quill.root.innerHTML
+        .replace(/\\'/g, "'")
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, "\\");
+      setJournal(content);
+    };
+
+    quill.on("text-change", handleChange);
+
+    return () => {
+      quill.off("text-change", handleChange);
+    };
+  }, [quill]);
 
   // Add this helper function
   const toggleCategory = (category: string) => {
@@ -1091,6 +1125,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
             setIsSidebarOpen={setIsSidebarOpen}
             icon={<ChevronRightIcon size={20} />}
             headerDisplaysTabs={false}
+            width="wide"
             sections={[
               {
                 title: "Summary",
@@ -1104,68 +1139,66 @@ function WritePage({ children }: { children: React.ReactNode }) {
                     ) : summary.length > 0 ? (
                       <>
                         <div className="text-gray-500 dark:text-gray-400 space-y-2 dark:bg-gray-800/50 rounded-lg p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex-grow">
+                          <div className="flex flex-col">
+                            <div className="max-h-[300px] overflow-y-auto mb-4">
                               {summary.map((paragraph, index) => (
-                                <p key={index} className="leading-relaxed">
+                                <p key={index} className="leading-relaxed mb-2">
                                   {paragraph}
                                 </p>
                               ))}
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                              {availableVoices.length > 0 && (
+                                <Select
+                                  value={selectedVoice}
+                                  onValueChange={setSelectedVoice}
+                                >
+                                  <SelectTrigger className="h-8 w-[180px]">
+                                    <SelectValue placeholder="Select voice" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <div className="max-h-[300px] overflow-y-auto">
+                                      {availableVoices.map((voice) => (
+                                        <SelectItem
+                                          key={voice.name}
+                                          value={voice.name}
+                                        >
+                                          {voice.name} ({voice.gender})
+                                        </SelectItem>
+                                      ))}
+                                    </div>
+                                  </SelectContent>
+                                </Select>
+                              )}
+
+                              {isSpeaking ? (
+                                <button
+                                  onClick={cancelSpeech}
+                                  className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-red-500 hover:text-red-600"
+                                  title="Stop speaking"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={speakSummary}
+                                  className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                  title="Read summary aloud"
+                                  disabled={!selectedVoice}
+                                >
+                                  <Volume2 className="w-4 h-4" />
+                                </button>
+                              )}
+
                               <button
                                 onClick={() => {
                                   clipboard.copy(summary.join("\n\n"));
                                 }}
-                                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors ml-auto"
                                 title="Copy summary"
                               >
                                 <Copy className="w-4 h-4" />
                               </button>
-
-                              <div className="flex items-center gap-2">
-                                {availableVoices.length > 0 && (
-                                  <Select
-                                    value={selectedVoice}
-                                    onValueChange={setSelectedVoice}
-                                  >
-                                    <SelectTrigger className="h-8 w-[180px]">
-                                      <SelectValue placeholder="Select voice" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <div className="max-h-[300px] overflow-y-auto">
-                                        {availableVoices.map((voice) => (
-                                          <SelectItem
-                                            key={voice.name}
-                                            value={voice.name}
-                                          >
-                                            {voice.name} ({voice.gender})
-                                          </SelectItem>
-                                        ))}
-                                      </div>
-                                    </SelectContent>
-                                  </Select>
-                                )}
-
-                                {isSpeaking ? (
-                                  <button
-                                    onClick={cancelSpeech}
-                                    className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-red-500 hover:text-red-600"
-                                    title="Stop speaking"
-                                  >
-                                    <XCircle className="w-4 h-4" />
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={speakSummary}
-                                    className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
-                                    title="Read summary aloud"
-                                    disabled={!selectedVoice}
-                                  >
-                                    <Volume2 className="w-4 h-4" />
-                                  </button>
-                                )}
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -1250,6 +1283,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
           <DebugState
             position="bottom-right"
             state={{
+              isSidebarOpen,
               sentenceCount: journal
                 .split(/[.!?]+/)
                 .filter((sentence) => sentence.trim().length > 0).length,
@@ -1299,7 +1333,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
               className={cn(
                 "flex justify-center w-full transition-all duration-300",
                 contentWidth === "default" ? "max-w-6xl" : "max-w-[95%]",
-                isSidebarOpen ? "" : "md:ml-0 lg:-ml-16",
+                showSidebar && isSidebarOpen ? "ml-40" : "md:ml-0 lg:-ml-16",
                 "pb-20"
               )}
             >
@@ -1485,7 +1519,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             disabled={!(journal.trim() || title.trim())}
                           >
                             <Eye className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">Preview</span>
+                            <span className="truncate sm:text-clip">
+                              Preview
+                            </span>
                           </button>
 
                           <button
