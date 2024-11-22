@@ -1332,7 +1332,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
             <div
               className={cn(
                 "flex justify-center w-full transition-all duration-300",
-                contentWidth === "default" ? "max-w-6xl" : "max-w-[95%]",
+                contentWidth === "default"
+                  ? "max-w-6xl"
+                  : "max-w-[calc(100%-4rem)]",
                 showSidebar && isSidebarOpen ? "ml-40" : "md:ml-0 lg:-ml-16",
                 "pb-20"
               )}
