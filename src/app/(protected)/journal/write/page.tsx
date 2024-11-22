@@ -1284,6 +1284,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
             position="bottom-right"
             state={{
               isSidebarOpen,
+              contentWidth,
+              previousWidth,
+              isFullscreen,
               sentenceCount: journal
                 .split(/[.!?]+/)
                 .filter((sentence) => sentence.trim().length > 0).length,
@@ -1312,17 +1315,33 @@ function WritePage({ children }: { children: React.ReactNode }) {
                 showDefaultWidth={isLargeScreen}
                 showFullWidth={isLargeScreen}
                 onToggle={(value) => {
-                  if (isFullscreen) {
-                    // If currently fullscreen, exit fullscreen and restore previous width
-                    setIsFullscreen(false);
-                    setContentWidth(previousWidth);
-                  } else if (value === "fullscreen") {
-                    // If not fullscreen and fullscreen is requested, enter fullscreen
-                    setPreviousWidth(contentWidth);
-                    setIsFullscreen(true);
-                  } else {
-                    // Handle regular width toggles when not in fullscreen mode
-                    setContentWidth(value as "default" | "full");
+                  console.log("value", value);
+                  console.log("contentWidth", contentWidth);
+                  console.log("previousWidth", previousWidth);
+                  console.log("isFullscreen", isFullscreen);
+
+                  if (contentWidth !== value) {
+                    if (isFullscreen) {
+                      // If currently fullscreen, exit fullscreen and restore previous width
+                      setIsFullscreen(false);
+                      console.log(
+                        "setting content width to previous width",
+                        previousWidth
+                      );
+                      setContentWidth(previousWidth);
+                    } else if (value === "fullscreen") {
+                      // If not fullscreen and fullscreen is requested, enter fullscreen
+                      console.log("setting previous width to", contentWidth);
+                      setPreviousWidth(contentWidth);
+                      setIsFullscreen(true);
+                    } else if (value === "default") {
+                      // Handle regular width toggles when not in fullscreen mode
+                      console.log("setting content width to default", value);
+                      setContentWidth("default");
+                    } else {
+                      console.log("setting content width to full", value);
+                      setContentWidth("full");
+                    }
                   }
                 }}
               />

@@ -17,43 +17,53 @@ export function ViewToggle({
   showDefaultWidth = true,
   showFullWidth = true,
 }: ViewToggleProps) {
+  const value = isFullscreen ? "fullscreen" : contentWidth || "default";
+
+  const handleValueChange = (newValue: string) => {
+    onToggle(newValue || value);
+  };
+
   return (
     <ToggleGroup.Root
       type="single"
-      value={isFullscreen ? "fullscreen" : contentWidth}
-      onValueChange={onToggle}
+      value={value}
+      onValueChange={handleValueChange}
       className={cn(
         "flex items-center bg-gray-100 p-1 dark:bg-transparent",
-        showDefaultWidth && showFullWidth ? "rounded-md" : "rounded-lg"
+        showDefaultWidth && showFullWidth && !isFullscreen ? "rounded-md" : "rounded-lg"
       )}
     >
-      {showDefaultWidth && (
-        <ToggleGroup.Item
-          value="default"
-          aria-label="Default Width"
-          className={cn(
-            "p-1.5 rounded-md transition-colors cursor-pointer",
-            !isFullscreen && contentWidth === "default"
-              ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
-              : "hover:bg-gray-200 dark:hover:bg-transparent"
+      {!isFullscreen && (
+        <>
+          {showDefaultWidth && (
+            <ToggleGroup.Item
+              value="default"
+              aria-label="Default Width"
+              className={cn(
+                "p-1.5 rounded-md transition-colors cursor-pointer",
+                !isFullscreen && contentWidth === "default"
+                  ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+                  : "hover:bg-gray-200 dark:hover:bg-transparent"
+              )}
+            >
+              <MonitorIcon className="w-4 h-4" />
+            </ToggleGroup.Item>
           )}
-        >
-          <MonitorIcon className="w-4 h-4" />
-        </ToggleGroup.Item>
-      )}
-      {showFullWidth && (
-        <ToggleGroup.Item
-          value="full"
-          aria-label="Full Width"
-          className={cn(
-            "p-1.5 rounded-md transition-colors cursor-pointer",
-            !isFullscreen && contentWidth === "full"
-              ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
-              : "hover:bg-gray-200 dark:hover:bg-transparent"
+          {showFullWidth && (
+            <ToggleGroup.Item
+              value="full"
+              aria-label="Full Width"
+              className={cn(
+                "p-1.5 rounded-md transition-colors cursor-pointer",
+                !isFullscreen && contentWidth === "full"
+                  ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+                  : "hover:bg-gray-200 dark:hover:bg-transparent"
+              )}
+            >
+              <MaximizeIcon className="w-4 h-4" />
+            </ToggleGroup.Item>
           )}
-        >
-          <MaximizeIcon className="w-4 h-4" />
-        </ToggleGroup.Item>
+        </>
       )}
       <ToggleGroup.Item
         value="fullscreen"
