@@ -26,6 +26,7 @@ import {
   XCircle,
   Copy,
   ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 import { UNTITLED_JOURNAL } from "@/lib/constants";
 import { localStorageService } from "@/lib/services/localStorageService";
@@ -103,6 +104,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import Link from "next/link"; // Add this import at the top
 
 interface IAutoSaveState {
   title: string;
@@ -124,6 +126,45 @@ type VoiceOption = {
   name: string;
   lang: string;
   gender: string;
+};
+
+// Add this new component near your other modal components
+const ResetConfirmationModal = ({
+  isOpen,
+  onOpenChange,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Reset Everything?</DialogTitle>
+          <DialogDescription>
+            This will clear all your current content and delete any locally
+            stored drafts. This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end space-x-2 pt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onConfirm();
+              onOpenChange(false);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 function WritePage({ children }: { children: React.ReactNode }) {
@@ -246,6 +287,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   const [showStorageDisabledWarning, setShowStorageDisabledWarning] =
     useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   // Add this media query hook
   const isLargeScreen = useMediaQuery("(min-width: 1245px)");
@@ -402,8 +444,8 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleCreateCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateCategory = async (categoryName: string) => {
+    console.log("HANDLE CREATE CATEGORY");
 
     // ... existing code ...
 
@@ -411,12 +453,11 @@ function WritePage({ children }: { children: React.ReactNode }) {
     setCategoryCreatedErrorMessage(""); // Clear any existing error message
     setShowCreatedCategorySuccessIcon(false); // Hide success icon
 
-    if (newCategoryName) {
+    if (categoryName) {
       setIsCreatingCategoryLoading(true); // Show loading indicator
 
       const categoryExists = categories.some(
-        ({ category }) =>
-          category.toLowerCase() === newCategoryName.toLowerCase()
+        ({ category }) => category.toLowerCase() === categoryName.toLowerCase()
       );
       if (categoryExists) {
         setCategoryCreatedErrorMessage("Category already exists."); // Set error message if category exists
@@ -434,7 +475,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
             },
             body: JSON.stringify({
               userId: user?._id,
-              category: newCategoryName,
+              category: categoryName,
             }),
           }
         );
@@ -446,6 +487,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
         } else {
           setUser(body.data);
           setJournals(body.data.journals);
+          console.log("SETTING CATEGORIES AFTER CREATING NEW 1");
           setCategories(body.data.journalCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
@@ -495,6 +537,10 @@ function WritePage({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user && user.journals) {
       setJournals(user.journals);
+      console.log(
+        "SETTING CATEGORIES AFTER USER IS GOTTEN",
+        user.journalCategories
+      );
       setCategories(user.journalCategories);
 
       const savedJournal =
@@ -1113,13 +1159,124 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Add this new function to handle reset
+  const handleReset = () => {
+    // Clear form inputs
+    setTitle("");
+    setJournal("");
+    setSelectedCategories([]);
+    setFavorite(false);
+
+    // Clear Quill editor
+    if (quill) {
+      quill.setText("");
+    }
+
+    // Clear local storage
+    localStorageService.removeItem("journalAutoSave");
+    localStorageService.removeItem("autoSavePreference");
+
+    // Reset other relevant state
+    setLastSavedTime(null);
+    setSummary([]);
+  };
+
+  // Add this new function near your other API-calling functions
+  const createNewCategory = async (categoryName: string) => {
+    try {
+      const response = await fetch(
+        "/api/user/category/create?returnUser=true",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user?._id,
+            category: categoryName,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create category");
+      }
+
+      // Update user and categories state with the new data
+      setUser(data.data);
+      setCategories(data.data.journalCategories);
+
+      return data.data.journalCategories[
+        data.data.journalCategories.length - 1
+      ];
+    } catch (error) {
+      console.error("Error creating category:", error);
+      throw error;
+    }
+  };
+
+  // Add early return for loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner className="w-8 h-8" />
+      </div>
+    );
+  }
+
+  // Add early return for no user
+  if (!user) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4 dark:text-white">
+            Access Denied
+          </h1>
+          <p className="mb-4 dark:text-gray-300">
+            Please{" "}
+            <Link
+              href="/login"
+              className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors"
+            >
+              sign in
+            </Link>{" "}
+            to access this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Add early return for unverified user
+  if (!user.isVerified) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4 dark:text-white">
+            Account Not Verified
+          </h1>
+          <p className="mb-4 dark:text-gray-300">
+            Please verify your account to access the dashboard.
+          </p>
+          <Button
+            onClick={() => {
+              /* Add logic to resend verification email */
+            }}
+          >
+            Resend Verification Email
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <DashboardContainer
-      isSidebarOpen={
-        user && user.isVerified ? isSidebarOpen && showSidebar : false
-      }
+      isSidebarOpen={isSidebarOpen && showSidebar}
       sidebar={
-        user && user.isVerified && showSidebar ? (
+        showSidebar ? (
           <Sidebar
             isOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
@@ -1257,491 +1414,482 @@ function WritePage({ children }: { children: React.ReactNode }) {
         ) : undefined
       }
     >
-      {user && !user.isVerified ? (
-        <div className="flex  h-screen items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Account Not Verified</h1>
-            <p className="mb-4">
-              Please verify your account to access the dashboard.
-            </p>
-            <Button
-              onClick={() => {
-                /* Add logic to resend verification email or redirect */
-              }}
-            >
-              Resend Verification Email
-            </Button>
-          </div>
-        </div>
-      ) : (
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
+          isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
+        )}
+      >
+        <DebugState
+          position="bottom-right"
+          state={{
+            isSidebarOpen,
+            contentWidth,
+            previousWidth,
+            isFullscreen,
+            sentenceCount: journal
+              .split(/[.!?]+/)
+              .filter((sentence) => sentence.trim().length > 0).length,
+          }}
+        />
         <div
           className={cn(
-            "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
-            isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
+            "flex justify-end p-4",
+            !isFullscreen ? "pt-0 pr-0" : ""
           )}
         >
-          <DebugState
-            position="bottom-right"
-            state={{
-              isSidebarOpen,
-              contentWidth,
-              previousWidth,
-              isFullscreen,
-              sentenceCount: journal
-                .split(/[.!?]+/)
-                .filter((sentence) => sentence.trim().length > 0).length,
-            }}
-          />
+          <div className="flex items-center mr-4">
+            {showLastSaved && lastSavedTime && (
+              <div className="text-xs text-gray-500">
+                {isAutosaving && <span>Saving...</span>}
+                {!isAutosaving && (
+                  <span>Last saved {lastSavedTime.toLocaleTimeString()}</span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="hidden sm:block">
+            <ViewToggle
+              isFullscreen={isFullscreen}
+              contentWidth={contentWidth}
+              showDefaultWidth={isLargeScreen}
+              showFullWidth={isLargeScreen}
+              onToggle={(value) => {
+                console.log("value", value);
+                console.log("contentWidth", contentWidth);
+                console.log("previousWidth", previousWidth);
+                console.log("isFullscreen", isFullscreen);
+
+                if (contentWidth !== value) {
+                  if (isFullscreen) {
+                    // If currently fullscreen, exit fullscreen and restore previous width
+                    setIsFullscreen(false);
+                    console.log(
+                      "setting content width to previous width",
+                      previousWidth
+                    );
+                    setContentWidth(previousWidth);
+                  } else if (value === "fullscreen") {
+                    // If not fullscreen and fullscreen is requested, enter fullscreen
+                    console.log("setting previous width to", contentWidth);
+                    setPreviousWidth(contentWidth);
+                    setIsFullscreen(true);
+                  } else if (value === "default") {
+                    // Handle regular width toggles when not in fullscreen mode
+                    console.log("setting content width to default", value);
+                    setContentWidth("default");
+                  } else {
+                    console.log("setting content width to full", value);
+                    setContentWidth("full");
+                  }
+                }
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
           <div
             className={cn(
-              "flex justify-end p-4",
-              !isFullscreen ? "pt-0 pr-0" : ""
+              "flex justify-center w-full transition-all duration-300",
+              contentWidth === "default"
+                ? "max-w-6xl"
+                : "max-w-[calc(100%-4rem)]",
+              showSidebar && isSidebarOpen ? "ml-40" : "md:ml-0 lg:-ml-16",
+              "pb-20"
             )}
           >
-            <div className="flex items-center mr-4">
-              {showLastSaved && lastSavedTime && (
-                <div className="text-xs text-gray-500">
-                  {isAutosaving && <span>Saving...</span>}
-                  {!isAutosaving && (
-                    <span>Last saved {lastSavedTime.toLocaleTimeString()}</span>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="hidden sm:block">
-              <ViewToggle
-                isFullscreen={isFullscreen}
-                contentWidth={contentWidth}
-                showDefaultWidth={isLargeScreen}
-                showFullWidth={isLargeScreen}
-                onToggle={(value) => {
-                  console.log("value", value);
-                  console.log("contentWidth", contentWidth);
-                  console.log("previousWidth", previousWidth);
-                  console.log("isFullscreen", isFullscreen);
-
-                  if (contentWidth !== value) {
-                    if (isFullscreen) {
-                      // If currently fullscreen, exit fullscreen and restore previous width
-                      setIsFullscreen(false);
-                      console.log(
-                        "setting content width to previous width",
-                        previousWidth
-                      );
-                      setContentWidth(previousWidth);
-                    } else if (value === "fullscreen") {
-                      // If not fullscreen and fullscreen is requested, enter fullscreen
-                      console.log("setting previous width to", contentWidth);
-                      setPreviousWidth(contentWidth);
-                      setIsFullscreen(true);
-                    } else if (value === "default") {
-                      // Handle regular width toggles when not in fullscreen mode
-                      console.log("setting content width to default", value);
-                      setContentWidth("default");
-                    } else {
-                      console.log("setting content width to full", value);
-                      setContentWidth("full");
-                    }
-                  }
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex-1 flex items-center justify-center">
             <div
               className={cn(
-                "flex justify-center w-full transition-all duration-300",
+                "w-full transition-all duration-300 relative",
                 contentWidth === "default"
-                  ? "max-w-6xl"
-                  : "max-w-[calc(100%-4rem)]",
-                showSidebar && isSidebarOpen ? "ml-40" : "md:ml-0 lg:-ml-16",
-                "pb-20"
+                  ? "md:max-w-[51.0625rem]"
+                  : "md:max-w-full"
               )}
             >
-              <div
-                className={cn(
-                  "w-full transition-all duration-300 relative",
-                  contentWidth === "default"
-                    ? "md:max-w-[51.0625rem]"
-                    : "md:max-w-full"
-                )}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h1 className="text-xl">Thoughts</h1>
-                  <div className="flex items-center gap-2">
-                    <StorageControls
-                      onSave={() => {
-                        if (
-                          journal.trim() ||
-                          title.trim() ||
-                          categories.length > 0
-                        ) {
-                          saveToStorage({
-                            journal,
-                            title,
-                            categories: selectedCategories,
-                            lastSaved: new Date(),
-                          });
-                        }
-                      }}
-                      autoSaveEnabled={autoSaveEnabled}
-                      onAutoSaveChange={(enabled) => {
-                        setAutoSaveEnabled(enabled);
-                        // If autosave is being turned ON and there's content, save immediately
-                        if (enabled && (journal.trim() || title.trim())) {
-                          saveToStorage({
-                            journal,
-                            title,
-                            categories: selectedCategories,
-                            lastSaved: new Date(),
-                          });
-                        }
-                      }}
-                    />
-                    <SettingsModal
-                      open={isSettingsModalOpen}
-                      onOpenChange={setIsSettingsModalOpen}
-                      showLastSaved={showLastSaved}
-                      onShowLastSavedChange={setShowLastSaved}
-                      autoRestore={autoRestore}
-                      onAutoRestoreChange={setAutoRestore}
-                    />
-                  </div>
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-xl">What&apos;s the story?</h1>
+                <div className="flex items-center gap-2">
+                  <StorageControls
+                    onSave={() => {
+                      if (
+                        journal.trim() ||
+                        title.trim() ||
+                        categories.length > 0
+                      ) {
+                        saveToStorage({
+                          journal,
+                          title,
+                          categories: selectedCategories,
+                          lastSaved: new Date(),
+                        });
+                      }
+                    }}
+                    autoSaveEnabled={autoSaveEnabled}
+                    onAutoSaveChange={(enabled) => {
+                      setAutoSaveEnabled(enabled);
+                      // If autosave is being turned ON and there's content, save immediately
+                      if (enabled && (journal.trim() || title.trim())) {
+                        saveToStorage({
+                          journal,
+                          title,
+                          categories: selectedCategories,
+                          lastSaved: new Date(),
+                        });
+                      }
+                    }}
+                  />
+                  <SettingsModal
+                    open={isSettingsModalOpen}
+                    onOpenChange={setIsSettingsModalOpen}
+                    showLastSaved={showLastSaved}
+                    onShowLastSavedChange={setShowLastSaved}
+                    autoRestore={autoRestore}
+                    onAutoRestoreChange={setAutoRestore}
+                  />
                 </div>
-                <form action={handleSubmit} className="space-y-4">
-                  {/* Title Input standalone again */}
-                  <div className="flex flex-col">
-                    <Input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Title (optional)"
-                      className="rounded-b-none outline-none"
-                      focusVisible={false}
-                    />
-                  </div>
-                  {showAutoSavePrompt && (
-                    <div className="fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm z-50">
-                      <div className="flex flex-col space-y-3">
-                        <div className="flex items-start">
-                          <AlertCircle className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <h4 className="font-medium text-sm">
-                              Restore Previous Content?
-                            </h4>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Would you like to restore your previously saved
-                              content?
-                              <span className="block mt-1 text-xs text-gray-500">
-                                You can manage auto-save settings in your
-                                preferences.
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleAutoSaveResponse(false)}
-                            className="text-sm"
-                          >
-                            Ignore
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => handleAutoSaveResponse(true)}
-                            className="text-sm"
-                          >
-                            Restore
-                          </Button>
+              </div>
+              <form action={handleSubmit} className="space-y-4">
+                {/* Title Input standalone again */}
+                <div className="flex flex-col">
+                  <Input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Title (optional)"
+                    className="rounded-b-none outline-none"
+                    focusVisible={false}
+                  />
+                </div>
+                {showAutoSavePrompt && (
+                  <div className="fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm z-50">
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex items-start">
+                        <AlertCircle className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-sm">
+                            Restore Previous Content?
+                          </h4>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Would you like to restore your previously saved
+                            content?
+                            <span className="block mt-1 text-xs text-gray-500">
+                              You can manage auto-save settings in your
+                              preferences.
+                            </span>
+                          </p>
                         </div>
                       </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAutoSaveResponse(false)}
+                          className="text-sm"
+                        >
+                          Ignore
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleAutoSaveResponse(true)}
+                          className="text-sm"
+                        >
+                          Restore
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="flex flex-col mb-4">
+                  <div
+                    style={{
+                      width: "100%",
+                      maxHeight: "500px",
+                      overflow: "auto",
+                    }}
+                  >
+                    <div ref={quillRef} />
+                  </div>
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center w-full px-4 sm:px-0">
+                      <div className="grid grid-cols-3 w-full gap-2 sm:flex sm:w-auto">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              className={cn(
+                                "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                                !(journal.trim() || title.trim())
+                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                                  : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                              )}
+                              disabled={!(journal.trim() || title.trim())}
+                            >
+                              <Download className="w-3 h-3 mr-1" />
+                              <span className="truncate sm:text-clip">
+                                Export
+                              </span>
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="start"
+                            className="bg-white p-0 dark:bg-black dark:border-gray-800"
+                          >
+                            <DropdownMenuItem
+                              className="p-0 text-xs"
+                              disabled={!(journal.trim() || title.trim())}
+                            >
+                              <Button
+                                type="button"
+                                variant={"ghost"}
+                                onClick={() => handleExport("pdf")}
+                                className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs dark:bg-transparent dark:hover:bg-gray-800 dark:text-white rounded-bl-none rounded-br-none"
+                                disabled={!(journal.trim() || title.trim())}
+                              >
+                                Export as PDF
+                              </Button>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="p-0"
+                              disabled={!(journal.trim() || title.trim())}
+                            >
+                              <Button
+                                type="button"
+                                variant={"ghost"}
+                                onClick={() => handleExport("docx")}
+                                className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs dark:bg-transparent dark:hover:bg-gray-800 dark:text-white bg-transparent"
+                                disabled={!(journal.trim() || title.trim())}
+                              >
+                                Export as DOCX
+                              </Button>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsPreviewOpen(true)}
+                          className={cn(
+                            "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                            !(journal.trim() || title.trim())
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                              : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white "
+                          )}
+                          disabled={!(journal.trim() || title.trim())}
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          <span className="truncate sm:text-clip">Preview</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsWordStatsModalOpen(true)}
+                          className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white  "
+                        >
+                          <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
+                          <span className="truncate sm:text-clip">
+                            Word Stats
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={
+                            isJournalSpeaking
+                              ? cancelJournalSpeech
+                              : speakJournal
+                          }
+                          className={cn(
+                            "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                            !journal.trim()
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                              : isJournalSpeaking
+                              ? "text-red-500 hover:text-red-600 bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700"
+                              : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                          )}
+                          disabled={!journal.trim()}
+                        >
+                          {isJournalSpeaking ? (
+                            <>
+                              <XCircle className="w-3 h-3 mr-1" />
+                              <span className="truncate sm:text-clip">
+                                Stop
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="w-3 h-3 mr-1" />
+                              <span className="truncate sm:text-clip">
+                                Listen
+                              </span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsResetModalOpen(true)}
+                          className={cn(
+                            "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
+                            !(journal.trim() || title.trim())
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                              : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                          )}
+                          disabled={!(journal.trim() || title.trim())}
+                        >
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                          <span className="truncate sm:text-clip">Reset</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 flex flex-col">
+                    <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
+                      <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
+                        <PublishButton
+                          disabled={!journal.trim()}
+                          onPublish={() => setShowSaveModal(true)}
+                        />
+                        <Button
+                          type="button"
+                          disabled={!journal.trim()}
+                          onClick={summarizeJournal}
+                          className={cn(
+                            "text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm",
+                            !(journal.trim() || title.trim())
+                              ? theme === "dark"
+                                ? "cursor-not-allowed bg-purple-900/50 hover:bg-purple-900/50"
+                                : "cursor-not-allowed bg-purple-300 hover:bg-purple-300"
+                              : theme === "dark"
+                              ? "bg-purple-900 hover:bg-purple-800"
+                              : "bg-purple-500 hover:bg-purple-600"
+                          )}
+                        >
+                          <div className="flex items-center justify-center gap-1 mx-auto">
+                            <span>
+                              {isSummarizing
+                                ? "Summarizing..."
+                                : "Generate Summary"}
+                            </span>
+                            <TooltipProvider delayDuration={100}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  className="rounded-md shadow-lg z-50 max-w-xs opacity-1"
+                                >
+                                  <p className="text-sm leading-relaxed">
+                                    Summarize your journal entry into fewer
+                                    sentences.
+                                  </p>
+                                  {/* <p className="text-xs leading-relaxed text-gray-600">
+                                  You can also tweet the summary directly!
+                                </p> */}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {showSuccessMessage && createJournalState.success && (
+                    <div className="flex items-center mt-2">
+                      <CheckCircle className="text-green-500 mr-2" />
+                      <p className="text-green-500">
+                        Entry created successfully!
+                      </p>
                     </div>
                   )}
-                  <div className="flex flex-col mb-4">
-                    <div
-                      style={{
-                        width: "100%",
-                        maxHeight: "500px",
-                        overflow: "auto",
-                      }}
-                    >
-                      <div ref={quillRef} />
-                    </div>
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="flex items-center w-full px-4 sm:px-0">
-                        <div className="grid grid-cols-3 w-full gap-2 sm:flex sm:w-auto">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button
-                                className={cn(
-                                  "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
-                                  !(journal.trim() || title.trim())
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
-                                    : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
-                                )}
-                                disabled={!(journal.trim() || title.trim())}
-                              >
-                                <Download className="w-3 h-3 mr-1" />
-                                <span className="truncate sm:text-clip">
-                                  Export
-                                </span>
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align="start"
-                              className="bg-white p-0 dark:bg-black dark:border-gray-800 "
-                            >
-                              <DropdownMenuItem
-                                className="p-0 text-xs"
-                                disabled={!(journal.trim() || title.trim())}
-                              >
-                                <Button
-                                  type="button"
-                                  variant={"ghost"}
-                                  onClick={() => handleExport("pdf")}
-                                  className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs dark:bg-transparent dark:hover:bg-gray-800 dark:text-white"
-                                  disabled={!(journal.trim() || title.trim())}
-                                >
-                                  Export as PDF
-                                </Button>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="p-0"
-                                disabled={!(journal.trim() || title.trim())}
-                              >
-                                <Button
-                                  type="button"
-                                  variant={"ghost"}
-                                  onClick={() => handleExport("docx")}
-                                  className="w-full justify-start hover:bg-gray-100 transition-colors duration-200 text-xs dark:bg-transparent dark:hover:bg-gray-800 dark:text-white bg-transparent"
-                                  disabled={!(journal.trim() || title.trim())}
-                                >
-                                  Export as DOCX
-                                </Button>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-
-                          <button
-                            type="button"
-                            onClick={() => setIsPreviewOpen(true)}
-                            className={cn(
-                              "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
-                              !(journal.trim() || title.trim())
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
-                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white "
-                            )}
-                            disabled={!(journal.trim() || title.trim())}
-                          >
-                            <Eye className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">
-                              Preview
-                            </span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setIsWordStatsModalOpen(true)}
-                            className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white  "
-                          >
-                            <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">
-                              Word Stats
-                            </span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={
-                              isJournalSpeaking
-                                ? cancelJournalSpeech
-                                : speakJournal
-                            }
-                            className={cn(
-                              "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
-                              !journal.trim()
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
-                                : isJournalSpeaking
-                                ? "text-red-500 hover:text-red-600 bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700"
-                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
-                            )}
-                            disabled={!journal.trim()}
-                          >
-                            {isJournalSpeaking ? (
-                              <>
-                                <XCircle className="w-3 h-3 mr-1" />
-                                <span className="truncate sm:text-clip">
-                                  Stop
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <Volume2 className="w-3 h-3 mr-1" />
-                                <span className="truncate sm:text-clip">
-                                  Listen
-                                </span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 flex flex-col">
-                      <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
-                        <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
-                          <PublishButton
-                            disabled={!journal.trim()}
-                            onPublish={() => setShowSaveModal(true)}
-                          />
-                          <Button
-                            type="button"
-                            disabled={!journal.trim()}
-                            onClick={summarizeJournal}
-                            className={cn(
-                              "text-white w-auto md:w-auto md:min-w-[10rem] py-1 text-sm",
-                              !(journal.trim() || title.trim())
-                                ? theme === "dark"
-                                  ? "cursor-not-allowed bg-purple-900/50 hover:bg-purple-900/50"
-                                  : "cursor-not-allowed bg-purple-300 hover:bg-purple-300"
-                                : theme === "dark"
-                                ? "bg-purple-900 hover:bg-purple-800"
-                                : "bg-purple-500 hover:bg-purple-600"
-                            )}
-                          >
-                            <div className="flex items-center justify-center gap-1 mx-auto">
-                              <span>
-                                {isSummarizing
-                                  ? "Summarizing..."
-                                  : "Generate Summary"}
-                              </span>
-                              <TooltipProvider delayDuration={100}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
-                                  </TooltipTrigger>
-                                  <TooltipContent
-                                    side="top"
-                                    className="rounded-md shadow-lg z-50 max-w-xs opacity-1"
-                                  >
-                                    <p className="text-sm leading-relaxed">
-                                      Summarize your journal entry into fewer
-                                      sentences.
-                                    </p>
-                                    {/* <p className="text-xs leading-relaxed text-gray-600">
-                                    You can also tweet the summary directly!
-                                  </p> */}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {showSuccessMessage && createJournalState.success && (
-                      <div className="flex items-center mt-2">
-                        <CheckCircle className="text-green-500 mr-2" />
-                        <p className="text-green-500">
-                          Entry created successfully!
-                        </p>
-                      </div>
-                    )}
-                    <WordStatsModal
-                      isOpen={isWordStatsModalOpen}
-                      onOpenChange={setIsWordStatsModalOpen}
-                      totalWords={totalWords}
-                      averageWords={averageWords}
-                    />
-                  </div>
-                </form>
-              </div>
+                  <WordStatsModal
+                    isOpen={isWordStatsModalOpen}
+                    onOpenChange={setIsWordStatsModalOpen}
+                    totalWords={totalWords}
+                    averageWords={averageWords}
+                  />
+                </div>
+              </form>
             </div>
           </div>
-          {/* Summary Dialog */}
-          <SummaryModal
-            isOpen={isSummaryModalOpen}
-            onOpenChange={setIsSummaryModalOpen}
-            summary={summary}
-            onTweet={handleTweet}
-            error={summaryError} // Pass the error to the dialog
-          />
-          {/* Save Modal */}
-          <SaveJournalModal
-            isOpen={showSaveModal}
-            onOpenChange={setShowSaveModal}
-            onSubmit={saveToDatabase}
-            categories={categories}
-            selectedCategories={selectedCategories}
-            onCategoriesChange={setSelectedCategories}
-            onCreateCategory={(categoryName) => {
-              setCategories([
-                ...categories,
-                {
-                  _id: "",
-                  category: categoryName,
-                  selected: false,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                },
-              ]);
-            }}
-            favorite={favorite}
-            onFavoriteChange={setFavorite}
-            title={title}
-            journal={journal}
-            saveStatus={saveStatus}
-            saveError={saveError}
-            onClose={() => setShowSaveModal(false)}
-          />
-          {/*Preview Dialog  */}
-          <PreviewModal
-            isOpen={isPreviewOpen}
-            onOpenChange={setIsPreviewOpen}
-            title={title}
-            journal={journal}
-          />
-          <StorageAccessWarningModal
-            open={showStorageWarning}
-            onOpenChange={setShowStorageWarning}
-          />
-          {/* Update the autosave indicator */}
-          <NoContentWarningModal
-            isOpen={showNoContentWarning}
-            onOpenChange={setShowNoContentWarning}
-          />
-          <Dialog
-            open={showStorageDisabledWarning}
-            onOpenChange={setShowStorageDisabledWarning}
-          >
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Storage Access Required</DialogTitle>
-                <DialogDescription>
-                  Your browser has storage access disabled. Without this, your
-                  content cannot be automatically saved. You must manually
-                  publish your entries to save them.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button
-                  onClick={handleAcknowledgeStorageWarning}
-                  variant="default"
-                >
-                  I Understand
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
-      )}
+        {/* Summary Dialog */}
+        <SummaryModal
+          isOpen={isSummaryModalOpen}
+          onOpenChange={setIsSummaryModalOpen}
+          summary={summary}
+          onTweet={handleTweet}
+          error={summaryError} // Pass the error to the dialog
+        />
+        {/* Save Modal */}
+        <SaveJournalModal
+          isOpen={showSaveModal}
+          handleCreateCategory={handleCreateCategory}
+          userId={user?._id}
+          onOpenChange={setShowSaveModal}
+          onSubmit={saveToDatabase}
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onCategoriesChange={setSelectedCategories}
+          onCreateCategory={createNewCategory}
+          favorite={favorite}
+          onFavoriteChange={setFavorite}
+          title={title}
+          journal={journal}
+          saveStatus={saveStatus}
+          saveError={saveError}
+          onClose={() => setShowSaveModal(false)}
+        />
+        {/*Preview Dialog  */}
+        <PreviewModal
+          isOpen={isPreviewOpen}
+          onOpenChange={setIsPreviewOpen}
+          title={title}
+          journal={journal}
+        />
+        <StorageAccessWarningModal
+          open={showStorageWarning}
+          onOpenChange={setShowStorageWarning}
+        />
+        {/* Update the autosave indicator */}
+        <NoContentWarningModal
+          isOpen={showNoContentWarning}
+          onOpenChange={setShowNoContentWarning}
+        />
+        <Dialog
+          open={showStorageDisabledWarning}
+          onOpenChange={setShowStorageDisabledWarning}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Storage Access Required</DialogTitle>
+              <DialogDescription>
+                Your browser has storage access disabled. Without this, your
+                content cannot be automatically saved. You must manually publish
+                your entries to save them.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                onClick={handleAcknowledgeStorageWarning}
+                variant="default"
+              >
+                I Understand
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <ResetConfirmationModal
+          isOpen={isResetModalOpen}
+          onOpenChange={setIsResetModalOpen}
+          onConfirm={handleReset}
+        />
+      </div>
     </DashboardContainer>
   );
 }

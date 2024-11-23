@@ -11,6 +11,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import Avatar from "../Avatar/Avatar";
 
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
+
 const AvatarUpload = ({
   clickableAvatar = false,
   handleSave,
@@ -44,14 +46,21 @@ const AvatarUpload = ({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        setError("Image size must be less than 1MB");
+        event.target.value = "";
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setTempImage(result);
         setShowCropModal(true);
+        setError(null); // Clear any previous errors
       };
       reader.readAsDataURL(file);
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -144,16 +153,21 @@ const AvatarUpload = ({
 
   return (
     <div className={`flex flex-col items-${align}`}>
+      {error && !showCropModal && (
+        <div className="mb-2 text-sm text-red-500">{error}</div>
+      )}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <div className="mb-4 cursor-pointer relative group">
             {avatar ? (
-              <Avatar
-                avatarUrl={avatar}
-                username={user?.username}
-                name={user?.name}
-                size={size || 200}
-              />
+              <>
+                <Avatar
+                  avatarUrl={avatar}
+                  username={user?.username}
+                  name={user?.name}
+                  size={size || 200}
+                />
+              </>
             ) : (
               <div
                 className={`aspect-square ${

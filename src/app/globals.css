@@ -71,6 +71,7 @@ body {
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
+    --dark-border: rgb(31, 41, 55);
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --chart-1: 12 76% 61%;
@@ -79,6 +80,12 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --dark-menu-bg: rgb(31, 41, 55);
+    --dark-menu-border: rgb(31 41 55);
+    --dark-menu-text: rgb(229, 231, 235);
+    --dark-menu-hover: rgb(55, 65, 81);
+    --dark-menu-active: rgb(31, 41, 55);
+    --dark-menu-active-text: rgb(255, 255, 255);
   }
 
   .dark {

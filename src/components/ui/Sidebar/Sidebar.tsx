@@ -28,6 +28,7 @@ export const Sidebar: React.FC<IProps> = ({
 }) => {
   const [isSmallViewport, setIsSmallViewport] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showChevron, setShowChevron] = useState(isOpen);
 
   useEffect(() => {
     const checkViewport = () => {
@@ -42,10 +43,16 @@ export const Sidebar: React.FC<IProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
-      const timer = setTimeout(() => {
+      setShowChevron(true);
+      const loadingTimer = setTimeout(() => {
         setIsLoading(false);
-      }, 100); // Match this with the transition duration
-      return () => clearTimeout(timer);
+      }, 100);
+      return () => clearTimeout(loadingTimer);
+    } else {
+      const chevronTimer = setTimeout(() => {
+        setShowChevron(false);
+      }, 100);
+      return () => clearTimeout(chevronTimer);
     }
   }, [isOpen]);
 
@@ -55,16 +62,12 @@ export const Sidebar: React.FC<IProps> = ({
         className={`fixed ${
           headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
         } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 dark:bg-black dark:border-r-1 ${
-          isOpen || isAlwaysOpen
-            ? width === "wide"
-              ? "w-96"
-              : "w-56"
-            : "w-16"
+          isOpen || isAlwaysOpen ? (width === "wide" ? "w-96" : "w-56") : "w-16"
         }`}
       >
         {icon && (
           <Button
-            className={`border border-[#d9d9d9] dark:border-gray-800 p-1 block  relative w-auto h-auto ${
+            className={`border border-[#d9d9d9] dark:border-gray-800 p-1 block relative w-auto h-auto ${
               isOpen ? "justify-end ml-auto" : "justify-center"
             }`}
             variant="ghost"
@@ -74,7 +77,15 @@ export const Sidebar: React.FC<IProps> = ({
             }}
             title={isOpen ? "Close sidebar" : "Open sidebar"}
           >
-            {isOpen ? <ChevronLeft size={20} /> : icon}
+            <div className="relative">
+              {showChevron ? (
+                <div className="transition-opacity duration-200">
+                  <ChevronLeft size={20} />
+                </div>
+              ) : (
+                <div className="transition-opacity duration-200">{icon}</div>
+              )}
+            </div>
           </Button>
         )}
         {isOpen && (

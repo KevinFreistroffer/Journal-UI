@@ -126,9 +126,9 @@ Your original username will be unavailable for 90 days following the rename.
     <PageContainer showLoadingIndicator={false}>
       <div
         id="settings"
-        className="min-h-[calc(100vh-theme(spacing.header))] bg-background dark:bg-background px-4 py-10 sm:px-8 sm:py-6 overflow-x-hidden"
+        className="min-h-[calc(100vh-theme(spacing.header))] bg-background dark:bg-background px-4 py-10 sm:px-8 sm:py-6 overflow-x-hidden relative z-0"
       >
-        <div className="flex-col">
+        <div className="flex-col relative z-0">
           <div className="mb-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
               {isLoading ? (

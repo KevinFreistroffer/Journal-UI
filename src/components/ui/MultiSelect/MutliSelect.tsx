@@ -59,9 +59,16 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         styles={{
           control: (baseStyles) => ({
             ...baseStyles,
-            backgroundColor: theme === "dark" ? "black" : "white",
+            ["&:hover"]: {
+              backgroundColor:
+                theme === "dark" ? "var(--dark-menu-hover)" : "white",
+            },
+            backgroundColor:
+              theme === "dark" ? "var(--dark-menu-bg)" : "white",
             borderColor:
-              theme === "dark" ? "rgb(209, 213, 219)" : baseStyles.borderColor,
+              theme === "dark"
+                ? "var(--dark-menu-border)"
+                : baseStyles.borderColor,
             color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
           }),
           menu: (baseStyles, state) => {
@@ -69,31 +76,37 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             console.log(state);
             return {
               ...baseStyles,
-              backgroundColor: theme === "dark" ? "black" : "white",
-              borderColor: theme === "dark" ? "red" : "blue",
+              backgroundColor:
+                theme === "dark" ? "var(--dark-menu-bg)" : "white",
+              borderColor:
+                theme === "dark" ? "var(--dark-menu-border)" : "var(--border)",
             };
           },
+          menuList: (baseStyles) => ({
+            ...baseStyles,
+            padding: 0,
+          }),
           option: (baseStyles, state) => ({
             ...baseStyles,
             backgroundColor: state.isFocused
               ? theme === "dark"
-                ? "hsl(var(--accent))"
+                ? "var(--dark-menu-hover)"
                 : "hsl(var(--accent-light))"
               : "transparent",
             color:
               theme === "dark"
                 ? state.isFocused
-                  ? "hsl(var(--accent-foreground))"
-                  : "hsl(var(--foreground))"
+                  ? "var(--dark-menu-active-text)"
+                  : "var(--dark-menu-text)"
                 : undefined,
           }),
           singleValue: (baseStyles) => ({
             ...baseStyles,
-            color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
+            color: theme === "dark" ? "var(--dark-menu-text)" : undefined,
           }),
           multiValue: (baseStyles) => ({
             ...baseStyles,
-            color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
+            color: theme === "dark" ? "var(--dark-menu-text)" : undefined,
           }),
         }}
       />
