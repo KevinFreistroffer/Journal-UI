@@ -42,6 +42,7 @@ export const createCategory: CreateCategoryFunction = async (
       "http://localhost:3001/user/journal/category/create?returnUser=true",
       {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",

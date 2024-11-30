@@ -14,7 +14,14 @@ export const UserSchema = z.object({
     .object({
       data: z.string(),
       contentType: z.string(),
-      fileId: z.string(),
+      _id: z.string(),
     })
     .nullable(),
+  reminders: z.array(z.unknown()),
+  name: z.string().optional(),
+  bio: z.string().optional(),
+  company: z.string().optional(),
+  location: z.string().optional(),
+  website: z.string().optional(),
+  sex: z.string().optional(),
 });

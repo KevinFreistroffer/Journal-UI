@@ -70,7 +70,6 @@ export const login: LoginFunction = async (
     });
 
     const data = await response.json();
-    console.log("login data", data);
     if (!response.ok) {
       const errorData = await response.json();
       console.log("errorData", errorData);
@@ -92,9 +91,7 @@ export const login: LoginFunction = async (
         isVerified: false,
       };
     }
-
     const userDataResult = UserSchema.safeParse(data.data);
-    console.log("userDataResult", userDataResult);
     if (!userDataResult.success) {
       console.error(
         "Invalid user data. Did the API have an update to the user schema?",

@@ -37,3 +37,6 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+cdp_api_key.json
+./cdp_api_key.json

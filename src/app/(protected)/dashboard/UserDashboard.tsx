@@ -620,7 +620,7 @@ function UserDashboard() {
                           Recent Activity
                         </h2>
                         {recentEntries.length > 0 ? (
-                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 dark:bg-black dark:shadow-none">
+                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 bg-white dark:bg-black dark:shadow-none">
                             <ul className="max-h-72 overflow-y-auto p-4">
                               {recentEntries.map((journal, index) => (
                                 <li

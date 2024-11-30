@@ -44,11 +44,14 @@ export async function middleware(request: NextRequest) {
 
   const clientSessionCookie = cookieStore.get(CLIENT_SESSION)?.value;
   const serverSessionCookie = cookieStore.get(SESSION_TOKEN)?.value;
+  console.log("serverSessionCookie", serverSessionCookie);
+  console.log("clientSessionCookie", clientSessionCookie);
   let clientSession;
 
   // const session = await decrypt(cookie);
   if (clientSessionCookie) {
     clientSession = await decrypt(clientSessionCookie);
+    console.log("clientSession", clientSession);
   }
 
   if (isProtectedRoute) {
@@ -65,7 +68,6 @@ export async function middleware(request: NextRequest) {
       );
     }
   }
-
   /**
    * Why?
    * Instead trying the dashboard idea.
