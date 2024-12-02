@@ -57,6 +57,11 @@ export const createJournal: CreateJournalFunction = async (
         user: null,
       };
     }
+    console.log({
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Cookie: cookies().toString(),
+    });
     const response = await fetch(`${Config.API_URL}/user/journal/create`, {
       method: "POST",
       headers: {
@@ -110,7 +115,8 @@ export const createJournal: CreateJournalFunction = async (
       };
     }
     // Create a session using the user's _id
-    await createClientSession(userData._id, userData.isVerified);
+    // TODO: should updateClientSession()
+    await createClientSession(userData._id, userData.isVerified, userData.role);
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
 

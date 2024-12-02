@@ -3,13 +3,10 @@ import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
-import { deleteSessions } from "@/lib/session";
-import { experimental_jwksCache } from "jose";
-import { FaSeedling } from "react-icons/fa";
-import { Terminal, Waypoints } from "lucide-react";
-import { Config } from "@/lib/configs";
+
 const protectedRoutes = [
   "/dashboard",
+  "/dashboard/admin",
   "/categories",
   "/journal",
   "/journals",
@@ -31,6 +28,7 @@ const publicRoutes = [
 ];
 
 export async function middleware(request: NextRequest) {
+  console.log("middleware()", new Date().toISOString());
   const path = request.nextUrl.pathname;
 
   const isProtectedRoute = protectedRoutes.some(
@@ -44,21 +42,38 @@ export async function middleware(request: NextRequest) {
 
   const clientSessionCookie = cookieStore.get(CLIENT_SESSION)?.value;
   const serverSessionCookie = cookieStore.get(SESSION_TOKEN)?.value;
-  console.log("serverSessionCookie", serverSessionCookie);
-  console.log("clientSessionCookie", clientSessionCookie);
   let clientSession;
 
   // const session = await decrypt(cookie);
   if (clientSessionCookie) {
+    console.log("clientSessionCookie", clientSessionCookie);
     clientSession = await decrypt(clientSessionCookie);
-    console.log("clientSession", clientSession);
+    console.log("clientSessionz", clientSession);
   }
 
   if (isProtectedRoute) {
-    // If there's no server session, than data can't be fetched, so sign in again.
+    // Check for authentication first
     if (!clientSession || !serverSessionCookie) {
-      console.log("Redirecting to /login");
       return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    console.log(
+      `Path: ${path}, ClientSession: ${JSON.stringify(
+        clientSession
+      )}, IsAdmin: ${path === "/dashboard/admin"}, IsMember: ${
+        clientSession?.role === "member"
+      }`
+    );
+
+    console.log(clientSession?.role);
+    console.log(clientSession?.role);
+    console.log(clientSession?.role);
+    console.log(clientSession?.role);
+    console.log(clientSession?.role);
+    // Add admin route check
+    if (path === "/dashboard/admin" && clientSession?.role !== "admin") {
+      console.log("Unauthorized access to admin route");
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
     if (clientSession?.userId && !clientSession.isVerified) {
@@ -86,16 +101,16 @@ export async function middleware(request: NextRequest) {
   // }
 
   // Commented this out 10/2 to add it to the public routes
-  if (
-    isPublicRoute &&
-    clientSession?.userId &&
-    clientSession?.isVerified &&
-    serverSessionCookie &&
-    !request.nextUrl.pathname.startsWith("/journal/write")
-  ) {
-    console.log("Redirecting to /journal/write");
-    return NextResponse.redirect(new URL("/journal/write", request.url));
-  }
+  // if (
+  //   isPublicRoute &&
+  //   clientSession?.userId &&
+  //   clientSession?.isVerified &&
+  //   serverSessionCookie &&
+  //   !request.nextUrl.pathname.startsWith("/journal/write")
+  // ) {
+  //   console.log("Redirecting to /journal/write");
+  //   return NextResponse.redirect(new URL("/journal/write", request.url));
+  // }
 
   // return NextResponse.next();
 }
@@ -104,9 +119,11 @@ export const config = {
   matcher: [
     "/",
     "/dashboard",
+    "/dashboard/admin",
     "/login",
     "/signup",
     "/journal/:path*",
+    "/journal/write",
     "/journals/:path",
     "/categories/:path*",
   ],

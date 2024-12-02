@@ -52,8 +52,6 @@ export default function SaveJournalModal({
   onClose,
   handleCreateCategory,
 }: SaveJournalModalProps) {
-  console.log(categories);
-  console.log(selectedCategories);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

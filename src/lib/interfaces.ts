@@ -44,7 +44,9 @@ export interface IUser {
     contentType: string;
     fileId: string;
   };
+  role: "admin" | "member";
   reminders?: IReminder[];
+  disabled?: boolean;
 }
 
 export interface ISentimentResult {

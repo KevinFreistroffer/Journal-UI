@@ -32,6 +32,8 @@ export async function GET(request: Request) {
       `${Config.API_URL}/user/${session.userId}`
     );
 
+    console.log("userResponse", userResponse);
+
     if (!userResponse.ok) {
       return NextResponse.json(
         { error: "Failed to get user" },

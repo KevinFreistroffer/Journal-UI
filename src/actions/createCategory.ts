@@ -23,10 +23,7 @@ export const createCategory: CreateCategoryFunction = async (
 
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
-    console.log(
-      "createCategory() errors",
-      validatedFields.error.flatten().fieldErrors
-    );
+
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Invalid category.",

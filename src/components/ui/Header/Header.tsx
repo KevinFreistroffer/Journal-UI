@@ -218,7 +218,6 @@ export default function Header() {
   );
 
   useEffect(() => {
-    console.log("user = ", user);
   }, [user]);
 
   return (

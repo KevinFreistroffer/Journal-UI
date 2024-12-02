@@ -22,8 +22,6 @@ export async function POST(request: Request) {
 
     // Parse the request body
     const { userId, avatar } = await request.json();
-    console.log("userId", userId);
-    console.log("avatar", avatar);
     // Validate the input
     if (
       typeof userId !== "string" ||
@@ -42,13 +40,8 @@ export async function POST(request: Request) {
       updateData.avatar = avatar.data;
     }
 
-    console.log("updateData", updateData);
 
     // Send the API request to /user/update
-    console.log(
-      "Sending update request to",
-      `${Config.API_URL}/user/avatar/upload`
-    );
     const response = await fetch(`${Config.API_URL}/user/avatar/upload`, {
       method: "POST",
       headers: {
@@ -63,7 +56,6 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json();
-    console.log(result);
     /**
      * fileId: "6732741ff598d0858563387d"
      * filename: "avatar-67316785c8793fae8af74654-1731359775876.png"

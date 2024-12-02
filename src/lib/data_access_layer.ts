@@ -2,6 +2,7 @@
 
 import { cache } from "react";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
 import { decrypt } from "@/lib/session";
 import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
@@ -46,13 +47,21 @@ export const verifyServerSession = cache(async (): Promise<boolean> => {
 });
 
 export const getUser = cache(async () => {
+  console.log("getUser()");
   try {
+    const SESSION_TOKEN = "session_token";
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get(SESSION_TOKEN)?.value;
+    console.log("sessionToken", sessionToken);
+    if (!sessionToken) {
+      return null;
+    }
     if (!Config.API_URL) {
       return null;
     }
 
     const session = await verifyClientSession();
-
+    console.log("getUser session, to use session.userId", session);
     if (!session || !session.userId) {
       return null;
     }
@@ -61,10 +70,12 @@ export const getUser = cache(async () => {
       console.error("API_URL is not set");
       return null;
     }
-
+    console.log("fetching user from NodeJS.");
     const response = await fetch(`${Config.API_URL}/user/${session.userId}`, {
       headers: { Cookie: cookies().toString() },
     });
+
+    console.log("getUser response", response);
 
     if (!response.ok) {
       console.error("Failed to fetch user");
@@ -90,6 +101,8 @@ export const getUserById = cache(async (userId: string) => {
     const response = await fetch(`${Config.API_URL}/user/${userId}`, {
       headers: { Cookie: cookies().toString() },
     });
+
+    console.log("getUserById response", response);
 
     if (!response.ok) {
       console.error("Failed to fetch user");

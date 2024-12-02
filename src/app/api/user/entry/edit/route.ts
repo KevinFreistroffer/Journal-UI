@@ -19,11 +19,6 @@ export async function PUT(req: Request) {
 
     const cookieStore = await cookies();
     const cookie = cookieStore.get("session_token")?.value;
-    console.log({
-      userId,
-      journalId,
-      favorite: favorite,
-    });
     const response = await fetch(`${Config.API_URL}/user/journal/edit`, {
       method: "POST",
       headers: {

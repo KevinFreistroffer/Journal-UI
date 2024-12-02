@@ -276,7 +276,6 @@ export const getPlainTextFromHtml = (html: string) => {
 export const isValidUser = (user: any): user is IUser => {
   // Check if user is an object and not null
   if (typeof user !== "object" || user === null) {
-    console.log("Invalid: user is not an object or is null");
     return false;
   }
 

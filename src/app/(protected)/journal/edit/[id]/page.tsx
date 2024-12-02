@@ -395,10 +395,7 @@ function WritePage({ params }: { params?: { id: string } }) {
         setJournal(
           quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
         );
-        console.log(
-          quillRef.current.firstChild.innerHTML,
-          typeof quillRef.current.firstChild.innerHTML
-        ); // Get innerHTML using quillRef
+
       });
     }
   }, [quill, quillRef]);

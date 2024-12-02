@@ -24,4 +24,6 @@ export const UserSchema = z.object({
   location: z.string().optional(),
   website: z.string().optional(),
   sex: z.string().optional(),
+  role: z.enum(["admin", "member"]),
+  disabled: z.boolean(),
 });

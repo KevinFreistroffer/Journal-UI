@@ -38,8 +38,6 @@ export const login: LoginFunction = async (
       : false,
   });
 
-  console.log("validatedFields", validatedFields, validatedFields.error);
-
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
@@ -72,7 +70,6 @@ export const login: LoginFunction = async (
     const data = await response.json();
     if (!response.ok) {
       const errorData = await response.json();
-      console.log("errorData", errorData);
 
       let errorMessage = "Failed to login.";
       if (errorData.description === "User not found.") {
@@ -120,8 +117,9 @@ export const login: LoginFunction = async (
         isVerified: false,
       };
     }
+    console.log("userData", userData);
     // Create a session using the user's _id
-    await createClientSession(userData._id, userData.isVerified);
+    await createClientSession(userData._id, userData.isVerified, userData.role);
     // Get the Set-Cookie header from the response
     const setCookieHeader = response.headers.get("Set-Cookie");
 
@@ -155,7 +153,7 @@ export const login: LoginFunction = async (
     return {
       errors: {},
       message: "Login successful.",
-      redirect: "/dashboard",
+      redirect: "/dashboard", // remove, not using
       user: userData, // TODO: Not sure if this is the best way to do this.
       success: true,
       isVerified: true,

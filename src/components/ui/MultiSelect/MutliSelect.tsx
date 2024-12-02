@@ -72,8 +72,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             color: theme === "dark" ? "hsl(var(--foreground))" : undefined,
           }),
           menu: (baseStyles, state) => {
-            console.log(baseStyles);
-            console.log(state);
             return {
               ...baseStyles,
               backgroundColor:

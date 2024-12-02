@@ -12,7 +12,7 @@ import {
   getPlainTextFromHtml,
   decodeHtmlEntities,
 } from "@/lib/utils";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   ChartNoAxesColumnIncreasing,
@@ -96,7 +96,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateUserPreferences } from "@/actions/updateUserPreferences"; // You'll need to create this
+// import { updateUserPreferences } from "@/actions/updateUserPreferences"; // You'll need to create this
 import {
   Dialog,
   DialogContent,
@@ -168,7 +168,8 @@ const ResetConfirmationModal = ({
 };
 
 function WritePage({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, setUser } = useAuth();
+  const router = useRouter();
+  const { user, isLoading, setIsLoading, setUser } = useAuth();
   const { setSelectedJournal } = useJournal();
   const [journals, setJournals] = useState<IJournal[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
@@ -317,6 +318,15 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   const isExtraSmallScreen = useMediaQuery("(max-width: 360px)");
 
+  // Add this effect near your other useEffect hooks
+  useEffect(() => {
+    if (isLoading && user) {
+      setIsLoading(false);
+    } else if (!user) {
+      router.push("/login");
+    }
+  }, [user, isLoading, setIsLoading, router]);
+
   // Effect for initial data restoration (title and preference check)
   useEffect(() => {
     const autoSavePreference = localStorageService.getItem<{
@@ -445,8 +455,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
   };
 
   const handleCreateCategory = async (categoryName: string) => {
-    console.log("HANDLE CREATE CATEGORY");
-
     // ... existing code ...
 
     // Reset error and success messages at the start of the function
@@ -487,7 +495,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
         } else {
           setUser(body.data);
           setJournals(body.data.journals);
-          console.log("SETTING CATEGORIES AFTER CREATING NEW 1");
           setCategories(body.data.journalCategories);
           setNewCategoryName("");
           setShowCreatedCategorySuccessIcon(true); // Show success icon
@@ -537,10 +544,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user && user.journals) {
       setJournals(user.journals);
-      console.log(
-        "SETTING CATEGORIES AFTER USER IS GOTTEN",
-        user.journalCategories
-      );
       setCategories(user.journalCategories);
 
       const savedJournal =
@@ -932,8 +935,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
         .replace(/\\'/g, "'")
         .replace(/\\"/g, '"')
         .replace(/\\\\/g, "\\");
-
-      console.log("Restored content:", cleanContent); // Debug log
 
       quill.root.innerHTML = cleanContent;
       quill.setSelection(quill.getLength(), 0);
@@ -1455,31 +1456,20 @@ function WritePage({ children }: { children: React.ReactNode }) {
               showDefaultWidth={isLargeScreen}
               showFullWidth={isLargeScreen}
               onToggle={(value) => {
-                console.log("value", value);
-                console.log("contentWidth", contentWidth);
-                console.log("previousWidth", previousWidth);
-                console.log("isFullscreen", isFullscreen);
-
                 if (contentWidth !== value) {
                   if (isFullscreen) {
                     // If currently fullscreen, exit fullscreen and restore previous width
                     setIsFullscreen(false);
-                    console.log(
-                      "setting content width to previous width",
-                      previousWidth
-                    );
+
                     setContentWidth(previousWidth);
                   } else if (value === "fullscreen") {
                     // If not fullscreen and fullscreen is requested, enter fullscreen
-                    console.log("setting previous width to", contentWidth);
                     setPreviousWidth(contentWidth);
                     setIsFullscreen(true);
                   } else if (value === "default") {
                     // Handle regular width toggles when not in fullscreen mode
-                    console.log("setting content width to default", value);
                     setContentWidth("default");
                   } else {
-                    console.log("setting content width to full", value);
                     setContentWidth("full");
                   }
                 }

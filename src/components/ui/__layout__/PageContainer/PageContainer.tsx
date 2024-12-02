@@ -16,7 +16,6 @@ export function PageContainer({
   const { isLoading } = useAuth();
 
   useEffect(() => {
-    console.log("PageContainer isLoading", isLoading);
   }, [isLoading]);
 
   if (isLoading && showLoadingIndicator) {

@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  console.log(
-    "process.env.NEXT_PUBLIC_APP_URL",
-    process.env.NEXT_PUBLIC_APP_URL
-  );
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
   const codeVerifier = request.cookies.get("x_code_verifier")?.value;

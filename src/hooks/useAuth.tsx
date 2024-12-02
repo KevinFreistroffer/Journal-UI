@@ -5,6 +5,7 @@ import { IUser } from "@/lib/interfaces";
 import { getUser } from "@/lib/data_access_layer";
 import { useSearch } from "@/context/SearchContext";
 import { initializeSession } from "@/lib/sessionManager";
+import { useRouter } from "next/navigation";
 
 interface AuthStateType {
   user: IUser | null;
@@ -21,19 +22,29 @@ const AuthState = createContext<AuthStateType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  console.log("AuthProvider() initializing");
+  const router = useRouter();
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { setFilteredEntries } = useSearch();
 
   const handleSetUser = (newUser: IUser | null) => {
     setUser(newUser);
+
+    return newUser;
   };
 
   useEffect(() => {
-    initializeSession(handleSetUser, setFilteredEntries).finally(() =>
-      setIsLoading(false)
-    );
-  }, [setFilteredEntries]);
+    initializeSession(handleSetUser, setFilteredEntries)
+      .then((newUser: IUser | null) => {
+        console.log("FINALLY");
+
+        if (!newUser) {
+          router.push("/login");
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, [setFilteredEntries, router]);
 
   return (
     <AuthState.Provider

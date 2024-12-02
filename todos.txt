@@ -34,6 +34,8 @@ water ripple background animated
 
 enable mfa
 
+replace session.userId with session._id
+
 the /api/update api route, shouldn't require a userId, since it can get it from a server function?
 
 replace the keyword freq select with another component. too slow.

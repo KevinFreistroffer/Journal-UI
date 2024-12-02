@@ -53,7 +53,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("user = ", user.avatar);
       setFormData({
         name: user.name || "",
         bio: user.bio || "",
@@ -70,7 +69,6 @@ const ProfilePage = () => {
     data: string;
     contentType: string;
   }) => {
-    console.log("avatar = ", avatar);
     try {
       const response = await fetch("/api/user/avatar/upload", {
         method: "POST",
@@ -84,7 +82,6 @@ const ProfilePage = () => {
         showError(`Failed to update avatar: ${response.statusText}`);
       } else {
         const result = await response.json();
-        console.log("result = ", result);
         setAvatarFileId(result.fileId);
         if (user && avatar && avatar.contentType) {
           setUser({
@@ -162,7 +159,6 @@ const ProfilePage = () => {
       }
 
       const result = await response.json();
-      console.log("result = ", result);
 
       showSuccess("Profile updated successfully");
 

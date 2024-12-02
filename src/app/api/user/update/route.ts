@@ -87,11 +87,7 @@ export async function POST(request: Request) {
     if (sex !== undefined) {
       updateData.sex = sex;
     }
-
-    console.log(updateData);
-
     // Send the API request to /user/update
-    console.log("Sending update request to", `${Config.API_URL}/user/update`);
     const response = await fetch(`${Config.API_URL}/user/update`, {
       method: "POST",
       headers: {
@@ -106,7 +102,6 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json();
-    console.log("result = ", result);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error updating user:", error);

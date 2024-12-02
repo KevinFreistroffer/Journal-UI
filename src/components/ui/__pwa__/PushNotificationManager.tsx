@@ -51,11 +51,6 @@ function PushNotificationManager() {
   }
 
   async function subscribeToPush() {
-    console.log(
-      "NEXT_PUBLIC_VAPID_PUBLIC_KEY=",
-      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!.trim
-    );
-
     if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
       console.error("NEXT_PUBLIC_VAPID_PUBLIC_KEY is not set");
       return;

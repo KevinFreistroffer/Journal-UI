@@ -439,7 +439,6 @@ function UserDashboard() {
 
   useEffect(() => {
     if (user) {
-      console.log("SETTING IS LOADING TO FALSE");
       setIsLoading(false);
     }
   }, [user, setIsLoading]);

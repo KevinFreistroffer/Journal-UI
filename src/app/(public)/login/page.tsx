@@ -103,8 +103,14 @@ export default function LoginPage() {
         setUser(state.user);
       }
 
-      if (state.redirect) {
-        return router.push(state.redirect as string);
+      // if (state.redirect) {
+      //   return router.push(state.redirect as string);
+      // }
+      // Add role-based redirect
+      if (state.user.role === "admin") {
+        return router.push("/dashboard/admin");
+      } else if (state.user.role === "member") {
+        return router.push("/dashboard");
       }
     }
   }, [state, router, setUser, setIsLoading, isLoading, showVerificationModal]);
