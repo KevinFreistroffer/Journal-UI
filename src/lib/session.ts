@@ -34,7 +34,6 @@ export async function createClientSession(
   isVerified: boolean,
   role: "admin" | "member"
 ) {
-  console.log("createClientSession", userId, isVerified, role);
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt({ userId, isVerified, role, expiresAt });
 

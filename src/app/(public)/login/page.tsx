@@ -12,6 +12,8 @@ import { useSearchParams } from "next/navigation";
 import styles from "./styles.module.css";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
 import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 
 const initialState: State = {
   message: "",
@@ -108,7 +110,7 @@ export default function LoginPage() {
       // }
       // Add role-based redirect
       if (state.user.role === "admin") {
-        return router.push("/dashboard/admin");
+        return router.push("/admin/dashboard");
       } else if (state.user.role === "member") {
         return router.push("/dashboard");
       }
@@ -120,167 +122,154 @@ export default function LoginPage() {
   }, [setIsLoading]);
 
   return (
-    <DashboardContainer isSidebarOpen={false}>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="bg-white p-8 rounded-lg shadow-md w-96 dark:bg-gray-800">
-          <h1 className="text-2xl font-bold mb-6 text-center dark:text-gray-300">
-            Log In
-          </h1>
-          <form action={formAction} className="space-y-4 text-xs">
-            <div>
+    <div className="min-h-screen flex items-start justify-center bg-gray-100 dark:bg-transparent pt-32">
+      <div className="bg-white dark:bg-transparent p-8 rounded-lg shadow-md w-96 dark:border dark:border-gray-700">
+        <h1 className="text-2xl font-bold mb-6 text-center dark:text-white">
+          Log In
+        </h1>
+        <form action={formAction} className="space-y-4">
+          <div>
+            <Label htmlFor="usernameOrEmail">Username or Email</Label>
+            <Input
+              id="usernameOrEmail"
+              name="usernameOrEmail"
+              type="text"
+              required
+              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
+            />
+            {state.errors?.usernameOrEmail && (
+              <p className="text-sm text-red-500">{state.errors.usernameOrEmail}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
+            />
+            {state.errors?.password && (
+              <p className="text-sm text-red-500">{state.errors.password}</p>
+            )}
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="staySignedIn"
+                name="staySignedIn"
+                type="checkbox"
+                value="true"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
               <label
-                htmlFor="usernameOrEmail"
-                className="block mb-1 dark:text-gray-300 text-xs"
+                htmlFor="staySignedIn"
+                className="ml-2 block text-sm text-gray-900 dark:text-gray-300 text-xs"
               >
-                Username or Email
+                Stay signed in
               </label>
-              <input
-                id="usernameOrEmail"
-                name="usernameOrEmail"
-                type="text"
-                required
-                className="w-full px-3 py-2 border rounded-md"
-              />
-              {state.errors?.usernameOrEmail && (
-                <p className="text-red-500 text-sm mt-1">
-                  {state.errors.usernameOrEmail}
-                </p>
-              )}
             </div>
-            <div>
-              <label htmlFor="password" className="block mb-1 text-xs">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="w-full px-3 py-2 border rounded-md"
-              />
-              {state.errors?.password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {state.errors.password}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="staySignedIn"
-                  name="staySignedIn"
-                  type="checkbox"
-                  value="true"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="staySignedIn"
-                  className="ml-2 block text-sm text-gray-900 dark:text-gray-300 text-xs"
-                >
-                  Stay signed in
-                </label>
-              </div>
-              <Link
-                href="/recover-password"
-                className="text-sm text-blue-500 hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            <FormButton
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+            <Link
+              href="/recover-password"
+              className="text-sm text-blue-500 hover:underline"
             >
-              Log In
-            </FormButton>
-          </form>
-          {!state.success && state.message && (
-            <p
-              className={`mt-4 text-center ${
-                state.errors && Object.entries(state.errors).length
-                  ? "text-red-500"
-                  : "text-green-500"
-              }`}
-            >
-              {state.message}
-            </p>
-          )}
-          <p className="mt-4 text-center dark:text-gray-300 text-sm">
-            Don&apos;t have an account?
-            <Link href="/signup" className="text-blue-500 hover:underline ml-2">
-              Sign up
+              Forgot password?
             </Link>
-          </p>
-        </div>
-        {showVerificationModal && !state.isVerified && (
-          <div
-            id={styles["verification-modal"]}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "
+          </div>
+
+          <FormButton
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
           >
-            <div className="bg-white p-8 rounded-lg shadow-md max-w-md relative">
-              <button
-                onClick={closeModal}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                aria-label="Close modal"
+            Log In
+          </FormButton>
+        </form>
+        {!state.success && state.message && (
+          <p
+            className={`mt-4 text-center ${
+              state.errors && Object.entries(state.errors).length
+                ? "text-red-500"
+                : "text-green-500"
+            }`}
+          >
+            {state.message}
+          </p>
+        )}
+        <p className="mt-4 text-center dark:text-gray-300 text-sm">
+          Don&apos;t have an account?
+          <Link href="/signup" className="text-blue-500 hover:underline ml-2">
+            Sign up
+          </Link>
+        </p>
+      </div>
+      {showVerificationModal && !state.isVerified && (
+        <div
+          id={styles["verification-modal"]}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center "
+        >
+          <div className="bg-white p-8 rounded-lg shadow-md max-w-md relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              aria-label="Close modal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <h2 className="text-xl font-bold mb-4">
-                Account Verification Required
-              </h2>
-              <p className="mb-4">
-                Login successful, but the account is not verified. Please check
-                your email for verification.
-              </p>
-              <div className="px-8 pb-8">
-                {emailResendSuccess ? (
-                  <div className="text-green-500 text-center w-full">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-12 w-12 mx-auto"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <p>Email sent successfully!</p>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleResendVerification}
-                    disabled={isResendingEmail}
-                    className="w-full px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <h2 className="text-xl font-bold mb-4">
+              Account Verification Required
+            </h2>
+            <p className="mb-4">
+              Login successful, but the account is not verified. Please check
+              your email for verification.
+            </p>
+            <div className="px-8 pb-8">
+              {emailResendSuccess ? (
+                <div className="text-green-500 text-center w-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    {isResendingEmail
-                      ? "Resending..."
-                      : "Resend Verification Email"}
-                  </button>
-                )}
-              </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <p>Email sent successfully!</p>
+                </div>
+              ) : (
+                <button
+                  onClick={handleResendVerification}
+                  disabled={isResendingEmail}
+                  className="w-full px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  {isResendingEmail
+                    ? "Resending..."
+                    : "Resend Verification Email"}
+                </button>
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </DashboardContainer>
+        </div>
+      )}
+    </div>
   );
 }

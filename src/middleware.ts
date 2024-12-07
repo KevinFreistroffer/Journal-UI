@@ -6,7 +6,7 @@ import { CLIENT_SESSION, SESSION_TOKEN } from "@/lib/constants";
 
 const protectedRoutes = [
   "/dashboard",
-  "/dashboard/admin",
+  "/admin/dashboard",
   "/categories",
   "/journal",
   "/journals",
@@ -28,7 +28,6 @@ const publicRoutes = [
 ];
 
 export async function middleware(request: NextRequest) {
-  console.log("middleware()", new Date().toISOString());
   const path = request.nextUrl.pathname;
 
   const isProtectedRoute = protectedRoutes.some(
@@ -46,32 +45,25 @@ export async function middleware(request: NextRequest) {
 
   // const session = await decrypt(cookie);
   if (clientSessionCookie) {
-    console.log("clientSessionCookie", clientSessionCookie);
     clientSession = await decrypt(clientSessionCookie);
-    console.log("clientSessionz", clientSession);
   }
 
   if (isProtectedRoute) {
     // Check for authentication first
     if (!clientSession || !serverSessionCookie) {
+      console.log("Redirecting to /login");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     console.log(
       `Path: ${path}, ClientSession: ${JSON.stringify(
         clientSession
-      )}, IsAdmin: ${path === "/dashboard/admin"}, IsMember: ${
+      )}, IsAdmin: ${path === "/admin/dashboard"}, IsMember: ${
         clientSession?.role === "member"
       }`
     );
-
-    console.log(clientSession?.role);
-    console.log(clientSession?.role);
-    console.log(clientSession?.role);
-    console.log(clientSession?.role);
-    console.log(clientSession?.role);
     // Add admin route check
-    if (path === "/dashboard/admin" && clientSession?.role !== "admin") {
+    if (path === "/admin/dashboard" && clientSession?.role !== "admin") {
       console.log("Unauthorized access to admin route");
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
@@ -119,7 +111,7 @@ export const config = {
   matcher: [
     "/",
     "/dashboard",
-    "/dashboard/admin",
+    "/admin/dashboard",
     "/login",
     "/signup",
     "/journal/:path*",

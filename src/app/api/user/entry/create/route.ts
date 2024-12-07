@@ -2,26 +2,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Config } from "@/lib/configs";
 export async function POST(req: Request) {
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
-  console.log("POST /api/user/entry/create");
   try {
     // if (!Config.API_URL) {
     //   return NextResponse.json(
@@ -32,13 +12,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { userId, title, entry, category, favorite } = body;
-
-    console.log("FDSFDSFSDFSDFSDFDSFSDFDS", {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Cookie: cookies().toString(),
-    });
-
     const response = await fetch(`${Config.API_URL}/user/journal/create`, {
       method: "POST",
       headers: {

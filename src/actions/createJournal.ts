@@ -57,11 +57,7 @@ export const createJournal: CreateJournalFunction = async (
         user: null,
       };
     }
-    console.log({
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Cookie: cookies().toString(),
-    });
+
     const response = await fetch(`${Config.API_URL}/user/journal/create`, {
       method: "POST",
       headers: {

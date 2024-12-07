@@ -39,8 +39,8 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-96">
+    <div className="min-h-screen flex items-start justify-center bg-gray-100 dark:bg-transparent pt-32">
+      <div className="bg-white dark:bg-transparent p-8 rounded-lg shadow-md w-96 dark:border dark:border-gray-700">
         <h1 className="text-2xl font-bold mb-6 text-center dark:text-white">
           Sign Up
         </h1>

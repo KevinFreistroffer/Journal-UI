@@ -1,8 +1,13 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
 import { useAuth } from "@/hooks/useAuth";
 import { IUser } from "@/lib/interfaces";
+import { Users, Settings } from "lucide-react"; // Import icons
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
+
+type Sex = "male" | "female" | "non-binary" | undefined;
 
 interface User
   extends Omit<
@@ -20,19 +25,21 @@ function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [activeSection, setActiveSection] = useState<"users" | "settings">(
+    "users"
+  );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (user) {
       setIsLoading(false);
     }
-    console.log("fetchUsers()");
     fetchUsers();
   }, [user, setIsLoading]);
 
   const fetchUsers = async () => {
     setIsFetching(true);
     try {
-      console.log("fetchUsers()");
       const response = await fetch("/api/user/users");
 
       if (!response.ok) {
@@ -40,7 +47,6 @@ function AdminDashboard() {
       }
 
       const data = await response.json();
-      console.log("data", data, typeof data);
 
       if (!data || !data.data) {
         console.error("Invalid response format: missing data field", data);
@@ -88,11 +94,19 @@ function AdminDashboard() {
     }
   };
 
-  return (
-    <DashboardContainer isSidebarOpen={false}>
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+  const renderContent = () => {
+    if (activeSection === "settings") {
+      return (
+        <div className="p-4">
+          <h2 className="text-2xl font-bold mb-4">Settings</h2>
+          <p>Admin settings coming soon...</p>
+        </div>
+      );
+    }
 
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-6">Users</h1>
         <div className="overflow-x-auto">
           <div className="max-h-96 overflow-y-auto">
             <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
@@ -144,7 +158,7 @@ function AdminDashboard() {
                 ) : (
                   users.map((user, index) => (
                     <tr
-                      key={user.id}
+                      key={user._id}
                       className={`${
                         index % 2 === 0 ? "bg-white" : "bg-gray-50"
                       } hover:bg-gray-100 transition-colors duration-200`}
@@ -199,14 +213,14 @@ function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
-                          className="w-full bg-transparent border border-gray-300 rounded px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className="w-full bg-transparent border border-gray-300 rounded px-2 py-1"
                           type="text"
                           value={user.sex}
                           onChange={(e) =>
                             setUsers((prevUsers) =>
                               prevUsers.map((u) =>
                                 u.id === user.id
-                                  ? { ...u, sex: e.target.value }
+                                  ? { ...u, sex: e.target.value as Sex }
                                   : u
                               )
                             )
@@ -285,6 +299,55 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
+    );
+  };
+
+  const sidebarContent = (
+    <div className="flex flex-col space-y-2">
+      <button
+        onClick={() => setActiveSection("users")}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+          activeSection === "users"
+            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            : "hover:bg-gray-100 dark:hover:bg-gray-800"
+        }`}
+      >
+        <Users size={20} />
+        <span>Users</span>
+      </button>
+      <button
+        onClick={() => setActiveSection("settings")}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+          activeSection === "settings"
+            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            : "hover:bg-gray-100 dark:hover:bg-gray-800"
+        }`}
+      >
+        <Settings size={20} />
+        <span>Settings</span>
+      </button>
+    </div>
+  );
+
+  return (
+    <DashboardContainer
+      isSidebarOpen={isSidebarOpen}
+      sidebar={
+        <Sidebar
+          isOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          icon={<Settings size={20} />}
+          headerDisplaysTabs={false}
+          sections={[
+            {
+              title: "Admin Navigation",
+              content: sidebarContent,
+            },
+          ]}
+        />
+      }
+    >
+      {renderContent()}
     </DashboardContainer>
   );
 }

@@ -117,7 +117,6 @@ export const login: LoginFunction = async (
         isVerified: false,
       };
     }
-    console.log("userData", userData);
     // Create a session using the user's _id
     await createClientSession(userData._id, userData.isVerified, userData.role);
     // Get the Set-Cookie header from the response

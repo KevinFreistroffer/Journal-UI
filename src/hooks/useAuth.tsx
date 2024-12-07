@@ -22,7 +22,6 @@ const AuthState = createContext<AuthStateType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  console.log("AuthProvider() initializing");
   const router = useRouter();
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     initializeSession(handleSetUser, setFilteredEntries)
       .then((newUser: IUser | null) => {
-        console.log("FINALLY");
 
         if (!newUser) {
           router.push("/login");

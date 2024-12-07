@@ -103,6 +103,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogOverlay,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import Link from "next/link"; // Add this import at the top
 
@@ -140,28 +142,40 @@ const ResetConfirmationModal = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogOverlay className="dark:bg-white dark:bg-opacity-50" />
+      <DialogContent className="sm:max-w-[425px] w-[95vw] mx-auto bg-white dark:bg-black dark:border-gray-800 dark:text-white">
         <DialogHeader>
           <DialogTitle>Reset Everything?</DialogTitle>
-          <DialogDescription>
+        </DialogHeader>
+        <div className="mt-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             This will clear all your current content and delete any locally
             stored drafts. This action cannot be undone.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
-            }}
-          >
-            Reset
-          </Button>
+          </p>
         </div>
+        <DialogFooter>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                onConfirm();
+                onOpenChange(false);
+              }}
+              className="w-auto"
+            >
+              Reset
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

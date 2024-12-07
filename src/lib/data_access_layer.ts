@@ -47,12 +47,10 @@ export const verifyServerSession = cache(async (): Promise<boolean> => {
 });
 
 export const getUser = cache(async () => {
-  console.log("getUser()");
   try {
     const SESSION_TOKEN = "session_token";
     const cookieStore = cookies();
     const sessionToken = cookieStore.get(SESSION_TOKEN)?.value;
-    console.log("sessionToken", sessionToken);
     if (!sessionToken) {
       return null;
     }
@@ -61,7 +59,6 @@ export const getUser = cache(async () => {
     }
 
     const session = await verifyClientSession();
-    console.log("getUser session, to use session.userId", session);
     if (!session || !session.userId) {
       return null;
     }
@@ -70,12 +67,9 @@ export const getUser = cache(async () => {
       console.error("API_URL is not set");
       return null;
     }
-    console.log("fetching user from NodeJS.");
     const response = await fetch(`${Config.API_URL}/user/${session.userId}`, {
       headers: { Cookie: cookies().toString() },
     });
-
-    console.log("getUser response", response);
 
     if (!response.ok) {
       console.error("Failed to fetch user");
@@ -101,8 +95,6 @@ export const getUserById = cache(async (userId: string) => {
     const response = await fetch(`${Config.API_URL}/user/${userId}`, {
       headers: { Cookie: cookies().toString() },
     });
-
-    console.log("getUserById response", response);
 
     if (!response.ok) {
       console.error("Failed to fetch user");

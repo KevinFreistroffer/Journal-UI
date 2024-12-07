@@ -102,18 +102,22 @@ export default function Header() {
 
   useEffect(() => {
     if (!isLoading) {
-      setMenuItems(
-        user
-          ? [
-              { href: "/dashboard", label: "Dashboard" },
-              { href: "/journals", label: "Journals" },
-              { href: "/categories", label: "Categories" },
-            ]
-          : [
-              { href: "/login", label: "Login" },
-              { href: "/signup", label: "Sign Up" },
-            ]
-      );
+      const baseMenuItems = user
+        ? [
+            { href: "/dashboard", label: "Dashboard" },
+            { href: "/journals", label: "Journals" },
+            { href: "/categories", label: "Categories" },
+          ]
+        : [
+            { href: "/login", label: "Login" },
+            { href: "/signup", label: "Sign Up" },
+          ];
+
+      if (user?.role === "admin") {
+        baseMenuItems.push({ href: "/admin", label: "Admin" });
+      }
+
+      setMenuItems(baseMenuItems);
     }
   }, [user, isLoading]);
 
@@ -159,14 +163,19 @@ export default function Header() {
         return <MdCategory className="mr-2 w-4 h-4" />;
       case "/journal/write":
         return <Pencil2Icon className="mr-2 w-4 h-4" />;
+      case "/admin":
+        return <Settings className="mr-2 w-4 h-4" />;
       default:
         return null;
     }
   };
 
-  const isTabRoute = ["/dashboard", "/journals", "/categories"].includes(
-    pathname
-  );
+  const isTabRoute = [
+    "/dashboard",
+    "/journals",
+    "/categories",
+    "/admin",
+  ].includes(pathname);
 
   const handleLogout = async () => {
     try {
@@ -217,8 +226,7 @@ export default function Header() {
     (item) => !getVisibleMenuItems().includes(item)
   );
 
-  useEffect(() => {
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   return (
     <>
