@@ -18,6 +18,7 @@
   border-top-right-radius: 0.375rem; */
   /* border-top: none !important; */
   border-color: rgba(115, 115, 115, 0.116) !important;
+  /* background-color: var(--color-darker2); */
 }
 
 .select-content {
@@ -75,4 +76,31 @@
   border-left: 4px solid #ccc;
   padding-left: 1em;
   margin: 1em 0;
+}
+
+/* Add these styles to your existing Quill styles */
+.dark .ql-toolbar.ql-snow {
+  border-color: rgb(75, 85, 99); /* matches dark:border-gray-600 */
+}
+
+.dark .ql-toolbar.ql-snow .ql-picker-label {
+  color: white;
+}
+
+.dark .ql-toolbar.ql-snow .ql-stroke {
+  stroke: white;
+}
+
+.dark .ql-toolbar.ql-snow .ql-fill {
+  fill: white;
+}
+
+.dark .ql-toolbar.ql-snow button:hover .ql-stroke,
+.dark .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke {
+  stroke: rgb(59, 130, 246); /* matches dark:hover:border-blue-500 */
+}
+
+.dark .ql-toolbar.ql-snow button:hover .ql-fill,
+.dark .ql-toolbar.ql-snow .ql-picker-label:hover .ql-fill {
+  fill: rgb(59, 130, 246);
 }

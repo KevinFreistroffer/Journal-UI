@@ -92,19 +92,21 @@ export async function middleware(request: NextRequest) {
   //   );
   // }
 
-  // Commented this out 10/2 to add it to the public routes
-  // if (
-  //   isPublicRoute &&
-  //   clientSession?.userId &&
-  //   clientSession?.isVerified &&
-  //   serverSessionCookie &&
-  //   !request.nextUrl.pathname.startsWith("/journal/write")
-  // ) {
-  //   console.log("Redirecting to /journal/write");
-  //   return NextResponse.redirect(new URL("/journal/write", request.url));
-  // }
+  // If the current route is a public route and the user is logged in with a verified session,
+  // and there is a valid server session cookie, redirect them to the "/journal/write" page.
+  // This redirection occurs unless the current path already starts with "/journal/write".
+  if (
+    isPublicRoute &&
+    clientSession?.userId &&
+    clientSession?.isVerified &&
+    serverSessionCookie &&
+    !request.nextUrl.pathname.startsWith("/journal/write")
+  ) {
+    console.log("Redirecting to /journal/write");
+    return NextResponse.redirect(new URL("/journal/write", request.url));
+  }
 
-  // return NextResponse.next();
+  return NextResponse.next();
 }
 
 export const config = {
@@ -118,6 +120,7 @@ export const config = {
     "/journal/write",
     "/journals/:path",
     "/categories/:path*",
+    "/settings/:path*",
   ],
   // matcher: "/dashboard/:path*",
 };

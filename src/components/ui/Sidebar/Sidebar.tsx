@@ -15,6 +15,7 @@ interface IProps {
   setIsSidebarOpen: (isOpen: boolean) => void;
   headerDisplaysTabs?: boolean;
   width?: "default" | "wide";
+  theme: "light" | "dark";
 }
 
 export const Sidebar: React.FC<IProps> = ({
@@ -25,6 +26,7 @@ export const Sidebar: React.FC<IProps> = ({
   setIsSidebarOpen,
   headerDisplaysTabs = true,
   width = "default",
+  theme,
 }) => {
   const [isSmallViewport, setIsSmallViewport] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +63,9 @@ export const Sidebar: React.FC<IProps> = ({
       <div
         className={`fixed ${
           headerDisplaysTabs ? "mt-[97px]" : "mt-[57px]"
-        } top-0 left-0 h-full bg-gray-100 p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 dark:bg-black dark:border-r-1 ${
+        } top-0 left-0 h-full bg-gray-100 dark:bg-[var(--color-darker2)] p-4 overflow-y-auto transition-[width] duration-300 ease-in-out z-30 ${
+          theme === "light" ? "border-r border-gray-300" : ""
+        } ${
           isOpen || isAlwaysOpen ? (width === "wide" ? "w-96" : "w-56") : "w-16"
         }`}
       >

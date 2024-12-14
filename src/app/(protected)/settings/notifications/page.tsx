@@ -13,7 +13,7 @@ export default function NotificationsSettings() {
     <div className="container max-w-2xl py-8">
       <h1 className="text-2xl font-bold mb-6">Notification Settings</h1>
 
-      <Card className="p-6 space-y-6">
+      <Card className="p-6 space-y-6 bg-white dark:bg-[var(--color-darker4)]">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium">Email Notifications</h3>

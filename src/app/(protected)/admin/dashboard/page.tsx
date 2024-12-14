@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { IUser } from "@/lib/interfaces";
 import { Users, Settings } from "lucide-react"; // Import icons
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
+import { useTheme } from "next-themes"; // Import the useTheme hook
+import ProtectedPageWrapper from "@/components/ui/PageWrappers/ProtectedPageWrapper";
 
 type Sex = "male" | "female" | "non-binary" | undefined;
 
@@ -29,6 +31,7 @@ function AdminDashboard() {
     "users"
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { theme } = useTheme(); // Use the useTheme hook to get the theme
 
   useEffect(() => {
     if (user) {
@@ -109,31 +112,31 @@ function AdminDashboard() {
         <h1 className="text-3xl font-bold mb-6">Users</h1>
         <div className="overflow-x-auto">
           <div className="max-h-96 overflow-y-auto">
-            <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
-              <thead className="bg-gray-100">
+            <table className="min-w-full bg-white dark:bg-transparent shadow-md rounded-lg border border-gray-200 dark:border-gray-700 border-gray-300">
+              <thead className="bg-transparent">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Username
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Verified
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Location
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-r border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Created
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700 dark:text-gray-300">
                     Actions
                   </th>
                 </tr>
@@ -330,6 +333,7 @@ function AdminDashboard() {
   );
 
   return (
+    // <ProtectedPageWrapper>
     <DashboardContainer
       isSidebarOpen={isSidebarOpen}
       sidebar={
@@ -344,11 +348,13 @@ function AdminDashboard() {
               content: sidebarContent,
             },
           ]}
+          theme={!theme ? "light" : (theme as "light" | "dark")} // Add the theme prop here
         />
       }
     >
       {renderContent()}
     </DashboardContainer>
+    // </ProtectedPageWrapper>
   );
 }
 

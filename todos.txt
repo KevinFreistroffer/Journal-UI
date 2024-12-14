@@ -10,6 +10,8 @@ use the data transfer layer. use canShowUsername or isAuthenticated or something
 
 save new categories in the DB.
 
+unify all styles, such as button hover where it goes from color > darker color, or vice versa.
+
 dashboardcontainer should set the same styles across all pages
 
 add a save summary button / feature.

@@ -13,12 +13,27 @@ export async function PUT(req: Request) {
     const body: {
       userId: string;
       journalId: string;
-      favorite: boolean;
+      favorite?: boolean;
+      categories?: string[];
     } = await req.json();
-    const { userId, journalId, favorite } = body;
+    const { userId, journalId, favorite, categories } = body;
 
     const cookieStore = await cookies();
     const cookie = cookieStore.get("session_token")?.value;
+
+    const requestBody: any = {
+      userId,
+      journalId,
+    };
+
+    if (favorite !== undefined && favorite !== null) {
+      requestBody.favorite = favorite;
+    }
+
+    if (categories !== undefined && categories !== null) {
+      requestBody.categories = categories;
+    }
+
     const response = await fetch(`${Config.API_URL}/user/journal/edit`, {
       method: "POST",
       headers: {
@@ -26,11 +41,7 @@ export async function PUT(req: Request) {
         Accept: "application/json",
         Cookie: `session_token=${cookie || ""}`,
       },
-      body: JSON.stringify({
-        userId,
-        journalId,
-        favorite: favorite,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {

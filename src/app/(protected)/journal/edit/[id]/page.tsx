@@ -76,6 +76,9 @@ import Quill from "quill";
 import MagicUrl from "quill-magic-url";
 import "../../write/styles.css";
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
+import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
+import { useTheme } from "next-themes"; // Import the useTheme hook
+
 Quill.register("modules/magicUrl", MagicUrl);
 
 // Dynamically import ReactQuill to avoid SSR issues
@@ -192,6 +195,8 @@ function WritePage({ params }: { params?: { id: string } }) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const [isWordStatsModalOpen, setIsWordStatsModalOpen] = useState(false);
+
+  const { theme } = useTheme(); // Use the useTheme hook to get the theme
 
   useEffect(() => {
     if (quill) {
@@ -395,7 +400,6 @@ function WritePage({ params }: { params?: { id: string } }) {
         setJournal(
           quill.root.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"')
         );
-
       });
     }
   }, [quill, quillRef]);
@@ -590,6 +594,7 @@ function WritePage({ params }: { params?: { id: string } }) {
             setIsSidebarOpen={setIsSidebarOpen}
             icon={<ChartNoAxesColumnIncreasing size={20} />}
             headerDisplaysTabs={false}
+            theme={theme as "dark" | "light"} // Add the theme prop here
             sections={[
               {
                 title: "Word Stats",

@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 interface ViewToggleProps {
   isFullscreen: boolean;
   contentWidth: "default" | "full";
-  onToggle: (value: string) => void;
-  showDefaultWidth?: boolean;
-  showFullWidth?: boolean;
+  showDefaultWidth: boolean;
+  showFullWidth: boolean;
+  onToggle: (value: "default" | "full" | "fullscreen") => void;
 }
 
 export function ViewToggle({
@@ -21,7 +21,10 @@ export function ViewToggle({
   const value = isFullscreen ? "fullscreen" : contentWidth || "default";
 
   const handleValueChange = (newValue: string) => {
-    onToggle(newValue || value);
+    console.log("newValue", newValue, typeof newValue);
+    const valueToUse = (!newValue && isFullscreen) ? "fullscreen" : newValue;
+    if (!valueToUse) return;
+    onToggle(valueToUse as "default" | "full" | "fullscreen");
   };
 
   return (
@@ -32,66 +35,64 @@ export function ViewToggle({
         onValueChange={handleValueChange}
         className={cn(
           "flex items-center bg-gray-100 p-1 dark:bg-transparent",
-          showDefaultWidth && showFullWidth && !isFullscreen ? "rounded-md" : "rounded-lg"
+          showDefaultWidth && showFullWidth && !isFullscreen
+            ? "rounded-md"
+            : "rounded-lg"
         )}
       >
-        {!isFullscreen && (
-          <>
-            {showDefaultWidth && (
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <ToggleGroup.Item
-                    value="default"
-                    aria-label="Default Width"
-                    className={cn(
-                      "p-1.5 rounded-md transition-colors cursor-pointer",
-                      !isFullscreen && contentWidth === "default"
-                        ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
-                        : "hover:bg-gray-200 dark:hover:bg-transparent"
-                    )}
-                  >
-                    <MonitorIcon className="w-4 h-4" />
-                  </ToggleGroup.Item>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content
-                    className="rounded-md bg-gray-900 px-2 py-1 text-xs text-white"
-                    sideOffset={5}
-                  >
-                    Default Width
-                    <Tooltip.Arrow className="fill-gray-900" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            )}
-            {showFullWidth && (
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <ToggleGroup.Item
-                    value="full"
-                    aria-label="Full Width"
-                    className={cn(
-                      "p-1.5 rounded-md transition-colors cursor-pointer",
-                      !isFullscreen && contentWidth === "full"
-                        ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
-                        : "hover:bg-gray-200 dark:hover:bg-transparent"
-                    )}
-                  >
-                    <MaximizeIcon className="w-4 h-4" />
-                  </ToggleGroup.Item>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content
-                    className="rounded-md bg-gray-900 px-2 py-1 text-xs text-white"
-                    sideOffset={5}
-                  >
-                    Full Width
-                    <Tooltip.Arrow className="fill-gray-900" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            )}
-          </>
+        {showDefaultWidth && (
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>
+              <ToggleGroup.Item
+                value="default"
+                aria-label="Default Width"
+                className={cn(
+                  "p-1.5 rounded-md transition-colors cursor-pointer",
+                  contentWidth === "default"
+                    ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+                    : "hover:bg-gray-200 dark:hover:bg-transparent"
+                )}
+              >
+                <MonitorIcon className="w-4 h-4" />
+              </ToggleGroup.Item>
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Content
+                className="rounded-md bg-gray-900 px-2 py-1 text-xs text-white"
+                sideOffset={5}
+              >
+                Default Width
+                <Tooltip.Arrow className="fill-gray-900" />
+              </Tooltip.Content>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        )}
+        {showFullWidth && (
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>
+              <ToggleGroup.Item
+                value="full"
+                aria-label="Full Width"
+                className={cn(
+                  "p-1.5 rounded-md transition-colors cursor-pointer",
+                  contentWidth === "full"
+                    ? "bg-white shadow-sm dark:bg-transparent dark:hover:bg-transparent"
+                    : "hover:bg-gray-200 dark:hover:bg-transparent"
+                )}
+              >
+                <MaximizeIcon className="w-4 h-4" />
+              </ToggleGroup.Item>
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Content
+                className="rounded-md bg-gray-900 px-2 py-1 text-xs text-white"
+                sideOffset={5}
+              >
+                Full Width
+                <Tooltip.Arrow className="fill-gray-900" />
+              </Tooltip.Content>
+            </Tooltip.Portal>
+          </Tooltip.Root>
         )}
         <Tooltip.Root>
           <Tooltip.Trigger asChild>

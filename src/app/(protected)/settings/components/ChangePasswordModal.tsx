@@ -60,11 +60,11 @@ const ChangePasswordModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogOverlay className="dark:bg-neutral-900/50" />
-      <DialogContent className="bg-white dark:bg-neutral-900">
+      <DialogContent className="bg-white dark:bg-[var(--color-darker4)]">
         <DialogHeader>
           <DialogTitle className="text-lg">Change Password</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="currentPassword" className="text-xs">
               Current Password
@@ -72,7 +72,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="currentPassword"
-              className="dark:bg-neutral-900 dark:text-white text-xs"
+              className=""
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
@@ -85,7 +85,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="newPassword"
-              className="dark:bg-neutral-900 dark:text-white text-xs"
+              className=""
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
@@ -98,7 +98,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="confirmPassword"
-              className="dark:bg-neutral-900 dark:text-white text-xs"
+              className=""
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -111,15 +111,11 @@ const ChangePasswordModal = ({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              className="text-xs dark:bg-neutral-900 dark:hover:bg-neutral-800"
+              className="text-xs"
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="text-xs dark:bg-neutral-800 dark:hover:bg-neutral-700"
-            >
+            <Button type="submit" disabled={isLoading} className="text-xs">
               {isLoading ? "Changing Password..." : "Change Password"}
             </Button>
           </DialogFooter>

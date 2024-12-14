@@ -47,6 +47,8 @@ import { Button } from "@/components/ui/Button"; // Add this import if not alrea
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { MdCategory } from "react-icons/md";
 import Avatar from "../Avatar/Avatar";
+import { Badge } from "@/components/ui/badge";
+
 export interface IMenuItem {
   href: string;
   label: string;
@@ -114,7 +116,7 @@ export default function Header() {
           ];
 
       if (user?.role === "admin") {
-        baseMenuItems.push({ href: "/admin", label: "Admin" });
+        baseMenuItems.push({ href: "/admin/dashboard", label: "Admin" });
       }
 
       setMenuItems(baseMenuItems);
@@ -174,7 +176,8 @@ export default function Header() {
     "/dashboard",
     "/journals",
     "/categories",
-    "/admin",
+    "/admin/dashboard",
+    "/settings",
   ].includes(pathname);
 
   const handleLogout = async () => {
@@ -232,7 +235,13 @@ export default function Header() {
     <>
       <header
         id={styles["header"]}
-        className={`sticky px-3 sm:px-4 top-0 z-50 w-full border-b bg-gray-100 flex flex-col dark:bg-black`}
+        className={`${
+          isHomePage ? "" : "sticky"
+        } px-3 sm:px-4 top-0 z-50 w-full flex flex-col ${
+          isHomePage
+            ? "bg-gray-100 dark:bg-[var(--color-darker2)]"
+            : "bg-gray-100 dark:bg-[var(--color-darker2)]"
+        } ${isScrolled ? "border-b shadow-md" : ""}`}
       >
         <div
           className={`flex items-center justify-between  w-full ${
@@ -254,7 +263,7 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent
                   side="left"
-                  className="w-[300px] bg-white dark:bg-black"
+                  className="w-[300px] bg-white dark:bg-[var(--color-darker2)] border-r border-gray-300 dark:border-gray-700"
                 >
                   <SheetHeader className="flex flex-row justify-between items-center space-y-0">
                     <SheetTitle>SumStory</SheetTitle>{" "}
@@ -279,7 +288,7 @@ export default function Header() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-white dark:hover:bg-gray-800"
+                          className="flex items-center px-2 py-2 text-sm text-gray-700 dark:hover:bg-[var(--color-darker4)] rounded-md dark:text-white dark:hover:bg-gray-800"
                           onClick={() => setIsSidebarOpen(false)}
                         >
                           {getIcon(item.href)}
@@ -287,16 +296,16 @@ export default function Header() {
                           {item.href === "/journals" &&
                             user &&
                             user.journals && (
-                              <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
+                              <Badge variant="default" className="ml-2">
                                 {user.journals.length}
-                              </span>
+                              </Badge>
                             )}
                           {item.href === "/categories" &&
                             user &&
                             user.journalCategories && (
-                              <span className="ml-1 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 min-w-[20px] dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
+                              <Badge variant="default" className="ml-2">
                                 {user.journalCategories.length}
-                              </span>
+                              </Badge>
                             )}
                         </Link>
                       ))
@@ -431,16 +440,16 @@ export default function Header() {
                     {getIcon(item.href)}
                     <span className="dark:text-white">{item.label}</span>
                     {item.label === "Journals" && user && user.journals && (
-                      <span className="ml-2 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
+                      <Badge variant="secondary" className="ml-2">
                         {user.journals.length}
-                      </span>
+                      </Badge>
                     )}
                     {item.label === "Categories" &&
                       user &&
                       user.journalCategories && (
-                        <span className="ml-2 px-1.5 text-xs bg-gray-200 text-gray-700 rounded-full inline-flex items-center justify-center h-5 dark:bg-transparent dark:border dark:border-gray-700 dark:text-gray-300">
+                        <Badge variant="secondary" className="ml-2">
                           {user.journalCategories.length}
-                        </span>
+                        </Badge>
                       )}
                   </TabsTrigger>
                 ))}

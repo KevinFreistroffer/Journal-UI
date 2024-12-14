@@ -40,69 +40,76 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-start justify-center bg-gray-100 dark:bg-transparent pt-32">
-      <div className="bg-white dark:bg-transparent p-8 rounded-lg shadow-md w-96 dark:border dark:border-gray-700">
+      <div className="bg-white dark:bg-[var(--color-darker4)] p-8 rounded-lg shadow-md w-96 border border-gray-400 dark:border-[var(--color-darker2)]">
         <h1 className="text-2xl font-bold mb-6 text-center dark:text-white">
           Sign Up
         </h1>
-        <form action={formAction} className="space-y-4">
-          <div>
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              name="username"
-              type="text"
-              required
-              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
-            />
-            {state.errors?.username && (
-              <p className="text-sm text-red-500">{state.errors.username[0]}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
-            />
-            {state.errors?.email && (
-              <p className="text-sm text-red-500">{state.errors.email[0]}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
-            />
-            {state.errors?.password && (
-              <p className="text-sm text-red-500">{state.errors.password[0]}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
-            />
-            {state.errors?.confirmPassword && (
-              <p className="text-sm text-red-500">
-                {state.errors.confirmPassword[0]}
-              </p>
-            )}
+        <form action={formAction}>
+          <div className="space-y-4 mb-8">
+            {" "}
+            <div>
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                required
+                className="dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
+              />
+              {state.errors?.username && (
+                <p className="text-sm text-red-500">
+                  {state.errors.username[0]}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
+              />
+              {state.errors?.email && (
+                <p className="text-sm text-red-500">{state.errors.email[0]}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="bg-white dark:bg-[var(--color-darker4)] dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
+              />
+              {state.errors?.password && (
+                <p className="text-sm text-red-500">
+                  {state.errors.password[0]}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                className="bg-white dark:bg-[var(--color-darker4)] dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
+              />
+              {state.errors?.confirmPassword && (
+                <p className="text-sm text-red-500">
+                  {state.errors.confirmPassword[0]}
+                </p>
+              )}
+            </div>
           </div>
 
           <FormButton
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+            className="w-full bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 box-border"
           >
             Sign Up
           </FormButton>

@@ -1,4 +1,12 @@
 import { Checkbox } from "@/components/ui/Checkbox";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { CategoryDropdown } from "@/components/ui/CategoryDropdown";
 
 interface SidebarContentProps {
   showFavoritesOnly: boolean;
@@ -13,6 +21,9 @@ interface SidebarContentProps {
   setShowUpdatedDate: (value: boolean) => void;
   journalCount?: number;
   favoritedJournalCount?: number;
+  selectedCategory: string;
+  setSelectedCategory: (value: string) => void;
+  categories: any[];
 }
 
 export default function SidebarContent({
@@ -28,6 +39,9 @@ export default function SidebarContent({
   setShowUpdatedDate,
   journalCount,
   favoritedJournalCount,
+  selectedCategory,
+  setSelectedCategory,
+  categories,
 }: SidebarContentProps) {
   return [
     {
@@ -48,20 +62,96 @@ export default function SidebarContent({
               htmlFor="show-favorites"
               className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Show Favorites Only
+              Favorites Only
             </label>
           </div>
           <div className="flex flex-col space-y-2">
             <label htmlFor="date-filter" className="text-xs font-medium">
-              Filter by Created Date
+              Created Date
             </label>
             <input
               id="date-filter"
               type="date"
               value={selectedFilterDate}
               onChange={(e) => setSelectedFilterDate(e.target.value)}
-              className="border rounded p-1 text-xs"
+              className="border border-gray-300 dark:border-gray-600 rounded p-1 px-2 text-xs bg-transparent"
             />
+          </div>
+          <div className="flex flex-col space-y-2">
+            <CategoryDropdown
+              categories={categories}
+              selectedCategories={
+                user?.journals
+                  .map((journal) => journal.categories.map((c) => c.category))
+                  .flat() || []
+              }
+              trigger={<label className="text-xs font-medium">Category</label>}
+              onCategoriesChange={(selected: string[]) => {
+                setSelectedCategory(selected[0] || "");
+              }}
+              onCreateCategory={(categoryName: string) => {
+                setShowCreateCategoryModal(true);
+                setNewCategoryName(categoryName);
+              }}
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Sort By",
+      content: (
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-start">
+            <Checkbox
+              id="sort-last-updated"
+              checked={showUpdatedDate}
+              onCheckedChange={(checked) =>
+                setShowUpdatedDate(checked as boolean)
+              }
+              className="bg-white border-gray-300 mr-2"
+              size={4}
+            />{" "}
+            <label
+              htmlFor="sort-last-updated"
+              className="text-xs font-medium leading-none"
+            >
+              Last Updated
+            </label>
+          </div>
+          <div className="flex items-center justify-start">
+            <Checkbox
+              id="sort-name"
+              checked={showUpdatedDate}
+              onCheckedChange={(checked) =>
+                setShowUpdatedDate(checked as boolean)
+              }
+              className="bg-white border-gray-300 mr-2"
+              size={4}
+            />{" "}
+            <label
+              htmlFor="sort-name"
+              className="text-xs font-medium leading-none"
+            >
+              Name
+            </label>
+          </div>
+          <div className="flex items-center justify-start">
+            <Checkbox
+              id="sort-favorited"
+              checked={showUpdatedDate}
+              onCheckedChange={(checked) =>
+                setShowUpdatedDate(checked as boolean)
+              }
+              className="bg-white border-gray-300 mr-2"
+              size={4}
+            />{" "}
+            <label
+              htmlFor="sort-favorited"
+              className="text-xs font-medium leading-none"
+            >
+              Favorited
+            </label>
           </div>
         </div>
       ),

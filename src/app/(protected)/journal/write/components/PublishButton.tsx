@@ -14,21 +14,22 @@ export default function PublishButton({
   const { pending } = useFormStatus();
   const { theme } = useTheme();
 
-  const bgColor = theme === 'dark'
-    ? disabled
-      ? 'bg-blue-900 hover:bg-blue-900'
-      : 'bg-blue-800 hover:bg-blue-700'
-    : disabled
-      ? 'bg-blue-300 hover:bg-blue-300'
-      : 'bg-blue-600 hover:bg-blue-700';
+  const bgColor =
+    theme === "dark"
+      ? disabled
+        ? "bg-[var(--button-bg-primary)] hover:bg-[var(--button-bg-primary)]/90"
+        : "bg-[var(--button-bg-primary)] hover:bg-[var(--button-bg-primary)]/90"
+      : disabled
+      ? "bg-blue-300 hover:bg-blue-300"
+      : "bg-blue-600 hover:bg-blue-700";
 
   return (
     <Button
       type="button"
       disabled={disabled || pending}
       onClick={onPublish}
-      className={`text-white w-auto md:w-auto py-1 px-4 text-sm flex items-center justify-center ${bgColor} ${
-        disabled ? 'cursor-not-allowed' : ''
+      className={`text-white w-auto md:w-auto text-sm flex items-center justify-center ${bgColor} ${
+        disabled ? "cursor-not-allowed" : ""
       }`}
     >
       <span className="mr-2">Publish</span>

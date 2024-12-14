@@ -459,6 +459,7 @@ function UserDashboard() {
                 content: sidebarContent,
               },
             ]}
+            theme={theme as "dark" | "light"}
           />
         )
       }
@@ -548,7 +549,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50 dark:bg-blue-950/30">
+                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50 dark:bg-[var(--color-darker4)] hover:shadow-custom-light dark:hover:shadow-custom-dark transition-shadow duration-200 border border-gray-300 dark:border-none">
                         <div className="flex justify-between items-center mb-6">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold ">
                             Category Breakdown
@@ -560,7 +561,7 @@ function UserDashboard() {
                             Manage
                           </Link>
                         </div>
-                        <div className="w-full h-full overflow-hidden">
+                        <div className="w-full h-full overflow-hidden dark:bg-transparent">
                           {data.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                               <p className="text-center text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm dark:text-gray-200">
@@ -568,7 +569,7 @@ function UserDashboard() {
                               </p>
                             </div>
                           ) : isMobileView ? (
-                            <div className="space-y-2 max-h-72 overflow-y-auto">
+                            <div className="space-y-2 max-h-72 overflow-y-auto dark:bg-transparent border border-[var(--color-darker4)]">
                               {data.map((item) => (
                                 <div
                                   key={item.id}
@@ -614,13 +615,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-green-50 dark:bg-green-950/30">
+                      <Card className="h-full p-4 bg-green-50 dark:bg-[var(--color-darker4)] hover:shadow-custom-light dark:hover:shadow-custom-dark transition-shadow duration-200 border border-gray-300 dark:border-none">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                           Recent Activity
                         </h2>
                         {recentEntries.length > 0 ? (
-                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 bg-white dark:bg-black dark:shadow-none">
-                            <ul className="max-h-72 overflow-y-auto p-4">
+                          <div className="border border-[var(--color-darker4)] rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden dark:border-gray-900 bg-white dark:bg-transparent dark:shadow-none">
+                            <ul className="max-h-72 overflow-y-auto p-4 border border-gray-300 dark:border-gray-700">
                               {recentEntries.map((journal, index) => (
                                 <li
                                   key={index}
@@ -662,7 +663,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-purple-50 dark:bg-purple-950/30">
+                      <Card className="h-full p-4 bg-purple-50 dark:bg-[var(--color-darker4)] hover:shadow-custom-light dark:hover:shadow-custom-dark transition-shadow duration-200 border border-gray-300 dark:border-none">
                         <div className="flex justify-between items-start mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
                             Reminders
@@ -675,7 +676,7 @@ function UserDashboard() {
                           </Link>
                         </div>
                         {upcomingEntries.length > 0 ? (
-                          <ul className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 dark:shadow-none">
+                          <ul className="border border-[var(--color-darker4)] rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden p-4 dark:shadow-none dark:bg-transparent">
                             {upcomingEntries.map((reminder, index) => (
                               <li key={reminder._id} className="border-b py-2">
                                 <span className="text-xs sm:text-sm md:text-xs lg:text-sm font-bold">
@@ -725,7 +726,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-yellow-50 dark:bg-yellow-950/30">
+                      <Card className="h-full p-4 bg-yellow-50 dark:bg-[var(--color-darker4)] hover:shadow-custom-light dark:hover:shadow-custom-dark transition-shadow duration-200 border border-gray-300 dark:border-none">
                         {" "}
                         {/* Added min-h-96 */}
                         <div className="flex justify-between items-center mb-4">
@@ -740,7 +741,7 @@ function UserDashboard() {
                           </Link>
                         </div>
                         {favoriteEntries.length > 0 ? (
-                          <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
+                          <div className="border border-[var(--color-darker4)] rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-transparent dark:shadow-none">
                             <ul className="max-h-72 overflow-y-auto p-4 space-y-2">
                               {favoriteEntries.map((journal, index) => (
                                 <li
@@ -793,7 +794,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-red-50 dark:bg-red-950/30">
+                      <Card className="h-full p-4 bg-red-50 dark:bg-[var(--color-darker4)] hover:shadow-custom-light dark:hover:shadow-custom-dark transition-shadow duration-200 border border-gray-300 dark:border-none">
                         <div className="flex justify-between items-center mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                             Keyword Frequency
@@ -846,8 +847,8 @@ function UserDashboard() {
                               </Select>
                             </div>
                             {keywordFrequency.length > 0 ? (
-                              <div className="border border-gray-200 rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-black dark:shadow-none">
-                                <ul className="max-h-60 overflow-y-auto p-4">
+                              <div className="border border-[var(--color-darker4)] rounded-md shadow-[inset_0_0_4px_#fbfbfb] overflow-hidden bg-white dark:border-gray-900 dark:bg-transparent dark:shadow-none">
+                                <ul className="max-h-60 overflow-y-auto p-4 border border-gray-300 dark:border-gray-700">
                                   {keywordFrequency.map(
                                     ({ normal, count }, index) => (
                                       <li
@@ -888,7 +889,7 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-orange-50 dark:bg-orange-950/30">
+                      <Card className="h-full p-4 bg-orange-50 dark:bg-[var(--color-darker4)] hover:shadow-custom-light dark:hover:shadow-custom-dark transition-shadow duration-200 border border-gray-300 dark:border-none">
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                           Journal Time Distribution
                         </h2>
@@ -966,7 +967,7 @@ function PlaceholderCard({ cardLayout }: { cardLayout: CardLayout }) {
           : "md:w-full lg:w-1/2 xl:w-1/3"
       }`}
     >
-      <Card className="h-full p-4 bg-gray-50 dark:bg-gray-950/30 border border-gray-200 dark:border-gray-800 shadow-md">
+      <Card className="h-full p-4 bg-gray-50 dark:bg-[var(--color-darker4)] border border-gray-200 dark:border-gray-800 shadow-md">
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">
           <div className="animate-pulse bg-gray-300 h-full w-full rounded"></div>

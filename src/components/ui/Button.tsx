@@ -8,21 +8,21 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium cursor-pointer",
+  "inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-all duration-150",
   {
     variants: {
       variant: {
         default: [
-          "dark:bg-primary-dark dark:text-primary-dark-foreground dark:hover:bg-primary-dark/90",
-          "bg-primary-light text-primary-light-foreground hover:bg-primary-light/90",
+          "dark:bg-[var(--button-bg-primary)] dark:text-primary-dark-foreground dark:hover:bg-[var(--button-bg-primary-hover)]",
+          "bg-black text-white hover:bg-black/90",
         ].join(" "),
         destructive: [
-          "dark:bg-destructive-dark dark:text-destructive-dark-foreground dark:hover:bg-destructive-dark/90",
-          "bg-destructive-light text-destructive-light-foreground hover:bg-destructive-light/90",
+          "dark:bg-red-600 dark:text-white dark:hover:bg-red-700",
+          "bg-red-500 text-white hover:bg-red-600",
         ].join(" "),
         outline: [
-          "dark:border-input-dark dark:bg-background-dark dark:hover:bg-accent-dark dark:hover:text-accent-dark-foreground",
-          "border border-input-light bg-background-light hover:bg-accent-light hover:text-accent-light-foreground",
+          "dark:border-[var(--color-darker4)] bg-transparent dark:hover:bg-accent-dark dark:hover:text-accent-dark-foreground",
+          "border border-grey-500 hover:bg-accent-light hover:text-accent-light-foreground",
         ].join(" "),
         secondary: [
           "dark:bg-secondary-dark dark:text-secondary-dark-foreground dark:hover:bg-secondary-dark/80",
@@ -42,7 +42,7 @@ const buttonVariants = cva(
         ].join(" "),
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-10 px-4 py-0",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",

@@ -26,6 +26,7 @@ import { ViewToggle } from "@/components/ui/ViewToggle/ViewToggle";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
+import { Badge } from "@/components/ui/badge";
 
 export default function JournalPage() {
   const router = useRouter();
@@ -132,16 +133,19 @@ export default function JournalPage() {
   };
 
   return (
-    <DashboardContainer isSidebarOpen={false}>
+    <DashboardContainer
+      isSidebarOpen={false}
+      className="bg-background dark:bg-[var(--color-darker1)]"
+    >
       <div
         className={cn(
           "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
-          isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : ""
+          isFullscreen ? "fixed inset-0 z-50 " : ""
         )}
       >
         <div
           className={cn(
-            "flex justify-end p-4 sticky top-0 z-10 bg-white dark:bg-black",
+            "flex justify-end p-4 sticky top-0 z-10",
             !isFullscreen ? "pt-0 pr-0" : ""
           )}
         >
@@ -185,15 +189,17 @@ export default function JournalPage() {
             )}
           >
             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-              <DialogContent>
+              <DialogContent className="bg-white dark:bg-[#1a1a1a] dark:border-gray-800">
                 <DialogHeader>
-                  <DialogTitle>Journal Settings</DialogTitle>
+                  <DialogTitle className="dark:text-gray-200">
+                    Journal Settings
+                  </DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor="show-category"
-                      className="text-sm font-medium"
+                      className="text-sm font-medium dark:text-gray-300"
                     >
                       Show Category
                     </label>
@@ -202,12 +208,13 @@ export default function JournalPage() {
                       id="show-category"
                       checked={showCategory}
                       onChange={(e) => setShowCategory(e.target.checked)}
+                      className="dark:bg-gray-700 dark:border-gray-600"
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor="show-last-updated"
-                      className="text-sm font-medium"
+                      className="text-sm font-medium dark:text-gray-300"
                     >
                       Show Last Updated
                     </label>
@@ -216,6 +223,7 @@ export default function JournalPage() {
                       id="show-last-updated"
                       checked={showLastUpdated}
                       onChange={(e) => setShowLastUpdated(e.target.checked)}
+                      className="dark:bg-gray-700 dark:border-gray-600"
                     />
                   </div>
                 </div>
@@ -239,52 +247,61 @@ export default function JournalPage() {
             ) : (
               <Card
                 className={cn(
-                  "min-h-[500px] flex flex-col p-8 relative",
+                  "min-h-[500px] flex flex-col p-4 relative border-gray-300 dark:border-gray-800",
+                  "bg-white/75 backdrop-blur supports-[backdrop-filter]:bg-white/75 dark:bg-[var(--color-darker1)]",
+                  "shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-3px_rgba(0,0,0,0.1)]",
+                  "transition-all duration-200 p-0",
                   isFullscreen ? "h-[calc(100vh-8rem)]" : ""
                 )}
               >
-                <CardHeader className="text-center mb-6 relative">
-                  <CardTitle>{selectedJournal.title}</CardTitle>
-                  <div className="absolute right-0 top-0 flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsSettingsOpen(true)}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => router.push(`/journal/edit/${params.id}`)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                <CardHeader className="text-center px-5 py-4 relative bg-[var(--color-darker4)]  border-b border-b-[1px] border-gray-300 dark:border-gray-700">
+                  <div className="flex justify-between items-center gap-4">
+                    <CardTitle className="text-left">
+                      {selectedJournal.title}
+                    </CardTitle>
+                    <div className="flex gap-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsSettingsOpen(true)}
+                      >
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          router.push(`/journal/edit/${params.id}`)
+                        }
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex flex-col">
+                <CardContent className="flex-grow flex flex-col p-5 text-gray-900 dark:text-gray-300">
                   <div
                     className="mb-4 flex-grow"
                     dangerouslySetInnerHTML={{
                       __html: decodeHtmlEntities(selectedJournal.entry),
                     }}
                   />
-                  <div className="mt-auto">
+                  <div className="mt-auto flex flex-col gap-2">
                     {showCategory && (
-                      <p className="text-sm text-gray-300">
+                      <Badge variant="secondary" className="w-fit">
                         Category:{" "}
                         {selectedJournal.categories
                           .map((category) => category.category)
                           .join(", ")}
-                      </p>
+                      </Badge>
                     )}
                     {showLastUpdated && (
-                      <p className="text-sm text-gray-300">
+                      <Badge variant="secondary" className="w-fit">
                         Last updated:{" "}
                         {selectedJournal.updatedAt
                           ? new Date(selectedJournal.updatedAt).toLocaleString()
                           : "N/A"}
-                      </p>
+                      </Badge>
                     )}
                   </div>
                 </CardContent>

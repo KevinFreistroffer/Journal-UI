@@ -32,7 +32,7 @@ const SearchInput: React.FC<IProps> = ({
         value={query}
         onChange={(e) => handleSearch(e.target.value, userEntries)}
         placeholder={placeholder}
-        className={`border rounded p-2 pr-8 text-sm ${inputClassName}`}
+        className={`border rounded p-2 pr-8 text-sm focus-visible:outline-none focus-visible:border-blue-500 dark:focus-visible:border-gray-500 ${inputClassName}`}
       />
       <span
         onClick={handleClear}

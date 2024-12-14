@@ -4,7 +4,7 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-800 text-white px-4 py-16 z-50 relative">
+    <footer className="bg-gray-800 dark:bg-[var(--color-darker3)] text-white px-4 py-16 z-50 relative ">
       <div className="container mx-auto text-center">
         <p className="text-sm">
           &copy; {new Date().getFullYear()} Your Company Name. All rights

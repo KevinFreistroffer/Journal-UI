@@ -43,7 +43,7 @@ const DashboardContainer = ({
   return (
     <div
       id="dashboard-container"
-      className={`p-3 sm:p-4 md:p-6 lg:p-8 min-h-screen bg-background dark:bg-background`}
+      className={`p-3 sm:p-4 md:p-6 lg:p-8 min-h-screen bg-white dark:bg-[var(--color-darker1)]`}
     >
       {/* Sidebar - hidden on extra small screens */}
       {sidebar && !isExtraSmallScreen && (

@@ -87,6 +87,7 @@ export const createJournal: CreateJournalFunction = async (
     const data = await response.json();
     const userDataResult = UserSchema.safeParse(data.data);
 
+    console.log("userDataResult", userDataResult);
     if (!userDataResult.success) {
       console.error(
         "Invalid user data. Did the API have an update to the user schema?",
@@ -102,7 +103,9 @@ export const createJournal: CreateJournalFunction = async (
 
     const userData = userDataResult.data as unknown as IUser;
 
+    // TODO: not sure if this is needed.
     if (!userData.isVerified) {
+      throw new Error("User is not verified.");
       return {
         errors: {},
         user: userData,
@@ -144,7 +147,26 @@ export const createJournal: CreateJournalFunction = async (
     //     path: "/",
     //   }
     // );
-
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
+    console.log("userData", userData);
     return {
       errors: {},
       message: "Journal created successfully.",

@@ -35,12 +35,12 @@ export default function SettingsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <button
         onClick={() => onOpenChange(true)}
-        className="p-1.5 hover:bg-gray-100 rounded-md dark:hover:bg-transparent transition-colors duration-200  dark:text-gray-100 dark:hover:bg-transparent"
+        className="p-1.5 hover:bg-gray-100 rounded-md dark:hover:bg-transparent transition-colors duration-200 dark:text-gray-100 dark:hover:bg-transparent"
       >
         <Settings className="w-5 h-5 text-gray-500 dark:text-white dark:hover:bg-transparent cursor-pointer" />
       </button>
       <DialogOverlay className="bg-white/10 backdrop-blur-sm dark:bg-white/20" />
-      <DialogContent className="w-[85%] max-w-[400px] mx-auto rounded-lg bg-white sm:rounded-lg dark:bg-black dark:border-gray-800 ">
+      <DialogContent className="w-[85%] max-w-[400px] mx-auto rounded-lg bg-white sm:rounded-lg dark:bg-[var(--color-darker4)] dark:border-gray-800 ">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
@@ -97,7 +97,8 @@ export default function SettingsDialog({
                   className="max-w-[250px] dark:bg-gray-800 dark:border-gray-700"
                 >
                   <p className="dark:text-white">
-                    When enabled, your last saved journal content will be automatically restored when you return.
+                    When enabled, your last saved journal content will be
+                    automatically restored when you return.
                   </p>
                 </TooltipContent>
               </Tooltip>

@@ -182,7 +182,7 @@ const AvatarUpload = ({
               </div>
             )}
             {clickableAvatar && (
-              <div className="text-xs flex items-center gap-1 px-1 py-1 absolute bottom-[10%] left-0 bg-white dark:bg-gray-800 rounded-sm p-0 shadow-md dark:border dark:border-gray-700">
+              <div className="text-xs flex items-center gap-1 absolute bottom-[10%] left-0 bg-white dark:bg-gray-800 rounded-sm p-1 shadow-md border border-gray-300 dark:border-gray-700">
                 <Pencil1Icon
                   className={`${
                     size
@@ -192,7 +192,7 @@ const AvatarUpload = ({
                         )}px]`
                       : "h-3 w-3"
                   } text-gray-600 dark:text-gray-300`}
-                />{" "}
+                />
                 Edit
               </div>
             )}
@@ -200,15 +200,15 @@ const AvatarUpload = ({
         </DropdownMenu.Trigger>
         {clickableAvatar && (
           <DropdownMenu.Portal>
-            <DropdownMenu.Content className="relative top-[-7px] pt-[.125rem] bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 min-w-[150px] text-sm outline-none before:content-[''] before:absolute before:top-[-5px] before:left-[10px] before:w-[10px] before:h-[10px] before:rotate-45 before:border-l before:border-t before:border-gray-200 dark:before:border-gray-700 before:bg-white dark:before:bg-gray-800">
+            <DropdownMenu.Content className="relative top-[-7px] pt-[.125rem] bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-300 dark:border-gray-700 min-w-[150px] text-sm outline-none before:content-[''] before:absolute before:top-[-5px] before:left-[10px] before:w-[10px] before:h-[10px] before:rotate-45 before:border-l before:border-t before:border-gray-300 dark:before:border-gray-700 before:bg-white dark:before:bg-gray-800">
               <DropdownMenu.Item
-                className="text-xs px-4 pt-2 relative z-10 pb-1 outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded rounded-bl-none rounded-br-none text-gray-700"
+                className="text-xs px-4 py-2 relative z-10 pb-1 outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded rounded-bl-none rounded-br-none text-gray-700 border-b border-gray-300 dark:border-gray-700"
                 onSelect={handleUploadClick}
               >
                 Upload a photo
               </DropdownMenu.Item>
               <DropdownMenu.Item
-                className="text-xs px-4 pt-1 pb-2 outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded rounded-tl-none rounded-tr-none text-red-500 dark:text-red-400"
+                className="text-xs px-4 py-2 outline-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded rounded-tl-none rounded-tr-none text-red-500 dark:text-red-400"
                 onSelect={handleRemovePhoto}
               >
                 Remove photo

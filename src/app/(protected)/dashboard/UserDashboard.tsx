@@ -459,6 +459,7 @@ function UserDashboard() {
                 content: sidebarContent,
               },
             ]}
+            theme={theme as "dark" | "light"}
           />
         )
       }
@@ -548,7 +549,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-auto sm:min-h-[400px] sm:h-[400px] p-4 relative bg-blue-50 dark:bg-blue-950/30">
+                      <Card
+                        className={`h-auto sm:min-h-[400px] sm:h-[400px] ${
+                          theme === "dark"
+                            ? "dark:bg-[var(--color-darker4)]"
+                            : "bg-blue-50"
+                        } p-4 relative`}
+                      >
                         <div className="flex justify-between items-center mb-6">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold ">
                             Category Breakdown
@@ -614,7 +621,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-green-50 dark:bg-green-950/30">
+                      <Card
+                        className={`h-full p-4 ${
+                          theme === "dark"
+                            ? "dark:bg-[var(--color-darker4)]"
+                            : "bg-green-50"
+                        }`}
+                      >
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                           Recent Activity
                         </h2>
@@ -662,7 +675,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-purple-50 dark:bg-purple-950/30">
+                      <Card
+                        className={`h-full p-4 ${
+                          theme === "dark"
+                            ? "dark:bg-[var(--color-darker4)]"
+                            : "bg-purple-50"
+                        }`}
+                      >
                         <div className="flex justify-between items-start mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold w-1/2">
                             Reminders
@@ -725,7 +744,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-yellow-50 dark:bg-yellow-950/30">
+                      <Card
+                        className={`h-full p-4 ${
+                          theme === "dark"
+                            ? "dark:bg-[var(--color-darker4)]"
+                            : "bg-yellow-50"
+                        }`}
+                      >
                         {" "}
                         {/* Added min-h-96 */}
                         <div className="flex justify-between items-center mb-4">
@@ -793,7 +818,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-red-50 dark:bg-red-950/30">
+                      <Card
+                        className={`h-full p-4 ${
+                          theme === "dark"
+                            ? "dark:bg-[var(--color-darker4)]"
+                            : "bg-red-50"
+                        }`}
+                      >
                         <div className="flex justify-between items-center mb-4">
                           <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold">
                             Keyword Frequency
@@ -888,7 +919,13 @@ function UserDashboard() {
                           : "md:w-full lg:w-1/2 xl:w-1/3"
                       }`}
                     >
-                      <Card className="h-full p-4 bg-orange-50 dark:bg-orange-950/30">
+                      <Card
+                        className={`h-full p-4 ${
+                          theme === "dark"
+                            ? "dark:bg-[var(--color-darker4)]"
+                            : "bg-orange-50"
+                        }`}
+                      >
                         <h2 className="text-sm sm:text-base md:text-sm lg:text-[15px] font-semibold mb-4">
                           Journal Time Distribution
                         </h2>
@@ -966,7 +1003,9 @@ function PlaceholderCard({ cardLayout }: { cardLayout: CardLayout }) {
           : "md:w-full lg:w-1/2 xl:w-1/3"
       }`}
     >
-      <Card className="h-full p-4 bg-gray-50 dark:bg-gray-950/30 border border-gray-200 dark:border-gray-800 shadow-md">
+      <Card
+        className={`h-full p-4 bg-blue-50 dark:bg-[var(--color-darker4)] border border-gray-200 dark:border-gray-800 shadow-md`}
+      >
         <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         <div className="flex justify-center items-center w-full h-80">
           <div className="animate-pulse bg-gray-300 h-full w-full rounded"></div>

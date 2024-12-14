@@ -58,7 +58,7 @@ export default function Home() {
               "rounded-full border border-solid border-transparent transition-colors",
               "flex items-center justify-center bg-foreground text-background gap-2",
               "hover:bg-[#383838] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 text-white",
-              " dark:border-white/[.145] dark:hover:bg-[#1a1a1a] dark:hover:bg-[#ccc]"
+              "dark:bg-[var(--button-bg-primary)] dark:hover:bg-[var(--button-bg-primary)]/80 dark:border-white/[.145]"
             )}
           >
             Start Writing
@@ -66,10 +66,10 @@ export default function Home() {
           <Link
             href="/about"
             className={cn(
-              "rounded-full border border-solid border-black/[.08] sm:min-w-44 ",
+              "rounded-full  sm:min-w-44 ",
               "transition-colors flex items-center justify-center",
               "hover:bg-[#f2f2f2] hover:border-transparent px-4 sm:px-5",
-              "text-sm sm:text-base h-10 sm:h-12 dark:hover:bg-[#1a1a1a] dark:border-white/[.145]"
+              "text-sm sm:text-base h-10 sm:h-12 dark:bg-[var(--button-bg-secondary)] dark:hover:bg-[var(--button-bg-secondary)]/80 dark:border-white/[.145]"
             )}
           >
             Learn More

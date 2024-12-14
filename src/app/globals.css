@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ --color-base: #343a46;
+  --color-darker1: #272c35;
+  --color-darker4: #1b1e24;
+  --color-lighter: #424957;
+  --color-darker2: #131519;
+
+  rgb35 39 47 1
+  34 37  45 1
+**/
+
 :root {
   --darkBloodOrange: #fe3a3a;
   --bloodOrange: #fe503a;
@@ -21,6 +32,10 @@
   --screen-lg: 1024px;
   --screen-xl: 1280px;
   --screen-2xl: 1536px;
+  --button-bg-base: #1f1f1f; /* Darker base button background */
+  --button-bg-primary: #2563eb; /* Blue primary button background */
+  --button-bg-primary-light: #4f83f1; /* Lighter blue primary button background */
+  --button-bg-secondary: #3b82f6; /* Secondary button - lighter shade of primary */
 }
 
 * {
@@ -52,7 +67,7 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: #ffffff;
     /* --foreground: 50 50% 3.9%; */
     --foreground: rgb(31, 35, 40);
     /* ... other light theme variables ... */
@@ -86,10 +101,30 @@ body {
     --dark-menu-hover: rgb(55, 65, 81);
     --dark-menu-active: rgb(31, 41, 55);
     --dark-menu-active-text: rgb(255, 255, 255);
+    --button-bg-base: #1f1f1f; /* Darker base button background */
+    --button-bg-primary: #2563eb; /* Blue primary button background */
+    --button-bg-primary-hover: #1e4bb8; /* Darker blue for hover */
+    --button-bg-primary-light: #4f83f1; /* Lighter blue primary button background */
+    --button-bg-secondary: #3b82f6; /* Secondary button - lighter shade of primary */
+    --button-bg-secondary-hover: #3366cc; /* Darker shade for hover */
   }
 
   .dark {
-    --background: rgb(13, 17, 23);
+    /* TODO RENAME rgb 16 16 16*/
+    --color-base: #343a46;
+    /* --color-darker1: #101010;
+    --color-darker2: #15181c;
+    --color-darker3: #1b1e24;
+    --color-darker4: #272c35;
+    --color-lighter: #424957; */
+    /* React Version */
+    --color-base: #343a46;
+    --color-darker1: #191c21;
+    --color-darker2: #23272f;
+    --color-darker3: #333a45;
+    --color-darker4: #2c3039;
+    --color-darker5: #16181d;
+    --background: rgba(35, 39, 47, 1);
     --foreground: 10 90% 98%;
     /* ... other dark theme variables ... */
     --card: 0 0% 3.9%;
@@ -114,6 +149,11 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --button-bg-base: #1f1f1f; /* Darker base button background */
+    --button-bg-primary: #2563eb; /* Blue primary button background */
+    --button-bg-primary-hover: #1e4bb8; /* Darker blue for hover */
+    --button-bg-secondary: #3b82f6; /* Secondary button - lighter shade of primary */
+    --button-bg-secondary-hover: #3366cc; /* Darker shade for hover */
   }
 }
 

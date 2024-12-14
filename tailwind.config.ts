@@ -60,6 +60,10 @@ const config: Config = {
         tablessHeader: "64px",
         header: "97px",
       },
+      boxShadow: {
+        "custom-light": "0 4px 8px rgba(0, 0, 255, 0.1)", // Light theme shadow
+        "custom-dark": "0 4px 8px rgba(255, 255, 255, 0.1)", // Dark theme shadow
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

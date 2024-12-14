@@ -14,6 +14,8 @@ import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageCont
 import DashboardContainer from "@/components/ui/__layout__/DashboardContainer/DashboardContainer";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import * as Checkbox from "@radix-ui/react-checkbox";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 const initialState: State = {
   message: "",
@@ -122,65 +124,74 @@ export default function LoginPage() {
   }, [setIsLoading]);
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gray-100 dark:bg-transparent pt-32">
-      <div className="bg-white dark:bg-transparent p-8 rounded-lg shadow-md w-96 dark:border dark:border-gray-700">
+    <div className="min-h-screen flex items-start justify-center pt-32 ">
+      <div className=" p-8 rounded-lg  w-96 border border-gray-400 dark:border-[var(--color-darker2)] dark:bg-[var(--color-darker4)]">
         <h1 className="text-2xl font-bold mb-6 text-center dark:text-white">
           Log In
         </h1>
-        <form action={formAction} className="space-y-4">
-          <div>
-            <Label htmlFor="usernameOrEmail">Username or Email</Label>
-            <Input
-              id="usernameOrEmail"
-              name="usernameOrEmail"
-              type="text"
-              required
-              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
-            />
-            {state.errors?.usernameOrEmail && (
-              <p className="text-sm text-red-500">{state.errors.usernameOrEmail}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-blue-500"
-            />
-            {state.errors?.password && (
-              <p className="text-sm text-red-500">{state.errors.password}</p>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="staySignedIn"
-                name="staySignedIn"
-                type="checkbox"
-                value="true"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        <form action={formAction}>
+          <div className="space-y-4 mb-8">
+            <div>
+              <Label htmlFor="usernameOrEmail">Username or Email</Label>
+              <Input
+                id="usernameOrEmail"
+                name="usernameOrEmail"
+                type="text"
+                required
+                className="dark:text-white dark:border-[var(--color-darker4)] dark:focus:border-blue-500"
               />
-              <label
-                htmlFor="staySignedIn"
-                className="ml-2 block text-sm text-gray-900 dark:text-gray-300 text-xs"
-              >
-                Stay signed in
-              </label>
+              {state.errors?.usernameOrEmail && (
+                <p className="text-sm text-red-500">
+                  {state.errors.usernameOrEmail}
+                </p>
+              )}
             </div>
-            <Link
-              href="/recover-password"
-              className="text-sm text-blue-500 hover:underline"
-            >
-              Forgot password?
-            </Link>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="dark:text-white dark:border-[var(--color-darker4)] dark:focus:border-blue-500"
+              />
+              {state.errors?.password && (
+                <p className="text-sm text-red-500">{state.errors.password}</p>
+              )}
+            </div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <Checkbox.Root
+                  id="staySignedIn"
+                  className="h-4 w-4 border border-gray-300 dark:border-[var(--color-darker4)] rounded transition-all duration-300 dark:bg-[var(--color-darker4)]"
+                  onCheckedChange={(checked) => {
+                    // Handle the change event
+                    // Update your state or perform any action based on checked
+                  }}
+                >
+                  <Checkbox.Indicator className="flex items-center justify-center">
+                    <CheckIcon className="text-white" />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label
+                  htmlFor="staySignedIn"
+                  className="ml-2 block text-sm text-gray-900 dark:text-gray-300 "
+                >
+                  Stay signed in
+                </label>
+              </div>
+              <Link
+                href="/recover-password"
+                className="text-sm text-blue-500 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <FormButton
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 box-border"
           >
             Log In
           </FormButton>

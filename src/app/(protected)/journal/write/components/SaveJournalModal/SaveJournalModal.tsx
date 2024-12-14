@@ -9,11 +9,14 @@ import {
   DialogHeader,
   DialogOverlay,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { ICategory } from "@/lib/interfaces";
 import "./SaveJournalModal.css";
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/Input";
+import { cn } from "@/lib/utils";
+import { CategoryDropdown } from "@/components/ui/CategoryDropdown";
 
 interface SaveJournalModalProps {
   isOpen: boolean;
@@ -26,9 +29,12 @@ interface SaveJournalModalProps {
   favorite: boolean;
   onFavoriteChange: (favorite: boolean) => void;
   title: string;
+  onTitleChange?: (value: string) => void;
   journal: string;
   saveStatus: "idle" | "loading" | "success" | "error";
+  setSaveStatus: (status: "idle" | "loading" | "success" | "error") => void;
   saveError: string | null;
+  setSaveError: (error: string | null) => void;
   userId: string;
   onClose: () => void;
   handleCreateCategory: (categoryName: string) => Promise<void>;
@@ -45,14 +51,16 @@ export default function SaveJournalModal({
   favorite,
   onFavoriteChange,
   title,
+  onTitleChange,
   journal,
   saveStatus,
+  setSaveStatus,
   saveError,
+  setSaveError,
   userId,
   onClose,
   handleCreateCategory,
 }: SaveJournalModalProps) {
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
@@ -87,53 +95,72 @@ export default function SaveJournalModal({
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted, current saveStatus:", saveStatus);
+
+    // Set loading state immediately
+    setSaveStatus("loading");
+    setSaveError(null);
+
+    // Create FormData with current values
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("entry", journal);
+    formData.append("categories", selectedCategories.join(","));
+    formData.append("favorite", favorite.toString());
+    formData.append("userId", userId);
+
+    try {
+      // Call onSubmit with the formData
+      await onSubmit(formData);
+      setSaveStatus("success");
+    } catch (error) {
+      console.error("Error submitting journal:", error);
+      setSaveStatus("error");
+      setSaveError(
+        error instanceof Error ? error.message : "Failed to save journal"
+      );
+    }
+  };
+
+  useEffect(() => {
+    console.log("SaveStatus changed:", saveStatus);
+  }, [saveStatus]);
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-white/10 backdrop-blur-sm dark:bg-white/20" />
-        <DialogContent className="sm:max-w-[475px] px-8 bg-white dark:bg-black">
-          <DialogHeader>
-            <DialogTitle className="text-gray-600 dark:text-white">
-              Save
+        <DialogContent className="sm:max-w-[475px] px-10 pb-6 bg-white dark:bg-[var(--color-darker1)]">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-medium">
+              Optional Settings & Save
             </DialogTitle>
           </DialogHeader>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              onSubmit(formData);
-            }}
-          >
-            <div className="grid gap-4 py-4 mb-6">
-              {/* Favorite Toggle */}
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="favorite"
-                    name="favorite"
-                    checked={favorite}
-                    onChange={(e) => onFavoriteChange(e.target.checked)}
-                    className="w-4 h-4 text-blue-500 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="favorite"
-                    className="ml-2 text-xs  text-gray-600 dark:text-white cursor-pointer"
-                  >
-                    Favorite this entry?
-                  </label>
-                </div>
-              </div>
+          <form onSubmit={handleSubmit}>
+            {/* Title Input */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                type="text"
+                id="title"
+                name="title"
+                value={title}
+                onChange={(e) => onTitleChange?.(e.target.value)}
+                placeholder="My Title..."
+                className="w-full"
+              />
+            </div>
 
-              {/* Category Selection */}
-              <div className="space-y-2 mb-2 relative" ref={dropdownRef}>
-                <div
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-between cursor-pointer p-2 border rounded-md dark:border-[var(--dark-menu-border)]"
-                >
-                  <Label className="text-xs text-gray-600 dark:text-[var(--dark-menu-text)]">
-                    Categorize ({selectedCategories.length} selected)
+            {/* Category Selection */}
+            <CategoryDropdown
+              // label={<Label>Categorize</Label>}
+              trigger={
+                <div className="flex items-center justify-between cursor-pointer p-2 py-3 border rounded-md bg-white dark:bg-[var(--color-darker3)] border-gray-400 dark:border-[var(--dark-menu-border)] text-sm">
+                  <Label className="text-sm text-gray-600 dark:text-gray-400">
+                    ({selectedCategories.length} categories selected)
                   </Label>
                   <svg
                     className={`w-4 h-4 transition-transform ${
@@ -151,59 +178,53 @@ export default function SaveJournalModal({
                     />
                   </svg>
                 </div>
+              }
+              categories={categories}
+              selectedCategories={selectedCategories}
+              onCategoriesChange={onCategoriesChange}
+              onCreateCategory={onCreateCategory}
+            />
 
-                {isDropdownOpen && (
-                  <div className="absolute z-10 mt-1 w-full left-0 right-0 border rounded-md bg-white dark:bg-[var(--dark-menu-bg)] dark:border-[var(--dark-menu-border)]">
-                    <div className="max-h-40 overflow-y-auto p-2">
-                      {categories.map((cat) => (
-                        <div
-                          key={cat.category}
-                          className="flex items-center cursor-pointer py-1 hover:bg-gray-50 dark:hover:bg-[var(--dark-menu-hover)]"
-                        >
-                          <input
-                            type="checkbox"
-                            id={`category-${cat.category}`}
-                            checked={selectedCategories.includes(cat.category)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                onCategoriesChange([
-                                  ...selectedCategories,
-                                  cat.category,
-                                ]);
-                              } else {
-                                onCategoriesChange(
-                                  selectedCategories.filter(
-                                    (c) => c !== cat.category
-                                  )
-                                );
-                              }
-                            }}
-                            className="w-4 h-4 text-blue-500 border-gray-300 dark:border-[var(--dark-menu-border)] focus:ring-blue-500"
-                          />
-                          <label
-                            htmlFor={`category-${cat.category}`}
-                            className="ml-2 text-xs text-gray-600 dark:text-[var(--dark-menu-text)] cursor-pointer"
-                          >
-                            {cat.category}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div
-                      onClick={() => {
-                        setIsCreateCategoryOpen(true);
-                        setIsDropdownOpen(false);
-                        onCreateCategory(newCategoryName);
-                      }}
-                      className="flex items-center cursor-pointer py-2 px-2 border-t hover:bg-gray-50 dark:hover:bg-[var(--dark-menu-hover)] dark:border-[var(--dark-menu-border)]"
-                    >
-                      <span className="ml-2 text-xs cursor-pointer text-blue-500 dark:text-blue-400">
-                        + Create new
-                      </span>
-                    </div>
-                  </div>
-                )}
+            {/* Favorite Toggle */}
+            <div className="flex flex-col mb-6 space-y-4 py-4">
+              <Label className="text-xs text-gray-600 dark:text-white">
+                Favorite this entry?
+              </Label>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="favorite-yes"
+                    name="favorite"
+                    value="yes"
+                    checked={favorite}
+                    onChange={() => onFavoriteChange(true)}
+                    className="w-4 h-4 text-blue-500 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                  />
+                  <label
+                    htmlFor="favorite-yes"
+                    className="ml-2 text-xs text-gray-600 dark:text-white cursor-pointer"
+                  >
+                    Yes
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="favorite-no"
+                    name="favorite"
+                    value="no"
+                    checked={!favorite}
+                    onChange={() => onFavoriteChange(false)}
+                    className="w-4 h-4 text-blue-500 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                  />
+                  <label
+                    htmlFor="favorite-no"
+                    className="ml-2 text-xs text-gray-600 dark:text-white cursor-pointer"
+                  >
+                    No
+                  </label>
+                </div>
               </div>
 
               {/* Hidden inputs */}
@@ -211,44 +232,50 @@ export default function SaveJournalModal({
               <input type="hidden" name="entry" value={journal} />
             </div>
 
-            <DialogFooter className="flex justify-start">
-              <div className="w-full flex xs:flex-row gap-3">
-                <Button
-                  type="submit"
-                  disabled={saveStatus === "loading"}
-                  className="relative bg-blue-500 hover:bg-blue-600 text-white cursor-pointer px-6 py-1 dark:bg-blue-600 dark:hover:bg-blue-700 text-xs md:text-sm"
-                >
+            <DialogFooter className="flex justify-start pb-6">
+              <Button
+                type="submit"
+                disabled={saveStatus === "loading"}
+                className={cn(
+                  "w-full text-white cursor-pointer px-6 py-1 text-xs md:text-sm border-box",
+                  saveStatus === "loading"
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                )}
+              >
+                <div className="flex items-center justify-center">
                   {saveStatus === "loading" ? (
-                    <div className="flex items-center justify-center">
+                    <>
                       <Spinner className="mr-2 h-4 w-4" />
                       <span>Saving...</span>
-                    </div>
+                    </>
                   ) : saveStatus === "success" ? (
-                    <div className="flex items-center justify-center">
+                    <>
                       <CheckCircle className="mr-2 h-4 w-4" />
                       <span>Saved!</span>
-                    </div>
+                    </>
                   ) : (
                     "Save"
                   )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-gray-600 cursor-pointer px-6 py-1 text-xs md:text-sm"
-                >
-                  Cancel
-                </Button>
-              </div>
+                </div>
+              </Button>
             </DialogFooter>
 
-            {/* Error message display */}
+            {/* Status messages */}
             {saveStatus === "error" && saveError && (
               <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900 rounded-md">
                 <div className="flex items-center text-red-600 dark:text-red-400 text-xs md:text-sm">
                   <AlertCircle className="h-4 w-4 mr-2" />
                   <span>{saveError}</span>
+                </div>
+              </div>
+            )}
+
+            {saveStatus === "success" && (
+              <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900 rounded-md">
+                <div className="flex items-center text-green-600 dark:text-green-400 text-xs md:text-sm">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  <span>Journal entry saved successfully!</span>
                 </div>
               </div>
             )}

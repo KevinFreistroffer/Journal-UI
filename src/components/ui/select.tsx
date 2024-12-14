@@ -6,11 +6,18 @@ import { Check, ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const Select = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Root>, React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root> & { className?: string }>(
-  ({ className, ...props }, ref) => (
-    <SelectPrimitive.Root ref={ref as React.Ref<any>} className={className} {...props} />
-  )
-);
+const Select = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root> & {
+    className?: string;
+  }
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Root
+    ref={ref as React.Ref<any>}
+    className={className}
+    {...props}
+  />
+));
 Select.displayName = "Select"; // Added display name
 
 const ScrollUpButton = SelectPrimitive.ScrollUpButton;
@@ -34,7 +41,7 @@ const SelectTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <SelectPrimitive.Icon asChild>
+    <SelectPrimitive.Icon asChild className="ml-1">
       <ChevronDown className="h-4 w-4 opacity-50" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>

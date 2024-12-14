@@ -15,6 +15,8 @@ import Image from "next/image";
 import { useNotification } from "@/context/NotificationContext";
 import { IUser } from "@/lib/interfaces";
 import { isValidUser } from "@/lib/utils";
+import { Input } from "@/components/ui/Input";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 const SubmitButton = ({ isFormDirty }: { isFormDirty: boolean }) => {
   const { pending } = useFormStatus();
@@ -179,9 +181,12 @@ const ProfilePage = () => {
   ) => {
     const newFormData = {
       ...formData,
-      [e.target.name]: e.target.type === 'checkbox'
-        ? (formData[e.target.name as keyof typeof formData] === e.target.value ? '' : e.target.value)
-        : e.target.value,
+      [e.target.name]:
+        e.target.type === "checkbox"
+          ? formData[e.target.name as keyof typeof formData] === e.target.value
+            ? ""
+            : e.target.value
+          : e.target.value,
     };
     setFormData(newFormData);
 
@@ -225,7 +230,7 @@ Your original username will be unavailable for 90 days following the rename.
   return (
     <div
       id="profile-page"
-      className={`min-h-[calc(100vh-theme(spacing.header))] bg-background dark:bg-background`}
+      className={`min-h-[calc(100vh-theme(spacing.header))] bg-background dark:bg-[var(--color-darker1)]`}
     >
       <div className="max-w-6xl mx-auto">
         {isLoading ? (
@@ -258,13 +263,13 @@ Your original username will be unavailable for 90 days following the rename.
                       >
                         Name
                       </label>
-                      <input
+                      <Input
                         type="text"
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 dark:bg-[var(--color-darker4)] focus:border-blue-500"
                       />
                     </div>
 
@@ -281,7 +286,7 @@ Your original username will be unavailable for 90 days following the rename.
                         rows={3}
                         value={formData.bio}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 dark:bg-[var(--color-darker4)] focus:border-blue-500"
                       />
                     </div>
 
@@ -292,13 +297,13 @@ Your original username will be unavailable for 90 days following the rename.
                       >
                         Company
                       </label>
-                      <input
+                      <Input
                         type="text"
                         id="company"
                         name="company"
                         value={formData.company}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 dark:bg-[var(--color-darker4)] focus:border-blue-500"
                       />
                     </div>
 
@@ -309,13 +314,13 @@ Your original username will be unavailable for 90 days following the rename.
                       >
                         Location
                       </label>
-                      <input
+                      <Input
                         type="text"
                         id="location"
                         name="location"
                         value={formData.location}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 dark:bg-[var(--color-darker4)] focus:border-blue-500"
                       />
                     </div>
 
@@ -326,13 +331,13 @@ Your original username will be unavailable for 90 days following the rename.
                       >
                         Website
                       </label>
-                      <input
+                      <Input
                         type="text"
                         id="website"
                         name="website"
                         value={formData.website}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 focus:border-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-xs text-gray-900 dark:text-white dark:border-gray-700 dark:bg-[var(--color-darker4)] focus:border-blue-500"
                       />
                     </div>
 
@@ -342,37 +347,40 @@ Your original username will be unavailable for 90 days following the rename.
                       </label>
                       <div className="flex gap-4">
                         <label className="inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            name="sex"
-                            value="male"
+                          <Checkbox
                             checked={formData.sex === "male"}
-                            onChange={handleInputChange}
+                            onCheckedChange={() =>
+                              setFormData({ ...formData, sex: "male" })
+                            }
                             className="form-checkbox text-blue-600 rounded"
                           />
-                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">Male</span>
+                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
+                            Male
+                          </span>
                         </label>
                         <label className="inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            name="sex"
-                            value="female"
+                          <Checkbox
                             checked={formData.sex === "female"}
-                            onChange={handleInputChange}
+                            onCheckedChange={() =>
+                              setFormData({ ...formData, sex: "female" })
+                            }
                             className="form-checkbox text-blue-600 rounded"
                           />
-                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">Female</span>
+                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
+                            Female
+                          </span>
                         </label>
                         <label className="inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            name="sex"
-                            value="other"
+                          <Checkbox
                             checked={formData.sex === "other"}
-                            onChange={handleInputChange}
+                            onCheckedChange={() =>
+                              setFormData({ ...formData, sex: "other" })
+                            }
                             className="form-checkbox text-blue-600 rounded"
                           />
-                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">Other</span>
+                          <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
+                            Other
+                          </span>
                         </label>
                       </div>
                     </div>

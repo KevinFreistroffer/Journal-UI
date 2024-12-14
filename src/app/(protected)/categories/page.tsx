@@ -15,6 +15,7 @@ import { Settings } from "lucide-react";
 import { Edit2 } from "lucide-react"; // Add this import
 import { LayoutGrid, Table } from "lucide-react"; // Add these to your existing lucide-react imports
 import { PageContainer } from "@/components/ui/__layout__/PageContainer/PageContainer";
+import { useTheme } from "next-themes"; // Import the useTheme hook
 
 // Add this utility function at the top of the file
 const getJournalCountForCategory = (category: string, journals: any[]) => {
@@ -37,6 +38,7 @@ const CategoriesPage: React.FC = () => {
   const isMobile = useMediaQuery("(max-width: 639px)"); // sm breakpoint
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const { theme } = useTheme(); // Use the useTheme hook to get the theme
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +149,7 @@ const CategoriesPage: React.FC = () => {
           setIsSidebarOpen={setIsSidebarOpen}
           icon={<Settings size={20} />}
           sections={[]}
+          theme={theme as "dark" | "light"} // Add the theme prop here
         />
       }
       isSidebarOpen={isSidebarOpen}
