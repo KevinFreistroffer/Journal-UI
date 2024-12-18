@@ -51,8 +51,8 @@ const ChangeUsernameModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogOverlay className="dark:bg-neutral-900/50" />
-      <DialogContent className="bg-white dark:bg-[var(--color-darker4)]">
+      <DialogOverlay className="dark:bg-neutral-500/30" />
+      <DialogContent className="bg-white dark:bg-[var(--color-darker6)]">
         <DialogHeader>
           <DialogTitle>Change Username</DialogTitle>
         </DialogHeader>
@@ -65,7 +65,7 @@ const ChangeUsernameModal = ({
             <Input
               type="text"
               id="newUsername"
-              className=""
+              className="bg-transparent shadow-none"
               value={username}
               onChange={onUsernameChange}
             />
@@ -91,7 +91,7 @@ const ChangeUsernameModal = ({
                 setIsConfirming(false);
                 onOpenChange(false);
               }}
-              className="text-xs"
+              className="text-xs text-red-500 dark:bg-[var(--color-darker5)]"
             >
               Cancel
             </Button>

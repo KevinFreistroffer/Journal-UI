@@ -64,9 +64,22 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+
+    // Check if 'rounded' is present in className
+    const hasRoundedClass = className
+      ?.split(" ")
+      .some((cls) => cls.startsWith("rounded"));
+
+    // If no 'rounded' class is found, append 'rounded-md'
+    const finalClassName = hasRoundedClass
+      ? className
+      : `${className} rounded-md`;
+
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className: finalClassName })
+        )}
         ref={ref}
         {...props}
       />

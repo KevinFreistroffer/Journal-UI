@@ -7,9 +7,11 @@ import { useTheme } from "next-themes";
 export default function PublishButton({
   disabled,
   onPublish,
+  className,
 }: {
   disabled: boolean;
   onPublish: () => void;
+  className?: string;
 }) {
   const { pending } = useFormStatus();
   const { theme } = useTheme();
@@ -28,9 +30,9 @@ export default function PublishButton({
       type="button"
       disabled={disabled || pending}
       onClick={onPublish}
-      className={`text-white w-auto md:w-auto text-sm flex items-center justify-center ${bgColor} ${
+      className={`text-white w-full md:w-auto text-sm flex items-center justify-center rounded-sm ${bgColor} ${
         disabled ? "cursor-not-allowed" : ""
-      }`}
+      } ${className}`}
     >
       <span className="mr-2">Publish</span>
       <FileText className="w-4 h-4" />

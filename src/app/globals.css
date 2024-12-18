@@ -124,6 +124,7 @@ body {
     --color-darker3: #333a45;
     --color-darker4: #2c3039;
     --color-darker5: #16181d;
+    --color-darker6: #101010;
     --background: rgba(35, 39, 47, 1);
     --foreground: 10 90% 98%;
     /* ... other dark theme variables ... */

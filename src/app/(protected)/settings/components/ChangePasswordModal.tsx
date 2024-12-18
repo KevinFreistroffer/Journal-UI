@@ -64,7 +64,7 @@ const ChangePasswordModal = ({
         <DialogHeader>
           <DialogTitle className="text-lg">Change Password</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <div className="space-y-1.5">
             <Label htmlFor="currentPassword" className="text-xs">
               Current Password
@@ -72,7 +72,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="currentPassword"
-              className=""
+              className="bg-transparent shadow-none"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
@@ -85,7 +85,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="newPassword"
-              className=""
+              className="bg-transparent shadow-none"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
@@ -98,7 +98,7 @@ const ChangePasswordModal = ({
             <Input
               type="password"
               id="confirmPassword"
-              className=""
+              className="bg-transparent shadow-none"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -108,10 +108,9 @@ const ChangePasswordModal = ({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              className="text-xs"
+              className="text-xs dark:bg-neutral-800 dark:border-neutral-700 dark:bg-[var(--color-darker5)] dark:text-red"
             >
               Cancel
             </Button>

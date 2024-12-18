@@ -353,7 +353,7 @@ export default function Header() {
 
                   <DropdownMenu.Portal>
                     <DropdownMenu.Content
-                      className="left-[-17px] min-w-[200px] bg-white rounded-md shadow-lg z-50 dark:bg-gray-800 dark:border border-gray-300 dark:border-gray-800"
+                      className="left-[-17px] min-w-[200px] bg-white rounded-md shadow-lg z-50 dark:bg-[var(--color-darker5)] dark:border border-gray-300 dark:border-gray-800"
                       sideOffset={5}
                       align="end"
                     >
@@ -362,7 +362,7 @@ export default function Header() {
                       </div>
                       <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-0" />
                       <DropdownMenu.Item
-                        className="outline-none flex items-center px-2 py-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-700"
+                        className="outline-none flex items-center px-2 py-3 text-sm text-gray-700 hover:bg-[var(--color-darker4)] cursor-pointer dark:text-white "
                         onSelect={() => router.push("/settings/profile")}
                       >
                         <UserIcon className="mr-2 h-4 w-4" />
@@ -370,7 +370,7 @@ export default function Header() {
                       </DropdownMenu.Item>
                       <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-700 my-0" />
                       <DropdownMenu.Item
-                        className="outline-none flex items-center px-2 py-3 text-sm text-red-500 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700"
+                        className="outline-none flex items-center px-2 py-3 text-sm text-red-500 hover:bg-[var(--color-darker4)] cursor-pointer dark:hover:bg-gray-700"
                         onSelect={handleLogout}
                       >
                         <LogOut className="mr-2 h-4 w-4" />

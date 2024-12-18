@@ -793,9 +793,9 @@ function WritePage({ children }: { children: React.ReactNode }) {
   };
 
   const handleJournalChange = (value: string) => {
-    const plainText = getPlainTextFromHtml(value);
+    const plainText = getPlainTextFromHtml(value).trim();
 
-    if (plainText.trim() === "") {
+    if (plainText === "") {
       setJournal("");
     } else {
       setJournal(value);
@@ -850,7 +850,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
 
   // Update the autosave effect
   useEffect(() => {
-    if (!autoSaveEnabled || (!journal.trim() && !title.trim())) {
+    if (!autoSaveEnabled || (!getPlainTextFromHtml(journal).trim() && !title.trim())) {
       return;
     }
 
@@ -873,7 +873,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
     }
 
     inactivityTimeoutRef.current = setTimeout(() => {
-      if (journal.trim() || title.trim()) {
+      if (getPlainTextFromHtml(journal).trim() || title.trim()) {
         saveToDatabase();
       }
     }, INACTIVITY_TIMEOUT);
@@ -919,25 +919,6 @@ function WritePage({ children }: { children: React.ReactNode }) {
       quill.setSelection(quill.getLength(), 0);
       setJournal(cleanContent);
     }
-  }, [quill]);
-
-  // Also update the text-change effect
-  useEffect(() => {
-    if (!quill) return;
-
-    const handleChange = () => {
-      const content = quill.root.innerHTML
-        .replace(/\\'/g, "'")
-        .replace(/\\"/g, '"')
-        .replace(/\\\\/g, "\\");
-      setJournal(content);
-    };
-
-    quill.on("text-change", handleChange);
-
-    return () => {
-      quill.off("text-change", handleChange);
-    };
   }, [quill]);
 
   // Add this helper function
@@ -1427,7 +1408,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
       >
         <div
           className={cn(
-            "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0",
+            "flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out md:ml-0 relative",
             isFullscreen
               ? "fixed inset-0 z-50 bg-white dark:bg-[var(--color-darker2)]"
               : ""
@@ -1493,48 +1474,52 @@ function WritePage({ children }: { children: React.ReactNode }) {
                     : "md:max-w-full"
                 )}
               >
-                <div className="flex justify-between items-center mb-4">
-                  <h1 className="text-xl">What&apos;s the story?</h1>
+                <div className="flex justify-between items-center mb-4 flex-col md:flex-row sm:items-center sm:space-x-4 ">
+                  <h1 className="text-3xl font-bold mb-5 md:mb-0">
+                    Write Your Thoughts
+                  </h1>
                   <div className="flex items-center gap-2">
-                    <StorageControls
-                      onSave={() => {
-                        if (
-                          journal.trim() ||
-                          title.trim() ||
-                          categories.length > 0
-                        ) {
-                          saveToStorage({
-                            journal,
-                            title,
-                            categories: selectedCategories,
-                            lastSaved: new Date(),
-                          });
-                        }
-                      }}
-                      autoSaveEnabled={autoSaveEnabled}
-                      onAutoSaveChange={(enabled) => {
-                        setAutoSaveEnabled(enabled);
-                        if (enabled && (journal.trim() || title.trim())) {
-                          saveToStorage({
-                            journal,
-                            title,
-                            categories: selectedCategories,
-                            lastSaved: new Date(),
-                          });
-                        }
-                      }}
-                      lastSavedTime={lastSavedTime}
-                      isAutosaving={isAutosaving}
-                      showLastSaved={showLastSaved}
-                    />
-                    <SettingsModal
-                      open={isSettingsModalOpen}
-                      onOpenChange={setIsSettingsModalOpen}
-                      showLastSaved={showLastSaved}
-                      onShowLastSavedChange={setShowLastSaved}
-                      autoRestore={autoRestore}
-                      onAutoRestoreChange={setAutoRestore}
-                    />
+                    <div className="flex  ">
+                      <StorageControls
+                        onSave={() => {
+                          if (
+                            journal.trim() ||
+                            title.trim() ||
+                            categories.length > 0
+                          ) {
+                            saveToStorage({
+                              journal,
+                              title,
+                              categories: selectedCategories,
+                              lastSaved: new Date(),
+                            });
+                          }
+                        }}
+                        autoSaveEnabled={autoSaveEnabled}
+                        onAutoSaveChange={(enabled) => {
+                          setAutoSaveEnabled(enabled);
+                          if (enabled && (journal.trim() || title.trim())) {
+                            saveToStorage({
+                              journal,
+                              title,
+                              categories: selectedCategories,
+                              lastSaved: new Date(),
+                            });
+                          }
+                        }}
+                        lastSavedTime={lastSavedTime}
+                        isAutosaving={isAutosaving}
+                        showLastSaved={showLastSaved}
+                      />
+                      <SettingsModal
+                        open={isSettingsModalOpen}
+                        onOpenChange={setIsSettingsModalOpen}
+                        showLastSaved={showLastSaved}
+                        onShowLastSavedChange={setShowLastSaved}
+                        autoRestore={autoRestore}
+                        onAutoRestoreChange={setAutoRestore}
+                      />
+                    </div>
                   </div>
                 </div>
                 <form action={handleSubmit} className="space-y-4">
@@ -1589,29 +1574,26 @@ function WritePage({ children }: { children: React.ReactNode }) {
                     >
                       <div ref={quillRef} />
                     </div>
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="flex items-center w-full px-4 sm:px-0">
-                        <div className="grid grid-cols-3 w-full gap-2 sm:flex sm:w-auto">
+                    <div className="flex justify-between items-center mb-6 flex-col md:flex-row sm:items-center sm:space-x-4">
+                      <div className="flex flex-col md:flex-row items-center gap-2 w-full">
+                        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <button
                                 className={cn(
                                   "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
                                   !(journal.trim() || title.trim())
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
-                                    : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                                    ? "text-gray-400 cursor-not-allowed dark:text-gray-500"
+                                    : "text-blue-500 hover:text-blue-600 cursor-pointer dark:text-blue-400 dark:hover:text-blue-500"
                                 )}
                                 disabled={!(journal.trim() || title.trim())}
                               >
-                                <Download className="w-3 h-3 mr-1" />
-                                <span className="truncate sm:text-clip">
-                                  Export
-                                </span>
+                                <Download className="w-5 h-5 mr-1" />
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                               align="start"
-                              className="bg-white p-0 dark:bg-[var(--color-darker3)] dark:border-gray-800"
+                              className="dark:bg-[var(--color-darker3)] dark:border-gray-800"
                             >
                               <DropdownMenuItem
                                 className="p-0 text-xs"
@@ -1621,7 +1603,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                                   type="button"
                                   variant={"ghost"}
                                   onClick={() => handleExport("pdf")}
-                                  className="w-full justify-start hover:bg-gray-100 dark:hover:bg-[var(--color-darker4)] transition-colors duration-200 text-xs dark:text-white rounded-bl-none rounded-br-none bg-transparent dark:bg-transparent"
+                                  className="w-full justify-start hover:bg-transparent dark:hover:bg-transparent transition-colors duration-200 text-xs dark:text-blue-500 rounded-bl-none rounded-br-none bg-transparent dark:bg-transparent"
                                   disabled={!(journal.trim() || title.trim())}
                                 >
                                   Export as PDF
@@ -1635,7 +1617,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                                   type="button"
                                   variant={"ghost"}
                                   onClick={() => handleExport("docx")}
-                                  className="w-full justify-start hover:bg-gray-100 dark:hover:bg-[var(--color-darker4)] transition-colors duration-200 text-xs 0 dark:text-white rounded-tr-none rounded-tl-none bg-transparent dark:bg-transparent"
+                                  className="w-full justify-start hover:bg-transparent dark:hover:bg-transparent transition-colors duration-200 text-xs dark:text-blue-500 rounded-tr-none rounded-tl-none bg-transparent dark:bg-transparent"
                                   disabled={!(journal.trim() || title.trim())}
                                 >
                                   Export as DOCX
@@ -1650,26 +1632,20 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             className={cn(
                               "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
                               !(journal.trim() || title.trim())
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
-                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white "
+                                ? "text-gray-400 cursor-not-allowed dark:text-gray-500"
+                                : "text-blue-500 hover:text-blue-600 cursor-pointer dark:text-blue-400 dark:hover:text-blue-500"
                             )}
                             disabled={!(journal.trim() || title.trim())}
                           >
-                            <Eye className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">
-                              Preview
-                            </span>
+                            <Eye className="w-5 h-5 mr-1" />
                           </button>
 
                           <button
                             type="button"
                             onClick={() => setIsWordStatsModalOpen(true)}
-                            className="text-[11px] text-black/80 flex items-center justify-center hover:text-black bg-gray-100 px-2 py-1 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white  "
+                            className="text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200 text-blue-500 hover:text-blue-600 cursor-pointer dark:text-blue-400 dark:hover:text-blue-500 hover:bg-transparent dark:hover:bg-transparent"
                           >
-                            <ChartNoAxesColumnIncreasing className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">
-                              Word Stats
-                            </span>
+                            <ChartNoAxesColumnIncreasing className="w-5 h-5 mr-1" />
                           </button>
 
                           <button
@@ -1682,26 +1658,23 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             className={cn(
                               "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
                               !journal.trim()
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
+                                ? "text-gray-400 cursor-not-allowed dark:text-gray-500"
                                 : isJournalSpeaking
-                                ? "text-red-500 hover:text-red-600 bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700"
-                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                                ? "text-red-500 hover:text-red-600 cursor-pointer dark:text-red-400 dark:hover:text-red-500"
+                                : "text-blue-500 hover:text-blue-600 cursor-pointer dark:text-blue-400 dark:hover:text-blue-500"
                             )}
                             disabled={!journal.trim()}
                           >
                             {isJournalSpeaking ? (
                               <>
-                                <XCircle className="w-3 h-3 mr-1" />
+                                <XCircle className="w-5 h-5 mr-1" />
                                 <span className="truncate sm:text-clip">
                                   Stop
                                 </span>
                               </>
                             ) : (
                               <>
-                                <Volume2 className="w-3 h-3 mr-1" />
-                                <span className="truncate sm:text-clip">
-                                  Listen
-                                </span>
+                                <Volume2 className="w-5 h-5 mr-1" />
                               </>
                             )}
                           </button>
@@ -1712,38 +1685,23 @@ function WritePage({ children }: { children: React.ReactNode }) {
                             className={cn(
                               "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
                               !(journal.trim() || title.trim())
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800/50 dark:text-gray-500"
-                                : "text-black/80 hover:text-black bg-gray-100 hover:bg-gray-200 cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                                ? "text-gray-400 cursor-not-allowed dark:text-gray-500"
+                                : "text-blue-500 hover:text-blue-600 cursor-pointer dark:text-blue-400 dark:hover:text-blue-500"
                             )}
                             disabled={!(journal.trim() || title.trim())}
                           >
-                            <RefreshCw className="w-3 h-3 mr-1" />
-                            <span className="truncate sm:text-clip">Reset</span>
+                            <RefreshCw className="w-5 h-5 mr-1" />
                           </button>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="space-y-4 flex flex-col">
-                      <div className="flex items-center justify-start space-y-2 md:space-y-0 md:space-x-2">
-                        <div className="flex flex-col md:flex-row md:space-x-2 w-full space-y-2 md:space-y-0">
-                          <PublishButton
-                            disabled={!journal.trim()}
-                            onPublish={() => setShowSaveModal(true)}
-                          />
-                          <Button
+                          <button
                             type="button"
                             disabled={!journal.trim()}
                             onClick={summarizeJournal}
                             className={cn(
-                              "text-white w-auto md:w-auto md:min-w-[10rem] text-sm",
+                              "text-[11px] flex items-center justify-center px-2 py-1 rounded-md transition-colors duration-200",
                               !(journal.trim() || title.trim())
-                                ? theme === "dark"
-                                  ? "cursor-not-allowed bg-purple-900/50 hover:bg-purple-900/50"
-                                  : "cursor-not-allowed bg-purple-300 hover:bg-purple-300"
-                                : theme === "dark"
-                                ? "bg-purple-900 hover:bg-purple-800"
-                                : "bg-purple-500 hover:bg-purple-600"
+                                ? "text-gray-400 cursor-not-allowed dark:text-gray-500"
+                                : "text-blue-500 hover:text-blue-600 cursor-pointer dark:text-blue-400 dark:hover:text-blue-500"
                             )}
                           >
                             <div className="flex items-center justify-center gap-1 mx-auto">
@@ -1755,7 +1713,7 @@ function WritePage({ children }: { children: React.ReactNode }) {
                               <TooltipProvider delayDuration={100}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 text-white/80 hover:text-white" />
+                                    <HelpCircle className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500" />
                                   </TooltipTrigger>
                                   <TooltipContent
                                     side="top"
@@ -1765,14 +1723,18 @@ function WritePage({ children }: { children: React.ReactNode }) {
                                       Summarize your journal entry into fewer
                                       sentences.
                                     </p>
-                                    {/* <p className="text-xs leading-relaxed text-gray-600">
-                                  You can also tweet the summary directly!
-                                </p> */}
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             </div>
-                          </Button>
+                          </button>
+                        </div>
+
+                        <div className="w-full mt-4 md:mt-0 md:ml-auto md:w-auto">
+                          <PublishButton
+                            disabled={!journal || journal.trim().length === 0}
+                            onPublish={() => setShowSaveModal(true)}
+                          />
                         </div>
                       </div>
                     </div>

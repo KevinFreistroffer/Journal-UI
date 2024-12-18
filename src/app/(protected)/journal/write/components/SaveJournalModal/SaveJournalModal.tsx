@@ -131,10 +131,10 @@ export default function SaveJournalModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogOverlay className="bg-white/10 backdrop-blur-sm dark:bg-white/20" />
-        <DialogContent className="sm:max-w-[475px] px-10 pb-6 bg-white dark:bg-[var(--color-darker1)]">
+        <DialogOverlay className="bg-black/10 backdrop-blur-sm" />
+        <DialogContent className="sm:max-w-[475px] px-5 pb-6 bg-white dark:bg-black border border-gray-700">
           <DialogHeader className="mb-4">
-            <DialogTitle className="text-sm uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-medium">
+            <DialogTitle className="text-sm uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-medium border-gray-800">
               Optional Settings & Save
             </DialogTitle>
           </DialogHeader>
@@ -142,15 +142,15 @@ export default function SaveJournalModal({
           <form onSubmit={handleSubmit}>
             {/* Title Input */}
             <div className="space-y-2 mb-4">
-              <Label htmlFor="title">Title</Label>
+              {/* <Label htmlFor="title">Title</Label> */}
               <Input
                 type="text"
                 id="title"
                 name="title"
                 value={title}
                 onChange={(e) => onTitleChange?.(e.target.value)}
-                placeholder="My Title..."
-                className="w-full"
+                placeholder="Title"
+                className="w-full bg-transparent"
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function SaveJournalModal({
             <CategoryDropdown
               // label={<Label>Categorize</Label>}
               trigger={
-                <div className="flex items-center justify-between cursor-pointer p-2 py-3 border rounded-md bg-white dark:bg-[var(--color-darker3)] border-gray-400 dark:border-[var(--dark-menu-border)] text-sm">
+                <div className="flex items-center justify-between cursor-pointer p-2 py-3 border rounded-md bg-transparent dark:bg-transparent border-gray-400 dark:border-[var(--dark-menu-border)] text-sm">
                   <Label className="text-sm text-gray-600 dark:text-gray-400">
                     ({selectedCategories.length} categories selected)
                   </Label>
@@ -199,7 +199,7 @@ export default function SaveJournalModal({
                     value="yes"
                     checked={favorite}
                     onChange={() => onFavoriteChange(true)}
-                    className="w-4 h-4 text-blue-500 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-500 border-transparent dark:border-transparent focus:ring-blue-500"
                   />
                   <label
                     htmlFor="favorite-yes"
@@ -216,7 +216,7 @@ export default function SaveJournalModal({
                     value="no"
                     checked={!favorite}
                     onChange={() => onFavoriteChange(false)}
-                    className="w-4 h-4 text-blue-500 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-500 border-transparent dark:border-transparent focus:ring-blue-500"
                   />
                   <label
                     htmlFor="favorite-no"

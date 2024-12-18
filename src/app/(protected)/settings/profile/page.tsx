@@ -349,9 +349,11 @@ Your original username will be unavailable for 90 days following the rename.
                         <label className="inline-flex items-center">
                           <Checkbox
                             checked={formData.sex === "male"}
-                            onCheckedChange={() =>
-                              setFormData({ ...formData, sex: "male" })
-                            }
+                            onCheckedChange={(checked) => {
+                              const newSex = checked ? "male" : "";
+                              setFormData(prev => ({ ...prev, sex: newSex }));
+                              setIsFormDirty(newSex !== (user?.sex || ""));
+                            }}
                             className="form-checkbox text-blue-600 rounded"
                           />
                           <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
@@ -361,9 +363,13 @@ Your original username will be unavailable for 90 days following the rename.
                         <label className="inline-flex items-center">
                           <Checkbox
                             checked={formData.sex === "female"}
-                            onCheckedChange={() =>
-                              setFormData({ ...formData, sex: "female" })
-                            }
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                const newSex = "female";
+                                setFormData(prev => ({ ...prev, sex: newSex }));
+                                setIsFormDirty(newSex !== (user?.sex || ""));
+                              }
+                            }}
                             className="form-checkbox text-blue-600 rounded"
                           />
                           <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
@@ -372,14 +378,18 @@ Your original username will be unavailable for 90 days following the rename.
                         </label>
                         <label className="inline-flex items-center">
                           <Checkbox
-                            checked={formData.sex === "other"}
-                            onCheckedChange={() =>
-                              setFormData({ ...formData, sex: "other" })
-                            }
+                            checked={formData.sex === "non-binary"}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                const newSex = "non-binary";
+                                setFormData(prev => ({ ...prev, sex: newSex }));
+                                setIsFormDirty(newSex !== (user?.sex || ""));
+                              }
+                            }}
                             className="form-checkbox text-blue-600 rounded"
                           />
                           <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
-                            Other
+                            Non-binary
                           </span>
                         </label>
                       </div>
