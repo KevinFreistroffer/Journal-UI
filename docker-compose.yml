@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - NEXT_PUBLIC_API_URL_PROD=${NEXT_PUBLIC_API_URL_PROD}
       - NEXT_PUBLIC_API_URL_DEV=${NEXT_PUBLIC_API_URL_DEV}
       - SESSION_SECRET=${SESSION_SECRET}
@@ -18,4 +18,7 @@ services:
       - .:/app
       - /app/node_modules
       - /app/.next
-    restart: unless-stopped 
+      - ./src:/app/src
+    restart: unless-stopped
+    stdin_open: true
+    tty: true

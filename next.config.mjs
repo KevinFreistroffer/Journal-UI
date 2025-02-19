@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // Enable webpack HMR in development
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.watchOptions = {
+        poll: 800,
+        aggregateTimeout: 300,
+      }
+    }
+    return config
+  },
   experimental: {
     serverActions: {
       allowedOrigins: ["http://localhost:3000", "http://localhost:3001"],
