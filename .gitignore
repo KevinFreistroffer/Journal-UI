@@ -40,3 +40,7 @@ certificates
 
 cdp_api_key.json
 ./cdp_api_key.json
+
+# Add these lines to your existing .gitignore
+.docker
+docker-compose.override.yml

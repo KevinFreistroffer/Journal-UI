@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL_PROD=${NEXT_PUBLIC_API_URL_PROD}
+      - NEXT_PUBLIC_API_URL_DEV=${NEXT_PUBLIC_API_URL_DEV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - X_CLIENT_ID=${X_CLIENT_ID}
+      - X_REDIRECT_URI=${X_REDIRECT_URI}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped 
