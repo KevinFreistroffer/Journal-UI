@@ -18,6 +18,7 @@ export const login: LoginFunction = async (
   prevState: State,
   formData: FormData
 ) => {
+  console.log(formData)
   if (!Config.API_URL) {
     return {
       errors: {},
@@ -28,14 +29,12 @@ export const login: LoginFunction = async (
       isVerified: false,
     };
   }
-
+  console.log(formData)
   // Validate form data
   const validatedFields = LoginSchema.safeParse({
     usernameOrEmail: formData.get("usernameOrEmail"),
     password: formData.get("password"),
     staySignedIn: formData.has("staySignedIn")
-      ? formData.get("staySignedIn") === "true"
-      : false,
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
@@ -67,28 +66,50 @@ export const login: LoginFunction = async (
       }),
     });
 
-    const data = await response.json();
     if (!response.ok) {
-      const errorData = await response.json();
-
-      let errorMessage = "Failed to login.";
-      if (errorData.description === "User not found.") {
-        errorMessage = "No account found with these credentials.";
-      } else {
-        errorMessage =
-          errorData.message || errorData.description || errorMessage;
-      }
-
-      return {
-        errors: {},
-        redirect: null,
-        user: null,
-        message: errorMessage,
-        success: false,
-        isVerified: false,
-      };
+      return handleErrorResponse(response);
     }
-    const userDataResult = UserSchema.safeParse(data.data);
+
+    return handleSuccessResponse(response);
+  } catch (error) {
+    console.error("login action error", error);
+    return {
+      redirect: null,
+      user: null,
+      errors: prevState.errors ?? {},
+      message: "Server Error: Failed to login.",
+      success: false,
+      isVerified: false,
+    };
+  }
+};
+
+const handleErrorResponse= async (response: Response) => {
+  const responseData = await response.json();
+  console.log("responseData", responseData);
+  // { message: 'error', description: 'Too many requests!', code: 429 }
+
+    let errorMessage = "Failed to login.";
+    if (responseData.description === "User not found.") {
+      errorMessage = "No account found with these credentials.";
+    } else {
+      errorMessage =
+      responseData.message || responseData.description || errorMessage;
+    }
+    return {
+      errors: {},
+      redirect: null,
+      user: null,
+      message: errorMessage,
+      success: false,
+      isVerified: false,
+    };
+}
+
+const handleSuccessResponse = async (response: Response) => {
+  const responseData = await response.json();
+  console.log("responseData", responseData);
+  const userDataResult = UserSchema.safeParse(responseData.data);
     if (!userDataResult.success) {
       console.error(
         "Invalid user data. Did the API have an update to the user schema?",
@@ -157,15 +178,4 @@ export const login: LoginFunction = async (
       success: true,
       isVerified: true,
     };
-  } catch (error) {
-    console.error("login action error", error);
-    return {
-      redirect: null,
-      user: null,
-      errors: prevState.errors ?? {},
-      message: "Server Error: Failed to login.",
-      success: false,
-      isVerified: false,
-    };
-  }
-};
+}

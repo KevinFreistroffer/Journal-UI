@@ -46,6 +46,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [emailResendSuccess, setEmailResendSuccess] = useState(false);
+  const [staySignedInChecked, setStaySignedInChecked] = useState<boolean>(false);
 
   const handleResendVerification = async () => {
     setIsResendingEmail(true);
@@ -165,12 +166,13 @@ export default function LoginPage() {
                   id="staySignedIn"
                   className="h-4 w-4 border border-gray-300 dark:border-[var(--color-darker4)] rounded transition-all duration-300 dark:bg-[var(--color-darker4)]"
                   onCheckedChange={(checked) => {
-                    // Handle the change event
-                    // Update your state or perform any action based on checked
+                    setStaySignedInChecked(!staySignedInChecked)
                   }}
+                  checked={staySignedInChecked}
+                  name="staySignedIn"
                 >
                   <Checkbox.Indicator className="flex items-center justify-center">
-                    <CheckIcon className="text-white" />
+                    {staySignedInChecked && <CheckIcon />}
                   </Checkbox.Indicator>
                 </Checkbox.Root>
                 <label
