@@ -84,98 +84,98 @@ export const login: LoginFunction = async (
   }
 };
 
-const handleErrorResponse= async (response: Response) => {
+const handleErrorResponse = async (response: Response) => {
   const responseData = await response.json();
   console.log("responseData", responseData);
   // { message: 'error', description: 'Too many requests!', code: 429 }
 
-    let errorMessage = "Failed to login.";
-    if (responseData.description === "User not found.") {
-      errorMessage = "No account found with these credentials.";
-    } else {
-      errorMessage =
+  let errorMessage = "Failed to login.";
+  if (responseData.description === "User not found.") {
+    errorMessage = "No account found with these credentials.";
+  } else {
+    errorMessage =
       responseData.message || responseData.description || errorMessage;
-    }
-    return {
-      errors: {},
-      redirect: null,
-      user: null,
-      message: errorMessage,
-      success: false,
-      isVerified: false,
-    };
+  }
+  return {
+    errors: {},
+    redirect: null,
+    user: null,
+    message: errorMessage,
+    success: false,
+    isVerified: false,
+  };
 }
 
 const handleSuccessResponse = async (response: Response) => {
   const responseData = await response.json();
   console.log("responseData", responseData);
   const userDataResult = UserSchema.safeParse(responseData.data);
-    if (!userDataResult.success) {
-      console.error(
-        "Invalid user data. Did the API have an update to the user schema?",
-        userDataResult.error
-      );
-      return {
-        errors: {},
-        redirect: null,
-        message: "Failed to login. Please try again.",
-        success: false,
-        user: null,
-        isVerified: false,
-      };
-    }
-
-    const userData = userDataResult.data as unknown as IUser;
-
-    if (!userData.isVerified) {
-      return {
-        errors: {},
-        redirect: null,
-        user: userData,
-        message:
-          "Login successful, but the account is not verified. Please check your email for verification.",
-        success: true,
-        isVerified: false,
-      };
-    }
-    // Create a session using the user's _id
-    await createClientSession(userData._id, userData.isVerified, userData.role);
-    // Get the Set-Cookie header from the response
-    const setCookieHeader = response.headers.get("Set-Cookie");
-
-    if (setCookieHeader) {
-      const cookieValue = setCookieHeader.split(";")[0];
-      const [cookieName, cookieVal] = cookieValue.split("=");
-
-      const cookie = await cookies();
-      cookie.set(cookieName, cookieVal, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 7,
-      });
-    } else {
-      console.warn("No Set-Cookie header found in the response");
-    }
-
-    // Deleting because already am using createClientSession()
-    // // Set a cookie to simulate user session
-    // cookies().set(
-    //   "user",
-    //   JSON.stringify({ usernameOrEmail: data.usernameOrEmail }),
-    //   {
-    //     httpOnly: true,
-    //     secure: process.env.NODE_ENV === "production",
-    //     maxAge: 60 * 60 * 24 * 7, // 1 week
-    //     path: "/",
-    //   }
-    // );
-
+  if (!userDataResult.success) {
+    console.error(
+      "Invalid user data. Did the API have an update to the user schema?",
+      userDataResult.error
+    );
     return {
       errors: {},
-      message: "Login successful.",
-      redirect: "/dashboard", // remove, not using
-      user: userData, // TODO: Not sure if this is the best way to do this.
-      success: true,
-      isVerified: true,
+      redirect: null,
+      message: "Failed to login. Please try again.",
+      success: false,
+      user: null,
+      isVerified: false,
     };
+  }
+
+  const userData = userDataResult.data as unknown as IUser;
+
+  if (!userData.isVerified) {
+    return {
+      errors: {},
+      redirect: null,
+      user: userData,
+      message:
+        "Login successful, but the account is not verified. Please check your email for verification.",
+      success: true,
+      isVerified: false,
+    };
+  }
+  // Create a session using the user's _id
+  await createClientSession(userData._id, userData.isVerified, userData.role);
+  // Get the Set-Cookie header from the response
+  const setCookieHeader = response.headers.get("Set-Cookie");
+
+  if (setCookieHeader) {
+    const cookieValue = setCookieHeader.split(";")[0];
+    const [cookieName, cookieVal] = cookieValue.split("=");
+
+    const cookie = await cookies();
+    cookie.set(cookieName, cookieVal, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+  } else {
+    console.warn("No Set-Cookie header found in the response");
+  }
+
+  // Deleting because already am using createClientSession()
+  // // Set a cookie to simulate user session
+  // cookies().set(
+  //   "user",
+  //   JSON.stringify({ usernameOrEmail: data.usernameOrEmail }),
+  //   {
+  //     httpOnly: true,
+  //     secure: process.env.NODE_ENV === "production",
+  //     maxAge: 60 * 60 * 24 * 7, // 1 week
+  //     path: "/",
+  //   }
+  // );
+
+  return {
+    errors: {},
+    message: "Login successful.",
+    redirect: "/dashboard", // remove, not using
+    user: userData, // TODO: Not sure if this is the best way to do this.
+    success: true,
+    isVerified: true,
+  };
 }

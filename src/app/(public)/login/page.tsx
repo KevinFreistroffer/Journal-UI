@@ -161,26 +161,27 @@ export default function LoginPage() {
               )}
             </div>
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
+
+                <label
+                  htmlFor="staySignedIn"
+                  className="block text-sm text-gray-900 dark:text-gray-300 "
+                >
+                  Stay signed in?
+                </label>
                 <Checkbox.Root
                   id="staySignedIn"
-                  className="h-4 w-4 border border-gray-300 dark:border-[var(--color-darker4)] rounded transition-all duration-300 dark:bg-[var(--color-darker4)]"
+                  className="h-4 w-4 border border-gray-300 dark:border-[var(--color-darker4)] rounded transition-all duration-300 bg-white"
                   onCheckedChange={(checked) => {
                     setStaySignedInChecked(!staySignedInChecked)
                   }}
                   checked={staySignedInChecked}
                   name="staySignedIn"
                 >
-                  <Checkbox.Indicator className="flex items-center justify-center">
-                    {staySignedInChecked && <CheckIcon />}
+                  <Checkbox.Indicator className="flex items-center justify-center text-black">
+                    {staySignedInChecked && <CheckIcon className="text-black" />}
                   </Checkbox.Indicator>
                 </Checkbox.Root>
-                <label
-                  htmlFor="staySignedIn"
-                  className="ml-2 block text-sm text-gray-900 dark:text-gray-300 "
-                >
-                  Stay signed in
-                </label>
               </div>
               <Link
                 href="/recover-password"
@@ -200,11 +201,10 @@ export default function LoginPage() {
         </form>
         {!state.success && state.message && (
           <p
-            className={`mt-4 text-center ${
-              state.errors && Object.entries(state.errors).length
-                ? "text-red-500"
-                : "text-green-500"
-            }`}
+            className={`mt-4 text-center ${state.errors && Object.entries(state.errors).length
+              ? "text-red-500"
+              : "text-green-500"
+              }`}
           >
             {state.message}
           </p>

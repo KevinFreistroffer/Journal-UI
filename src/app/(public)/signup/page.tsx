@@ -35,6 +35,10 @@ export default function SignUpPage() {
 
   const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+  const handleNavigateToLogin = () => {
+    setShowModal(false);
     router.push("/login");
   };
 
@@ -142,8 +146,14 @@ export default function SignUpPage() {
         </p>
       </div>
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-96">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-96"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-xl font-bold mb-4 dark:text-white">
               Account Created Successfully
             </h2>
@@ -153,7 +163,7 @@ export default function SignUpPage() {
               process.
             </p>
             <Button
-              onClick={handleCloseModal}
+              onClick={handleNavigateToLogin}
               className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             >
               Go to Login

@@ -23,22 +23,25 @@ export const signUp: SignUpFunction = async (
   prevState: State,
   formData: FormData
 ) => {
-  // Validate form data
-  const validatedFields = SignUpSchema.safeParse({
-    username: formData.get("username"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-    confirmPassword: formData.get("confirmPassword"),
-  });
+  // Only validate in non-development environments
+  if (process.env.NODE_ENV !== "development") {
+    // Validate form data
+    const validatedFields = SignUpSchema.safeParse({
+      username: formData.get("username"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      confirmPassword: formData.get("confirmPassword"),
+    });
 
-  // If form validation fails, return errors early. Otherwise, continue.
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: "Failed to create account.",
-      isLoading: false,
-      success: false,
-    };
+    // If form validation fails, return errors early. Otherwise, continue.
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "Failed to create account.",
+        isLoading: false,
+        success: false,
+      };
+    }
   }
 
   if (!process.env.SESSION_SECRET) {
@@ -52,7 +55,9 @@ export const signUp: SignUpFunction = async (
     };
   }
 
-  const { username, email, password } = validatedFields.data;
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
   try {
     // Send data to Node.js server
@@ -66,7 +71,10 @@ export const signUp: SignUpFunction = async (
       body: JSON.stringify({ username, email, password }),
     });
 
+    console.log(response);
+
     const body = await response.json();
+    console.log(body);
 
     if (!response.ok) {
       if (response.status === 409) {
@@ -106,7 +114,7 @@ export const signUp: SignUpFunction = async (
 
     const user = body.data;
 
-    await createClientSession(user._id, user.isVerified);
+    await createClientSession(user._id, user.isVerified, user.token);
 
     return {
       errors: {},
